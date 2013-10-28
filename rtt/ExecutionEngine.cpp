@@ -44,6 +44,7 @@
 #include "os/MutexLock.hpp"
 #include "internal/MWSRQueue.hpp"
 #include "TaskContext.hpp"
+#include "internal/CatchConfig.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
@@ -328,59 +329,61 @@ namespace RTT
         if ( taskc ) {
             // A trigger() in startHook() will be ignored, we trigger in TaskCore after startHook finishes.
             if ( taskc->mTaskState == TaskCore::Running && taskc->mTargetState == TaskCore::Running ) {
-                try {
+                TRY (
                     taskc->prepareUpdateHook();
                     taskc->updateHook();
-                } catch(std::exception const& e) {
+                ) CATCH(std::exception const& e,
                     log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
                     log(Error) << "  " << e.what() << endlog();
                     taskc->exception();
-                } catch(...){
+               ) CATCH_ALL (
                     log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
                     taskc->exception(); // calls stopHook,cleanupHook
-                }
+                )
             }
             // in case start() or updateHook() called error(), this will be called:
             if (  taskc->mTaskState == TaskCore::RunTimeError ) {
-                try {
+                TRY (
                     taskc->errorHook();
-                } catch(std::exception const& e) {
+                ) CATCH(std::exception const& e,
                     log(Error) << "in errorHook(): switching to exception state because of unhandled exception" << endlog();
                     log(Error) << "  " << e.what() << endlog();
                     taskc->exception();
-                } catch(...){
+               ) CATCH_ALL (
                     log(Error) << "in errorHook(): switching to exception state because of unhandled exception" << endlog();
                     taskc->exception(); // calls stopHook,cleanupHook
-                }
+                )
             }
         }
         if ( !this->getActivity() || ! this->getActivity()->isRunning() ) return;
 
         // call all children as well.
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
-            if ( (*it)->mTaskState == TaskCore::Running  && (*it)->mTargetState == TaskCore::Running  )
-                try {
+            if ( (*it)->mTaskState == TaskCore::Running  && (*it)->mTargetState == TaskCore::Running  ){
+                TRY (
                     (*it)->prepareUpdateHook();
                     (*it)->updateHook();
-                } catch(std::exception const& e) {
+                ) CATCH(std::exception const& e,
                     log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
                     log(Error) << "  " << e.what() << endlog();
                     (*it)->exception();
-                } catch(...){
+               ) CATCH_ALL (
                     log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
                     (*it)->exception(); // calls stopHook,cleanupHook
-                }
-            if (  (*it)->mTaskState == TaskCore::RunTimeError )
-                try {
+                )
+            }
+            if (  (*it)->mTaskState == TaskCore::RunTimeError ){
+                TRY (
                     (*it)->errorHook();
-                } catch(std::exception const& e) {
+                ) CATCH(std::exception const& e,
                     log(Error) << "in errorHook(): switching to exception state because of unhandled exception" << endlog();
                     log(Error) << "  " << e.what() << endlog();
                     (*it)->exception();
-                } catch(...){
+               ) CATCH_ALL (
                     log(Error) << "in errorHook(): switching to exception state because of unhandled exception" << endlog();
                     (*it)->exception(); // calls stopHook,cleanupHook
-                }
+                )
+            }
             if ( !this->getActivity() || ! this->getActivity()->isRunning() ) return;
         }
     }

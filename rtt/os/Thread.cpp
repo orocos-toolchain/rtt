@@ -43,6 +43,7 @@
 #include "MutexLock.hpp"
 
 #include "../rtt-config.h"
+#include "../internal/CatchConfig.hpp"
 
 #ifdef OROPKG_OS_THREAD_SCOPE
 # include "../extras/dev/DigitalOutInterface.hpp"
@@ -51,16 +52,6 @@
 #else
 #define SCOPE_ON
 #define SCOPE_OFF
-#endif
-
-#ifndef ORO_EMBEDDED
-#define TRY try
-#define CATCH(a) catch(a)
-#define CATCH_ALL catch(...)
-#else
-#define TRY
-#define CATCH(a) if (false)
-#define CATCH_ALL if (false)
 #endif
 
 namespace RTT {
@@ -106,8 +97,7 @@ namespace RTT {
 
             while (!task->prepareForExit)
             {
-                TRY
-                {
+                TRY(
                     /**
                      * The real task starts here.
                      */
@@ -137,17 +127,17 @@ namespace RTT {
                                 MutexLock lock(task->breaker);
                                 while(task->running && !task->prepareForExit )
                                 {
-                                    try
-                                    {
+                                    TRY
+                                    (
                                         SCOPE_ON
                                         task->step(); // one cycle
                                         SCOPE_OFF
-                                    }
-                                    catch(...)
-                                    {
+                                    )
+                                    CATCH_ALL
+                                    (
                                         SCOPE_OFF
                                         throw;
-                                    }
+                                    )
 
                                     // Check changes in period
                                     if ( cur_period != task->period) {
@@ -179,8 +169,8 @@ namespace RTT {
                                     break; // break while(1) {}
                             }
                             else // non periodic:
-                            try
-                            {
+                            TRY
+                            (
                                 // this mutex guarantees that stop() waits
                                 // until loop() returns.
                                 MutexLock lock(task->breaker);
@@ -190,12 +180,12 @@ namespace RTT {
                                 task->loop();
                                 SCOPE_OFF
                                 task->inloop = false;
-                            }
-                            catch(...) {
+                            ) CATCH_ALL
+                            (
                                 SCOPE_OFF
                                 task->inloop = false;
                                 throw;
-                            }
+                            )
                         }
                     } // while(1)
                     if (overruns == task->maxOverRun)
@@ -209,8 +199,7 @@ namespace RTT {
                         log()   << " See Thread::setMaxOverrun() for info."
                                 << endlog();
                     }
-                } CATCH(std::exception const& e)
-                {
+                )CATCH(std::exception const& e,
                     SCOPE_OFF
                     task->emergencyStop();
                     Logger::In in(rtos_task_get_name(task->getTask()));
@@ -219,15 +208,15 @@ namespace RTT {
                             << endlog();
                     log(Critical) << "exception was: "
                                << e.what() << endlog();
-                } CATCH_ALL
-                {
+                ) CATCH_ALL
+                (
                     SCOPE_OFF
                     task->emergencyStop();
                     Logger::In in(rtos_task_get_name(task->getTask()));
                     log(Critical) << rtos_task_get_name(task->getTask())
                             << " caught an unknown C++ exception, stopped thread !"
                             << endlog();
-                }
+                )
             } // while (!prepareForExit)
 
             return 0;

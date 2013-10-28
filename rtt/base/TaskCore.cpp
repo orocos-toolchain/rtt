@@ -41,6 +41,7 @@
 #include "../ExecutionEngine.hpp"
 #include "ActivityInterface.hpp"
 #include "Logger.hpp"
+#include "internal/CatchConfig.hpp"
 
 namespace RTT {
     using namespace detail;
@@ -102,7 +103,7 @@ namespace RTT {
 
     bool TaskCore::configure() {
         if ( mTaskState == Stopped || mTaskState == PreOperational) {
-            try {
+            TRY(
                 mTargetState = Stopped;
                 if (configureHook() ) {
                     mTaskState = Stopped;
@@ -111,33 +112,33 @@ namespace RTT {
                     mTargetState = mTaskState = PreOperational;
                     return false;
                 }
-            } catch(std::exception const& e) {
+             ) CATCH(std::exception const& e,
                 log(Error) << "in configure(): switching to exception state because of unhandled exception" << endlog();
                 log(Error) << "  " << e.what() << endlog();
                 exception();
-            } catch(...) {
+             ) CATCH_ALL(
                 log(Error) << "in configure(): switching to exception state because of unhandled exception" << endlog();
                 exception();
-            }
+             )
         }
         return false; // no configure when running.
     }
 
     bool TaskCore::cleanup() {
         if ( mTaskState == Stopped ) {
-            try {
+            TRY(
                 mTargetState = PreOperational;
                 cleanupHook();
                 mTaskState = PreOperational;
                 return true;
-            } catch(std::exception const& e) {
+             ) CATCH(std::exception const& e,
                 log(Error) << "in cleanup(): switching to exception state because of unhandled exception" << endlog();
                 log(Error) << "  " << e.what() << endlog();
                 exception();
-            } catch (...) {
+             ) CATCH_ALL (
                 log(Error) << "in cleanup(): switching to exception state because of unhandled exception" << endlog();
                 exception();
-            }
+             )
         }
         return false; // no cleanup when running or not configured.
     }
@@ -159,7 +160,7 @@ namespace RTT {
         //log(Error) <<"Exception happend in TaskCore."<<endlog();
         TaskState copy = mTaskState;
         mTargetState = mTaskState = Exception;
-        try {
+        TRY (
             if ( copy >= Running ) {
                 stopHook();
             }
@@ -167,14 +168,13 @@ namespace RTT {
                 cleanupHook();
             }
             exceptionHook();
-        } catch(std::exception const& e) {
+        ) CATCH(std::exception const& e,
             log(RTT::Error) << "stopHook(), cleanupHook() and/or exceptionHook() raised " << e.what() << ", going into Fatal" << endlog();
             fatal();
-        }
-        catch (...) {
+        ) CATCH_ALL (
             log(Error) << "stopHook(), cleanupHook() and/or exceptionHook() raised an exception, going into Fatal" << endlog();
             fatal();
-        }
+        )
     }
 
     bool TaskCore::recover() {
@@ -191,7 +191,7 @@ namespace RTT {
 
     bool TaskCore::start() {
         if ( mTaskState == Stopped ) {
-            try {
+            TRY (
                 mTargetState = Running;
                 if ( startHook() ) {
                     mTaskState = Running;
@@ -199,14 +199,14 @@ namespace RTT {
                     return true;
                 }
                 mTargetState = Stopped;
-            } catch(std::exception const& e) {
+            ) CATCH(std::exception const& e,
                 log(Error) << "in start(): switching to exception state because of unhandled exception" << endlog();
                 log(Error) << "  " << e.what() << endlog();
                 exception();
-            } catch (...) {
+            ) CATCH_ALL (
                 log(Error) << "in start(): switching to exception state because of unhandled exception" << endlog();
                 exception();
-            }
+            )
         }
         return false;
     }
@@ -214,7 +214,7 @@ namespace RTT {
     bool TaskCore::stop() {
         TaskState orig = mTaskState;
         if ( mTaskState >= Running ) {
-            try {
+            TRY(
                 mTargetState = Stopped;
                 if ( engine()->stopTask(this) ) {
                     stopHook();
@@ -224,14 +224,14 @@ namespace RTT {
                     mTaskState = orig;
                     mTargetState = orig;
                 }
-            } catch(std::exception const& e) {
+            ) CATCH(std::exception const& e,
                 log(Error) << "in stop(): switching to exception state because of unhandled exception" << endlog();
                 log(Error) << "  " << e.what() << endlog();
                 exception();
-            } catch (...) {
+            ) CATCH_ALL (
                 log(Error) << "in stop(): switching to exception state because of unhandled exception" << endlog();
                 exception();
-            }
+            )
         }
         return false;
     }
