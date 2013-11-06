@@ -768,6 +768,11 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PC_NAME}.pc DESTINATION lib/pkgconfig )
     #install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml DESTINATION  lib/orocos${OROCOS_SUFFIX}/level0 )
 
+    # If the directory ${PROJECT_SOURCE_DIR}/include/orocos exists, always export it in rosbuild and catkin builds
+    if(EXISTS "${PROJECT_SOURCE_DIR}/include/orocos")
+      list(APPEND ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include/orocos")
+    endif()
+
     # Generate additional pkg-config files for other build toolchains
     if (ORO_USE_ROSBUILD)
       message(STATUS "[UseOrocos] Generating pkg-config file for rosbuild package.")
@@ -776,6 +781,10 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       set(PC_PREFIX ${PROJECT_SOURCE_DIR})
       #set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}") # Without package name suffix !
       set(PC_EXTRA_INCLUDE_DIRS "-I\${prefix}/..")
+      foreach(include_dir ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS})
+        set(PC_EXTRA_INCLUDE_DIRS "${PC_EXTRA_INCLUDE_DIRS} -I${include_dir}")
+      endforeach()
+        
       set(PC_COMMENT "# This pkg-config file is for use in a rosbuild source tree\n"
         "# Rationale:\n"
         "# - The prefix is equal to the package directory.\n"
@@ -792,6 +801,10 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       # For catkin workspaces we also install a pkg-config file in the develspace
       set(PC_COMMENT "# This pkg-config file is for use in a Catkin devel space")
       set(PC_PREFIX ${CATKIN_DEVEL_PREFIX})
+      set(PC_EXTRA_INCLUDE_DIRS "")
+      foreach(include_dir ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS})
+        set(PC_EXTRA_INCLUDE_DIRS "${PC_EXTRA_INCLUDE_DIRS} -I${include_dir}")
+      endforeach()
       #set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}")
 
       string(CONFIGURE "${PC_CONTENTS}" CATKIN_PC_CONTENTS @ONLY)
@@ -802,11 +815,11 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
     # Store a list of exported targets and include directories on the cache so that other packages within the same workspace can link to them.
     if(${PROJECT_NAME}_EXPORTED_TARGETS)
       message(STATUS "[UseOrocos] Exporting targets ${${PROJECT_NAME}_EXPORTED_TARGETS}.")
-      set(${PC_NAME}_EXPORTED_OROCOS_TARGETS ${${PROJECT_NAME}_EXPORTED_TARGETS} CACHE STRING "Targets exported by package ${PC_NAME}")
+      set(${PC_NAME}_EXPORTED_OROCOS_TARGETS ${${PROJECT_NAME}_EXPORTED_TARGETS} CACHE INTERNAL "Targets exported by package ${PC_NAME}")
     endif()
     if(${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS)
       message(STATUS "[UseOrocos] Exporting include directories ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS}.")
-      set(${PC_NAME}_EXPORTED_OROCOS_INCLUDE_DIRS ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS} CACHE STRING "Include directories exported by package ${PC_NAME}")
+      set(${PC_NAME}_EXPORTED_OROCOS_INCLUDE_DIRS ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS} CACHE INTERNAL "Include directories exported by package ${PC_NAME}")
     endif()
 
     # Also set the uninstall target:
