@@ -55,6 +55,8 @@
 #include <cstdlib>
 #include <dlfcn.h>
 
+#include <vector>
+#include <set>
 
 using namespace RTT;
 using namespace RTT::detail;
@@ -91,6 +93,15 @@ static const std::string default_delimiter(";");
 static const std::string delimiters(":;");
 static const std::string default_delimiter(":");
 # endif
+
+// define RTT_UNUSED macro
+#ifndef RTT_UNUSED
+  #ifdef __GNUC__
+    #define RTT_UNUSED __attribute__((unused))
+  #else
+    #define RTT_UNUSED
+  #endif
+#endif
 
 /** Determine whether a file extension is actually part of a library version
 
@@ -177,55 +188,6 @@ RTT_API bool isLoadableLibrary(const path& filename)
     return isLoadable;
 }
 
-namespace RTT { namespace plugin {
-    extern char const* default_plugin_path;
-}}
-
-namespace {
-    /**
-     * Reads the RTT_COMPONENT_PATH and inits the PluginLoader.
-     */
-    int loadPlugins()
-    {
-        std::string default_plugin_path = ::default_plugin_path;
-
-        char* paths = getenv("RTT_COMPONENT_PATH");
-        string plugin_paths;
-        if (paths) {
-            plugin_paths = paths;
-            // prepend the default search path.
-            if ( !default_plugin_path.empty() )
-                plugin_paths = plugin_paths + default_delimiter + default_plugin_path;
-            log(Info) <<"RTT_COMPONENT_PATH was set to: " << paths << " . Searching in: "<< plugin_paths<< endlog();
-        } else {
-            plugin_paths = default_plugin_path;
-            log(Info) <<"No RTT_COMPONENT_PATH set. Using default: " << plugin_paths <<endlog();
-        }
-        // we set the plugin path such that we can search for sub-directories/projects lateron
-        PluginLoader::Instance()->setPluginPath(plugin_paths);
-        // we load the plugins/typekits which are in each plugin path directory (but not subdirectories).
-        try {
-            PluginLoader::Instance()->loadPlugin("rtt", plugin_paths);
-            PluginLoader::Instance()->loadTypekit("rtt", plugin_paths);
-        } catch(std::exception& e) {
-            log(Warning) << e.what() <<endlog();
-            log(Warning) << "Corrupted files found in '" << plugin_paths << "'. Fix or remove these plugins."<<endlog();
-        }
-        return 0;
-    }
-
-    os::InitFunction plugin_loader( &loadPlugins );
-
-    void unloadPlugins()
-    {
-        PluginLoader::Release();
-    }
-
-    os::CleanupFunction plugin_unloader( &unloadPlugins );
-}
-
-static boost::shared_ptr<PluginLoader> instance2;
-
 namespace {
 
 static vector<string> splitPaths(string const& str)
@@ -252,6 +214,33 @@ static vector<string> splitPaths(string const& str)
     return paths;
 }
 
+static void removeDuplicates(string& path_list)
+{
+    vector<string> paths;
+    set<string> seen;
+    string result;
+
+    // split path_lists
+    paths = splitPaths( path_list );
+
+    // iterate over paths and append to result
+    for(vector<string>::const_iterator it = paths.begin(); it != paths.end(); ++it)
+    {
+        if (seen.count(*it))
+            continue;
+        else
+            seen.insert(*it);
+
+        result = result + *it + default_delimiter;
+    }
+
+    // remove trailing delimiter
+    if (result.size() >= default_delimiter.size() && result.substr(result.size() - default_delimiter.size()) == default_delimiter)
+        result = result.substr(0, result.size() - default_delimiter.size());
+
+    path_list.swap(result);
+}
+
 /**
  * Strips the 'lib' prefix and '.so'/'.dll'/... suffix (ie SO_EXT) from a filename.
  * Do not provide paths, only filenames, for example: "libplugin.so"
@@ -269,7 +258,7 @@ static string makeShortFilename(string const& str) {
 
 }
 
-static bool hasEnding(string const &fullString, string const &ending)
+static RTT_UNUSED bool hasEnding(string const &fullString, string const &ending)
 {
     if (fullString.length() > ending.length()) {
         return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
@@ -277,6 +266,57 @@ static bool hasEnding(string const &fullString, string const &ending)
         return false;
     }
 }
+
+namespace RTT { namespace plugin {
+    extern char const* default_plugin_path;
+}}
+
+namespace {
+    /**
+     * Reads the RTT_COMPONENT_PATH and inits the PluginLoader.
+     */
+    int loadPlugins()
+    {
+        std::string default_plugin_path = ::default_plugin_path;
+
+        char* paths = getenv("RTT_COMPONENT_PATH");
+        string plugin_paths;
+        if (paths) {
+            plugin_paths = paths;
+            // prepend the default search path.
+            if ( !default_plugin_path.empty() )
+                plugin_paths = plugin_paths + default_delimiter + default_plugin_path;
+            removeDuplicates( plugin_paths );
+            log(Info) <<"RTT_COMPONENT_PATH was set to: " << paths << " . Searching in: "<< plugin_paths<< endlog();
+        } else {
+            plugin_paths = default_plugin_path;
+            removeDuplicates( plugin_paths );
+            log(Info) <<"No RTT_COMPONENT_PATH set. Using default: " << plugin_paths <<endlog();
+        }
+        // we set the plugin path such that we can search for sub-directories/projects lateron
+        PluginLoader::Instance()->setPluginPath(plugin_paths);
+        // we load the plugins/typekits which are in each plugin path directory (but not subdirectories).
+        try {
+            PluginLoader::Instance()->loadPlugin("rtt", plugin_paths);
+            PluginLoader::Instance()->loadTypekit("rtt", plugin_paths);
+        } catch(std::exception& e) {
+            log(Warning) << e.what() <<endlog();
+            log(Warning) << "Corrupted files found in '" << plugin_paths << "'. Fix or remove these plugins."<<endlog();
+        }
+        return 0;
+    }
+
+    os::InitFunction plugin_loader( &loadPlugins );
+
+    void unloadPlugins()
+    {
+        PluginLoader::Release();
+    }
+
+    os::CleanupFunction plugin_unloader( &unloadPlugins );
+}
+
+static boost::shared_ptr<PluginLoader> instance2;
 
 PluginLoader::PluginLoader() { log(Debug) <<"PluginLoader Created" <<endlog(); }
 PluginLoader::~PluginLoader(){ log(Debug) <<"PluginLoader Destroyed" <<endlog(); }
