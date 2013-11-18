@@ -186,6 +186,10 @@ macro( orocos_find_package PACKAGE )
       list(APPEND MODULE_NAMES ${PACKAGE})
     endif()
 
+    # Disable caching in FindPkgConfig.cmake as otherwise changes in
+    # Orocos .pc files are not detected before the cmake cache is deleted
+    set(${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND FALSE)
+
     pkg_search_module(${PACKAGE}_COMP_${OROCOS_TARGET} ${MODULE_NAMES})
     if (${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND)
       # Use find_libraries to find each library:
