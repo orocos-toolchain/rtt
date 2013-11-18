@@ -114,9 +114,19 @@ if(OROCOS-RTT_FOUND)
     # Infer package name from directory name.
     get_filename_component(ORO_ROSBUILD_PACKAGE_NAME ${PROJECT_SOURCE_DIR} NAME)
 
+    # Modify default rosbuild output paths if using Eclipse
+    if (CMAKE_EXTRA_GENERATOR STREQUAL "Eclipse CDT4")
+      message(WARNING "[UseOrocos] Eclipse Generator detected. I'm setting EXECUTABLE_OUTPUT_PATH and LIBRARY_OUTPUT_PATH")
+      message(WARNING "[UseOrocos] This will not affect the real output paths of libraries and executables!")
+      #set the default path for built executables to the "bin" directory
+      set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+      #set the default path for built libraries to the "lib" directory
+      set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+    endif()
+
     # Set output directories for rosbuild in-source builds,
     # but respect deprecated LIBRARY_OUTPUT_PATH, EXECUTABLE_OUTPUT_PATH and ARCHIVE_OUTPUT_PATH variables
-    # as they are commonly used in rosbuild CMakeLists.txt files
+    # as they are set by rosbuild_init() and commonly used in rosbuild CMakeLists.txt files
     if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
       if(DEFINED LIBRARY_OUTPUT_PATH)
         set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_PATH})
