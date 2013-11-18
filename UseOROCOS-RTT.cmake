@@ -111,28 +111,65 @@ if(OROCOS-RTT_FOUND)
   endif()
 
   if (ORO_USE_ROSBUILD)
-    # Infer package name from directory name.                                                                                                                                                                                                  
+    # Infer package name from directory name.
     get_filename_component(ORO_ROSBUILD_PACKAGE_NAME ${PROJECT_SOURCE_DIR} NAME)
 
     # Modify default rosbuild output paths if using Eclipse
     if (CMAKE_EXTRA_GENERATOR STREQUAL "Eclipse CDT4")
-      message("Eclipse Generator detected. I'm setting EXECUTABLE_OUTPUT_PATH and LIBRARY_OUTPUT_PATH")
+      message(WARNING "[UseOrocos] Eclipse Generator detected. I'm setting EXECUTABLE_OUTPUT_PATH and LIBRARY_OUTPUT_PATH")
+      message(WARNING "[UseOrocos] This will not affect the real output paths of libraries and executables!")
       #set the default path for built executables to the "bin" directory
       set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
       #set the default path for built libraries to the "lib" directory
       set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
-    endif()	
+    endif()
+
+    # Set output directories for rosbuild in-source builds,
+    # but respect deprecated LIBRARY_OUTPUT_PATH, EXECUTABLE_OUTPUT_PATH and ARCHIVE_OUTPUT_PATH variables
+    # as they are set by rosbuild_init() and commonly used in rosbuild CMakeLists.txt files
+    if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+      if(DEFINED LIBRARY_OUTPUT_PATH)
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_PATH})
+      else()
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+      endif()
+    endif()
+    if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+      if(DEFINED EXECUTABLE_OUTPUT_PATH)
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
+      else()
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+      endif()
+    endif()
+    if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+      if(DEFINED ARCHIVE_OUTPUT_PATH)
+        set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${ARCHIVE_OUTPUT_PATH})
+      else()
+        set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+      endif()
+    endif()
+    set(ORO_COMPONENT_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
+    set(ORO_TYPEKIT_OUTPUT_DIRECTORY   ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types)
+    set(ORO_PLUGIN_OUTPUT_DIRECTORY    ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins)
 
     # We only need the direct dependencies, the rest is resolved by the .pc
     # files.
     rosbuild_invoke_rospack(${ORO_ROSBUILD_PACKAGE_NAME} pkg DEPS depends1)
     string(REGEX REPLACE "\n" ";" pkg_DEPS2 "${pkg_DEPS}" )
     foreach(ROSDEP ${pkg_DEPS2})
-      orocos_use_package( ${ROSDEP} ) 
-    endforeach(ROSDEP ${pkg_DEPS2}) 
+      orocos_use_package( ${ROSDEP} )
+    endforeach(ROSDEP ${pkg_DEPS2})
+
   elseif(ORO_USE_CATKIN)
     # Disable auto-linking
     set(OROCOS_NO_AUTO_LINKING True)
+
+    # Set output directories for catkin
+    catkin_destinations()
+    set(ORO_COMPONENT_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
+    set(ORO_TYPEKIT_OUTPUT_DIRECTORY   ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types)
+    set(ORO_PLUGIN_OUTPUT_DIRECTORY    ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins)
+
     # Make sure a devel prefix's pkgconfig path is available if it hasn't already been source'd
     if (NOT $ENV{PKG_CONFIG_PATH} MATCHES "${CATKIN_DEVEL_PREFIX}/lib/pkgconfig")
       set(ENV{PKG_CONFIG_PATH} "${CATKIN_DEVEL_PREFIX}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
@@ -140,6 +177,7 @@ if(OROCOS-RTT_FOUND)
     if("$ENV{VERBOSE}")
       message(STATUS "[UseOrocos] PKG_CONFIG_PATH: $ENV{PKG_CONFIG_PATH}")
     endif()
+
     # Get catkin build_depend dependencies
     orocos_get_catkin_deps( DEPS )
     #message("orocos_get_manifest_deps are: ${DEPS}")
@@ -147,7 +185,19 @@ if(OROCOS-RTT_FOUND)
       # We use OROCOS_ONLY so that we only find .pc files with the orocos target on them
       orocos_use_package( ${DEP} OROCOS_ONLY) 
     endforeach(DEP ${DEPS}) 
+
   else()
+    # Set output directories relative to CMAKE_LIBRARY_OUTPUT_DIRECTORY or built in the current binary directory (cmake default).
+    if(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+      set(ORO_COMPONENT_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
+      set(ORO_TYPEKIT_OUTPUT_DIRECTORY   ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types)
+      set(ORO_PLUGIN_OUTPUT_DIRECTORY    ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins)
+    else()
+      set(ORO_COMPONENT_OUTPUT_DIRECTORY orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
+      set(ORO_TYPEKIT_OUTPUT_DIRECTORY   orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types)
+      set(ORO_PLUGIN_OUTPUT_DIRECTORY    orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins)
+    endif()
+
     # Fall back to manually processing the Autoproj manifest.xml file.
     orocos_get_manifest_deps( DEPS )
     #message("orocos_get_manifest_deps are: ${DEPS}")
@@ -156,19 +206,16 @@ if(OROCOS-RTT_FOUND)
     endforeach(DEP ${DEPS}) 
   endif()
 
+  # Output the library and runtime destinations
+  if("$ENV{VERBOSE}")
+    message(STATUS "[UseOrocos] Building library targets in ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+    message(STATUS "[UseOrocos] Building runtime targets in ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+  endif()
+
   # Necessary for correctly building mixed libraries on win32.
   if(OROCOS_TARGET STREQUAL "win32")
     set(CMAKE_DEBUG_POSTFIX "d")
   endif(OROCOS_TARGET STREQUAL "win32")
-
-  # Allow clients to set the standard cmake library output directory (this is useful for uninstalled develeopment)
-  if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-    if(LIBRARY_OUTPUT_PATH)
-      set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_PATH})
-    else()
-      set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-    endif()
-  endif()
 
   # Components should add themselves by calling 'OROCOS_COMPONENT' 
   # instead of 'ADD_LIBRARY' in CMakeLists.txt.
@@ -217,18 +264,15 @@ if(OROCOS-RTT_FOUND)
     if (ORO_USE_ROSBUILD)
       MESSAGE( STATUS "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME} in rosbuild source tree." )
       rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
-      SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
     else()
       MESSAGE( STATUS "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
       ADD_LIBRARY( ${COMPONENT_NAME} SHARED ${SOURCES} )
-      SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
     endif()
 
     # Prepare component lib for out-of-the-ordinary lib directories
     SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
       OUTPUT_NAME ${COMPONENT_LIB_NAME}
+      LIBRARY_OUTPUT_DIRECTORY ${ORO_COMPONENT_OUTPUT_DIRECTORY}
       DEFINE_SYMBOL "RTT_COMPONENT"
       ${LIB_COMPONENT_VERSION}
       INSTALL_RPATH_USE_LINK_PATH 1
@@ -494,15 +538,12 @@ macro( orocos_library LIB_TARGET_NAME )
     MESSAGE( STATUS "[UseOrocos] Building typekit library ${LIB_TARGET_NAME}" )
     if (ORO_USE_ROSBUILD)
       rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
-      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types)
     else()
       ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
-      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types)
     endif()
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
       OUTPUT_NAME ${LIB_NAME}
+      LIBRARY_OUTPUT_DIRECTORY ${ORO_TYPEKIT_OUTPUT_DIRECTORY}
       ${LIB_COMPONENT_VERSION}
       INSTALL_RPATH_USE_LINK_PATH 1
       INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
@@ -573,17 +614,14 @@ macro( orocos_library LIB_TARGET_NAME )
     if (ORO_USE_ROSBUILD)
       MESSAGE( STATUS "[UseOrocos] Building plugin library ${LIB_TARGET_NAME} in rosbuild source tree." )
       rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
-      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins)
     else()
       MESSAGE( STATUS "[UseOrocos] Building plugin library ${LIB_TARGET_NAME}" )
       ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
-      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins)
     endif()
 
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
       OUTPUT_NAME ${LIB_NAME}
+      LIBRARY_OUTPUT_DIRECTORY ${ORO_PLUGIN_OUTPUT_DIRECTORY}
       ${LIB_COMPONENT_VERSION}
       INSTALL_RPATH_USE_LINK_PATH 1
       INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
