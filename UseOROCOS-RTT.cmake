@@ -664,15 +664,19 @@ macro( orocos_library LIB_TARGET_NAME )
   endmacro( orocos_service )
 
   #
-  # Components supply header files which should be included when 
+  # Components supply header files and directories which should be included when
   # using these components. Each component should use this macro
   # to install its header-files. They are installed by default
   # in include/orocos/${PROJECT_NAME}
   #
-  # Usage example: orocos_install_header( hardware.hpp control.hpp )
+  # Usage example: orocos_install_header(
+  #                  FILES hardware.hpp control.hpp
+  #                  DIRECTORY include/${PROJECT_NAME}
+  #                )
+  #
   macro( orocos_install_headers )
     ORO_PARSE_ARGUMENTS(ORO_INSTALL_HEADER
-      "INSTALL"
+      "INSTALL;FILES;DIRECTORY"
       ""
       ${ARGN}
       )
@@ -682,7 +686,17 @@ macro( orocos_library LIB_TARGET_NAME )
     else()
       set(AC_INSTALL_DIR include/orocos/${PROJECT_NAME} )
     endif()
+
     install( FILES ${SOURCES} DESTINATION ${AC_INSTALL_DIR} )
+
+    if( ORO_INSTALL_HEADER_FILES )
+      install( FILES ${ORO_INSTALL_HEADER_FILES} DESTINATION ${AC_INSTALL_DIR} )
+    endif()
+
+    if( ORO_INSTALL_HEADER_DIRECTORY )
+      install( DIRECTORY ${ORO_INSTALL_HEADER_DIRECTORY} DESTINATION ${AC_INSTALL_DIR} )
+    endif()
+
   endmacro( orocos_install_headers )
 
   #
