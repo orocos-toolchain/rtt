@@ -164,6 +164,11 @@ if(OROCOS-RTT_FOUND)
     # Disable auto-linking
     set(OROCOS_NO_AUTO_LINKING True)
 
+    # Parse package.xml file
+    if(NOT _CATKIN_CURRENT_PACKAGE)
+      catkin_package_xml()
+    endif()
+
     # Set output directories for catkin
     catkin_destinations()
     set(ORO_COMPONENT_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
@@ -751,7 +756,10 @@ macro( orocos_library LIB_TARGET_NAME )
       if (COMPONENT_VERSION)
         set( ORO_CREATE_PC_VERSION ${COMPONENT_VERSION})
         message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} from COMPONENT_VERSION.")
-      else (COMPONENT_VERSION)
+      elseif (${PROJECT_NAME}_VERSION)
+        set( ORO_CREATE_PC_VERSION ${${PROJECT_NAME}_VERSION})
+        message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} from ${PROJECT_NAME}_VERSION (package.xml).")
+      else ()
         set( ORO_CREATE_PC_VERSION "1.0")
         message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} (default version).")
       endif (COMPONENT_VERSION)
@@ -846,7 +854,9 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       #set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}") # Without package name suffix !
       set(PC_EXTRA_INCLUDE_DIRS "-I\${prefix}/..")
       foreach(include_dir ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS})
-        set(PC_EXTRA_INCLUDE_DIRS "${PC_EXTRA_INCLUDE_DIRS} -I${include_dir}")
+        if(NOT include_dir STREQUAL "${PC_PREFIX}/include/orocos")
+          set(PC_EXTRA_INCLUDE_DIRS "${PC_EXTRA_INCLUDE_DIRS} -I${include_dir}")
+        endif()
       endforeach()
         
       set(PC_COMMENT "# This pkg-config file is for use in a rosbuild source tree\n"
@@ -867,7 +877,9 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       set(PC_PREFIX ${CATKIN_DEVEL_PREFIX})
       set(PC_EXTRA_INCLUDE_DIRS "")
       foreach(include_dir ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS})
-        set(PC_EXTRA_INCLUDE_DIRS "${PC_EXTRA_INCLUDE_DIRS} -I${include_dir}")
+        if(NOT include_dir STREQUAL "${PC_PREFIX}/include/orocos")
+          set(PC_EXTRA_INCLUDE_DIRS "${PC_EXTRA_INCLUDE_DIRS} -I${include_dir}")
+        endif()
       endforeach()
       #set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}")
 
