@@ -775,7 +775,7 @@ macro( orocos_library LIB_TARGET_NAME )
 
     # Create dependency list
     foreach( DEP ${ORO_CREATE_PC_DEPENDS_TARGETS})
-      list(APPEND ${ORO_CREATE_PC_DEPENDS} ${DEP}-${OROCOS_TARGET})
+      list(APPEND ORO_CREATE_PC_DEPENDS ${DEP}-${OROCOS_TARGET})
     endforeach()
     string(REPLACE ";" " " ORO_CREATE_PC_DEPENDS "${ORO_CREATE_PC_DEPENDS}")
 
