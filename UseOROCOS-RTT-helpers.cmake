@@ -120,7 +120,7 @@ function( orocos_get_catkin_deps RESULT)
       string(REPLACE "\n" ";" DEPS ${DEPS})
     endif()
 
-    if(ENV{VERBOSE})
+    if("$ENV{VERBOSE}")
       message(STATUS "[UseOrocos] Deps from Catkin package ${_PACKAGE_XML_PATH} are: '${DEPS}'")
     endif()
     set(${RESULT} ${DEPS} PARENT_SCOPE)
@@ -186,10 +186,14 @@ macro( orocos_find_package PACKAGE )
       list(APPEND MODULE_NAMES ${PACKAGE})
     endif()
 
+    # Disable caching in FindPkgConfig.cmake as otherwise changes in
+    # Orocos .pc files are not detected before the cmake cache is deleted
+    set(${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND FALSE)
+
     pkg_search_module(${PACKAGE}_COMP_${OROCOS_TARGET} ${MODULE_NAMES})
     if (${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND)
       # Use find_libraries to find each library:
-      unset(${PACKAGE}_LIBRARIES CACHE)
+      unset(${PACKAGE}_LIBRARIES)
       foreach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
         # Two options: COMP_LIB is an absolute path-to-lib (must start with ':') or just a libname:
         if ( ${COMP_LIB} MATCHES "^:(.+)" OR EXISTS ${COMP_LIB})
@@ -212,7 +216,7 @@ macro( orocos_find_package PACKAGE )
         list(APPEND ${PACKAGE}_LIBRARIES "${${PACKAGE}_${COMP_LIB}_LIBRARY}")
       endforeach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
 
-      # Add some output variables (note this are accessible outside of this scope since this is a macro)
+      # Add some output variables (note these are accessible outside of this scope since this is a macro)
       # We don't want to cache these
       set(${PACKAGE}_FOUND "${${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND}")
       set(${PACKAGE}_INCLUDE_DIRS "${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS}")
@@ -273,7 +277,7 @@ macro( orocos_use_package PACKAGE )
 
   # Check a flag so we don't over-link
   if(NOT ${PACKAGE}_${OROCOS_TARGET}_USED)
-    # Check if ${PACKAGE}_EXPORTED_OROCOS_TARGETS is set
+    # Check if ${PACKAGE}_EXPORTED_OROCOS_TARGETS is defined in this workspace
     if(DEFINED ${PACKAGE}_EXPORTED_OROCOS_TARGETS OR DEFINED ${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_TARGETS)
       message(STATUS "[UseOrocos] Found package '${PACKAGE}' in the same workspace.")
 
@@ -287,10 +291,21 @@ macro( orocos_use_package PACKAGE )
     else()
       # Get the package and dependency build flags
       orocos_find_package(${PACKAGE} ${ARGN})
+
+      if(${PACKAGE}_FOUND)
+        message(STATUS "[UseOrocos] Found package '${PACKAGE}'.")
+      endif()
     endif()
 
     if(${PACKAGE}_FOUND)
-      message(STATUS "[UseOrocos] Found package '${PACKAGE}'.")
+
+      if("$ENV{VERBOSE}" OR ${ORO_USE_VERBOSE})
+        message(STATUS "[UseOrocos] Package '${PACKAGE}' exports the following variables:")
+        message(STATUS "[UseOrocos]   ${PACKAGE}_FOUND: ${${PACKAGE}_FOUND}")
+        message(STATUS "[UseOrocos]   ${PACKAGE}_INCLUDE_DIRS: ${${PACKAGE}_INCLUDE_DIRS}")
+        message(STATUS "[UseOrocos]   ${PACKAGE}_LIBRARY_DIRS: ${${PACKAGE}_LIBRARY_DIRS}")
+        message(STATUS "[UseOrocos]   ${PACKAGE}_LIBRARIES: ${${PACKAGE}_LIBRARIES}")
+      endif()
 
       # Include the aggregated include directories
       include_directories(${${PACKAGE}_INCLUDE_DIRS})
@@ -298,7 +313,7 @@ macro( orocos_use_package PACKAGE )
       # Only link in case there is something *and* the user didn't opt-out:
       if(NOT OROCOS_NO_AUTO_LINKING AND ${PACKAGE}_LIBRARIES)
         link_libraries( ${${PACKAGE}_LIBRARIES} )
-        if(ENV{VERBOSE} OR ORO_USE_VERBOSE)
+        if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
           message(STATUS "[UseOrocos] Linking all targets with libraries from package '${PACKAGE}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
         endif()
       endif()
@@ -339,7 +354,7 @@ macro( orocos_use_package PACKAGE )
       set(USE_OROCOS_LINK_FLAGS ${USE_OROCOS_LDFLAGS_OTHER})
     endif()
   else()
-    if(ENV{VERBOSE} OR ORO_USE_VERBOSE)
+    if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
       message(STATUS "[UseOrocos] Package '${PACKAGE}' is already being used.")
     endif()
   endif()
