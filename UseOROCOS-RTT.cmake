@@ -732,7 +732,7 @@ macro( orocos_library LIB_TARGET_NAME )
   # this package includes a header of another (non-Orocos) package. This dependency
   # will end up in the Requires: field of the .pc file.
   #
-  # You may specify a dependency list of .pc files of Orocos packages with DEPENDS_TARGET
+  # You may specify a dependency list of .pc files of Orocos packages with DEPENDS_TARGETS
   # This is similar to DEPENDS, but the -<target> suffix is added for every package name.
   # This dependency will end up in the Requires: field of the .pc file.
   #
@@ -741,7 +741,7 @@ macro( orocos_library LIB_TARGET_NAME )
   macro( orocos_generate_package )
 
     oro_parse_arguments(ORO_CREATE_PC
-      "VERSION;DEPENDS;DEPENDS_TARGETS"
+      "VERSION;DEPENDS;DEPENDS_TARGETS;INCLUDE_DIRS"
       ""
       ${ARGN}
       )
@@ -820,9 +820,21 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PC_NAME}.pc DESTINATION lib/pkgconfig )
     #install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml DESTINATION  lib/orocos${OROCOS_SUFFIX}/level0 )
 
-    # If the directory ${PROJECT_SOURCE_DIR}/include/orocos exists, always export it in rosbuild and catkin builds
-    if(EXISTS "${PROJECT_SOURCE_DIR}/include/orocos")
-      list(APPEND ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include/orocos")
+    # Add ORO_CREATE_PC_INCLUDE_DIRS arguments to ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS
+    if(ORO_CREATE_PC_INCLUDE_DIRS)
+      foreach(include_dir ${ORO_CREATE_PC_INCLUDE_DIRS})
+        if(IS_ABSOLUTE ${include_dir})
+          list(APPEND ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS "${include_dir}")
+        else()
+          list(APPEND ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/${include_dir}")
+        endif()
+      endforeach()
+
+    else()
+      # If the directory ${PROJECT_SOURCE_DIR}/include/orocos exists, always export it as a fallback
+      if(EXISTS "${PROJECT_SOURCE_DIR}/include/orocos")
+        list(APPEND ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include/orocos")
+      endif()
     endif()
 
     # Generate additional pkg-config files for other build toolchains
