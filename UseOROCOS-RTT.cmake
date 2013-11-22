@@ -772,12 +772,12 @@ macro( orocos_library LIB_TARGET_NAME )
       set(PC_NAME ${ORO_CREATE_PC_DEFAULT_ARGS})
     else ( ORO_CREATE_PC_DEFAULT_ARGS )
       set(PACKAGE_NAME ${PROJECT_NAME} )
-      if ( NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${${PROJECT_NAME}_SOURCE_DIR} )
+      if ( NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL ${PROJECT_NAME}_SOURCE_DIR )
         # Append -subdir-subdir-... to pc name:
         file(RELATIVE_PATH RELPATH ${${PROJECT_NAME}_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} )
         string(REPLACE "/" "-" PC_NAME_SUFFIX ${RELPATH} )
         set(PACKAGE_NAME ${PACKAGE_NAME}-${PC_NAME_SUFFIX})
-      endif ( NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${${PROJECT_NAME}_SOURCE_DIR} )
+      endif ( NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL ${PROJECT_NAME}_SOURCE_DIR )
       set(PC_NAME ${PACKAGE_NAME}-${OROCOS_TARGET})
     endif ( ORO_CREATE_PC_DEFAULT_ARGS )
 
@@ -900,6 +900,22 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
 
     # Also set the uninstall target:
     orocos_uninstall_target()
+
+    # Call catkin_package() here if the user has not called it before.
+    if( ORO_USE_CATKIN
+        AND NOT ${PROJECT_NAME}_CATKIN_PACKAGE
+        AND NOT ORO_CREATE_PC_DEFAULT_ARGS # no package name given in orocos_generate_package()
+        AND CMAKE_CURRENT_SOURCE_DIR STREQUAL ${PROJECT_NAME}_SOURCE_DIR
+        AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/package.xml" )
+
+      # Always assume that catkin is a buildtool_depend. This silently disables a FATAL_ERROR in catkin_package().
+      # See https://github.com/ros/catkin/commit/7482dda520e94db5b532b57220dfefb10eeda15b
+      list(APPEND ${PROJECT_NAME}_BUILDTOOL_DEPENDS catkin)
+
+      catkin_package(
+        INCLUDE_DIRS ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS}
+      )
+    endif()
 
   endmacro( orocos_generate_package )
 
