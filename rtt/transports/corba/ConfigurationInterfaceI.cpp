@@ -166,7 +166,11 @@ RTT_corba_CConfigurationInterface_i::~RTT_corba_CConfigurationInterface_i (void)
     const TypeInfo* ti = ds->getTypeInfo();
     CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
     assert( ctt );
-    return ctt->createAny( ds );
+    try {
+        return ctt->createAny( ds );
+    } catch(std::exception const& e) {
+        throw StdException(e.what());
+    }
 }
 
 ::CORBA::Boolean RTT_corba_CConfigurationInterface_i::setAttribute (
@@ -197,7 +201,11 @@ RTT_corba_CConfigurationInterface_i::~RTT_corba_CConfigurationInterface_i (void)
     const TypeInfo* ti = ds->getTypeInfo();
     CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
     assert( ctt );
-    return ctt->createAny( ds );
+    try {
+        return ctt->createAny( ds );
+    } catch(std::exception const& e) {
+        throw StdException(e.what());
+    }
 }
 
 ::CORBA::Boolean RTT_corba_CConfigurationInterface_i::setProperty (
