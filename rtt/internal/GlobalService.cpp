@@ -1,8 +1,17 @@
 #include "GlobalService.hpp"
 #include "../plugin/PluginLoader.hpp"
 
+#include "../os/StartStopManager.hpp"
+
 namespace RTT
 {
+
+    // Cleanup the GlobalService on termination of the process
+    // This is important if global services have ports that need to be disconnected.
+    namespace {
+        os::CleanupFunction release_global_service(&internal::GlobalService::Release);
+    }
+
     namespace internal
     {
         static Service::shared_ptr mserv;
