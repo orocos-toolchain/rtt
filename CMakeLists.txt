@@ -178,3 +178,7 @@ INSTALL(FILES UseOROCOS-RTT.cmake UseOROCOS-RTT-helpers.cmake config/cmake_unins
 
 # Install package.xml
 INSTALL(FILES package.xml DESTINATION share/rtt)
+
+# Install env-hook for rtt
+CONFIGURE_FILE(env-hooks/00.rtt.sh.in ${CMAKE_CURRENT_BINARY_DIR}/env-hooks/00.rtt.sh @ONLY)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/env-hooks/00.rtt.sh DESTINATION etc/catkin/profile.d)
