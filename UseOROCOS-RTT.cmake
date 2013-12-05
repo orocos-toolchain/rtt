@@ -164,6 +164,11 @@ if(OROCOS-RTT_FOUND)
     # Disable auto-linking
     set(OROCOS_NO_AUTO_LINKING True)
 
+    # Parse package.xml file
+    if(NOT _CATKIN_CURRENT_PACKAGE)
+      catkin_package_xml()
+    endif()
+
     # Set output directories for catkin
     catkin_destinations()
     set(ORO_COMPONENT_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
@@ -664,15 +669,19 @@ macro( orocos_library LIB_TARGET_NAME )
   endmacro( orocos_service )
 
   #
-  # Components supply header files which should be included when 
+  # Components supply header files and directories which should be included when
   # using these components. Each component should use this macro
   # to install its header-files. They are installed by default
   # in include/orocos/${PROJECT_NAME}
   #
-  # Usage example: orocos_install_header( hardware.hpp control.hpp )
+  # Usage example: orocos_install_header(
+  #                  FILES hardware.hpp control.hpp
+  #                  DIRECTORY include/${PROJECT_NAME}
+  #                )
+  #
   macro( orocos_install_headers )
     ORO_PARSE_ARGUMENTS(ORO_INSTALL_HEADER
-      "INSTALL"
+      "INSTALL;FILES;DIRECTORY"
       ""
       ${ARGN}
       )
@@ -682,7 +691,17 @@ macro( orocos_library LIB_TARGET_NAME )
     else()
       set(AC_INSTALL_DIR include/orocos/${PROJECT_NAME} )
     endif()
+
     install( FILES ${SOURCES} DESTINATION ${AC_INSTALL_DIR} )
+
+    if( ORO_INSTALL_HEADER_FILES )
+      install( FILES ${ORO_INSTALL_HEADER_FILES} DESTINATION ${AC_INSTALL_DIR} )
+    endif()
+
+    if( ORO_INSTALL_HEADER_DIRECTORY )
+      install( DIRECTORY ${ORO_INSTALL_HEADER_DIRECTORY} DESTINATION ${AC_INSTALL_DIR} )
+    endif()
+
   endmacro( orocos_install_headers )
 
   #
@@ -718,7 +737,7 @@ macro( orocos_library LIB_TARGET_NAME )
   # this package includes a header of another (non-Orocos) package. This dependency
   # will end up in the Requires: field of the .pc file.
   #
-  # You may specify a dependency list of .pc files of Orocos packages with DEPENDS_TARGET
+  # You may specify a dependency list of .pc files of Orocos packages with DEPENDS_TARGETS
   # This is similar to DEPENDS, but the -<target> suffix is added for every package name.
   # This dependency will end up in the Requires: field of the .pc file.
   #
@@ -727,7 +746,7 @@ macro( orocos_library LIB_TARGET_NAME )
   macro( orocos_generate_package )
 
     oro_parse_arguments(ORO_CREATE_PC
-      "VERSION;DEPENDS;DEPENDS_TARGETS"
+      "VERSION;DEPENDS;DEPENDS_TARGETS;INCLUDE_DIRS"
       ""
       ${ARGN}
       )
@@ -737,7 +756,10 @@ macro( orocos_library LIB_TARGET_NAME )
       if (COMPONENT_VERSION)
         set( ORO_CREATE_PC_VERSION ${COMPONENT_VERSION})
         message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} from COMPONENT_VERSION.")
-      else (COMPONENT_VERSION)
+      elseif (${PROJECT_NAME}_VERSION)
+        set( ORO_CREATE_PC_VERSION ${${PROJECT_NAME}_VERSION})
+        message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} from ${PROJECT_NAME}_VERSION (package.xml).")
+      else ()
         set( ORO_CREATE_PC_VERSION "1.0")
         message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} (default version).")
       endif (COMPONENT_VERSION)
@@ -750,18 +772,18 @@ macro( orocos_library LIB_TARGET_NAME )
       set(PC_NAME ${ORO_CREATE_PC_DEFAULT_ARGS})
     else ( ORO_CREATE_PC_DEFAULT_ARGS )
       set(PACKAGE_NAME ${PROJECT_NAME} )
-      if ( NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${${PROJECT_NAME}_SOURCE_DIR} )
+      if ( NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL ${PROJECT_NAME}_SOURCE_DIR )
         # Append -subdir-subdir-... to pc name:
         file(RELATIVE_PATH RELPATH ${${PROJECT_NAME}_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} )
         string(REPLACE "/" "-" PC_NAME_SUFFIX ${RELPATH} )
         set(PACKAGE_NAME ${PACKAGE_NAME}-${PC_NAME_SUFFIX})
-      endif ( NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${${PROJECT_NAME}_SOURCE_DIR} )
+      endif ( NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL ${PROJECT_NAME}_SOURCE_DIR )
       set(PC_NAME ${PACKAGE_NAME}-${OROCOS_TARGET})
     endif ( ORO_CREATE_PC_DEFAULT_ARGS )
 
     # Create dependency list
     foreach( DEP ${ORO_CREATE_PC_DEPENDS_TARGETS})
-      list(APPEND ${ORO_CREATE_PC_DEPENDS} ${DEP}-${OROCOS_TARGET})
+      list(APPEND ORO_CREATE_PC_DEPENDS ${DEP}-${OROCOS_TARGET})
     endforeach()
     string(REPLACE ";" " " ORO_CREATE_PC_DEPENDS "${ORO_CREATE_PC_DEPENDS}")
 
@@ -806,9 +828,21 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PC_NAME}.pc DESTINATION lib/pkgconfig )
     #install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml DESTINATION  lib/orocos${OROCOS_SUFFIX}/level0 )
 
-    # If the directory ${PROJECT_SOURCE_DIR}/include/orocos exists, always export it in rosbuild and catkin builds
-    if(EXISTS "${PROJECT_SOURCE_DIR}/include/orocos")
-      list(APPEND ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include/orocos")
+    # Add ORO_CREATE_PC_INCLUDE_DIRS arguments to ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS
+    if(ORO_CREATE_PC_INCLUDE_DIRS)
+      foreach(include_dir ${ORO_CREATE_PC_INCLUDE_DIRS})
+        if(IS_ABSOLUTE ${include_dir})
+          list(APPEND ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS "${include_dir}")
+        else()
+          list(APPEND ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/${include_dir}")
+        endif()
+      endforeach()
+
+    else()
+      # If the directory ${PROJECT_SOURCE_DIR}/include/orocos exists, always export it as a fallback
+      if(EXISTS "${PROJECT_SOURCE_DIR}/include/orocos")
+        list(APPEND ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include/orocos")
+      endif()
     endif()
 
     # Generate additional pkg-config files for other build toolchains
@@ -820,7 +854,9 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       #set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}") # Without package name suffix !
       set(PC_EXTRA_INCLUDE_DIRS "-I\${prefix}/..")
       foreach(include_dir ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS})
-        set(PC_EXTRA_INCLUDE_DIRS "${PC_EXTRA_INCLUDE_DIRS} -I${include_dir}")
+        if(NOT include_dir STREQUAL "${PC_PREFIX}/include/orocos")
+          set(PC_EXTRA_INCLUDE_DIRS "${PC_EXTRA_INCLUDE_DIRS} -I${include_dir}")
+        endif()
       endforeach()
         
       set(PC_COMMENT "# This pkg-config file is for use in a rosbuild source tree\n"
@@ -841,7 +877,9 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       set(PC_PREFIX ${CATKIN_DEVEL_PREFIX})
       set(PC_EXTRA_INCLUDE_DIRS "")
       foreach(include_dir ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS})
-        set(PC_EXTRA_INCLUDE_DIRS "${PC_EXTRA_INCLUDE_DIRS} -I${include_dir}")
+        if(NOT include_dir STREQUAL "${PC_PREFIX}/include/orocos")
+          set(PC_EXTRA_INCLUDE_DIRS "${PC_EXTRA_INCLUDE_DIRS} -I${include_dir}")
+        endif()
       endforeach()
       #set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}")
 
@@ -862,6 +900,22 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
 
     # Also set the uninstall target:
     orocos_uninstall_target()
+
+    # Call catkin_package() here if the user has not called it before.
+    if( ORO_USE_CATKIN
+        AND NOT ${PROJECT_NAME}_CATKIN_PACKAGE
+        AND NOT ORO_CREATE_PC_DEFAULT_ARGS # no package name given in orocos_generate_package()
+        AND CMAKE_CURRENT_SOURCE_DIR STREQUAL ${PROJECT_NAME}_SOURCE_DIR
+        AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/package.xml" )
+
+      # Always assume that catkin is a buildtool_depend. This silently disables a FATAL_ERROR in catkin_package().
+      # See https://github.com/ros/catkin/commit/7482dda520e94db5b532b57220dfefb10eeda15b
+      list(APPEND ${PROJECT_NAME}_BUILDTOOL_DEPENDS catkin)
+
+      catkin_package(
+        INCLUDE_DIRS ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS}
+      )
+    endif()
 
   endmacro( orocos_generate_package )
 
