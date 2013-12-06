@@ -216,11 +216,7 @@ macro( orocos_find_package PACKAGE )
         list(APPEND ${PACKAGE}_LIBRARIES "${${PACKAGE}_${COMP_LIB}_LIBRARY}")
       endforeach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
 
-      if(ORO_${PACKAGE}_FOUND)
-        message(STATUS "[UseOrocos] Found orocos package '${PACKAGE}'.")
-      endif()
-
-      # Add some output variables (note this are accessible outside of this scope since this is a macro)
+      # Add some output variables (note these are accessible outside of this scope since this is a macro)
       # We don't want to cache these
       set(ORO_${PACKAGE}_FOUND "${${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND}")
       set(${PACKAGE}_FOUND ${ORO_${PACKAGE}_FOUND})
@@ -298,13 +294,15 @@ macro( orocos_use_package PACKAGE )
       # Get the package and dependency build flags
       orocos_find_package(${PACKAGE} ${ARGN})
 
-      if(${PACKAGE}_FOUND)
-        message(STATUS "[UseOrocos] Found package '${PACKAGE}'.")
+      if(ORO_${PACKAGE}_FOUND)
+        message(STATUS "[UseOrocos] Found orocos package '${PACKAGE}'.")
+      elseif(${PACKAGE}_FOUND AND NOT ORO_USE_OROCOS_ONLY)
+        message(STATUS "[UseOrocos] Found non-orocos package '${PACKAGE}'.")
       endif()
     endif()
 
     # Make sure orocos found it, instead of someone else
-    if(ORO_${PACKAGE}_FOUND)
+    if(ORO_${PACKAGE}_FOUND OR (${PACKAGE}_FOUND AND NOT ORO_USE_OROCOS_ONLY))
 
       if("$ENV{VERBOSE}" OR ${ORO_USE_VERBOSE})
         message(STATUS "[UseOrocos] Package '${PACKAGE}' exports the following variables to USE_OROCOS:")
