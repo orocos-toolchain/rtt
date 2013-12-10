@@ -24,7 +24,7 @@ if(OROCOS-RTT_FOUND)
   # Check for client meta-buildsystem tools
   # 
   # Tool support for:
-  #   - Catkin
+  #   - catkin
   #   - rosbuild
   #
   # If the client is using rosbuild, and has called rosbuild_init(), then we
@@ -36,7 +36,7 @@ if(OROCOS-RTT_FOUND)
   # then we can assume this is a catkin build.
   #
   if(ORO_USE_ROSBUILD OR (COMMAND rosbuild_init AND ROSBUILD_init_called))
-    message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} with rosbuild macros because rosbuild_init() has been called.")
+    message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} with rosbuild in-source support.")
     set(ORO_USE_ROSBUILD True CACHE BOOL "Build packages with rosbuild in-source support.")
 
     if ( NOT ROSBUILD_init_called )
@@ -47,9 +47,9 @@ if(OROCOS-RTT_FOUND)
     endif()
   elseif(catkin_FOUND)
     message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} with catkin develspace support.")
-    set(ORO_USE_CATKIN True CACHE BOOL "Build packages with Catkin develspace support.")
+    set(ORO_USE_CATKIN True CACHE BOOL "Build packages with catkin develspace support.")
   else()
-    message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} without an external buildtool like rosbuild or Catkin")
+    message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} without an external buildtool like rosbuild or catkin")
   endif()
 
   # This is for not allowing undefined symbols when using gcc
@@ -876,10 +876,10 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       file(WRITE ${PROJECT_SOURCE_DIR}/lib/pkgconfig/${PC_NAME}.pc ${ROSBUILD_PC_CONTENTS})
 
     elseif (ORO_USE_CATKIN)
-      message(STATUS "[UseOrocos] Generating pkg-config file for package in Catkin devel space.")
+      message(STATUS "[UseOrocos] Generating pkg-config file for package in catkin devel space.")
 
       # For catkin workspaces we also install a pkg-config file in the develspace
-      set(PC_COMMENT "# This pkg-config file is for use in a Catkin devel space")
+      set(PC_COMMENT "# This pkg-config file is for use in a catkin devel space")
       set(PC_PREFIX ${CATKIN_DEVEL_PREFIX})
       set(PC_EXTRA_INCLUDE_DIRS "")
       foreach(include_dir ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS})
