@@ -298,6 +298,14 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       #${OROCOS-RTT_TYPEKIT_LIBRARIES} 
       )
 
+    # Only link in case there is something *and* the user didn't opt-out:
+    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
+      target_link_libraries( ${COMPONENT_NAME} ${USE_OROCOS_LIBRARIES} )
+      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+        message(STATUS "[UseOrocos] Linking target '${COMPONENT_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
+      endif()
+    endif()
+
     # Install
     # On win32, component runtime (.dll) should go in orocos folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
@@ -380,6 +388,14 @@ macro( orocos_library LIB_TARGET_NAME )
       #${OROCOS-RTT_TYPEKIT_LIBRARIES} 
       )
 
+    # Only link in case there is something *and* the user didn't opt-out:
+    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
+      target_link_libraries( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARIES} )
+      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+        message(STATUS "[UseOrocos] Linking target '${LIB_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
+      endif()
+    endif()
+
     INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
 
     # Necessary for .pc file generation
@@ -444,6 +460,14 @@ macro( orocos_library LIB_TARGET_NAME )
     TARGET_LINK_LIBRARIES( ${EXE_TARGET_NAME} 
       ${OROCOS-RTT_LIBRARIES} 
       )
+
+    # Only link in case there is something *and* the user didn't opt-out:
+    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
+      target_link_libraries( ${EXE_TARGET_NAME} ${USE_OROCOS_LIBRARIES} )
+      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+        message(STATUS "[UseOrocos] Linking target '${EXE_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
+      endif()
+    endif()
 
     # We install the exe, the user must make sure that the install dir is not
     # beneath the ROS package (if any).
@@ -565,6 +589,14 @@ macro( orocos_library LIB_TARGET_NAME )
       ${OROCOS-RTT_LIBRARIES} 
       )
 
+    # Only link in case there is something *and* the user didn't opt-out:
+    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
+      target_link_libraries( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARIES} )
+      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+        message(STATUS "[UseOrocos] Linking target '${LIB_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
+      endif()
+    endif()
+
     # On win32, typekit runtime (.dll) should go in orocos/types folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
       INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_DIR})
@@ -645,6 +677,14 @@ macro( orocos_library LIB_TARGET_NAME )
       ${OROCOS-RTT_LIBRARIES}
       #${OROCOS-RTT_TYPEKIT_LIBRARIES} 
       )
+
+    # Only link in case there is something *and* the user didn't opt-out:
+    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
+      target_link_libraries( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARIES} )
+      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+        message(STATUS "[UseOrocos] Linking target '${LIB_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
+      endif()
+    endif()
 
     # On win32, plugins runtime (.dll) should go in orocos/plugins folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
