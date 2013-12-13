@@ -306,9 +306,6 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       INSTALL(TARGETS ${COMPONENT_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
     endif()
 
-    # Add current dir as link lookup-dir
-    LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
-
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_COMPS " -l${COMPONENT_LIB_NAME}")
     list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${COMPONENT_NAME}")
@@ -385,8 +382,6 @@ macro( orocos_library LIB_TARGET_NAME )
 
     INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
 
-    LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
-
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_LIBS " -l${LIB_NAME}")
     list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${LIB_TARGET_NAME}")
@@ -453,8 +448,6 @@ macro( orocos_library LIB_TARGET_NAME )
     # We install the exe, the user must make sure that the install dir is not
     # beneath the ROS package (if any).
     INSTALL(TARGETS ${EXE_TARGET_NAME} RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
-
-    LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
   endmacro( orocos_executable )
 
   # Type headers should add themselves by calling 'orocos_typegen_headers()'
@@ -579,8 +572,6 @@ macro( orocos_library LIB_TARGET_NAME )
       INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
     endif()
 
-    LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
-
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_TYPES " -l${LIB_NAME}")
     list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${LIB_TARGET_NAME}")
@@ -661,9 +652,6 @@ macro( orocos_library LIB_TARGET_NAME )
     else()
       INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
     endif()
-
-
-    LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_PLUGINS " -l${LIB_NAME}")
