@@ -12,7 +12,7 @@
 
 cmake_minimum_required(VERSION 2.8.3)
 
-if(OROCOS-RTT_FOUND)
+if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   include(FindPkgConfig)
   include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT-helpers.cmake)
   # Include directories
@@ -919,6 +919,6 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
 
   endmacro( orocos_generate_package )
 
-else(OROCOS-RTT_FOUND)
+elseif(NOT OROCOS-RTT_FOUND)
   message(FATAL_ERROR "UseOrocos.cmake file included, but OROCOS-RTT_FOUND not set ! Be sure to run first find_package(OROCOS-RTT) before including this file.")
-endif(OROCOS-RTT_FOUND)
+endif()
