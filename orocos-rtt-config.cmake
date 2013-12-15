@@ -69,7 +69,9 @@ set(DOC_STRING "The Operating System target. One of [gnulinux lxrt macosx win32 
 set(OROCOS_TARGET_ENV $ENV{OROCOS_TARGET}) # MUST use helper variable, otherwise not picked up !!!
 if(OROCOS_TARGET_ENV)
   set(OROCOS_TARGET ${OROCOS_TARGET_ENV} CACHE STRING "${DOC_STRING}" FORCE)
-  message(STATUS "- Detected OROCOS_TARGET environment variable. Using: ${OROCOS_TARGET}")
+  if(NOT OROCOS-RTT_FIND_QUIETLY AND NOT Orocos-RTT_FIND_QUIETLY)
+    message(STATUS "- Detected OROCOS_TARGET environment variable. Using: ${OROCOS_TARGET}")
+  endif()
 else()
   if(NOT DEFINED OROCOS_TARGET)
     if(MSVC)
