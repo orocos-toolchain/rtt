@@ -12,7 +12,7 @@
 
 cmake_minimum_required(VERSION 2.8.3)
 
-if(OROCOS-RTT_FOUND)
+if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   include(FindPkgConfig)
   include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT-helpers.cmake)
   # Include directories
@@ -54,15 +54,15 @@ if(OROCOS-RTT_FOUND)
 
   # This is for not allowing undefined symbols when using gcc
   if (CMAKE_COMPILER_IS_GNUCXX AND NOT APPLE)
-    SET(USE_OROCOS_LINK_FLAGS "-Wl,-z,defs")
+    SET(USE_OROCOS_LDFLAGS_OTHER "-Wl,-z,defs")
   else (CMAKE_COMPILER_IS_GNUCXX AND NOT APPLE)
-    SET(USE_OROCOS_LINK_FLAGS " ")
+    SET(USE_OROCOS_LDFLAGS_OTHER " ")
   endif (CMAKE_COMPILER_IS_GNUCXX AND NOT APPLE)
   # Suppress API decoration warnings in Win32:
   if (MSVC)
-    set(USE_OROCOS_COMPILE_FLAGS "/wd4251" )
+    set(USE_OROCOS_CFLAGS_OTHER "/wd4251" )
   else (MSVC)
-    set(USE_OROCOS_COMPILE_FLAGS " " )
+    set(USE_OROCOS_CFLAGS_OTHER " " )
   endif (MSVC)
 
   # On windows, the CMAKE_INSTALL_PREFIX is forced to the Orocos-RTT path.
@@ -292,15 +292,25 @@ if(OROCOS-RTT_FOUND)
     if(APPLE)
       SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
 	INSTALL_NAME_DIR "@rpath"
-	LINK_FLAGS "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX},-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
 	)
+      orocos_add_link_flags( ${COMPONENT_NAME} "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX},-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
     endif()
-    orocos_add_compile_flags( ${COMPONENT_NAME} ${USE_OROCOS_COMPILE_FLAGS})
-    orocos_add_link_flags( ${COMPONENT_NAME} ${USE_OROCOS_LINK_FLAGS})
+
+    orocos_add_compile_flags( ${COMPONENT_NAME} ${USE_OROCOS_CFLAGS_OTHER})
+    orocos_add_link_flags( ${COMPONENT_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
+
     TARGET_LINK_LIBRARIES( ${COMPONENT_NAME}
       ${OROCOS-RTT_LIBRARIES} 
       #${OROCOS-RTT_TYPEKIT_LIBRARIES} 
       )
+
+    # Only link in case there is something *and* the user didn't opt-out:
+    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
+      target_link_libraries( ${COMPONENT_NAME} ${USE_OROCOS_LIBRARIES} )
+      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+        message(STATUS "[UseOrocos] Linking target '${COMPONENT_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
+      endif()
+    endif()
 
     # Install
     # On win32, component runtime (.dll) should go in orocos folder
@@ -309,9 +319,6 @@ if(OROCOS-RTT_FOUND)
     else()
       INSTALL(TARGETS ${COMPONENT_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
     endif()
-
-    # Add current dir as link lookup-dir
-    LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_COMPS " -l${COMPONENT_LIB_NAME}")
@@ -372,22 +379,30 @@ macro( orocos_library LIB_TARGET_NAME )
       INSTALL_RPATH_USE_LINK_PATH 1
       INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
-    orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_COMPILE_FLAGS} )
-    orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LINK_FLAGS} )
+    if(APPLE)
+      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+        INSTALL_NAME_DIR "@rpath"
+        )
+      orocos_add_link_flags( ${LIB_TARGET_NAME} "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
+    endif()
+
+    orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER} )
+    orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER} )
+
     TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} 
       ${OROCOS-RTT_LIBRARIES} 
       #${OROCOS-RTT_TYPEKIT_LIBRARIES} 
       )
-    if(APPLE)
-      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-	INSTALL_NAME_DIR "@rpath"
-	LINK_FLAGS "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
-	)
+
+    # Only link in case there is something *and* the user didn't opt-out:
+    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
+      target_link_libraries( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARIES} )
+      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+        message(STATUS "[UseOrocos] Linking target '${LIB_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
+      endif()
     endif()
 
     INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
-
-    LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_LIBS " -l${LIB_NAME}")
@@ -437,25 +452,32 @@ macro( orocos_library LIB_TARGET_NAME )
     if(APPLE)
       SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
 	INSTALL_NAME_DIR "@rpath"
-	LINK_FLAGS "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/bin,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
 	)
+      orocos_add_link_flags( ${EXE_TARGET_NAME} "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/bin,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
     endif()
 
     if(CMAKE_DEBUG_POSTFIX)
       set_target_properties( ${EXE_TARGET_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
     endif(CMAKE_DEBUG_POSTFIX)
-    orocos_add_compile_flags(${EXE_TARGET_NAME} ${USE_OROCOS_COMPILE_FLAGS})
-    orocos_add_link_flags(${EXE_TARGET_NAME} ${USE_OROCOS_LINK_FLAGS})
+
+    orocos_add_compile_flags(${EXE_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER})
+    orocos_add_link_flags(${EXE_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
 
     TARGET_LINK_LIBRARIES( ${EXE_TARGET_NAME} 
       ${OROCOS-RTT_LIBRARIES} 
       )
 
+    # Only link in case there is something *and* the user didn't opt-out:
+    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
+      target_link_libraries( ${EXE_TARGET_NAME} ${USE_OROCOS_LIBRARIES} )
+      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+        message(STATUS "[UseOrocos] Linking target '${EXE_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
+      endif()
+    endif()
+
     # We install the exe, the user must make sure that the install dir is not
     # beneath the ROS package (if any).
     INSTALL(TARGETS ${EXE_TARGET_NAME} RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
-
-    LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
   endmacro( orocos_executable )
 
   # Type headers should add themselves by calling 'orocos_typegen_headers()'
@@ -562,12 +584,24 @@ macro( orocos_library LIB_TARGET_NAME )
     if(APPLE)
       SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
 	INSTALL_NAME_DIR "@rpath"
-	LINK_FLAGS "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/types,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
 	)
+      orocos_add_link_flags( ${LIB_TARGET_NAME} "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/types,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
     endif()
-    TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} 
+
+    orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER})
+    orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
+
+    TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME}
       ${OROCOS-RTT_LIBRARIES} 
       )
+
+    # Only link in case there is something *and* the user didn't opt-out:
+    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
+      target_link_libraries( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARIES} )
+      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+        message(STATUS "[UseOrocos] Linking target '${LIB_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
+      endif()
+    endif()
 
     # On win32, typekit runtime (.dll) should go in orocos/types folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
@@ -575,8 +609,6 @@ macro( orocos_library LIB_TARGET_NAME )
     else()
       INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
     endif()
-
-    LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_TYPES " -l${LIB_NAME}")
@@ -640,15 +672,25 @@ macro( orocos_library LIB_TARGET_NAME )
     if(APPLE)
       SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
 	INSTALL_NAME_DIR "@rpath"
-	LINK_FLAGS "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/plugins,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
 	)
+      orocos_add_link_flags( ${LIB_TARGET_NAME} "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/plugins,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
     endif()
-    orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_COMPILE_FLAGS})
-    orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LINK_FLAGS})
+
+    orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER})
+    orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
+
     TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} 
       ${OROCOS-RTT_LIBRARIES}
       #${OROCOS-RTT_TYPEKIT_LIBRARIES} 
       )
+
+    # Only link in case there is something *and* the user didn't opt-out:
+    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
+      target_link_libraries( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARIES} )
+      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+        message(STATUS "[UseOrocos] Linking target '${LIB_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
+      endif()
+    endif()
 
     # On win32, plugins runtime (.dll) should go in orocos/plugins folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
@@ -656,9 +698,6 @@ macro( orocos_library LIB_TARGET_NAME )
     else()
       INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
     endif()
-
-
-    LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_PLUGINS " -l${LIB_NAME}")
@@ -925,6 +964,6 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
 
   endmacro( orocos_generate_package )
 
-else(OROCOS-RTT_FOUND)
+elseif(NOT OROCOS-RTT_FOUND)
   message(FATAL_ERROR "UseOrocos.cmake file included, but OROCOS-RTT_FOUND not set ! Be sure to run first find_package(OROCOS-RTT) before including this file.")
-endif(OROCOS-RTT_FOUND)
+endif()
