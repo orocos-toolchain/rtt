@@ -6,6 +6,8 @@
 #include <tao/orb.idl>
 #endif
 
+#include "StdException.idl"
+
 module RTT
 {
     module corba
@@ -29,7 +31,8 @@ module RTT
 
 	    CPropertyNames  getPropertyList();
 
-	    any getAttribute( in string name );
+	    any getAttribute( in string name )
+                raises(StdException);
 
 	    boolean setAttribute( in string name, in any value );
 
@@ -42,7 +45,8 @@ module RTT
 	     * entering sub-properties. For example 'controlparameters.gains.k'
 	     * to retrieve nested property with name 'k'.
 	     */
-	    any getProperty( in string name );
+	    any getProperty( in string name )
+                raises(StdException);
 
 	    /**
 	     * Set a property by name. You can scope the name for

@@ -1,0 +1,22 @@
+#ifndef ORO_CORBA_CPPEXCEPTION_IDL
+#define ORO_CORBA_CPPEXCEPTION_IDL
+
+#ifdef CORBA_IS_TAO
+//resolves LNK2005
+#include <tao/orb.idl>
+#endif
+
+module RTT
+{
+    module corba
+    {
+        /* Used to pass std::exception across the CORBA boundary
+         */
+        exception StdException
+        {
+            string what;
+        };
+    };
+};
+
+#endif
