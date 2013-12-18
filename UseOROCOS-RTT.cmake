@@ -24,32 +24,37 @@ if(OROCOS-RTT_FOUND)
   # Check for client meta-buildsystem tools
   # 
   # Tool support for:
-  #   - Catkin
+  #   - catkin
   #   - rosbuild
   #
   # If the client is using rosbuild, and has called rosbuild_init(), then we
   # will assume that he or she wants to build targets with rosbuild libraries.
   # 
   # If the client has not called rosbuild_init() then we check if they have
-  # called `find_package(catkin ...)` if they have, and catkin has been found,
+  # called `find_package(catkin ...)` and if there is a `package.xml` file in the
+  # project's source folder. If yes, and catkin has been found,
   # then we can assume this is a catkin build.
   #
-  if(COMMAND rosbuild_init AND ROSBUILD_init_called)
-    message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} with rosbuild macros because rosbuild_init() has been called.")
+  # rosbuild- or catkin build-style build can be enforced or forbidden by setting
+  # the ORO_USE_ROSBUILD or ORO_USE_CATKIN cmake variable explicitly.
+  #
+  # Note that within one build folder all packages have to use the same buildsystem.
+  #
+  if(ORO_USE_ROSBUILD OR (NOT DEFINED ORO_USE_ROSBUILD AND COMMAND rosbuild_init AND ROSBUILD_init_called))
+    message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} with rosbuild in-source support.")
     set(ORO_USE_ROSBUILD True CACHE BOOL "Build packages with rosbuild in-source support.")
-    # TODO: Uncomment the following if we want to force people to call rosbuild_init
-    # if the function is available
-    #if ( NOT ROSBUILD_init_called )
-    #  if (NOT DEFINED ROSBUILD_init_called )
-    #    include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake) # Prevent double inclusion ! This file is not robust against that !
-    #  endif()
-    #  rosbuild_init()
-    #endif()
-  elseif(catkin_FOUND)
+
+    if ( NOT ROSBUILD_init_called )
+      if ( NOT COMMAND rosbuild_init )
+        include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake) # Prevent double inclusion ! This file is not robust against that !
+      endif()
+      rosbuild_init()
+    endif()
+  elseif(ORO_USE_CATKIN OR (NOT DEFINED ORO_USE_CATKIN AND catkin_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/package.xml"))
     message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} with catkin develspace support.")
-    set(ORO_USE_CATKIN True CACHE BOOL "Build packages with Catkin develspace support.")
+    set(ORO_USE_CATKIN True CACHE BOOL "Build packages with catkin develspace support.")
   else()
-    message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} without an external buildtool like rosbuild or Catkin")
+    message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} without an external buildtool like rosbuild or catkin")
   endif()
 
   # This is for not allowing undefined symbols when using gcc
@@ -114,6 +119,9 @@ if(OROCOS-RTT_FOUND)
     # Infer package name from directory name.
     get_filename_component(ORO_ROSBUILD_PACKAGE_NAME ${PROJECT_SOURCE_DIR} NAME)
 
+    # Enable auto-linking
+    set(OROCOS_NO_AUTO_LINKING False CACHE BOOL "Disable automatic linking to targets in orocos_use_package() or from dependencies in the package manifest. Auto-linking is enabled for rosbuild packages by default.")
+
     # Modify default rosbuild output paths if using Eclipse
     if (CMAKE_EXTRA_GENERATOR STREQUAL "Eclipse CDT4")
       message(WARNING "[UseOrocos] Eclipse Generator detected. I'm setting EXECUTABLE_OUTPUT_PATH and LIBRARY_OUTPUT_PATH")
@@ -162,7 +170,7 @@ if(OROCOS-RTT_FOUND)
 
   elseif(ORO_USE_CATKIN)
     # Disable auto-linking
-    set(OROCOS_NO_AUTO_LINKING True)
+    set(OROCOS_NO_AUTO_LINKING True CACHE BOOL "Disable automatic linking to targets in orocos_use_package() or from dependencies in the package manifest. Auto-linking is disabled for catkin packages by default.")
 
     # Parse package.xml file
     if(NOT _CATKIN_CURRENT_PACKAGE)
@@ -192,6 +200,9 @@ if(OROCOS-RTT_FOUND)
     endforeach(DEP ${DEPS}) 
 
   else()
+    # Enable auto-linking
+    set(OROCOS_NO_AUTO_LINKING False CACHE BOOL "Disable automatic linking to targets in orocos_use_package() or from dependencies in the package manifest. Auto-linking is enabled by default.")
+
     # Set output directories relative to CMAKE_LIBRARY_OUTPUT_DIRECTORY or built in the current binary directory (cmake default).
     if(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
       set(ORO_COMPONENT_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
@@ -870,10 +881,10 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       file(WRITE ${PROJECT_SOURCE_DIR}/lib/pkgconfig/${PC_NAME}.pc ${ROSBUILD_PC_CONTENTS})
 
     elseif (ORO_USE_CATKIN)
-      message(STATUS "[UseOrocos] Generating pkg-config file for package in Catkin devel space.")
+      message(STATUS "[UseOrocos] Generating pkg-config file for package in catkin devel space.")
 
       # For catkin workspaces we also install a pkg-config file in the develspace
-      set(PC_COMMENT "# This pkg-config file is for use in a Catkin devel space")
+      set(PC_COMMENT "# This pkg-config file is for use in a catkin devel space")
       set(PC_PREFIX ${CATKIN_DEVEL_PREFIX})
       set(PC_EXTRA_INCLUDE_DIRS "")
       foreach(include_dir ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS})

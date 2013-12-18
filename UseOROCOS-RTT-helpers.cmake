@@ -218,7 +218,8 @@ macro( orocos_find_package PACKAGE )
 
       # Add some output variables (note these are accessible outside of this scope since this is a macro)
       # We don't want to cache these
-      set(${PACKAGE}_FOUND "${${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND}")
+      set(ORO_${PACKAGE}_FOUND "${${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND}")
+      set(${PACKAGE}_FOUND ${ORO_${PACKAGE}_FOUND})
       set(${PACKAGE}_INCLUDE_DIRS "${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS}")
       set(${PACKAGE}_LIBRARY_DIRS "${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS}")
       set(${PACKAGE}_LIBRARIES "${${PACKAGE}_LIBRARIES}")
@@ -279,9 +280,10 @@ macro( orocos_use_package PACKAGE )
   if(NOT ${PACKAGE}_${OROCOS_TARGET}_USED)
     # Check if ${PACKAGE}_EXPORTED_OROCOS_TARGETS is defined in this workspace
     if(DEFINED ${PACKAGE}_EXPORTED_OROCOS_TARGETS OR DEFINED ${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_TARGETS)
-      message(STATUS "[UseOrocos] Found package '${PACKAGE}' in the same workspace.")
+      message(STATUS "[UseOrocos] Found orocos package '${PACKAGE}' in the same workspace.")
 
       # The package has been generated in the same workspace. Just use the exported targets and include directories.
+      set(ORO_${PACKAGE}_FOUND True)
       set(${PACKAGE}_FOUND True)
       set(${PACKAGE}_INCLUDE_DIRS ${${PACKAGE}_EXPORTED_OROCOS_INCLUDE_DIRS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_INCLUDE_DIRS})
       set(${PACKAGE}_LIBRARY_DIRS "")
@@ -292,15 +294,18 @@ macro( orocos_use_package PACKAGE )
       # Get the package and dependency build flags
       orocos_find_package(${PACKAGE} ${ARGN})
 
-      if(${PACKAGE}_FOUND)
-        message(STATUS "[UseOrocos] Found package '${PACKAGE}'.")
+      if(ORO_${PACKAGE}_FOUND)
+        message(STATUS "[UseOrocos] Found orocos package '${PACKAGE}'.")
+      elseif(${PACKAGE}_FOUND AND NOT ORO_USE_OROCOS_ONLY)
+        message(STATUS "[UseOrocos] Found non-orocos package '${PACKAGE}'.")
       endif()
     endif()
 
-    if(${PACKAGE}_FOUND)
+    # Make sure orocos found it, instead of someone else
+    if(ORO_${PACKAGE}_FOUND OR (${PACKAGE}_FOUND AND NOT ORO_USE_OROCOS_ONLY))
 
       if("$ENV{VERBOSE}" OR ${ORO_USE_VERBOSE})
-        message(STATUS "[UseOrocos] Package '${PACKAGE}' exports the following variables:")
+        message(STATUS "[UseOrocos] Package '${PACKAGE}' exports the following variables to USE_OROCOS:")
         message(STATUS "[UseOrocos]   ${PACKAGE}_FOUND: ${${PACKAGE}_FOUND}")
         message(STATUS "[UseOrocos]   ${PACKAGE}_INCLUDE_DIRS: ${${PACKAGE}_INCLUDE_DIRS}")
         message(STATUS "[UseOrocos]   ${PACKAGE}_LIBRARY_DIRS: ${${PACKAGE}_LIBRARY_DIRS}")
