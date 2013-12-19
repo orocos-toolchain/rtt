@@ -257,6 +257,7 @@ endmacro( orocos_find_package PACKAGE )
 #   
 # It will also aggregate the following variables for all packages found in this
 # scope:
+#   USE_OROCOS_PACKAGES
 #   USE_OROCOS_LIBRARIES
 #   USE_OROCOS_INCLUDE_DIRS
 #   USE_OROCOS_LIBRARY_DIRS
@@ -315,18 +316,11 @@ macro( orocos_use_package PACKAGE )
       # Include the aggregated include directories
       include_directories(${${PACKAGE}_INCLUDE_DIRS})
 
-      # Only link in case there is something *and* the user didn't opt-out:
-      if(NOT OROCOS_NO_AUTO_LINKING AND ${PACKAGE}_LIBRARIES)
-        link_libraries( ${${PACKAGE}_LIBRARIES} )
-        if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
-          message(STATUS "[UseOrocos] Linking all targets with libraries from package '${PACKAGE}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
-        endif()
-      endif()
-
       # Set a flag so we don't over-link (Don't cache this, it should remain per project)
       set(${PACKAGE}_${OROCOS_TARGET}_USED true)
 
       # Store aggregated variables
+      list(APPEND USE_OROCOS_PACKAGES "${PACKAGE}")
       list(APPEND USE_OROCOS_INCLUDE_DIRS "${${PACKAGE}_INCLUDE_DIRS}")
       list(APPEND USE_OROCOS_LIBRARIES "${${PACKAGE}_LIBRARIES}")
       list(APPEND USE_OROCOS_LIBRARY_DIRS "${${PACKAGE}_LIBRARY_DIRS}")
