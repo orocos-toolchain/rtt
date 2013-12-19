@@ -1,30 +1,30 @@
 <package>
   <name>rtt</name>
   <version>2.7.0</version>
-    <description >
-      Orocos/RTT component framework
-    </description>
-    <license>GPL v2 with linking exception</license>
-    <maintainer email="orocos-dev@lists.mech.kuleuven.be">RTT Developers</maintainer>
-    <author>RTT Developers</author>
-    <url>http://www.orocos.org/rtt</url>
-    
-    <buildtool_depend>cmake</buildtool_depend>
-    <run_depend>catkin</run_depend>
+  <description >
+    Orocos/RTT component framework
+  </description>
+  <license>GPL v2 with linking exception</license>
+  <maintainer email="orocos-dev@lists.mech.kuleuven.be">RTT Developers</maintainer>
+  <author>RTT Developers</author>
+  <url>http://www.orocos.org/rtt</url>
+  
+  <buildtool_depend>cmake</buildtool_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>catkin</run_depend>
 
-    <build_depend>xpath-perl</build_depend>
-    <build_depend>boost</build_depend>
-    <build_depend>omniorb</build_depend>
-    <build_depend>pkg-config</build_depend>
+  <build_depend>xpath-perl</build_depend>
+  <build_depend>boost</build_depend>
+  <build_depend>omniorb</build_depend>
+  <build_depend>pkg-config</build_depend>
 
-    <run_depend>boost</run_depend>
-    <run_depend>omniorb</run_depend>
-    <run_depend>xpath-perl</run_depend>
-    <run_depend>pkg-config</run_depend>
-    
-    <export>
-      <build_type>cmake</build_type>
-    </export>
+  <run_depend>boost</run_depend>
+  <run_depend>omniorb</run_depend>
+  <run_depend>xpath-perl</run_depend>
+  <run_depend>pkg-config</run_depend>
+  
+  <export>
+    <build_type>cmake</build_type>
+  </export>
 
 </package>
-

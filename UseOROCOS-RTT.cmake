@@ -29,13 +29,18 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   #
   # If the client is using rosbuild, and has called rosbuild_init(), then we
   # will assume that he or she wants to build targets with rosbuild libraries.
-  # rosbuild-style build can be enforced by setting -DORO_USE_ROSBUILD=True explicitly.
   # 
   # If the client has not called rosbuild_init() then we check if they have
-  # called `find_package(catkin ...)` if they have, and catkin has been found,
+  # called `find_package(catkin ...)` and if there is a `package.xml` file in the
+  # project's source folder. If yes, and catkin has been found,
   # then we can assume this is a catkin build.
   #
-  if(ORO_USE_ROSBUILD OR (COMMAND rosbuild_init AND ROSBUILD_init_called))
+  # rosbuild- or catkin build-style build can be enforced or forbidden by setting
+  # the ORO_USE_ROSBUILD or ORO_USE_CATKIN cmake variable explicitly.
+  #
+  # Note that within one build folder all packages have to use the same buildsystem.
+  #
+  if(ORO_USE_ROSBUILD OR (NOT DEFINED ORO_USE_ROSBUILD AND COMMAND rosbuild_init AND ROSBUILD_init_called))
     message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} with rosbuild in-source support.")
     set(ORO_USE_ROSBUILD True CACHE BOOL "Build packages with rosbuild in-source support.")
 
@@ -45,7 +50,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       endif()
       rosbuild_init()
     endif()
-  elseif(catkin_FOUND)
+  elseif(ORO_USE_CATKIN OR (NOT DEFINED ORO_USE_CATKIN AND catkin_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/package.xml"))
     message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} with catkin develspace support.")
     set(ORO_USE_CATKIN True CACHE BOOL "Build packages with catkin develspace support.")
   else()
