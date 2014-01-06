@@ -951,12 +951,18 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
     # Also set the uninstall target:
     orocos_uninstall_target()
 
+    # Create install target for orocos installed package directory
+    install(CODE "FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})")
+
     # Call catkin_package() here if the user has not called it before.
     if( ORO_USE_CATKIN
         AND NOT ${PROJECT_NAME}_CATKIN_PACKAGE
         AND NOT ORO_CREATE_PC_DEFAULT_ARGS # no package name given in orocos_generate_package()
         AND CMAKE_CURRENT_SOURCE_DIR STREQUAL ${PROJECT_NAME}_SOURCE_DIR
         AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/package.xml" )
+
+      # Create install target for orocos installed package directory
+      FILE(MAKE_DIRECTORY ${CATKIN_DEVEL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
 
       # Always assume that catkin is a buildtool_depend. This silently disables a FATAL_ERROR in catkin_package().
       # See https://github.com/ros/catkin/commit/7482dda520e94db5b532b57220dfefb10eeda15b
