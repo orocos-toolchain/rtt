@@ -115,9 +115,13 @@ BOOST_AUTO_TEST_CASE( testPortTaskInterface )
         // also check adding different port with same name.
         InputPort<double> other_rp("Port1");
         tc->ports()->addPort( other_rp );
+        // port will *not* autoremove itself... so do removePort or a crash will follow.
+        tc->ports()->removePort( other_rp.getName() );
     }
 
-    {
+    // We're adding the above ports to another TC as well.
+    // This is not supported behavior, as it will 'overtake' ownership,
+     {
         auto_ptr<TaskContext> tc1(new TaskContext( "tc", TaskContext::Stopped ));
         auto_ptr<TaskContext> tc2(new TaskContext( "tc2", TaskContext::Stopped ));
 
@@ -148,6 +152,10 @@ BOOST_AUTO_TEST_CASE( testPortTaskInterface )
     BOOST_CHECK( rp2.connected() );
     BOOST_CHECK( wp1.connected() );
     BOOST_CHECK( wp2.connected() );
+
+    // mandatory
+    tc->ports()->removePort( wp1.getName() );
+    tc->ports()->removePort( rp2.getName() );
 }
 
 BOOST_AUTO_TEST_CASE(testPortConnectionInitialization)
