@@ -89,11 +89,16 @@ namespace RTT {
             log(Error) << "Could not add Service " << obj->getName() <<": name already in use." <<endlog();
             return false;
         }
-        // we only call shared_from_this() when someone has a shared ref to us.
-        // In practice, this means when we have an owner.
-        if ( obj->getParent() == 0 && mowner ) {
-            obj->setOwner( mowner );
+        // we only allow adding a service when someone has a shared ref to us.
+        try {
             obj->setParent( shared_from_this() );
+        } catch(boost::bad_weak_ptr& /*bw*/) {
+            log(Error) << "Can't addService() to a service which was not stored in a shared_ptr. Please store '"<< this->getName() << "' in a shared_ptr before calling addService."<< endlog();
+            return false;
+        }
+        // only set the owner if one is present.
+        if ( mowner ) {
+            obj->setOwner( mowner );
         }
         services[obj->getName()] = obj;
         return true;
@@ -112,7 +117,8 @@ namespace RTT {
         try {
             return shared_from_this();
         } catch( boost::bad_weak_ptr& /*bw*/ ) {
-            log(Error) <<"When using boost < 1.40.0 : You are not allowed to call provides() on a Service that does not yet belong to a TaskContext or another Service." << endlog();                                                                                                     log(Error) <<"Try to avoid using provides() in this case: omit it or use the service directly." <<endlog();
+            log(Error) <<"When using boost < 1.40.0 : You are not allowed to call provides() on a Service that does not yet belong to a TaskContext or another Service." << endlog();
+            log(Error) <<"Try to avoid using provides() in this case: omit it or use the service directly." <<endlog();
             log(Error) <<"OR: upgrade to boost 1.40.0, then this error will go away." <<endlog();
             throw std::runtime_error("Illegal use of provides()");
         }
