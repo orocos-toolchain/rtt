@@ -150,6 +150,92 @@ namespace RTT
          */
         bool writeProperty(const std::string& name, const std::string& filename);
 
+        /**
+         * Read a property file and update (or create any missing) properties of a Service.
+         * This function allows to dynamically add properties to a
+         * component. This can be useful in combination with Orocos scripts when
+         * the script requires additional properties from the Service.
+         */
+        bool loadServiceProperties(const std::string& filename, const std::string& servicename) const;
+
+        /**
+         * Stores all properties of a Service in a new file or overwrite an existing one.
+         * The file given in filename will always be overwritten and any existing content
+         * will be lost.
+         * @param filename The file to store to.
+         * @param servicename Service to use
+         * @return true on success, false on error, consult Logger output for messages.
+         */
+        bool storeServiceProperties(const std::string& filename, const std::string& servicename) const;
+
+        /**
+         * Read the property file and 'refresh' \b all the properties of a Service.
+         * There may be more properties in the file than properties in the Service,
+         * but all properties of the Service must be present in \a filename.
+         * In case a type mismatch occurs, this method will fail and update no properties.
+         * @param filename The file to read from.
+         * @param servicename Service to use
+         * @return true on success, false on error, consult Logger output for messages.
+         */
+        bool readServiceProperties(const std::string& filename, const std::string& servicename) const;
+
+        /**
+         * Read the property file and 'refresh' \b some properties of the Service.
+         * There may be more properties in the file than properties in the Service,
+         * and some may be missing in the file. This method will update 'as much as possible'
+         * properties.
+         * In case a type mismatch occurs, this method will fail and update no properties.
+         * @param filename The file to read all the properties from.
+         * @param servicename Service  to use
+         * @return true on success, false on error, consult Logger output for messages.
+         */
+        bool updateServiceProperties(const std::string& filename, const std::string& servicename) const;
+
+        /**
+         * Read a single property from a file. The name may be a 'path' like
+         * location of a Property in the hierarchy.
+         * @param name The name of the property in the file. For example
+         * "MyProp" for a top-level property or "Settings.XML.Editor" to
+         * specify a dot-separated 'path' to the property 'Editor'.
+         * @param filename The name of the file in which to lookup \a name.
+         * @param servicename Service  to use
+         */
+        bool readServiceProperty(const std::string& name,const std::string& filename, const std::string& servicename);
+
+        /**
+         * Write the property file with the properties of a Service.
+         * The file is first read in, the resulting tree is updated with the task's
+         * properties and then written to disk again. This allows to share files
+         * between tasks.
+         * @param filename The file to read from and write to (updating).
+         * @param servicename Service  to use
+         * @return true on success, false on error, consult Logger output for messages.
+         */
+        bool writeServiceProperties(const std::string& filename, const std::string& servicename) const;
+
+        /**
+         * Write the property file with the properties of a Service, which
+         * are already present in \a filename.
+         * No new entries are created in the file, only existing ones are updated.
+         * The file is first read in, the resulting tree is updated with the task's
+         * properties, and then written to disk again.
+         * @param filename The file to read from and write to.
+         * @param servicename Service  to use
+         * @return true on success, false on error, consult Logger output for messages.
+         */
+        bool updateServiceFile(const std::string& filename, const std::string& servicename) const;
+
+        /**
+         * Write a single property to a file. The name may be a 'path' like
+         * location of a Property in the hierarchy.
+         * @param name The name of the property in the file. For example
+         * "MyProp" for a top-level property or "Settings.XML.Editor" to
+         * specify a dot-separated 'path' to the property 'Editor'.
+         * @param filename The name of the file in which to write \a name.
+         * @param servicename Service  to use
+         */
+        bool writeServiceProperty(const std::string& name, const std::string& filename, const std::string& servicename);
+
     };
 }}
 
