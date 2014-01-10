@@ -318,11 +318,14 @@ namespace RTT
         }
     }
 
-    void ExecutionEngine::step() {
+    void ExecutionEngine::step(bool onlyInternal) {
         processMessages();
         processFunctions();
-        processChildren(); // aren't these ExecutableInterfaces ie functions ?
+        if(!onlyInternal){
+            processChildren(); // aren't these ExecutableInterfaces ie functions ?
+        }
     }
+
 
     void ExecutionEngine::processChildren() {
         // only call updateHook in the Running state.

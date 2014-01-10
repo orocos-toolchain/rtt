@@ -99,7 +99,7 @@ namespace RTT
          * The method that will be periodically executed when this
          * class is run in a periodic thread.
          */
-        virtual void step() = 0;
+        virtual void step(bool onlyInternal = false) = 0;
 
         /**
          * The method that will be executed once when this

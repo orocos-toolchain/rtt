@@ -178,8 +178,10 @@ namespace RTT {
 
     bool SlaveActivity::trigger()
     {
-        if (mmaster)
+        if (mmaster){
+            runner->step(true);
             return mmaster->trigger();
+        }
         return false;
     }
 

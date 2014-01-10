@@ -255,8 +255,9 @@ namespace RTT
         /**
          * Executes (in that order) Messages, Functions and updateHook()
          * functions of this TaskContext and its children.
+         * The updateHook's will not be executed if false is passed for onlyInternal
          */
-        virtual void step();
+        virtual void step(bool onlyInternal = false);
 
         virtual bool breakLoop();
 
