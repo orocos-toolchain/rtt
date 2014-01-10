@@ -352,7 +352,9 @@ namespace RTT
 #endif
         }
         new_act->stop();
-        our_act->stop();
+        if(our_act){
+            our_act->stop();
+        }
         new_act->run( this->engine() );
         our_act = ActivityInterface::shared_ptr( new_act );
         our_act->start();
@@ -364,7 +366,9 @@ namespace RTT
     	if (!new_act)
     		return;
     	new_act->stop();
-        our_act->stop();
+        if(our_act){
+            our_act->stop();
+        }
         our_act.reset( new_act );
         our_act->run( this->engine() );
         our_act->start();
