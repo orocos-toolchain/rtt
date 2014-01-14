@@ -135,8 +135,6 @@ namespace RTT
             template<class ds_arg_type, class ads_type>
             static ads_type assignable(std::vector<base::DataSourceBase::shared_ptr>::const_iterator front, int argnbr, std::string const& tname )
             {
-                typedef typename ads_type::element_type element_type;
-
                 ads_type a =
                     boost::dynamic_pointer_cast< AssignableDataSource<ds_arg_type> >( *front ); // note: no conversion done, must be same type.
                 if ( ! a ) {
