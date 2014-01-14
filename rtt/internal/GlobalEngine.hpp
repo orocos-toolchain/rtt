@@ -60,10 +60,15 @@ namespace RTT
         class GlobalEngine: public RTT::ExecutionEngine
         {
             boost::shared_ptr<base::ActivityInterface> mact;
-            GlobalEngine();
+            GlobalEngine(int scheduler, int priority, unsigned cpu_affinity);
             virtual ~GlobalEngine();
         public:
-            RTT_API static ExecutionEngine* Instance();
+            /** @overload
+             * This is kept (instead of using default parameters) for ABI
+             * compatibility
+             */
+            RTT_API static ExecutionEngine* Instance() { return Instance(ORO_SCHED_OTHER); }
+            RTT_API static ExecutionEngine* Instance(int scheduler, int priority = os::LowestPriority, unsigned cpu_affinity = 0);
             RTT_API static void Release();
         };
 

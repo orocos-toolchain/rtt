@@ -121,11 +121,19 @@ namespace RTT
         static void RunOrb();
 
         /**
+         * @overload
+         *
+         * This is kept (instead of using only default parameters in the other
+         * version) for ABI compatibility.
+         */
+        static void ThreadOrb();
+
+        /**
          * Invoke this method to run the orb in a separate thread and accept client requests
          * from that thread.
          * Use ShutdownOrb() to break out of this method.
          */
-        static void ThreadOrb();
+        static void ThreadOrb(int scheduler, int priority = RTT::os::LowestPriority, unsigned cpu_affinity = 0);
 
         /**
          * Invoke this method once to cleanup the orb.
