@@ -180,7 +180,7 @@ INSTALL(FILES UseOROCOS-RTT.cmake UseOROCOS-RTT-helpers.cmake config/cmake_unins
 INSTALL(FILES package.xml DESTINATION share/rtt)
 
 # Install an env-hook if catkin is found
-find_package(catkin)
+find_package(catkin QUIET)
 if(catkin_FOUND)
   catkin_add_env_hooks(00.rtt SHELLS sh DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/env-hooks)
 endif()
