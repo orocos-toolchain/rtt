@@ -42,6 +42,7 @@
 #include "ActivityInterface.hpp"
 #include "Logger.hpp"
 #include "internal/CatchConfig.hpp"
+#include <rtt/os/traces.h>
 
 namespace RTT {
     using namespace detail;
@@ -105,7 +106,10 @@ namespace RTT {
         if ( mTaskState == Stopped || mTaskState == PreOperational) {
             TRY(
                 mTargetState = Stopped;
-                if (configureHook() ) {
+                bool result;
+                { tracepoint_context(orocos_rtt, TaskContext_configureHook, "");
+                    result = configureHook(); }
+                if (result) {
                     mTaskState = Stopped;
                     return true;
                 } else {
@@ -128,7 +132,8 @@ namespace RTT {
         if ( mTaskState == Stopped ) {
             TRY(
                 mTargetState = PreOperational;
-                cleanupHook();
+                { tracepoint_context(orocos_rtt, TaskContext_cleanupHook, "");
+                    cleanupHook(); }
                 mTaskState = PreOperational;
                 return true;
              ) CATCH(std::exception const& e,
@@ -162,10 +167,12 @@ namespace RTT {
         mTargetState = mTaskState = Exception;
         TRY (
             if ( copy >= Running ) {
-                stopHook();
+                { tracepoint_context(orocos_rtt, TaskContext_stopHook, "");
+                    stopHook(); }
             }
             if ( copy >= Stopped && mInitialState == PreOperational ) {
-                cleanupHook();
+                { tracepoint_context(orocos_rtt, TaskContext_cleanupHook, "");
+                    cleanupHook(); }
             }
             exceptionHook();
         ) CATCH(std::exception const& e,
@@ -193,7 +200,10 @@ namespace RTT {
         if ( mTaskState == Stopped ) {
             TRY (
                 mTargetState = Running;
-                if ( startHook() ) {
+                bool result;
+                { tracepoint_context(orocos_rtt, TaskContext_startHook, "");
+                    result = startHook(); }
+                if ( result ) {
                     mTaskState = Running;
                     trigger(); // triggers updateHook() in case of non periodic!
                     return true;
@@ -217,7 +227,8 @@ namespace RTT {
             TRY(
                 mTargetState = Stopped;
                 if ( engine()->stopTask(this) ) {
-                    stopHook();
+                    { tracepoint_context(orocos_rtt, TaskContext_stopHook, "");
+                        stopHook(); }
                     mTaskState = Stopped;
                     return true;
                 } else {
