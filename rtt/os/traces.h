@@ -6,7 +6,6 @@
 #if defined(HAVE_LTTNG_UST) && defined(OROPKG_OS_GNULINUX)
 #include <rtt/os/gnulinux/traces/lttng_ust.h>
 #else
-#error
 #define tracepoint(provider, tracepoint, ...)
 #define tracepoint_context(provider, tracepoint, ...)
 #endif

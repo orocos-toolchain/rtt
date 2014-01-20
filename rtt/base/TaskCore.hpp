@@ -337,6 +337,17 @@ namespace RTT
             return ee;
         }
 
+        /**
+         * The name of this TaskCore
+         *
+         * Used for debugging and/or tracing purposes
+         */
+        std::string getName() const;
+
+        /** Sets the name of this TaskCore
+         */
+        void setName(const std::string& name);
+
     protected:
         /**
          * Implement this method such that it contains the code which
@@ -469,6 +480,11 @@ namespace RTT
          * event ports callbacks.
          */
         virtual void prepareUpdateHook();
+
+        /** The name of this task. This is used only for debugging / tracing
+         * purposes
+         */
+        std::string name;
     };
 }}
 

@@ -367,9 +367,9 @@ namespace RTT
             // A trigger() in startHook() will be ignored, we trigger in TaskCore after startHook finishes.
             if ( taskc->mTaskState == TaskCore::Running && taskc->mTargetState == TaskCore::Running ) {
                 TRY (
-                    { tracepoint_context(orocos_rtt, TaskContext_prepareUpdateHook, "");
+                    { tracepoint_context(orocos_rtt, TaskContext_prepareUpdateHook, taskc->getName().c_str());
                         taskc->prepareUpdateHook(); }
-                    { tracepoint_context(orocos_rtt, TaskContext_updateHook, "");
+                    { tracepoint_context(orocos_rtt, TaskContext_updateHook, taskc->getName().c_str());
                         taskc->updateHook(); }
                 ) CATCH(std::exception const& e,
                     log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
@@ -383,7 +383,7 @@ namespace RTT
             // in case start() or updateHook() called error(), this will be called:
             if (taskc->mTaskState == TaskCore::RunTimeError && taskc->mTargetState >= TaskCore::Running) {
                 TRY (
-                    { tracepoint_context(orocos_rtt, TaskContext_errorHook, "");
+                    { tracepoint_context(orocos_rtt, TaskContext_errorHook, taskc->getName().c_str());
                         taskc->errorHook(); }
                 ) CATCH(std::exception const& e,
                     log(Error) << "in errorHook(): switching to exception state because of unhandled exception" << endlog();
@@ -401,9 +401,9 @@ namespace RTT
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
             if ( (*it)->mTaskState == TaskCore::Running  && (*it)->mTargetState == TaskCore::Running  ){
                 TRY (
-                    { tracepoint_context(orocos_rtt, TaskContext_prepareUpdateHook, "");
+                    { tracepoint_context(orocos_rtt, TaskContext_prepareUpdateHook, taskc->getName().c_str());
                         (*it)->prepareUpdateHook(); }
-                    { tracepoint_context(orocos_rtt, TaskContext_updateHook, "");
+                    { tracepoint_context(orocos_rtt, TaskContext_updateHook, taskc->getName().c_str());
                         (*it)->updateHook(); }
                 ) CATCH(std::exception const& e,
                     log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();

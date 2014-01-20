@@ -39,29 +39,44 @@ TRACEPOINT_EVENT
     )
 )
 
+#ifndef __cplusplus
+#define TRACEPOINT_CONTEXT(provider, event, ...) \
+    TRACEPOINT_EVENT(provider, event, TP_ARGS(unsigned, v, const char *, s), TP_FIELDS(ctf_string(name, s) ctf_integer(unsigned, on, v)))
+#else
+#include "../../../rtt/rt_string.hpp"
+#define TRACEPOINT_CONTEXT(provider, event, ...) \
+    TRACEPOINT_EVENT(provider, event, TP_ARGS(unsigned, v, const char *, s), TP_FIELDS(ctf_string(name, s) ctf_integer(unsigned, on, v))) \
+    struct TracepointContext__##provider__##event {            \
+        RTT::rt_string name;                                     \
+        TracepointContext__##provider__##event(std::string const& name) \
+            : name(name.c_str())                                      \
+        {                                                     \
+            tracepoint(provider, event, 1, name.c_str());      \
+        }                                                     \
+        ~TracepointContext__##provider__##event()              \
+        {                                                     \
+            tracepoint(provider, event, 0, name.c_str());    \
+        }                                                     \
+    };
+#endif
+
+#define TRACEPOINT_NAMED_EVENT(provider, event) \
+        TRACEPOINT_EVENT(provider, event, TP_ARGS(const char *, s), TP_FIELDS(ctf_string(name, s)))
+
 /* Triggering from activities */
-TRACEPOINT_EVENT(orocos_rtt, Activity_trigger, TP_ARGS(), TP_FIELDS())
+TRACEPOINT_NAMED_EVENT(orocos_rtt, Activity_trigger)
 
 /* Trace state changes in TaskCore */
-TRACEPOINT_EVENT(orocos_rtt, TaskContext_configureHook     , TP_ARGS(unsigned, v, const char *, s), TP_FIELDS(ctf_string(name, s) ctf_integer(unsigned, on, v)))
-TRACEPOINT_EVENT(orocos_rtt, TaskContext_startHook         , TP_ARGS(unsigned, v, const char *, s), TP_FIELDS(ctf_string(name, s) ctf_integer(unsigned, on, v)))
-TRACEPOINT_EVENT(orocos_rtt, TaskContext_prepareUpdateHook , TP_ARGS(unsigned, v, const char *, s), TP_FIELDS(ctf_string(name, s) ctf_integer(unsigned, on, v)))
-TRACEPOINT_EVENT(orocos_rtt, TaskContext_updateHook        , TP_ARGS(unsigned, v, const char *, s), TP_FIELDS(ctf_string(name, s) ctf_integer(unsigned, on, v)))
-TRACEPOINT_EVENT(orocos_rtt, TaskContext_errorHook         , TP_ARGS(unsigned, v, const char *, s), TP_FIELDS(ctf_string(name, s) ctf_integer(unsigned, on, v)))
-TRACEPOINT_EVENT(orocos_rtt, TaskContext_stopHook          , TP_ARGS(unsigned, v, const char *, s), TP_FIELDS(ctf_string(name, s) ctf_integer(unsigned, on, v)))
-TRACEPOINT_EVENT(orocos_rtt, TaskContext_cleanupHook       , TP_ARGS(unsigned, v, const char *, s), TP_FIELDS(ctf_string(name, s) ctf_integer(unsigned, on, v)))
+TRACEPOINT_CONTEXT(orocos_rtt, TaskContext_configureHook)
+TRACEPOINT_CONTEXT(orocos_rtt, TaskContext_startHook)
+TRACEPOINT_CONTEXT(orocos_rtt, TaskContext_prepareUpdateHook)
+TRACEPOINT_CONTEXT(orocos_rtt, TaskContext_updateHook)
+TRACEPOINT_CONTEXT(orocos_rtt, TaskContext_errorHook)
+TRACEPOINT_CONTEXT(orocos_rtt, TaskContext_stopHook)
+TRACEPOINT_CONTEXT(orocos_rtt, TaskContext_cleanupHook)
 
-#define tracepoint_context(provider, name, ...) \
-        struct TracepointContext__##provider__##name {            \
-            TracepointContext__##provider__##name()               \
-            {                                                     \
-                tracepoint(provider, name, 1, ## __VA_ARGS__);    \
-            }                                                     \
-            ~TracepointContext__##provider__##name()              \
-            {                                                     \
-                tracepoint(provider, name, 0, ## __VA_ARGS__);    \
-            }                                                     \
-        } __tracepoint_context_##provider__##name;
+#define tracepoint_context(provider, event, name) \
+   TracepointContext__##provider__##event __tracepoint_context_##provider__##event(name);
 
 #endif /* _LTTNG_UST_H */
 

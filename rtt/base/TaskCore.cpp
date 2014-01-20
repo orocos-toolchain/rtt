@@ -348,5 +348,11 @@ namespace RTT {
         }
     }
 
+    std::string TaskCore::getName() const {
+        return name;
+    }
+    void TaskCore::setName(const std::string& name) {
+        this->name = name;
+    }
 }
 
