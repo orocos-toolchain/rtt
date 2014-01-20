@@ -77,6 +77,7 @@ namespace RTT
            ,our_act( new Activity( this->engine(), name ) )
 #endif
     {
+        TaskCore::setName(name);
         this->setup();
     }
 
@@ -90,6 +91,7 @@ namespace RTT
            ,our_act( parent ? 0 : new Activity( this->engine(), name ) )
 #endif
     {
+        TaskCore::setName(name);
         this->setup();
     }
 

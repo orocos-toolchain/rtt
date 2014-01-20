@@ -43,6 +43,7 @@
 #include "Time.hpp"
 #include "Activity.hpp"
 #include "os/MutexLock.hpp"
+#include "os/traces.h"
 #include "Logger.hpp"
 #include "rtt-fwd.hpp"
 
@@ -125,6 +126,7 @@ namespace RTT
     }
 
     bool Activity::trigger() {
+        tracepoint(orocos_rtt, Activity_trigger, getName());
         return Thread::isActive() ? Thread::start() : false;
     }
 
