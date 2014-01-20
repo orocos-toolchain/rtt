@@ -44,6 +44,7 @@
 #include "../Logger.hpp"
 #include <exception>
 #include <stdexcept>
+#include <../os/traces.h>
 
 using namespace RTT;
 using namespace RTT::detail;
@@ -154,6 +155,7 @@ bool InputPortInterface::connected() const
 
 void InputPortInterface::clear()
 {
+    tracepoint(orocos_rtt, InputPort_clear, getName().c_str());
     cmanager.clear();
 }
 

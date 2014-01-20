@@ -65,6 +65,8 @@ TRACEPOINT_EVENT
 
 /* Triggering from activities */
 TRACEPOINT_NAMED_EVENT(orocos_rtt, Activity_trigger)
+TRACEPOINT_NAMED_EVENT(orocos_rtt, InputPort_clear)
+TRACEPOINT_NAMED_EVENT(orocos_rtt, OutputPort_write)
 
 /* Trace state changes in TaskCore */
 TRACEPOINT_CONTEXT(orocos_rtt, TaskContext_configureHook)

@@ -140,6 +140,9 @@ namespace RTT
         virtual bool connectTo(PortInterface* other);
 
         virtual const internal::ConnectionManager* getManager() const { return &cmanager; }
+
+        /** Sends a write tracepoint */
+        void traceWrite();
     };
 }}
 

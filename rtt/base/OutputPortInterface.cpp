@@ -41,6 +41,7 @@
 #include "InputPortInterface.hpp"
 #include <exception>
 #include <stdexcept>
+#include "../os/traces.h"
 
 using namespace RTT;
 using namespace RTT::detail;
@@ -112,3 +113,9 @@ bool OutputPortInterface::connectTo(PortInterface* other)
         return false;
     return createConnection(*input);
 }
+
+void OutputPortInterface::traceWrite()
+{
+    tracepoint(orocos_rtt, OutputPort_write, getName().c_str());
+}
+
