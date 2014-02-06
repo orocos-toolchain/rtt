@@ -291,6 +291,8 @@ void ComponentLoader::Release() {
 // imports components and plugins from it.
 bool ComponentLoader::import( std::string const& path_list )
 {
+    RTT::Logger::In in("ComponentLoader::import(path_list)");
+
     if (path_list.empty() ) {
         log(Error) << "import paths: No paths were given for loading ( path_list = '' )."<<endlog();
         return false;
@@ -392,6 +394,8 @@ bool ComponentLoader::import( std::string const& path_list )
 // the search path.
 bool ComponentLoader::import( std::string const& package, std::string const& path_list )
 {
+    RTT::Logger::In in("ComponentLoader::import(package, path_list)");
+
     // check first for exact match to *file*:
     path arg( package );
     if (is_regular_file(arg) && isLoadableLibrary(arg)) {
@@ -428,6 +432,8 @@ bool ComponentLoader::import( std::string const& package, std::string const& pat
 
 bool ComponentLoader::importInstalledPackage(std::string const& package, std::string const& path_list)
 {
+    RTT::Logger::In in("ComponentLoader::importInstalledPackage(package, path_list)");
+
     string paths;
     string trypaths;
     vector<string> tryouts;
@@ -489,10 +495,10 @@ bool ComponentLoader::importInstalledPackage(std::string const& package, std::st
             return false;
         }
     }
-    log(Error) << "No such package or directory found in search path: " << package << ". Search path is: "<< endlog();
-    log(Error) << trypaths << endlog();
+    log(Error) << "No such package or directory found in search path: " << package << ". Search path is: " << trypaths << endlog();
+    log(Error) << "Directories searched include the following: " << endlog();
     for(vector<string>::iterator it=tryouts.begin(); it != tryouts.end(); ++it)
-        log(Error) << *it << endlog();
+        log(Error) << " - " << *it << endlog();
     return false;
 }
 
