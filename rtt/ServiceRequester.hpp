@@ -85,7 +85,7 @@ namespace RTT
          * this returns the service which was used when connectTo
          * first returned true.
          */
-        Service::shared_ptr getReferencedService();
+        Service::shared_ptr getReferencedService() { return mprovider; }
 
         bool addOperationCaller( base::OperationCallerBaseInvoker& mbi);
 
