@@ -936,6 +936,8 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       string(CONFIGURE "${PC_CONTENTS}" CATKIN_PC_CONTENTS @ONLY)
       file(WRITE ${CATKIN_DEVEL_PREFIX}/lib/pkgconfig/${PC_NAME}.pc ${CATKIN_PC_CONTENTS})
 
+      # Create install target for orocos installed package directory
+      FILE(MAKE_DIRECTORY ${CATKIN_DEVEL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
     endif()
 
     # Store a list of exported targets and include directories on the cache so that other packages within the same workspace can link to them.
@@ -950,6 +952,9 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
 
     # Also set the uninstall target:
     orocos_uninstall_target()
+
+    # Create install target for orocos installed package directory
+    install(CODE "FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})")
 
     # Call catkin_package() here if the user has not called it before.
     if( ORO_USE_CATKIN
