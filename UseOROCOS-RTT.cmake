@@ -954,7 +954,7 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
     orocos_uninstall_target()
 
     # Create install target for orocos installed package directory
-    install(CODE "FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})")
+    install(CODE "FILE(MAKE_DIRECTORY \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})")
 
     # Call catkin_package() here if the user has not called it before.
     if( ORO_USE_CATKIN
