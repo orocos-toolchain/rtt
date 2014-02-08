@@ -115,12 +115,12 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     set (OROCOS_SUFFIX "/${OROCOS_TARGET}")
   endif()
 
+  # Enable auto-linking
+  set(OROCOS_NO_AUTO_LINKING OFF CACHE BOOL "Disable automatic linking to targets in orocos_use_package() or from dependencies in the package manifest. Auto-linking is enabled by default.")
+
   if (ORO_USE_ROSBUILD)
     # Infer package name from directory name.
     get_filename_component(ORO_ROSBUILD_PACKAGE_NAME ${PROJECT_SOURCE_DIR} NAME)
-
-    # Enable auto-linking
-    set(OROCOS_NO_AUTO_LINKING False CACHE BOOL "Disable automatic linking to targets in orocos_use_package() or from dependencies in the package manifest. Auto-linking is enabled for rosbuild packages by default.")
 
     # Modify default rosbuild output paths if using Eclipse
     if (CMAKE_EXTRA_GENERATOR STREQUAL "Eclipse CDT4")
@@ -165,14 +165,11 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     rosbuild_invoke_rospack(${ORO_ROSBUILD_PACKAGE_NAME} pkg DEPS depends1)
     string(REGEX REPLACE "\n" ";" pkg_DEPS2 "${pkg_DEPS}" )
     foreach(ROSDEP ${pkg_DEPS2})
-      orocos_use_package( ${ROSDEP} )
+      orocos_use_package( ${ROSDEP} OROCOS_ONLY)
     endforeach(ROSDEP ${pkg_DEPS2})
 
   elseif(ORO_USE_CATKIN)
-    # Disable auto-linking
-    set(OROCOS_NO_AUTO_LINKING True CACHE BOOL "Disable automatic linking to targets in orocos_use_package() or from dependencies in the package manifest. Auto-linking is disabled for catkin packages by default.")
-
-    # Parse package.xml file
+     # Parse package.xml file
     if(NOT _CATKIN_CURRENT_PACKAGE)
       catkin_package_xml()
     endif()
@@ -200,9 +197,6 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     endforeach(DEP ${DEPS}) 
 
   else()
-    # Enable auto-linking
-    set(OROCOS_NO_AUTO_LINKING False CACHE BOOL "Disable automatic linking to targets in orocos_use_package() or from dependencies in the package manifest. Auto-linking is enabled by default.")
-
     # Set output directories relative to CMAKE_LIBRARY_OUTPUT_DIRECTORY or built in the current binary directory (cmake default).
     if(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
       set(ORO_COMPONENT_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
@@ -218,7 +212,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     orocos_get_manifest_deps( DEPS )
     #message("orocos_get_manifest_deps are: ${DEPS}")
     foreach(DEP ${DEPS})
-      orocos_use_package( ${DEP} ) 
+      orocos_use_package( ${DEP} OROCOS_ONLY) 
     endforeach(DEP ${DEPS}) 
   endif()
 
