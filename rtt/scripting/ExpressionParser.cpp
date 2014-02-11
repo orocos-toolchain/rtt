@@ -152,7 +152,7 @@ namespace RTT
                       mobject = "GlobalService";
                       ops = GlobalService::Instance();
                   } else {
-                      if ( ops == peerparser.taskObject() && ops->provides("scripting")->hasMember(mmethod) ) {
+                      if ( ops == peerparser.taskObject() && ops->hasService("scripting") && ops->provides("scripting")->hasMember(mmethod) ) {
                           mobject = "scripting";
                           ops = ops->provides("scripting");
                       } else {

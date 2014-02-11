@@ -128,11 +128,11 @@ namespace RTT
                 else
                     throw_(begin, "From TaskContext '"+context->getName()+"': Service '"+ mcurobject->getName()+"' has no child Service '"+object+"'." );
             }
-
+            mfoundpath = true;
         }
 
         PeerParser::PeerParser(TaskContext* c, CommonParser& cp, bool fullpath)
-            : commonparser(cp), mcurobject(c->provides()), mlastobject("this"), context(c), _peer(context), mfullpath(fullpath), advance_on_error(0)
+            : commonparser(cp), mcurobject(c->provides()), mlastobject("this"), context(c), _peer(context), mfullpath(fullpath), mfoundpath(false), advance_on_error(0)
         {
             BOOST_SPIRIT_DEBUG_RULE( my_guard );
             BOOST_SPIRIT_DEBUG_RULE( peerpath );
@@ -154,6 +154,7 @@ namespace RTT
         mcurobject = context->provides();
         mlastobject = "this";
         advance_on_error = 0;
+        mfoundpath = false;
         while( !callqueue.empty() )
             callqueue.pop();
     }
@@ -190,6 +191,7 @@ namespace RTT
         else if (mcurobject == _peer->provides() && GlobalService::Instance()->hasService(name) ) {
             mcurobject = GlobalService::Instance()->provides(name);
             advance_on_error += end.base() - begin.base();
+            mfoundpath = true;
         } else {
             if ( name == "states" || name == "programs") {
                 log(Warning) << "'"<<name<<"' peer not found. The use of '"<<name<<"' has been deprecated."<<endlog();
@@ -202,8 +204,10 @@ namespace RTT
             // do not consume it though.
 //            cout << std::string(begin, end)<<endl;
             mlastobject = name;
-            if (mfullpath)
+            if (mfullpath) {
                 mcurobject.reset(); //when partial paths are OK, leave curobject pointing to last valid object.
+                mfoundpath = false;
+            }
             throw_(begin, peer_not_found );
         }
     }
@@ -233,5 +237,9 @@ namespace RTT
         return mlastobject;
     }
 
+    bool PeerParser::foundPath() 
+    {
+        return mfoundpath;
+    }
 }
 

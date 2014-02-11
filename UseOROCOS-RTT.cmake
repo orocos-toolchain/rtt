@@ -30,10 +30,13 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # If the client is using rosbuild, and has called rosbuild_init(), then we
   # will assume that he or she wants to build targets with rosbuild libraries.
   # 
-  # If the client has not called rosbuild_init() then we check if they have
-  # called `find_package(catkin ...)` and if there is a `package.xml` file in the
-  # project's source folder. If yes, and catkin has been found,
-  # then we can assume this is a catkin build.
+  # If the client has not called rosbuild_init() then we check if
+  # `find_package(catkin ...)` has been called (explicitly by the user
+  # or implicitly by building using `catkin_make`) or in the case of
+  # `catkin_make_isolated` if CATKIN_DEVEL_PREFIX is set and if there
+  # is a `package.xml` file in the.  project's source folder. If yes,
+  # and catkin has been found, then we can assume this is a catkin
+  # build.
   #
   # rosbuild- or catkin build-style build can be enforced or forbidden by setting
   # the ORO_USE_ROSBUILD or ORO_USE_CATKIN cmake variable explicitly.
@@ -50,7 +53,13 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       endif()
       rosbuild_init()
     endif()
-  elseif(ORO_USE_CATKIN OR (NOT DEFINED ORO_USE_CATKIN AND catkin_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/package.xml"))
+  elseif(ORO_USE_CATKIN OR (NOT DEFINED ORO_USE_CATKIN AND (catkin_FOUND OR DEFINED CATKIN_DEVEL_PREFIX) AND EXISTS "${PROJECT_SOURCE_DIR}/package.xml"))
+    if( NOT catkin_FOUND)
+      find_package(catkin REQUIRED)
+    endif()
+    if (NOT catkin_FOUND)
+      message(FATAL_ERROR "We are building with catkin support but catkin could not be found.")
+    endif()
     message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} with catkin develspace support.")
     set(ORO_USE_CATKIN True CACHE BOOL "Build packages with catkin develspace support.")
   else()

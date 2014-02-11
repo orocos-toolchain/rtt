@@ -64,7 +64,7 @@ namespace RTT
         std::string mlastobject;
         TaskContext* context;
         TaskContext* _peer;
-        bool mfullpath;
+        bool mfullpath, mfoundpath;
         RTT_HIDE void done();
 
         RTT_HIDE void seenobjectname( iter_t begin, iter_t end );
@@ -124,6 +124,13 @@ namespace RTT
          * Returns the last matching Service or zero if not found.
          */
         ServicePtr taskObject();
+
+        /**
+         * Returns true if the PeerParser found a valid path.
+         * Will also return true if \a fullpath was set to false in the
+         * constructor and a partial match was made.
+         */
+        bool foundPath();
     };
 }}
 
