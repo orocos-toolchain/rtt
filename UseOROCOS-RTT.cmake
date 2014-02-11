@@ -534,6 +534,8 @@ macro( orocos_library LIB_TARGET_NAME )
       add_subdirectory( ${PROJECT_SOURCE_DIR}/typekit ${PROJECT_BINARY_DIR}/typekit)
 
       list(APPEND OROCOS_DEFINED_TYPES " -l${PROJECT_NAME}-typekit-${OROCOS_TARGET}")
+      list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${PROJECT_NAME}-typekit")
+      list(APPEND ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/typekit")
     endif (NOT TYPEGEN_EXE)
   endmacro( orocos_typegen_headers )
 
