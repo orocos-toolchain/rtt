@@ -139,6 +139,7 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
 }
 BOOST_AUTO_TEST_CASE( testTypes )
 {
+    Types()->addType( new StructTypeInfo<AType,false>("astruct"));
     string test =
         // Line 2 (see below):
         string("var int i2 = -1, j = 10, k; set k = 20\n") +
@@ -248,7 +249,14 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "do test.assertEqual( ar.capacity, 10)\n"+ // check keeping capacity: ar(10) vs ar2(2)
         //-- This fails because .capacity() gets a copy of the std::vector
         "do test.assert( ar2[0] == 7.0 )\n"+
-        "do test.assert( ar2[1] == 7.0 )\n";
+        "do test.assert( ar2[1] == 7.0 )\n"+
+        "var astruct aVar\n" +
+        // 90:
+        "var astruct bVar\n" +
+        "aVar.a = 42\n" +
+        "do test.assertMsg(aVar.a == 42, \"aVar.a != 42 assignement failed - testTypes\")\n" +
+        "bVar = aVar\n" +
+        "do test.assertMsg(bVar.a == aVar.a, \"bVar.a != aVar.a assignement failed - testTypes\")\n";
 
     string state = string("StateMachine X { initial state Init { entry {\n")
         +test
