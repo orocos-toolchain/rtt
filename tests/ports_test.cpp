@@ -482,13 +482,13 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
     BOOST_CHECK_CLOSE( 3.991, get_value, 0.001 );
 
     //// Finally, check cleanup. Ports and port objects must be gone:
-    tc->ports()->removePort("Reader");
-    BOOST_CHECK( tc->provides()->hasService("Reader") == 0 );
-    BOOST_CHECK( tc->ports()->getPort("Reader") == 0 );
+    tc->ports()->removePort("Read");
+    BOOST_CHECK( tc->provides()->hasService("Read") == 0 );
+    BOOST_CHECK( tc->ports()->getPort("Read") == 0 );
 
-    tc->ports()->removePort("Writer");
-    BOOST_CHECK( tc->provides()->hasService("Writer") == 0 );
-    BOOST_CHECK( tc->ports()->getPort("Writer") == 0 );
+    tc->ports()->removePort("Write");
+    BOOST_CHECK( tc->provides()->hasService("Write") == 0 );
+    BOOST_CHECK( tc->ports()->getPort("Write") == 0 );
 }
 
 #ifdef ORO_SIGNALLING_PORTS
@@ -617,6 +617,9 @@ BOOST_AUTO_TEST_CASE(testEventPortSignalling)
     BOOST_CHECK(0 == signalled_port);
     BOOST_CHECK( !tce->had_event);
     tce->resetStats();
+
+    // mandatory
+    tce->ports()->removePort( rp1.getName() );
 }
 
 BOOST_AUTO_TEST_CASE(testPlainPortNotSignalling)
@@ -638,6 +641,9 @@ BOOST_AUTO_TEST_CASE(testPlainPortNotSignalling)
     wp1.createConnection(rp1, ConnPolicy::buffer(2));
     wp1.write(0.1);
     BOOST_CHECK( !tce->had_event );
+
+    // mandatory
+    tce->ports()->removePort( rp1.getName() );
 }
 
 BOOST_AUTO_TEST_CASE(testPortDataSource)
