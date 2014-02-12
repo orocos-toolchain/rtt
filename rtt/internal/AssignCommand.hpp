@@ -66,23 +66,28 @@ namespace RTT
         private:
             LHSSource lhs;
             RHSSource rhs;
+            bool news;
         public:
             /**
              * Assign \a r (rvalue) to \a l (lvalue);
              */
             AssignCommand( LHSSource l, RHSSource r )
-                : lhs( l ), rhs( r )
+                : lhs( l ), rhs( r ), news(false)
             {
             }
 
             void readArguments() {
-                rhs->evaluate();
+                news = rhs->evaluate();
             }
 
             bool execute()
             {
-                lhs->set( rhs->rvalue() );
-                return true;
+                if (news) {
+                    lhs->set( rhs->rvalue() );
+                    news=false;
+                    return true;
+                }
+                return false;
             }
 
             virtual base::ActionInterface* clone() const
