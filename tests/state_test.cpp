@@ -454,7 +454,6 @@ BOOST_AUTO_TEST_CASE( testStateComments)
         + "//\n"
         + "RootMachine X x // end\n"
         ;
-    cout << prog << endl;
     this->doState("x", prog, tc );
     this->finishState( "x", tc);
 }

@@ -256,7 +256,8 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "aVar.a = 42\n" +
         "do test.assertMsg(aVar.a == 42, \"aVar.a != 42 assignement failed - testTypes\")\n" +
         "bVar = aVar\n" +
-        "do test.assertMsg(bVar.a == aVar.a, \"bVar.a != aVar.a assignement failed - testTypes\")\n";
+        "do test.assertMsg(bVar.a == 42, \"bVar.a != 42 assignement failed - testTypes\")\n" +
+        " ";
 
     string state = string("StateMachine X { initial state Init { entry {\n")
         +test
