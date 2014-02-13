@@ -50,10 +50,7 @@ namespace RTT
          * A DataSource which is used to manipulate a reference to a
          * part of a data source holding a C-style array of elements.
          *
-         * This data source only works on a fixed reference in memory of
-         * a given array. In case the array's place in memory
-         * varies, you need the OffsetPartDataSource, which can access
-         * an element at any offset from a given memory location.
+         * It recalculates the reference of the part in case of copy/clone semantics.
          *
          * @param T The data type of an element.
          */
@@ -143,7 +140,19 @@ namespace RTT
                     assert ( dynamic_cast<ArrayPartDataSource<T>*>( replace[this] ) == static_cast<ArrayPartDataSource<T>*>( replace[this] ) );
                     return static_cast<ArrayPartDataSource<T>*>( replace[this] );
                 }
-                replace[this] = new ArrayPartDataSource<T>(*mref, mindex->copy(replace), mparent->copy(replace), mmax);
+
+                // Both this and mparent are copied, but the part must also copy reference mref from the new parent !
+                assert( mparent->getRawPointer() != 0 && "Can't copy part of rvalue datasource.");
+                if ( mparent->getRawPointer() == 0 )
+                    throw std::runtime_error("PartDataSource.hpp: Can't copy part of rvalue datasource.");
+                base::DataSourceBase::shared_ptr mparent_copy =  mparent->copy(replace);
+                // calculate the pointer offset in parent:
+                int offset = reinterpret_cast<unsigned char*>( mref ) - reinterpret_cast<unsigned char*>(mparent->getRawPointer());
+                // get the pointer to the new parent member:
+                typename AssignableDataSource<T>::value_t* mref_copy = reinterpret_cast<typename AssignableDataSource<T>::value_t*>( reinterpret_cast<unsigned char*>(mparent_copy->getRawPointer()) + offset );
+
+                replace[this] = new ArrayPartDataSource<T>(*mref_copy, mindex->copy(replace), mparent_copy, mmax);
+                // returns copy
                 return static_cast<ArrayPartDataSource<T>*>(replace[this]);
 
             }
@@ -152,4 +161,4 @@ namespace RTT
     }
 }
 
-#endif /* ORO_PARTDATASOURCE_HPP_ */
+#endif /* ORO_ARRAYPARTDATASOURCE_HPP_ */

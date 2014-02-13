@@ -50,11 +50,7 @@ namespace RTT
          * A DataSource which is used to manipulate a reference to a
          * part of a data source.
          *
-         * This data source only works on a fixed reference in memory of
-         * a given data sequence (ie an element of a top level struct).
-         * In case the part's place in memory
-         * varies, you need the OffsetPartDataSource, which can access
-         * an element at any offset from a given memory location.
+         * It recalculates the reference of the part in case of copy/clone semantics.
          *
          * @param T The data type of an element.
          */
@@ -123,14 +119,25 @@ namespace RTT
                     assert ( dynamic_cast<PartDataSource<T>*>( replace[this] ) == static_cast<PartDataSource<T>*>( replace[this] ) );
                     return static_cast<PartDataSource<T>*>( replace[this] );
                 }
-                // Other pieces in the code rely on insertion in the map :
-                replace[this] = new PartDataSource<T>(mref, mparent->copy(replace));
-                // return this instead of a copy.
+                // Both this and mparent are copied, but the part must also copy reference mref from the new parent !
+                assert( mparent->getRawPointer() != 0 && "Can't copy part of rvalue datasource.");
+                if ( mparent->getRawPointer() == 0 )
+                    throw std::runtime_error("PartDataSource.hpp: Can't copy part of rvalue datasource.");
+                base::DataSourceBase::shared_ptr mparent_copy =  mparent->copy(replace);
+                // calculate the pointer offset in parent:
+                int offset = reinterpret_cast<unsigned char*>( &mref ) - reinterpret_cast<unsigned char*>(mparent->getRawPointer());
+                // get the pointer to the new parent member:
+                typename AssignableDataSource<T>::value_t* mref_copy = reinterpret_cast<typename AssignableDataSource<T>::value_t*>( reinterpret_cast<unsigned char*>(mparent_copy->getRawPointer()) + offset );
+                replace[this] = new PartDataSource<T>( *mref_copy, mparent_copy );
+                // returns copy
                 return static_cast<PartDataSource<T>*>(replace[this]);
 
             }
         };
 
+        /**
+         * Partial specialisation of PartDataSource for carray<T> types.
+         */
         template<typename T>
         class PartDataSource< types::carray<T> >
         : public AssignableDataSource< types::carray<T> >
@@ -196,9 +203,18 @@ namespace RTT
                     assert ( dynamic_cast<PartDataSource*>( replace[this] ) == static_cast<PartDataSource*>( replace[this] ) );
                     return static_cast<PartDataSource*>( replace[this] );
                 }
-                // Other pieces in the code rely on insertion in the map :
-                replace[this] = new PartDataSource(mref, mparent->copy(replace));
-                // return this instead of a copy.
+                // Both this and mparent are copied, but the part must also copy reference mref from the new parent !
+                assert( mparent->getRawPointer() != 0 && "Can't copy part of rvalue datasource.");
+                if ( mparent->getRawPointer() == 0 )
+                    throw std::runtime_error("PartDataSource.hpp: Can't copy part of rvalue datasource.");
+                base::DataSourceBase::shared_ptr mparent_copy =  mparent->copy(replace);
+                // calculate the pointer offset in parent:
+                int offset = reinterpret_cast<unsigned char*>( mref.address() ) - reinterpret_cast<unsigned char*>(mparent->getRawPointer());
+                // get the pointer to the new parent member:
+                types::carray<T> mref_copy;
+                mref_copy.init(reinterpret_cast<T*>( reinterpret_cast<unsigned char*>(mparent_copy->getRawPointer()) + offset ), mref.count() );
+                replace[this] = new PartDataSource(mref_copy, mparent_copy);
+                // return copy.
                 return static_cast<PartDataSource*>(replace[this]);
 
             }
