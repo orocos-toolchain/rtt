@@ -60,16 +60,9 @@ namespace RTT
     {}
 
     PropertyBag::PropertyBag( const PropertyBag& orig)
-        : mproperties(), type( orig.getType() )
+        : mproperties()
     {
-        for( const_iterator i = orig.mproperties.begin(); i != orig.mproperties.end(); ++i) {
-            if ( orig.ownsProperty( *i ) ) {
-                PropertyBase* copy = (*i)->clone();
-                this->ownProperty( copy );
-            } else {
-                this->add( *i );
-            }
-        }
+        *this = orig;
     }
 
     PropertyBag::~PropertyBag()
@@ -238,12 +231,15 @@ namespace RTT
 
         this->clear();
 
-        const_iterator i = orig.getProperties().begin();
-        while (i != orig.getProperties().end() )
-            {
-                add( (*i) );
-                ++i;
+        for( const_iterator i = orig.mproperties.begin(); i != orig.mproperties.end(); ++i) {
+            if ( orig.ownsProperty( *i ) ) {
+                PropertyBase* copy = (*i)->clone();
+                this->ownProperty( copy );
+            } else {
+                this->add( *i );
             }
+        }
+
         this->setType( orig.getType() );
         return *this;
     }
