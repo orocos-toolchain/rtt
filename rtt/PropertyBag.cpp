@@ -547,7 +547,7 @@ namespace RTT
             // step 2 : deep copy clone with original.
             temp->copy( *it );
             // step 3 : add result to target bag.
-            target.add( temp );
+            target.ownProperty( temp );
             ++it;
         }
         return true;
