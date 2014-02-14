@@ -370,6 +370,11 @@ namespace RTT
             return new Property<T>(*this);
         }
 
+        virtual Property<T>* copy() const
+        {
+            return new Property<T>( _name, _description, _value );
+        }
+
         virtual Property<T>* create() const
         {
             return new Property<T>( _name, _description, T() );
