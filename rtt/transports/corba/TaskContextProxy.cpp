@@ -197,7 +197,7 @@ namespace RTT
         log(Debug) << "All Done."<<endlog();
     }
 
-    void TaskContextProxy::fetchRequesters(ServiceRequester* parent, CServiceRequester_ptr csrq)
+    void TaskContextProxy::fetchRequesters(ServiceRequester::shared_ptr parent, CServiceRequester_ptr csrq)
     {
         COperationCallerNames_var opcnames = csrq->getOperationCallerNames();
 
@@ -216,7 +216,7 @@ namespace RTT
                 continue;
             CServiceRequester_var cobj = csrq->getRequest(rqlist[i]);
 
-            ServiceRequester* tobj = this->requires(std::string(rqlist[i]));
+            ServiceRequester::shared_ptr tobj = this->requires(std::string(rqlist[i]));
 
             // Recurse:
             this->fetchRequesters( tobj, cobj.in() );
