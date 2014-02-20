@@ -52,7 +52,7 @@ namespace RTT
     using namespace std;
 
     ServiceRequester::ServiceRequester(const std::string& name, TaskContext* tc) :
-        DataFlowInterface(tc->provides().get()), mrname(name)
+        DataFlowInterface(tc ? tc->provides().get() : 0), mrname(name)
     {
     }
 
