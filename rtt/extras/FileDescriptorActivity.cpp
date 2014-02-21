@@ -105,6 +105,16 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Runn
     m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
 }
 
+FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, unsigned cpu_affinity, RunnableInterface* _r, const std::string& name )
+    : Activity(scheduler, priority, 0.0, cpu_affinity, _r, name)
+    , m_running(false)
+    , m_timeout_us(0)
+{
+    FD_ZERO(&m_fd_set);
+    FD_ZERO(&m_fd_work);
+    m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
+}
+
 FileDescriptorActivity::~FileDescriptorActivity()
 {
     stop();

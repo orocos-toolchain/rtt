@@ -146,6 +146,20 @@ namespace RTT { namespace extras {
          */
         FileDescriptorActivity(int scheduler, int priority, base::RunnableInterface* _r = 0, const std::string& name ="FileDescriptorActivity" );
 
+        /**
+         * Create a FileDescriptorActivity with a given scheduler type, priority,
+         * CPU affinity, and RunnableInterface instance.
+         * @param scheduler
+         *        The scheduler in which the activitie's thread must run. Use ORO_SCHED_OTHER or
+         *        ORO_SCHED_RT.
+         * @param priority The priority of the underlying thread.
+         * @param cpu_affinity The prefered cpu to run on (a mask)
+         * @param _r The optional runner, if none, this->loop() is called.
+         * @param name The name of the underlying thread.
+         */
+        FileDescriptorActivity(int scheduler, int priority, unsigned cpu_affinity,
+							   base::RunnableInterface* _r = 0, const std::string& name ="FileDescriptorActivity" );
+
         virtual ~FileDescriptorActivity();
 
         bool isRunning() const;
