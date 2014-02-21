@@ -222,7 +222,6 @@ namespace RTT {
 
         OperationInterface::clear();
         ConfigurationInterface::clear();
-        DataFlowInterface::clear();
         while ( !services.empty() ) {
         	this->removeService( services.begin()->first );
         }

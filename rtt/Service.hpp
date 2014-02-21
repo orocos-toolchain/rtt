@@ -217,8 +217,7 @@ namespace RTT
         bool hasService(const std::string& service_name);
 
         /**
-         * Clear all added operations, properties, attributes, ports and services from the repository,
-         * saving memory space.
+         * Clear all added operations from the repository, saving memory space.
          */
         void clear();
 
