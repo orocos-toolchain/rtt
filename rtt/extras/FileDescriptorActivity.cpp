@@ -80,6 +80,7 @@ FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* 
     : Activity(priority, 0.0, _r, name)
     , m_running(false)
     , m_timeout_us(0)
+    , m_period(0)
 {
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
@@ -99,16 +100,29 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Runn
     : Activity(scheduler, priority, 0.0, _r, name)
     , m_running(false)
     , m_timeout_us(0)
+    , m_period(0)
 {
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
     m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
 }
 
-FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, unsigned cpu_affinity, RunnableInterface* _r, const std::string& name )
-    : Activity(scheduler, priority, 0.0, cpu_affinity, _r, name)
+FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Seconds period, RunnableInterface* _r, const std::string& name )
+    : Activity(scheduler, priority, 0.0, _r, name)	// actual period == 0.0
     , m_running(false)
     , m_timeout_us(0)
+    , m_period(period >= 0.0 ? period : 0.0)        // intended period
+{
+    FD_ZERO(&m_fd_set);
+    FD_ZERO(&m_fd_work);
+    m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
+}
+
+FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Seconds period, unsigned cpu_affinity, RunnableInterface* _r, const std::string& name )
+    : Activity(scheduler, priority, 0.0, cpu_affinity, _r, name)	// actual period == 0.0
+    , m_running(false)
+    , m_timeout_us(0)
+    , m_period(period >= 0.0 ? period : 0.0)        // intended period
 {
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
@@ -118,6 +132,17 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, unsi
 FileDescriptorActivity::~FileDescriptorActivity()
 {
     stop();
+}
+
+Seconds FileDescriptorActivity::getPeriod() const
+{ return m_period; }
+
+bool FileDescriptorActivity::setPeriod(Seconds p)
+{
+	if (p < 0)
+        return false;
+	m_period = p;
+	return true;
 }
 
 bool FileDescriptorActivity::isRunning() const
