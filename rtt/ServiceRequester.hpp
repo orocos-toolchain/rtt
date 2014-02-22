@@ -80,7 +80,7 @@ namespace RTT
         typedef boost::shared_ptr<ServiceRequester> shared_ptr;
 
         ServiceRequester(const std::string& name, TaskContext* owner = 0);
-        ServiceRequester(const std::string& name, Service* parent = 0);
+        ServiceRequester(const std::string& name, Service* parent);
         virtual ~ServiceRequester();
 
         const std::string& getRequestName() const { return mrname; }
