@@ -283,8 +283,9 @@ macro( orocos_use_package PACKAGE )
 
   # Check a flag so we don't over-link
   if(NOT ${PACKAGE}_${OROCOS_TARGET}_USED)
-    # Check if ${PACKAGE}_EXPORTED_OROCOS_TARGETS is defined in this workspace
-    if(DEFINED ${PACKAGE}_EXPORTED_OROCOS_TARGETS OR DEFINED ${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_TARGETS)
+
+    # Check if ${PACKAGE}_OROCOS_PACKAGE is defined in this workspace
+    if((${PACKAGE}_OROCOS_PACKAGE AND NOT ORO_USE_OROCOS_ONLY) OR ${PACKAGE}-${OROCOS_TARGET}_OROCOS_PACKAGE)
       message(STATUS "[UseOrocos] Found orocos package '${PACKAGE}' in the same workspace.")
 
       # The package has been generated in the same workspace. Just use the exported targets and include directories.
@@ -292,9 +293,12 @@ macro( orocos_use_package PACKAGE )
       set(${PACKAGE}_FOUND True)
       set(${PACKAGE}_INCLUDE_DIRS ${${PACKAGE}_EXPORTED_OROCOS_INCLUDE_DIRS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_INCLUDE_DIRS})
       set(${PACKAGE}_LIBRARY_DIRS "")
-      set(${PACKAGE}_LIBRARIES ${${PACKAGE}_EXPORTED_OROCOS_TARGETS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_TARGETS})
+      set(${PACKAGE}_LIBRARIES ${${PACKAGE}_EXPORTED_OROCOS_LIBRARIES} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_LIBRARIES})
 
-      list(APPEND USE_OROCOS_EXPORTED_TARGETS ${${PACKAGE}_LIBRARIES})
+      # Use add_dependencies(target ${USE_OROCOS_EXPORTED_TARGETS}) to make sure that a target is built AFTER
+      # all targets created by other packages that have been orocos_use_package'd in the current scope.
+      list(APPEND USE_OROCOS_EXPORTED_TARGETS ${${PACKAGE}_EXPORTED_OROCOS_TARGETS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_TARGETS})
+
     else()
       # Get the package and dependency build flags
       orocos_find_package(${PACKAGE} ${ARGN})

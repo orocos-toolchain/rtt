@@ -837,10 +837,11 @@ macro( orocos_library LIB_TARGET_NAME )
     endif ( ORO_CREATE_PC_DEFAULT_ARGS )
 
     # Create dependency list
+    set(PC_DEPENDS ${ORO_CREATE_PC_DEPENDS})
     foreach( DEP ${ORO_CREATE_PC_DEPENDS_TARGETS})
-      list(APPEND ORO_CREATE_PC_DEPENDS ${DEP}-${OROCOS_TARGET})
+      list(APPEND PC_DEPENDS ${DEP}-${OROCOS_TARGET})
     endforeach()
-    string(REPLACE ";" " " ORO_CREATE_PC_DEPENDS "${ORO_CREATE_PC_DEPENDS}")
+    string(REPLACE ";" " " PC_DEPENDS "${PC_DEPENDS}")
 
     # Create lib-path list
     set(PC_LIBS "Libs: ")
@@ -871,7 +872,7 @@ orocos_libdir=\@PC_LIB_DIR\@
 
 Name: \@PC_NAME\@
 Description: \@PC_NAME\@ package for Orocos
-Requires: orocos-rtt-\@OROCOS_TARGET\@ \@ORO_CREATE_PC_DEPENDS\@
+Requires: orocos-rtt-\@OROCOS_TARGET\@ \@PC_DEPENDS@
 Version: \@ORO_CREATE_PC_VERSION\@
 \@PC_LIBS\@
 Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
@@ -945,10 +946,33 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       FILE(MAKE_DIRECTORY ${CATKIN_DEVEL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
     endif()
 
-    # Store a list of exported targets and include directories on the cache so that other packages within the same workspace can link to them.
+    # Append exported targets, libraries and include directories of all dependencies
+    set(${PROJECT_NAME}_EXPORTED_LIBRARIES ${${PROJECT_NAME}_EXPORTED_TARGETS})
+    foreach(_depend ${ORO_CREATE_PC_DEPENDS} ${ORO_CREATE_PC_DEPENDS_TARGETS})
+      list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS      ${${_depend}_EXPORTED_TARGETS})
+      list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES    ${${_depend}_LIBRARIES})
+      list(APPEND ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS ${${_depend}_INCLUDE_DIRS})
+    endforeach()
+
+    if(${PROJECT_NAME}_EXPORTED_TARGETS)
+      list(REMOVE_DUPLICATES ${PROJECT_NAME}_EXPORTED_TARGETS)
+    endif()
+    if(${PROJECT_NAME}_EXPORTED_LIBRARIES)
+      list(REMOVE_DUPLICATES ${PROJECT_NAME}_EXPORTED_LIBRARIES)
+    endif()
+    if(${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS)
+      list(REMOVE_DUPLICATES ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS)
+    endif()
+
+    # Store a list of exported targets, libraries and include directories on the cache so that other packages within the same workspace can use them.
+    set(${PC_NAME}_OROCOS_PACKAGE True CACHE INTERNAL "Mark ${PC_NAME} package as an Orocos package built in this workspace")
     if(${PROJECT_NAME}_EXPORTED_TARGETS)
       message(STATUS "[UseOrocos] Exporting targets ${${PROJECT_NAME}_EXPORTED_TARGETS}.")
       set(${PC_NAME}_EXPORTED_OROCOS_TARGETS ${${PROJECT_NAME}_EXPORTED_TARGETS} CACHE INTERNAL "Targets exported by package ${PC_NAME}")
+    endif()
+    if(${PROJECT_NAME}_EXPORTED_LIBRARIES)
+      message(STATUS "[UseOrocos] Exporting libraries ${${PROJECT_NAME}_EXPORTED_LIBRARIES}.")
+      set(${PC_NAME}_EXPORTED_OROCOS_LIBRARIES ${${PROJECT_NAME}_EXPORTED_LIBRARIES} CACHE INTERNAL "Libraries exported by package ${PC_NAME}")
     endif()
     if(${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS)
       message(STATUS "[UseOrocos] Exporting include directories ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS}.")
