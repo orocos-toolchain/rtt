@@ -200,23 +200,23 @@ macro( orocos_find_package PACKAGE )
       unset(${PACKAGE}_LIBRARIES)
       foreach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
         # Two options: COMP_LIB is an absolute path-to-lib (must start with ':') or just a libname:
-        if ( ${COMP_LIB} MATCHES "^:(.+)" OR EXISTS ${COMP_LIB})
+        if ( ${COMP_LIB} MATCHES "^:(.+)" )
           if (EXISTS "${CMAKE_MATCH_1}" )
             # absolute path (shared lib):
             set( ${PACKAGE}_${COMP_LIB}_LIBRARY "${CMAKE_MATCH_1}" )
           endif()
-          if (EXISTS "${COMP_LIB}" )
-            # absolute path (static lib):
-            set( ${PACKAGE}_${COMP_LIB}_LIBRARY "${COMP_LIB}" )
-          endif()
+        elseif (EXISTS "${COMP_LIB}" )
+          # absolute path (static lib):
+          set( ${PACKAGE}_${COMP_LIB}_LIBRARY "${COMP_LIB}" )
         else()
           # libname:
           find_library(${PACKAGE}_${COMP_LIB}_LIBRARY NAMES ${COMP_LIB} HINTS ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS})
         endif()
-        if(${PACKAGE}_${COMP_LIB}_LIBRARY)
-        else(${PACKAGE}_${COMP_LIB}_LIBRARY)
+
+        if(NOT ${PACKAGE}_${COMP_LIB}_LIBRARY)
           message(SEND_ERROR "In package >>>${PACKAGE}<<< : could not find library ${COMP_LIB} in directory ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS}, although its .pc file says it should be there.\n\n Try to do 'make clean; rm -rf lib' and then 'make' in the package >>>${PACKAGE}<<<.\n\n")
-        endif(${PACKAGE}_${COMP_LIB}_LIBRARY)
+        endif()
+
         list(APPEND ${PACKAGE}_LIBRARIES "${${PACKAGE}_${COMP_LIB}_LIBRARY}")
       endforeach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
 
