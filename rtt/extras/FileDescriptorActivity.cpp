@@ -169,6 +169,7 @@ bool FileDescriptorActivity::start()
         close(m_interrupt_pipe[0]);
         close(m_interrupt_pipe[1]);
         m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
+        log(Error) << "FileDescriptorActivity: Activity::start() failed" << endlog();
         return false;
     }
     return true;
