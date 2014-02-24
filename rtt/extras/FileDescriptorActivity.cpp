@@ -79,7 +79,7 @@ const char FileDescriptorActivity::CMD_UPDATE_SETS;
 FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* _r, const std::string& name )
     : Activity(priority, 0.0, _r, name)
     , m_running(false)
-    , m_timeout(0)
+    , m_timeout_us(0)
 {
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
@@ -98,7 +98,7 @@ FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* 
 FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, RunnableInterface* _r, const std::string& name )
     : Activity(scheduler, priority, 0.0, _r, name)
     , m_running(false)
-    , m_timeout(0)
+    , m_timeout_us(0)
 {
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
@@ -113,9 +113,24 @@ FileDescriptorActivity::~FileDescriptorActivity()
 bool FileDescriptorActivity::isRunning() const
 { return Activity::isRunning() && m_running; }
 int FileDescriptorActivity::getTimeout() const
-{ return m_timeout; }
+{ return m_timeout_us / 1000; }
+int FileDescriptorActivity::getTimeout_us() const
+{ return m_timeout_us; }
 void FileDescriptorActivity::setTimeout(int timeout)
-{ m_timeout = timeout; }
+{
+	setTimeout_us(timeout * 1000);
+}
+void FileDescriptorActivity::setTimeout_us(int timeout_us)
+{
+	if (0 <= timeout_us)
+	{
+		m_timeout_us = timeout_us;
+	}
+	else
+	{
+        log(Error) << "Ignoring invalid timeout (" << timeout_us << ")" << endlog();
+    }
+}
 void FileDescriptorActivity::watch(int fd)
 { RTT::os::MutexLock lock(m_lock);
     if (fd < 0)
@@ -209,13 +224,15 @@ void FileDescriptorActivity::loop()
 
         int ret;
         m_running = false;
-        if (m_timeout == 0)
+        if (m_timeout_us == 0)
         {
             ret = select(max_fd + 1, &m_fd_work, NULL, NULL, NULL);
         }
         else
         {
-            timeval timeout = { m_timeout / 1000, (m_timeout % 1000) * 1000 };
+			static const int USECS_PER_SEC = 1000000;
+            timeval timeout = { m_timeout_us / USECS_PER_SEC,
+                                m_timeout_us % USECS_PER_SEC};
             ret = select(max_fd + 1, &m_fd_work, NULL, NULL, &timeout);
         }
 

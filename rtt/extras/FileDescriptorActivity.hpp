@@ -60,6 +60,8 @@ namespace RTT { namespace extras {
      *      fd_activity->watch(device_fd);
      *      // optional, set a timeout in milliseconds
      *      fd_activity->setTimeout(1000);
+     *      // or in microseconds
+     *      fd_activity->setTimeout_us(1000);
      *   }
      * </code>
      *
@@ -103,7 +105,7 @@ namespace RTT { namespace extras {
         std::set<int> m_watched_fds;
         bool m_running;
         int  m_interrupt_pipe[2];
-        int  m_timeout;
+        int  m_timeout_us;		//! timeout in microseconds
         /** Lock that protects the access to m_fd_set and m_watched_fds */
         mutable RTT::os::Mutex m_lock;
         fd_set m_fd_set;
@@ -201,13 +203,27 @@ namespace RTT { namespace extras {
 
         /** Sets the timeout, in milliseconds, for waiting on the IO. Set to 0
          * for blocking behaviour (no timeout).
+		 * @pre 0 <= timeout (otherwise an error is logged and \a timeout
+		 * is ignored)
          */
         void setTimeout(int timeout);
+
+        /** Sets the timeout, in microseconds, for waiting on the IO. Set to 0
+         * for blocking behaviour (no timeout).
+		 * @pre 0 <= timeout (otherwise an error is logged and \a timeout_us
+		 * is ignored)
+         */
+        void setTimeout_us(int timeout_us);
 
         /** Get the timeout, in milliseconds, for waiting on the IO. Set to 0
          * for blocking behaviour (no timeout).
          */
         int getTimeout() const;
+
+        /** Get the timeout, in microseconds, for waiting on the IO. Set to 0
+         * for blocking behaviour (no timeout).
+         */
+        int getTimeout_us() const;
 
         virtual bool start();
         virtual void loop();
