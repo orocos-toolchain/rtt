@@ -92,6 +92,10 @@ namespace RTT {
             }
     }
 
+    bool TimeService::systemClockEnabled() const
+    {
+      return use_clock;
+    }
 
     TimeService::ticks
     TimeService::getTicks() const
@@ -134,6 +138,13 @@ namespace RTT {
     {
         offset += nsecs2ticks( Seconds_to_nsecs( delta ) );
         return nsecs_to_Seconds( ticks2nsecs( ticksSince( 0 ) ) ) ;
+    }
+
+    TimeService::ticks
+    TimeService::ticksChange( TimeService::ticks delta )
+    {
+        offset += delta;
+        return ticksSince( 0 );
     }
 
     TimeService::nsecs
