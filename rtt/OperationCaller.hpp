@@ -101,7 +101,7 @@ namespace RTT
          * Use assignment to initialise it.
          */
         OperationCaller()
-            : Base(), mname()
+            : Base(), mname(), mcaller(0)
         {}
 
         /**

@@ -252,6 +252,10 @@ bool RemoteOutputPort::createConnection( RTT::base::InputPortInterface& sink, RT
         }
         // !!! only if sink is local:
         // this dynamic CDataFlowInterface lookup is tricky, we re/ab-use the DataFlowInterface pointer of sink !
+        if(sink.getInterface() == 0){
+            log(Error)<<"RemotePort connection is only possible if the local port '"<<sink.getName()<<"' is added to a DataFlowInterface. Use addPort for this."<<endlog();
+            return false;
+        }
         CDataFlowInterface_ptr cdfi = CDataFlowInterface_i::getRemoteInterface( sink.getInterface(), mpoa.in() );
         if ( dataflow->createConnection( this->getName().c_str(), cdfi , sink.getName().c_str(), cpolicy ) ) {
             policy.name_id = cpolicy.name_id;

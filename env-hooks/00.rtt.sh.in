@@ -1,0 +1,4 @@
+#!/bin/sh
+export OROCOS_TARGET=@OROCOS_TARGET@
+export RTT_COMPONENT_PATH=`echo $CMAKE_PREFIX_PATH | sed 's!:!/lib/orocos:!g' | sed 's!$!/lib/orocos!'`
+

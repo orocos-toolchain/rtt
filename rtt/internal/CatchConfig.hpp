@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: The SourceWorks  Tue Sep 7 00:55:18 CEST 2010  GlobalEngine.hpp
+  tag: Matthias Goldhoorn  Fri Oct 18 10:00:05 CEST 2013  Config.hpp
 
-                        GlobalEngine.hpp -  description
+                        CatchConfig.hpp -  description
                            -------------------
-    begin                : Tue September 07 2010
-    copyright            : (C) 2010 The SourceWorks
-    email                : peter@thesourceworks.com
+    begin                : Fri Oct 18 10:00:05 CEST 2013
+    copyright            : (C) 2013 Matthias Goldhoorn
+    email                : matthias@goldhoorn.eu
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -35,45 +35,47 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef ORO_CATCHCONFIG_HPP
+#define ORO_CATCHCONFIG_HPP
 
-#ifndef ORO_GLOBALENGINE_HPP_
-#define ORO_GLOBALENGINE_HPP_
+#include <stdlib.h>
 
-#include "../ExecutionEngine.hpp"
-#include <boost/shared_ptr.hpp>
+/**
+ * @file CatchConfig.hpp
+ */
 
-namespace RTT
-{
+/**
+ * @brief Contains static global configuration variables and cached entries
+ *
+ * The Real-Time Toolkit is documented in <a href="../../orocos-manual.html">
+ * The Orocos Real-Time Toolkit Online Manual</a>
+ */
 
-    namespace internal
-    {
 
-        /**
-         * A process-wide execution engine that processes every
-         * asynchronous operation that is not being processed by
-         * a TaskContext.
-         *
-         * In practice, this only occurs when a client does a 
-         * send() on an OperationCaller which calls an Operation
-         * with the ClientThread policy. 
-         */
-        class GlobalEngine: public RTT::ExecutionEngine
-        {
-            boost::shared_ptr<base::ActivityInterface> mact;
-            GlobalEngine(int scheduler, int priority, unsigned cpu_affinity);
-            virtual ~GlobalEngine();
-        public:
-            /** @overload
-             * This is kept (instead of using default parameters) for ABI
-             * compatibility
-             */
-            RTT_API static ExecutionEngine* Instance() { return Instance(ORO_SCHED_OTHER); }
-            RTT_API static ExecutionEngine* Instance(int scheduler, int priority = os::LowestPriority, unsigned cpu_affinity = 0);
-            RTT_API static void Release();
-        };
+#if !defined(ORO_EMBEDDED)
+# define TRY(C) if(::RTT::internal::catch_exception()){C} else try{C}
+# define CATCH(T,C) catch(T){C}
+# define CATCH_ALL(C) catch(...){C}
+#else //Exceptions are not availible at all
+# define TRY(C) C
+# define CATCH(T,C)
+# define CATCH_ALL(C)
+#endif
 
+namespace RTT{
+    namespace internal {
+        extern int m_catch_exception;
+        inline bool catch_exception(){
+            if(m_catch_exception == -1){
+                if(getenv("RTT_IGNORE_EXCEPTION")){
+                    m_catch_exception = 1;
+                }else{
+                    m_catch_exception = 0;
+                }
+            }
+            return (bool)m_catch_exception;
+        }
     }
-
 }
 
-#endif /* ORO_GLOBALENGINE_HPP_ */
+#endif

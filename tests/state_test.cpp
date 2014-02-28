@@ -423,6 +423,41 @@ BOOST_AUTO_TEST_CASE( testStateEmptyChild)
     this->finishState( "x", tc);
 }
 
+BOOST_AUTO_TEST_CASE( testStateComments)
+{
+    // test parsing of comments
+    string prog = string("// Start here\n")
+        + "StateMachine X { //\n"
+        + " // comment on INIT\n"
+        + " initial state INIT /* INIT */ { // \n"
+        + " // comment in INIT\n"
+        + " entry /* entry */ { // \n"
+        + " // in entry\n"
+        + " } // end \n\n"
+        + "//\n"
+        + " }\n"
+        + " // intermediate comment \n"
+        + " final state FINI // \n"
+        + " /* ... */\n"
+        + " {\n"
+        + "//\n"
+        + " entry {\n"
+        + " // in entry\n"
+        + " /* in entry */\n"
+        + " }\n\n"
+        + "//\n"
+        + " }\n"
+        + "// final comment\n"
+        + "//\n"
+        + "}\n"
+        + "// instantiate comment\n"
+        + "//\n"
+        + "RootMachine X x // end\n"
+        ;
+    this->doState("x", prog, tc );
+    this->finishState( "x", tc);
+}
+
 BOOST_AUTO_TEST_CASE( testStateTransitions)
 {
     // test processing of transition statements.

@@ -66,6 +66,7 @@ namespace RTT {
         this->addOperation("loadProperties",&MarshallingService::loadProperties, this)
                 .doc("Read, and create if necessary, Properties from a file.")
                 .arg("Filename","The file to read the (new) Properties from.");
+
         this->addOperation("storeProperties", &MarshallingService::storeProperties, this)
                 .doc("Store properties in a file and overwrite any existing content.")
                 .arg("Filename", "The file to write the Properties to.");
@@ -85,48 +86,173 @@ namespace RTT {
                 .doc("Write all Properties to a file, but keep existing ones in that file.").arg("Filename", "The file to write the Properties to.");
         this->addOperation("writeProperty", &MarshallingService::writeProperty, this)
                 .doc("Write a single Property to a file and keep existing ones in that file.").arg("Name", "The name of (or the path to) the property to write.").arg("Filename", "The file to write the Properties to.");
+
+        this->addOperation("loadServiceProperties",&MarshallingService::loadServiceProperties, this)
+                .doc("Read, and create if necessary, Properties from a file.")
+                .arg("Filename","The file to read the (new) Properties from.")
+                .arg("Servicename","The Service to load the (new) Properties to.");
+        this->addOperation("storeServiceProperties", &MarshallingService::storeServiceProperties, this)
+                .doc("Store properties in a file and overwrite any existing content.")
+                .arg("Filename", "The file to write the Properties to.")
+                .arg("Servicename","The Service store the Properties of.");
+
+        this->addOperation("readServiceProperties", &MarshallingService::readServiceProperties, this)
+                .doc("Read all Properties from a file. Returns false if one or more properties are missing or have a wrong type in that file.")
+                .arg("Filename", "The file to read the Properties from.")
+                .arg("Servicename","The Service to load the Properties to.");
+        this->addOperation("readServiceProperty", &MarshallingService::readServiceProperty, this)
+                .doc("Read a single Property from a file.")
+                .arg("Name", "The name of (or the path to) the property to read.")
+                .arg("Filename", "The file to read the Property from.")
+            .arg("Servicename","The Service to load the Property to.");
+
+        this->addOperation("updateServiceProperties", &MarshallingService::updateServiceProperties, this)
+                .doc("Read some Properties from a file. Updates only matching properties. Returns false upon type mismatch.")
+                .arg("Filename", "The file to read the Properties from.")
+                .arg("Servicename","The Service to update the Properties of.");
+
+        this->addOperation("updateServiceFile", &MarshallingService::updateServiceFile, this)
+                .doc("Write some Properties to a file, ie, only the ones that are already present in the file.")
+                .arg("Filename", "The file to write the Properties to.")
+                .arg("Servicename","The Service to update the Properties of.");
+
+        this->addOperation("writeServiceProperties", &MarshallingService::writeServiceProperties, this)
+                .doc("Write all Properties to a file, but keep existing ones in that file.")
+                .arg("Filename", "The file to write the Properties to.")
+                .arg("Servicename","The Service to write the Properties of.");
+
+        this->addOperation("writeServiceProperty", &MarshallingService::writeServiceProperty, this)
+                .doc("Write a single Property to a file and keep existing ones in that file.")
+                .arg("Name", "The name of (or the path to) the property to write.")
+                .arg("Filename", "The file to write the Properties to.")
+                .arg("Servicename","The Service to write the Property of.");
+
     }
 
     bool MarshallingService::loadProperties(const std::string& filename) const
     {
-        PropertyLoader pl(mowner);
+        PropertyLoader pl(this->getParent().get());
         return pl.load( filename );
     }
 
     bool MarshallingService::storeProperties(const std::string& filename) const
     {
-        PropertyLoader pl(mowner);
+        PropertyLoader pl(this->getParent().get());
         return pl.store( filename );
     }
 
     bool MarshallingService::readProperties(const std::string& filename) const
     {
-        PropertyLoader pl(mowner);
+        PropertyLoader pl(this->getParent().get());
         return pl.configure( filename, true); // all
     }
     bool MarshallingService::updateProperties(const std::string& filename) const
     {
-        PropertyLoader pl(mowner);
+        PropertyLoader pl(this->getParent().get());
         return pl.configure( filename, false); // not all
     }
     bool MarshallingService::writeProperties(const std::string& filename) const
     {
-        PropertyLoader pl(mowner);
+        PropertyLoader pl(this->getParent().get());
         return pl.save( filename, true);
     }
     bool MarshallingService::updateFile(const std::string& filename) const
     {
-        PropertyLoader pl(mowner);
+        PropertyLoader pl(this->getParent().get());
         return pl.save( filename, false);
     }
 
     bool MarshallingService::readProperty(const std::string& name, const std::string& filename) {
-        PropertyLoader pl(mowner);
+        PropertyLoader pl(this->getParent().get());
         return pl.configure(filename, name);
     }
 
     bool MarshallingService::writeProperty(const std::string& name, const std::string& filename) {
-        PropertyLoader pl(mowner);
+        PropertyLoader pl(this->getParent().get());
+        return pl.save(filename, name);
+    }
+
+
+    bool MarshallingService::loadServiceProperties(const std::string& filename, const std::string& servicename) const
+    {
+        if(!this->getParent()->hasService(servicename)){
+            Logger::In(this->getName());
+            log(Error)<<this->getParent()->getName()<<" does not have a service called "<<servicename<<endlog();
+            return false;
+        }
+        PropertyLoader pl(this->getParent()->provides(servicename).get());
+        return pl.load( filename );
+    }
+
+    bool MarshallingService::storeServiceProperties(const std::string& filename, const std::string& servicename) const
+    {
+        if(!this->getParent()->hasService(servicename)){
+            Logger::In(this->getName());
+            log(Error)<<this->getParent()->getName()<<" does not have a service called "<<servicename<<endlog();
+            return false;
+        }
+        PropertyLoader pl(this->getParent()->provides(servicename).get());
+        return pl.store( filename );
+    }
+
+    bool MarshallingService::readServiceProperties(const std::string& filename, const std::string& servicename) const
+    {
+        if(!this->getParent()->hasService(servicename)){
+            Logger::In(this->getName());
+            log(Error)<<this->getParent()->getName()<<" does not have a service called "<<servicename<<endlog();
+            return false;
+        }
+        PropertyLoader pl(this->getParent()->provides(servicename).get());
+        return pl.configure( filename, true); // all
+    }
+    bool MarshallingService::updateServiceProperties(const std::string& filename, const std::string& servicename) const
+    {
+        if(!this->getParent()->hasService(servicename)){
+            Logger::In(this->getName());
+            log(Error)<<this->getParent()->getName()<<" does not have a service called "<<servicename<<endlog();
+            return false;
+        }
+        PropertyLoader pl(this->getParent()->provides(servicename).get());
+        return pl.configure( filename, false); // not all
+    }
+    bool MarshallingService::writeServiceProperties(const std::string& filename, const std::string& servicename) const
+    {
+        if(!this->getParent()->hasService(servicename)){
+            Logger::In(this->getName());
+            log(Error)<<this->getParent()->getName()<<" does not have a service called "<<servicename<<endlog();
+            return false;
+        }
+        PropertyLoader pl(this->getParent()->provides(servicename).get());
+        return pl.save( filename, true);
+    }
+    bool MarshallingService::updateServiceFile(const std::string& filename, const std::string& servicename) const
+    {
+        if(!this->getParent()->hasService(servicename)){
+            Logger::In(this->getName());
+            log(Error)<<this->getParent()->getName()<<" does not have a service called "<<servicename<<endlog();
+            return false;
+        }
+        PropertyLoader pl(this->getParent()->provides(servicename).get());
+        return pl.save( filename, false);
+    }
+
+    bool MarshallingService::readServiceProperty(const std::string& name, const std::string& filename, const std::string& servicename) {
+        if(!this->getParent()->hasService(servicename)){
+            Logger::In(this->getName());
+            log(Error)<<this->getParent()->getName()<<" does not have a service called "<<servicename<<endlog();
+            return false;
+        }
+        PropertyLoader pl(this->getParent()->provides(servicename).get());
+        return pl.configure(filename, name);
+    }
+
+    bool MarshallingService::writeServiceProperty(const std::string& name, const std::string& filename, const std::string& servicename) {
+        if(!this->getParent()->hasService(servicename)){
+            Logger::In(this->getName());
+            log(Error)<<this->getParent()->getName()<<" does not have a service called "<<servicename<<endlog();
+            return false;
+        }
+        PropertyLoader pl(this->getParent()->provides(servicename).get());
         return pl.save(filename, name);
     }
 

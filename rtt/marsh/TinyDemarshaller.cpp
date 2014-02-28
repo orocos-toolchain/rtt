@@ -184,6 +184,10 @@ namespace RTT
                         else if ( type == "string")
                             bag_stack.top().first->add
                             ( new Property<std::string>( name, description, value_string ) );
+                        else{
+                        	log(Error)<<"Unknown type \""<<type<< "\" for for tag simple"<<endlog();
+                        	return false;
+                        }
                         tag_stack.pop();
                         value_string.clear(); // cleanup
                         description.clear();
@@ -332,8 +336,10 @@ namespace RTT
                         // recurse in children, if any
                         for ( pChild = pParent->FirstChild(); pChild != 0; pChild = pChild->NextSibling())
                             {
-                                if ( this->populateBag( pChild ) == false)
+                                if ( this->populateBag( pChild ) == false){
+                                	log(Error)<<"Error in element at line "<<pChild->Row() << endlog();
                                     return false;
+                                }
                             }
 
                         // notify end of element

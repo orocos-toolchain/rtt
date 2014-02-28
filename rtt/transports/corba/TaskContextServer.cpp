@@ -324,8 +324,8 @@ namespace RTT
         : public Activity
     {
     public:
-        OrbRunner()
-            : Activity(RTT::os::LowestPriority)
+        OrbRunner(int scheduler, int priority, unsigned cpu_affinity)
+            : Activity(scheduler, priority, cpu_affinity)
         {}
         void loop()
         {
@@ -345,7 +345,8 @@ namespace RTT
         }
     };
 
-    void TaskContextServer::ThreadOrb()
+    void TaskContextServer::ThreadOrb() { return ThreadOrb(ORO_SCHED_RT); }
+    void TaskContextServer::ThreadOrb(int scheduler, int priority, unsigned cpu_affinity)
     {
         Logger::In in("ThreadOrb");
         if ( CORBA::is_nil(orb) ) {
@@ -356,8 +357,7 @@ namespace RTT
             log(Error) <<"Orb already running in a thread."<<endlog();
         } else {
             log(Info) <<"Starting Orb in a thread."<<endlog();
-            orbrunner = new OrbRunner();
-
+            orbrunner = new OrbRunner(scheduler, priority, cpu_affinity);
             orbrunner->start();
         }
     }

@@ -133,7 +133,7 @@ namespace RTT
     {
         for (OperationCallers::const_iterator it = mmethods.begin(); it != mmethods.end(); ++it)
             if ( !it->second->ready() ) {
-                log(Debug) << "ServiceRequeste: "<< it->first << " not set up." <<endlog();
+                log(Debug) << "ServiceRequester: "<< it->first << " not set up." <<endlog();
                 return false;
             }
         return true;

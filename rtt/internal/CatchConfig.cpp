@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: The SourceWorks  Tue Sep 7 00:55:18 CEST 2010  GlobalEngine.hpp
+  tag: Matthias Goldhoorn  Fri Oct 18 10:00:05 CEST 2013  Config.hpp
 
-                        GlobalEngine.hpp -  description
+                        Config.cpp -  description
                            -------------------
-    begin                : Tue September 07 2010
-    copyright            : (C) 2010 The SourceWorks
-    email                : peter@thesourceworks.com
+    begin                : Fri Oct 18 10:00:05 CEST 2013
+    copyright            : (C) 2013 Matthias Goldhoorn
+    email                : matthias@goldhoorn.eu
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -35,45 +35,5 @@
  *                                                                         *
  ***************************************************************************/
 
-
-#ifndef ORO_GLOBALENGINE_HPP_
-#define ORO_GLOBALENGINE_HPP_
-
-#include "../ExecutionEngine.hpp"
-#include <boost/shared_ptr.hpp>
-
-namespace RTT
-{
-
-    namespace internal
-    {
-
-        /**
-         * A process-wide execution engine that processes every
-         * asynchronous operation that is not being processed by
-         * a TaskContext.
-         *
-         * In practice, this only occurs when a client does a 
-         * send() on an OperationCaller which calls an Operation
-         * with the ClientThread policy. 
-         */
-        class GlobalEngine: public RTT::ExecutionEngine
-        {
-            boost::shared_ptr<base::ActivityInterface> mact;
-            GlobalEngine(int scheduler, int priority, unsigned cpu_affinity);
-            virtual ~GlobalEngine();
-        public:
-            /** @overload
-             * This is kept (instead of using default parameters) for ABI
-             * compatibility
-             */
-            RTT_API static ExecutionEngine* Instance() { return Instance(ORO_SCHED_OTHER); }
-            RTT_API static ExecutionEngine* Instance(int scheduler, int priority = os::LowestPriority, unsigned cpu_affinity = 0);
-            RTT_API static void Release();
-        };
-
-    }
-
-}
-
-#endif /* ORO_GLOBALENGINE_HPP_ */
+#include <internal/CatchConfig.hpp>
+int RTT::internal::m_catch_exception=-1;

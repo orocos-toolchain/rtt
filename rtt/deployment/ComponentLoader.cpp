@@ -15,6 +15,9 @@
 # include <dlfcn.h>
 #endif
 
+#include <vector>
+#include <set>
+
 using namespace RTT;
 using namespace RTT::detail;
 using namespace std;
@@ -57,6 +60,15 @@ static const std::string delimiters(":;");
 static const char default_delimiter(':');
 # endif
 
+// define RTT_UNUSED macro
+#ifndef RTT_UNUSED
+  #ifdef __GNUC__
+    #define RTT_UNUSED __attribute__((unused))
+  #else
+    #define RTT_UNUSED
+  #endif
+#endif
+
 /** Determine whether a file extension is actually part of a library version
 
     @return true if \a ext satisfies "^\.[:digit:]+$"
@@ -65,7 +77,7 @@ static const char default_delimiter(':');
     returns true  for ".1", ".12", ".123"
     returns false for ".a", "1", "123", ".123 ", "a", "", ".1.a", ".1a2"
 */
-static bool isExtensionVersion(const std::string& ext)
+static RTT_UNUSED bool isExtensionVersion(const std::string& ext)
 {
     bool isExtensionVersion = false;
 
@@ -142,50 +154,9 @@ static bool isLoadableLibrary(const path& filename)
     return isLoadable;
 }
 
-namespace RTT {
-    extern char const* default_comp_path_build;
-}
-
-namespace {
-    /**
-     * Reads the RTT_COMPONENT_PATH and inits the ComponentLoader.
-     */
-    int loadComponents()
-    {
-        std::string default_comp_path = ::default_comp_path_build;
-
-        char* paths = getenv("RTT_COMPONENT_PATH");
-        string component_paths;
-        if (paths) {
-            component_paths = paths;
-            // prepend the default search path.
-            if ( !default_comp_path.empty() )
-                component_paths = component_paths + default_delimiter + default_comp_path;
-            log(Info) <<"RTT_COMPONENT_PATH was set to: " << paths << " . Searching in: "<< component_paths<< endlog();
-        } else {
-            component_paths = default_comp_path;
-            log(Info) <<"No RTT_COMPONENT_PATH set. Using default: " << component_paths <<endlog();
-        }
-        // we set the component path such that we can search for sub-directories/projects lateron
-        ComponentLoader::Instance()->setComponentPath(component_paths);
-        return 0;
-    }
-
-    os::InitFunction component_loader( &loadComponents );
-
-    void unloadComponents()
-    {
-        ComponentLoader::Release();
-    }
-
-    os::CleanupFunction component_unloader( &unloadComponents );
-}
-
-static boost::shared_ptr<ComponentLoader> instance2;
-
 namespace {
 
-    // copied from RTT::PluginLoader
+// copied from RTT::PluginLoader
 static vector<string> splitPaths(string const& str)
 {
     vector<string> paths;
@@ -210,6 +181,33 @@ static vector<string> splitPaths(string const& str)
     return paths;
 }
 
+static void removeDuplicates(string& path_list)
+{
+    vector<string> paths;
+    set<string> seen;
+    string result;
+
+    // split path_lists
+    paths = splitPaths( path_list );
+
+    // iterate over paths and append to result
+    for(vector<string>::const_iterator it = paths.begin(); it != paths.end(); ++it)
+    {
+        if (seen.count(*it))
+            continue;
+        else
+            seen.insert(*it);
+
+        result = result + *it + default_delimiter;
+    }
+
+    // remove trailing delimiter
+    if (result.size() > 0 && result.at(result.size() - 1) == default_delimiter)
+        result = result.substr(0, result.size() - 1);
+
+    path_list.swap(result);
+}
+
 /**
  * Strips the 'lib' prefix and '.so'/'.dll'/... suffix (ie SO_EXT) from a filename.
  * Do not provide paths, only filenames, for example: "libcomponent.so"
@@ -227,7 +225,7 @@ static string makeShortFilename(string const& str) {
 
 }
 
-static bool hasEnding(string const &fullString, string const &ending)
+static RTT_UNUSED bool hasEnding(string const &fullString, string const &ending)
 {
     if (fullString.length() > ending.length()) {
         return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
@@ -235,6 +233,49 @@ static bool hasEnding(string const &fullString, string const &ending)
         return false;
     }
 }
+
+namespace RTT {
+    extern char const* default_comp_path_build;
+}
+
+namespace {
+    /**
+     * Reads the RTT_COMPONENT_PATH and inits the ComponentLoader.
+     */
+    int loadComponents()
+    {
+        std::string default_comp_path = ::default_comp_path_build;
+
+        char* paths = getenv("RTT_COMPONENT_PATH");
+        string component_paths;
+        if (paths) {
+            component_paths = paths;
+            // prepend the default search path.
+            if ( !default_comp_path.empty() )
+                component_paths = component_paths + default_delimiter + default_comp_path;
+            removeDuplicates( component_paths );
+            log(Info) <<"RTT_COMPONENT_PATH was set to: " << paths << " . Searching in: "<< component_paths<< endlog();
+        } else {
+            component_paths = default_comp_path;
+            removeDuplicates( component_paths );
+            log(Info) <<"No RTT_COMPONENT_PATH set. Using default: " << component_paths <<endlog();
+        }
+        // we set the component path such that we can search for sub-directories/projects lateron
+        ComponentLoader::Instance()->setComponentPath(component_paths);
+        return 0;
+    }
+
+    os::InitFunction component_loader( &loadComponents );
+
+    void unloadComponents()
+    {
+        ComponentLoader::Release();
+    }
+
+    os::CleanupFunction component_unloader( &unloadComponents );
+}
+
+static boost::shared_ptr<ComponentLoader> instance2;
 
 boost::shared_ptr<ComponentLoader> ComponentLoader::Instance() {
     if (!instance2)
@@ -250,6 +291,8 @@ void ComponentLoader::Release() {
 // imports components and plugins from it.
 bool ComponentLoader::import( std::string const& path_list )
 {
+    RTT::Logger::In in("ComponentLoader::import(path_list)");
+
     if (path_list.empty() ) {
         log(Error) << "import paths: No paths were given for loading ( path_list = '' )."<<endlog();
         return false;
@@ -351,6 +394,8 @@ bool ComponentLoader::import( std::string const& path_list )
 // the search path.
 bool ComponentLoader::import( std::string const& package, std::string const& path_list )
 {
+    RTT::Logger::In in("ComponentLoader::import(package, path_list)");
+
     // check first for exact match to *file*:
     path arg( package );
     if (is_regular_file(arg) && isLoadableLibrary(arg)) {
@@ -387,6 +432,8 @@ bool ComponentLoader::import( std::string const& package, std::string const& pat
 
 bool ComponentLoader::importInstalledPackage(std::string const& package, std::string const& path_list)
 {
+    RTT::Logger::In in("ComponentLoader::importInstalledPackage(package, path_list)");
+
     string paths;
     string trypaths;
     vector<string> tryouts;
@@ -448,10 +495,10 @@ bool ComponentLoader::importInstalledPackage(std::string const& package, std::st
             return false;
         }
     }
-    log(Error) << "No such package or directory found in search path: " << package << ". Search path is: "<< endlog();
-    log(Error) << trypaths << endlog();
+    log(Error) << "No such package or directory found in search path: " << package << ". Search path is: " << trypaths << endlog();
+    log(Error) << "Directories searched include the following: " << endlog();
     for(vector<string>::iterator it=tryouts.begin(); it != tryouts.end(); ++it)
-        log(Error) << *it << endlog();
+        log(Error) << " - " << *it << endlog();
     return false;
 }
 

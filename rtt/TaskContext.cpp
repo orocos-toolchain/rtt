@@ -190,7 +190,7 @@ namespace RTT
 
     bool TaskContext::connectServices( TaskContext* peer )
     {
-        bool failure = false;
+        bool success = true;
         const std::string& location = this->getName();
         Logger::In in( location.c_str()  );
 
@@ -204,7 +204,7 @@ namespace RTT
             ServiceRequester* sr = this->requires(*it);
             if ( !sr->ready() ) {
                 if (peer->provides()->hasService( *it ))
-                    sr->connectTo( peer->provides(*it) );
+                    success = sr->connectTo( peer->provides(*it) ) && success;
                 else {
                     log(Debug)<< "Peer Task "<<peer->getName() <<" provides no Service " << *it << endlog();
                 }
@@ -218,12 +218,12 @@ namespace RTT
             ServiceRequester* sr = peer->requires(*it);
             if ( !sr->ready() ) {
                 if (this->provides()->hasService(*it))
-                    sr->connectTo( this->provides(*it) );
+                    success = sr->connectTo( this->provides(*it) ) && success;
                 else
                     log(Debug)<< "This Task provides no Service " << *it << " for peer Task "<<peer->getName() <<"."<< endlog();
             }
         }
-        return !failure;
+        return success;
     }
 
     bool TaskContext::prepareProvide(const std::string& name) {

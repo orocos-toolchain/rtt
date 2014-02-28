@@ -46,8 +46,8 @@ namespace RTT
     {
         static GlobalEngine* mengine = 0;
 
-        GlobalEngine::GlobalEngine()
-            : mact( new Activity( this, "GlobalEngine" ) )
+        GlobalEngine::GlobalEngine(int scheduler, int priority, unsigned cpu_affinity)
+            : mact( new Activity( scheduler, priority, 0, cpu_affinity, this, "GlobalEngine") )
         {
             mact->start();
         }
@@ -58,9 +58,9 @@ namespace RTT
             mact.reset();
         }
 
-        ExecutionEngine* GlobalEngine::Instance() {
+        ExecutionEngine* GlobalEngine::Instance(int scheduler, int priority, unsigned cpu_affinity) {
             if (mengine == 0) {
-                mengine = new GlobalEngine();
+                mengine = new GlobalEngine(scheduler, priority, cpu_affinity);
             }
             return mengine;
         }
