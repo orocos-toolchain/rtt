@@ -968,6 +968,8 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
         AND CMAKE_CURRENT_SOURCE_DIR STREQUAL ${PROJECT_NAME}_SOURCE_DIR
         AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/package.xml" )
 
+      message(STATUS "[UseOrocos] Calling catkin_package() with default arguments")
+
       # Always assume that catkin is a buildtool_depend. This silently disables a FATAL_ERROR in catkin_package().
       # See https://github.com/ros/catkin/commit/7482dda520e94db5b532b57220dfefb10eeda15b
       list(APPEND ${PROJECT_NAME}_BUILDTOOL_DEPENDS catkin)
