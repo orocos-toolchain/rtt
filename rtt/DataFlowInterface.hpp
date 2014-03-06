@@ -133,9 +133,14 @@ namespace RTT
 
         /**
          * Remove a Port from this interface.
-         * This will remove all connections and callbacks
+         * This will remove all services, connections and callbacks
          * assosiated with this port.
          * @param port The port to remove.
+         * @note Since services are refcounted, removePort may effectively
+         * delete the \a this object in case no Service::shared_ptr exists
+         * to this DataFlowInterface. In order to prevent such cleanup,
+         * create a Service::shared_ptr to this object before calling
+         * removePort().
          */
         void removePort(const std::string& name);
 
@@ -214,6 +219,18 @@ namespace RTT
          */
         base::InputPortInterface& addLocalEventPort(base::InputPortInterface& port,
                 SlotFunction callback = SlotFunction() );
+
+        /**
+         * Remove a locally added Port from this interface.
+         * This will remove all connections and callbacks
+         * assosiated with this port.
+         * @param port The port to remove.
+         * @note this function will not check if a service with the same name
+         * as \a name exists, and will not remove it. So use removePort() in case
+         * you want to get rid of the service as well.
+         */
+        void removeLocalPort(const std::string& name);
+
 
         /**
          * Get a port of a specific type.
