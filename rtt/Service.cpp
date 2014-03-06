@@ -58,11 +58,7 @@ namespace RTT {
 
     Service::Service(const std::string& name, TaskContext* owner)
     : mname(name),
-#if BOOST_VERSION >= 104000 && BOOST_VERSION <= 105030
       mowner(owner),
-#else
-      mowner(0),
-#endif
       parent()
     {
         // Inform DataFlowInterface.
@@ -117,9 +113,8 @@ namespace RTT {
         try {
             return shared_from_this();
         } catch( boost::bad_weak_ptr& /*bw*/ ) {
-            log(Error) <<"When using boost < 1.40.0 : You are not allowed to call provides() on a Service that does not yet belong to a TaskContext or another Service." << endlog();
+            log(Error) <<"When using boost < 1.40.0 or boost > 1.53.0 : You are not allowed to call provides() on a Service that does not yet belong to a TaskContext or another Service (for example in a constructor)." << endlog();
             log(Error) <<"Try to avoid using provides() in this case: omit it or use the service directly." <<endlog();
-            log(Error) <<"OR: upgrade to boost 1.40.0, then this error will go away." <<endlog();
             throw std::runtime_error("Illegal use of provides()");
         }
     }
@@ -132,7 +127,14 @@ namespace RTT {
             return sp;
         sp = boost::make_shared<Service>(service_name, mowner);
         sp->setOwner( mowner );
-        sp->setParent( shared_from_this() );
+        // we pass and store a shared ptr in setParent, so we hack it like this:
+        shared_ptr me;
+        try {
+            me = shared_from_this();
+        } catch ( boost::bad_weak_ptr& bw ) {
+            me.reset(this); // take ownership
+        }
+        sp->setParent( me );
         services[service_name] = sp;
         return sp;
     }
@@ -259,8 +261,16 @@ namespace RTT {
 
         for( Services::iterator it= services.begin(); it != services.end(); ++it) {
             it->second->setOwner( new_owner );
-            if (new_owner)
-                it->second->setParent( shared_from_this() );
+            if (new_owner) {
+                // we pass and store a shared ptr in setParent, so we hack it like this:
+                shared_ptr me;
+                try {
+                    me = shared_from_this();
+                } catch ( boost::bad_weak_ptr& bw ) {
+                    me.reset(this); // take ownership
+                }
+                it->second->setParent( me );
+            }
         }
     }
 
