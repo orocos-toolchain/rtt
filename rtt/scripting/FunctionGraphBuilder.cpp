@@ -304,10 +304,14 @@ namespace RTT {
         //assert( build not used by other than NOP )
         assert( dynamic_cast<CommandNOP*>( this->getCommand(build) ));
         this->setCommand( icom );
+        
+        GraphVertexCopier gvc( fn->getGraph(), *graph, replacementdss );
+        GraphEdgeCopier gec( fn->getGraph(), *graph, replacementdss );
 
-        boost::copy_graph( fn->getGraph(), *graph,
-                           boost::vertex_copy( GraphVertexCopier( fn->getGraph(), *graph, replacementdss ) ).
-                           edge_copy( GraphEdgeCopier( fn->getGraph(), *graph, replacementdss ) ) );
+        // This gives  a compiler warning with GCC:
+        boost::copy_graph( fn->getGraph(), *graph, boost::vertex_copy( gvc ).edge_copy( gec ) );
+        // It's a bug in boost::copy_graph with 3 arguments. We'd have to implement the copy ourselves
+        // in order to get rid of this warning/bug.
 
         // cleanup newlist, the (var)DS's are stored in the assignCommand
         for (unsigned int i=0; i < newlist.size(); ++i)
