@@ -713,8 +713,6 @@ bool PluginLoader::loadInProcess(string file, string shortname, string kind, boo
         try {
             // Load into process (TaskContext* == 0):
             success = (*loading_lib.loadPlugin)( 0 );
-        } catch(std::exception& e) {
-            log(Error) << "Loading "<< plugname <<" threw an exception: "<< e.what() << endlog();
         } catch(...) {
             log(Error) << "Unexpected exception in loadRTTPlugin !"<<endlog();
         }
