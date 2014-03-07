@@ -235,6 +235,15 @@ namespace RTT
         mports.clear();
     }
 
+    void DataFlowInterface::disconnect()
+    {
+        for ( Ports::iterator it(mports.begin());
+              it != mports.end();
+              ++it) {
+            (*it)->disconnect();
+        }
+    }
+
     bool DataFlowInterface::chkPtr(const std::string & where, const std::string & name, const void *ptr)
     {
         if ( ptr == 0) {

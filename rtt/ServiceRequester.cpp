@@ -52,7 +52,12 @@ namespace RTT
     using namespace std;
 
     ServiceRequester::ServiceRequester(const std::string& name, TaskContext* tc) :
-        mrname(name), mrowner(tc)
+        DataFlowInterface(tc ? tc->provides().get() : 0), mrname(name)
+    {
+    }
+
+    ServiceRequester::ServiceRequester(const std::string& name, Service* parent) :
+        DataFlowInterface(parent), mrname(name)
     {
     }
 
@@ -89,22 +94,56 @@ namespace RTT
         return 0;
     }
 
+    ServiceRequester::shared_ptr ServiceRequester::requires() {
+        try {
+            return shared_from_this();
+        } catch( boost::bad_weak_ptr& /*bw*/ ) {
+            log(Error) <<"When using boost < 1.40.0 : You are not allowed to call provides() on a ServiceRequester that does not yet belong to a TaskContext or another ServiceRequester." << endlog();
+            log(Error) <<"Try to avoid using requires() in this case: omit it or use the service requester directly." <<endlog();
+            log(Error) <<"OR: upgrade to boost 1.40.0, then this error will go away." <<endlog();
+            throw std::runtime_error("Illegal use of requires()");
+        }
+    }
+
+    ServiceRequester::shared_ptr ServiceRequester::requires(const std::string& service_name) {
+        if (service_name == "this")
+            return requires();
+        shared_ptr sp = mrequests[service_name];
+        if (sp)
+            return sp;
+        sp = boost::make_shared<ServiceRequester>(service_name, mservice);
+        sp->setService( mservice );
+        mrequests[service_name] = sp;
+        return sp;
+    }
+
+    bool ServiceRequester::addServiceRequester(ServiceRequester::shared_ptr obj) {
+        if ( mrequests.find( obj->getRequestName() ) != mrequests.end() ) {
+            log(Error) << "Could not add ServiceRequester " << obj->getRequestName() <<": name already in use." <<endlog();
+            return false;
+        }
+
+        obj->setService( mservice );
+        mrequests[obj->getRequestName()] = obj;
+        return true;
+    }
+
     bool ServiceRequester::connectTo( Service::shared_ptr sp) {
-        for (OperationCallers::iterator it = mmethods.begin(); it != mmethods.end(); ++it) {
+        for (OperationCallers::const_iterator it = mmethods.begin(); it != mmethods.end(); ++it) {
             if ( !it->second->ready() ) {
                 if (sp->hasOperation( it->first )) {
-                    it->second->setImplementation( sp->getLocalOperation( it->first ), mrowner ? mrowner->engine() : 0 );
+                    it->second->setImplementation( sp->getLocalOperation( it->first ), getOwner() ? getOwner()->engine() : 0 );
                     if ( it->second->ready() ) {
-                        if (mrowner)
+                        if (getOwner())
                             log(Debug) << "Successfully set up OperationCaller " << it->first <<endlog();
                         else
                             log(Warning) << "OperationCaller "<< it->first << " has no caller set."<<endlog();
                     }
                 }
                 if (sp->hasMember( it->first )) {
-                    it->second->setImplementationPart( sp->getOperation( it->first ), mrowner ? mrowner->engine() : 0 );
+                    it->second->setImplementationPart( sp->getOperation( it->first ), getOwner() ? getOwner()->engine() : 0 );
                     if ( it->second->ready() ) {
-                        if (mrowner)
+                        if (getOwner())
                             log(Debug) << "Successfully set up OperationCaller " << it->first <<endlog();
                         else
                             log(Warning) << "OperationCaller "<< it->first << " has no caller set."<<endlog();
@@ -112,6 +151,18 @@ namespace RTT
                 }
             }
         }
+
+        for (Ports::const_iterator it = mports.begin(); it != mports.end(); ++it) {
+            if ( !(*it)->connected() ) {
+                PortInterface *other_port = sp->getPort( (*it)->getName() );
+                if (other_port) {
+                    if ( (*it)->connectTo(other_port) ) {
+                        log(Debug) << "Successfully connected Port " << (*it)->getName() <<endlog();
+                    }
+                }
+            }
+        }
+
         if (ready()) {
             if (!mprovider)
                 mprovider = sp;
@@ -127,6 +178,8 @@ namespace RTT
         for_each(mmethods.begin(), mmethods.end(),
                  boost::bind(&OperationCallerBaseInvoker::disconnect, boost::bind(&OperationCallers::value_type::second, _1) )
                  );
+
+        DataFlowInterface::disconnect();
     }
 
     bool ServiceRequester::ready() const
@@ -136,6 +189,20 @@ namespace RTT
                 log(Debug) << "ServiceRequester: "<< it->first << " not set up." <<endlog();
                 return false;
             }
+
+        for (Ports::const_iterator it = mports.begin(); it != mports.end(); ++it)
+            if ( !(*it)->connected() ) {
+                log(Debug) << "ServiceRequester: "<< (*it)->getName() << " not connected." <<endlog();
+                return false;
+            }
+
         return true;
+    }
+
+    void ServiceRequester::clear()
+    {
+        DataFlowInterface::clear();
+        mmethods.clear();
+        mrequests.clear();
     }
 }

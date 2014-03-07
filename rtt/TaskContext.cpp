@@ -134,7 +134,7 @@ namespace RTT
             // [Rule no 2: Don't call virtual functions in a constructor.]
             tcservice->clear();
 
-            delete tcrequests;
+            tcrequests->clear();
 
             // remove from all users.
             while( !musers.empty() ) {
@@ -201,7 +201,7 @@ namespace RTT
         for (vector<string>::iterator it = myreqs.begin();
              it != myreqs.end();
              ++it) {
-            ServiceRequester* sr = this->requires(*it);
+            ServiceRequester::shared_ptr sr = this->requires(*it);
             if ( !sr->ready() ) {
                 if (peer->provides()->hasService( *it ))
                     success = sr->connectTo( peer->provides(*it) ) && success;
@@ -215,7 +215,7 @@ namespace RTT
         for (vector<string>::iterator it = peerreqs.begin();
                 it != peerreqs.end();
                 ++it) {
-            ServiceRequester* sr = peer->requires(*it);
+            ServiceRequester::shared_ptr sr = peer->requires(*it);
             if ( !sr->ready() ) {
                 if (this->provides()->hasService(*it))
                     success = sr->connectTo( this->provides(*it) ) && success;

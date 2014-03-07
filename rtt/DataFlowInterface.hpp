@@ -193,6 +193,11 @@ namespace RTT
         Service* getService() const { return mservice; }
 
         /**
+         * Sets the service this interface belongs to.
+         */
+        void setService(Service* service) { mservice = service; }
+
+        /**
          * Add a Port to this task without registering a service for it.
          * If a port with the same name already exists, addPort
          * will replace it with \a port and log a warning.
@@ -228,6 +233,11 @@ namespace RTT
          * all associated TaskObjects.
          */
         void clear();
+
+        /**
+         * Disconnect all ports in this interface.
+         */
+        void disconnect();
 
 #ifdef ORO_SIGNALLING_PORTS
         /**
