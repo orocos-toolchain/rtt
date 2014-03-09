@@ -511,7 +511,7 @@ macro( orocos_library LIB_TARGET_NAME )
       )
 
     if ( ORO_TYPEGEN_HEADERS_DEPENDS )
-      set (ORO_TYPEGEN_HEADERS_DEP_INFO_MSG "using: ${ORO_TYPEGEN_HEADERS_DEP_INFO_MSG}")
+      set (ORO_TYPEGEN_HEADERS_DEP_INFO_MSG "using: ${ORO_TYPEGEN_HEADERS_DEPENDS}")
     endif()
     MESSAGE( STATUS "[UseOrocos] Generating typekit for ${PROJECT_NAME} ${ORO_TYPEGEN_HEADERS_DEP_INFO_MSG}..." )
 
