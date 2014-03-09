@@ -525,8 +525,12 @@ macro( orocos_library LIB_TARGET_NAME )
       foreach( IMP ${ORO_TYPEGEN_HEADERS_DEPENDS} )
         set(ORO_TYPEGEN_HEADERS_IMPORTS  "${ORO_TYPEGEN_HEADERS_IMPORTS} -i ${IMP}" )
       endforeach()
+      # ensure no leading/trailing whitespace which can confuse CMake's options
+      # to typegen
+      STRING(STRIP "${ORO_TYPEGEN_HEADERS_IMPORTS}" ORO_TYPEGEN_HEADERS_IMPORTS2)
+
       # Working directory is necessary to be able to find the source files.
-      execute_process( COMMAND ${TYPEGEN_EXE} --output ${PROJECT_SOURCE_DIR}/typekit ${PROJECT_NAME} ${ORO_TYPEGEN_HEADERS_IMPORTS} ${ORO_TYPEGEN_HEADERS_DEFAULT_ARGS} 
+      execute_process( COMMAND ${TYPEGEN_EXE} --output ${PROJECT_SOURCE_DIR}/typekit ${ORO_TYPEGEN_HEADERS_IMPORTS2} ${PROJECT_NAME} ${ORO_TYPEGEN_HEADERS_DEFAULT_ARGS}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
         )
       # work around generated manifest.xml file:
