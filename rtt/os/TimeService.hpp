@@ -157,11 +157,23 @@ namespace RTT
         Seconds secondsChange( Seconds delta );
 
         /**
+         * Change the time with \a delta ticks.
+         * @return the new time.
+         */
+        ticks ticksChange( ticks delta );
+
+        /**
          * Enables or disables reading the system clock.
          * If disabled, you'll have to change time using
          * \a secondsChange.
          */
         void enableSystemClock( bool yes_no );
+
+        /**
+         * Check if the system clock is being read.
+         * @return true if the system clock is being used.
+         */
+        bool systemClockEnabled() const;
 
         /**
          * Get current nsecs of the System clock
