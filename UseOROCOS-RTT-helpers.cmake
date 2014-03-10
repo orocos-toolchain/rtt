@@ -82,7 +82,7 @@ function( orocos_get_manifest_deps RESULT)
       message(SEND_ERROR "Error: xpath found but returned non-zero:${DEPS}")
     endif (NOT RES EQUAL 0)
 
-    string(REGEX REPLACE "${REGEX_STR}" "\\1;" RR_RESULT ${DEPS})
+    string(REGEX REPLACE "${REGEX_STR}" "\\1;" RR_RESULT "${DEPS}")
 
     #message("Deps are: '${DEPS}'")
     set(${RESULT} ${RR_RESULT} PARENT_SCOPE)
