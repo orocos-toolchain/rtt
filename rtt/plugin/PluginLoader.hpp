@@ -105,7 +105,7 @@ namespace RTT {
             /**
              * Protects for concurrent access of this shared object.
              */
-            mutable os::Mutex listlock;
+            mutable os::MutexRecursive listlock;
 
             /**
              * Internal function that does all library loading.
