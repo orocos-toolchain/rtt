@@ -59,7 +59,11 @@ namespace RTT
     PortInterface& DataFlowInterface::addPort(PortInterface& port) {
         if ( !chkPtr("addPort", "PortInterface", &port) ) return port;
         this->addLocalPort(port);
-        if (mservice && mservice->hasService( port.getName()) != 0) {
+        Service::shared_ptr mservice_ref;
+        if (mservice && mservice->hasService( port.getName()) ) {
+            // Since there is at least one child service, mservice is ref counted. The danger here is that mservice is destructed during removeService()
+            // for this reason, we take a ref to mservice until we leave addPort.
+            mservice_ref = mservice->provides(); // uses shared_from_this()
             log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as Service. Replacing previous service with new one." <<endlog();
             mservice->removeService(port.getName());
         }
@@ -81,7 +85,7 @@ namespace RTT
               ++it)
             if ( (*it)->getName() == port.getName() ) {
                 log(Warning) <<"'addPort' "<< port.getName() << ": name already in use. Disconnecting and replacing previous port with new one." <<endlog();
-                removePort( port.getName() );
+                removeLocalPort( port.getName() );
                 break;
             }
 
@@ -93,7 +97,11 @@ namespace RTT
     InputPortInterface& DataFlowInterface::addEventPort(InputPortInterface& port, SlotFunction callback) {
         if ( !chkPtr("addEventPort", "PortInterface", &port) ) return port;
         this->addLocalEventPort(port, callback);
-        if (mservice && mservice->hasService( port.getName()) != 0) {
+        Service::shared_ptr mservice_ref;
+        if (mservice && mservice->hasService( port.getName()) ) {
+            // Since there is at least one child service, mservice is ref counted. The danger here is that mservice is destructed during removeService()
+            // for this reason, we take a ref to mservice until we leave addPort.
+            mservice_ref = mservice->provides(); // uses shared_from_this()
             log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as Service. Replacing previous service with new one." <<endlog();
             mservice->removeService(port.getName());
         }
@@ -157,11 +165,26 @@ namespace RTT
               it != mports.end();
               ++it)
             if ( (*it)->getName() == name ) {
-                if (mservice) {
+                Service::shared_ptr mservice_ref;
+                if (mservice && mservice->hasService(name) ) {
+                    // Since there is at least one child service, mservice is ref counted. The danger here is that mservice is destructed during removeService()
+                    // for this reason, we take a ref to mservice until we leave removePort.
+                    mservice_ref = mservice->provides(); // uses shared_from_this()
                     mservice->removeService( name );
                     if (mservice->getOwner())
                         mservice->getOwner()->dataOnPortRemoved( *it );
                 }
+                (*it)->disconnect(); // remove all connections and callbacks.
+                mports.erase(it);
+                return;
+            }
+    }
+
+    void DataFlowInterface::removeLocalPort(const std::string& name) {
+        for ( Ports::iterator it(mports.begin());
+              it != mports.end();
+              ++it)
+            if ( (*it)->getName() == name ) {
                 (*it)->disconnect(); // remove all connections and callbacks.
                 mports.erase(it);
                 return;

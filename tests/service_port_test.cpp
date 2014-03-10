@@ -101,9 +101,14 @@ BOOST_AUTO_TEST_CASE(testAddEventPortWithOwner)
 }
 
 
+#ifndef ORO_DISABLE_PORT_DATA_SCRIPTING
+
 BOOST_AUTO_TEST_CASE(testUsePort)
 {
     TestService* ts = new TestService();
+    // should work because TestService already adds itself to children... but this memleaks
+    Service::shared_ptr s1 = ts->provides();
+    // should work as well because TestService inherits from enable_shared_from_raw :
     Service::shared_ptr s( ts );
     TaskContext tc("tc");
 
@@ -112,6 +117,10 @@ BOOST_AUTO_TEST_CASE(testUsePort)
     ts->ip2.connectTo( &ts->op );
 
     // use operation interface of port:
+    BOOST_REQUIRE( tc.provides()->hasService("portservice") );
+    BOOST_REQUIRE( tc.provides("portservice")->hasService("op") );
+    BOOST_REQUIRE( tc.provides("portservice")->provides("op")->hasOperation("write") );
+
     OperationCaller<void(int const&)> write = tc.provides("portservice")->provides("op")->getOperation("write");
     BOOST_CHECK( write.ready() );
     write( 3 );
@@ -146,5 +155,7 @@ BOOST_AUTO_TEST_CASE(testUsePortWithOwner)
     BOOST_CHECK_EQUAL( result, 3);
     BOOST_CHECK_EQUAL( fs, NewData );
 }
+
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()
