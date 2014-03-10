@@ -95,19 +95,17 @@ namespace RTT
                 if (sp->hasOperation( it->first )) {
                     it->second->setImplementation( sp->getLocalOperation( it->first ), mrowner ? mrowner->engine() : 0 );
                     if ( it->second->ready() ) {
-                        if (mrowner)
-                            log(Debug) << "Successfully set up OperationCaller " << it->first <<endlog();
-                        else
-                            log(Warning) << "OperationCaller "<< it->first << " has no caller set."<<endlog();
+                        log(Debug) << "Successfully set up OperationCaller " << it->first <<endlog();
+                        if (!mrowner)
+                            log(Debug) << "OperationCaller "<< it->first << " has no caller set: using GlobalEngine."<<endlog();
                     }
                 }
                 if (sp->hasMember( it->first )) {
                     it->second->setImplementationPart( sp->getOperation( it->first ), mrowner ? mrowner->engine() : 0 );
                     if ( it->second->ready() ) {
-                        if (mrowner)
-                            log(Debug) << "Successfully set up OperationCaller " << it->first <<endlog();
-                        else
-                            log(Warning) << "OperationCaller "<< it->first << " has no caller set."<<endlog();
+                        log(Debug) << "Successfully set up OperationCaller " << it->first <<endlog();
+                        if (!mrowner)
+                            log(Debug) << "OperationCaller "<< it->first << " has no caller set: using GlobalEngine."<<endlog();
                     }
                 }
             }
