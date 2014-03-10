@@ -996,9 +996,7 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       # See https://github.com/ros/catkin/commit/7482dda520e94db5b532b57220dfefb10eeda15b
       list(APPEND ${PROJECT_NAME}_BUILDTOOL_DEPENDS catkin)
 
-      catkin_package(
-        INCLUDE_DIRS ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS}
-      )
+      catkin_package()
     endif()
 
   endmacro( orocos_generate_package )
