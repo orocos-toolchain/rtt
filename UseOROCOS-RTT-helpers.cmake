@@ -200,23 +200,23 @@ macro( orocos_find_package PACKAGE )
       unset(${PACKAGE}_LIBRARIES)
       foreach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
         # Two options: COMP_LIB is an absolute path-to-lib (must start with ':') or just a libname:
-        if ( ${COMP_LIB} MATCHES "^:(.+)" OR EXISTS ${COMP_LIB})
+        if ( ${COMP_LIB} MATCHES "^:(.+)" )
           if (EXISTS "${CMAKE_MATCH_1}" )
             # absolute path (shared lib):
             set( ${PACKAGE}_${COMP_LIB}_LIBRARY "${CMAKE_MATCH_1}" )
           endif()
-          if (EXISTS "${COMP_LIB}" )
-            # absolute path (static lib):
-            set( ${PACKAGE}_${COMP_LIB}_LIBRARY "${COMP_LIB}" )
-          endif()
+        elseif (EXISTS "${COMP_LIB}" )
+          # absolute path (static lib):
+          set( ${PACKAGE}_${COMP_LIB}_LIBRARY "${COMP_LIB}" )
         else()
           # libname:
           find_library(${PACKAGE}_${COMP_LIB}_LIBRARY NAMES ${COMP_LIB} HINTS ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS})
         endif()
-        if(${PACKAGE}_${COMP_LIB}_LIBRARY)
-        else(${PACKAGE}_${COMP_LIB}_LIBRARY)
+
+        if(NOT ${PACKAGE}_${COMP_LIB}_LIBRARY)
           message(SEND_ERROR "In package >>>${PACKAGE}<<< : could not find library ${COMP_LIB} in directory ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS}, although its .pc file says it should be there.\n\n Try to do 'make clean; rm -rf lib' and then 'make' in the package >>>${PACKAGE}<<<.\n\n")
-        endif(${PACKAGE}_${COMP_LIB}_LIBRARY)
+        endif()
+
         list(APPEND ${PACKAGE}_LIBRARIES "${${PACKAGE}_${COMP_LIB}_LIBRARY}")
       endforeach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
 
@@ -283,8 +283,9 @@ macro( orocos_use_package PACKAGE )
 
   # Check a flag so we don't over-link
   if(NOT ${PACKAGE}_${OROCOS_TARGET}_USED)
-    # Check if ${PACKAGE}_EXPORTED_OROCOS_TARGETS is defined in this workspace
-    if(DEFINED ${PACKAGE}_EXPORTED_OROCOS_TARGETS OR DEFINED ${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_TARGETS)
+
+    # Check if ${PACKAGE}_OROCOS_PACKAGE is defined in this workspace
+    if((${PACKAGE}_OROCOS_PACKAGE AND NOT ORO_USE_OROCOS_ONLY) OR ${PACKAGE}-${OROCOS_TARGET}_OROCOS_PACKAGE)
       message(STATUS "[UseOrocos] Found orocos package '${PACKAGE}' in the same workspace.")
 
       # The package has been generated in the same workspace. Just use the exported targets and include directories.
@@ -292,9 +293,12 @@ macro( orocos_use_package PACKAGE )
       set(${PACKAGE}_FOUND True)
       set(${PACKAGE}_INCLUDE_DIRS ${${PACKAGE}_EXPORTED_OROCOS_INCLUDE_DIRS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_INCLUDE_DIRS})
       set(${PACKAGE}_LIBRARY_DIRS "")
-      set(${PACKAGE}_LIBRARIES ${${PACKAGE}_EXPORTED_OROCOS_TARGETS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_TARGETS})
+      set(${PACKAGE}_LIBRARIES ${${PACKAGE}_EXPORTED_OROCOS_LIBRARIES} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_LIBRARIES})
 
-      list(APPEND USE_OROCOS_EXPORTED_TARGETS ${${PACKAGE}_LIBRARIES})
+      # Use add_dependencies(target ${USE_OROCOS_EXPORTED_TARGETS}) to make sure that a target is built AFTER
+      # all targets created by other packages that have been orocos_use_package'd in the current scope.
+      list(APPEND USE_OROCOS_EXPORTED_TARGETS ${${PACKAGE}_EXPORTED_OROCOS_TARGETS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_TARGETS})
+
     else()
       # Get the package and dependency build flags
       orocos_find_package(${PACKAGE} ${ARGN})
