@@ -523,7 +523,7 @@ macro( orocos_library LIB_TARGET_NAME )
     else (NOT TYPEGEN_EXE)
 
       foreach( IMP ${ORO_TYPEGEN_HEADERS_DEPENDS} )
-        set(ORO_TYPEGEN_HEADERS_IMPORTS  "${ORO_TYPEGEN_HEADERS_IMPORTS} -i ${IMP}" )
+        set(ORO_TYPEGEN_HEADERS_IMPORTS  "${ORO_TYPEGEN_HEADERS_IMPORTS} --import=${IMP}" )
       endforeach()
       # ensure no leading/trailing whitespace which can confuse CMake's options
       # to typegen
