@@ -58,12 +58,26 @@
 #include <boost/type_traits/function_traits.hpp>
 #include <boost/function_types/components.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#if BOOST_VERSION >= 104000 && BOOST_VERSION <= 105030
+#if BOOST_VERSION >= 104000 && BOOST_VERSION < 105300
 #include <boost/smart_ptr/enable_shared_from_this2.hpp>
+#endif
+#if BOOST_VERSION >= 105300
+#include <boost/smart_ptr/enable_shared_from_raw.hpp>
 #endif
 
 namespace RTT
 {
+    namespace internal {
+#if BOOST_VERSION >= 104000
+#if BOOST_VERSION < 105300
+        typedef  boost::enable_shared_from_this2<Service> shared_from_raw;
+#else
+        typedef  boost::enable_shared_from_raw shared_from_raw;
+#endif
+#else
+        typedef  boost::enable_shared_from_this<Service> shared_from_raw;
+#endif
+    }
     /**
      * @defgroup Services Service Interface
      * A Service consists of a configuration, operation and data flow
@@ -71,10 +85,11 @@ namespace RTT
      * @ingroup CompModel
      */
     /**
-     * This class allows storage and retrieval of operations,
+     * This class allows storage and retrieval of operations, ports,
      * attributes and properties provided by a component.
      *
-     * Services can be nested in sub-services, although this is rare.
+     * Services can be nested in sub-services, but all sub-services
+     * will be owned by the same TaskContext.
      *
      * @ingroup Services
      */
@@ -82,16 +97,18 @@ namespace RTT
         : public OperationInterface,
           public ConfigurationInterface,
           public DataFlowInterface,
-#if BOOST_VERSION >= 104000 && BOOST_VERSION <= 105030
-          public boost::enable_shared_from_this2<Service>
-#else
-          public boost::enable_shared_from_this<Service>
-#endif
+          public internal::shared_from_raw
     {
     public:
         typedef OperationInterface Factory;
         typedef boost::shared_ptr<Service> shared_ptr;
+        typedef boost::shared_ptr<const Service> shared_constptr;
         typedef std::vector<std::string> ProviderNames;
+
+#if BOOST_VERSION >= 105300
+        Service::shared_ptr shared_from_this() { return boost::shared_from_raw(this); }
+        Service::shared_constptr shared_from_this() const { return boost::shared_from_raw(this); }
+#endif
 
         /**
          * Creates a Service with a name and an owner.  Each
@@ -177,9 +194,12 @@ namespace RTT
         ExecutionEngine* getOwnerExecutionEngine() const;
 
         /**
-         * Add a new Service to this TaskContext.
+         * Add a new sub-service to this Service.
          *
-         * @param obj This object becomes owned by this TaskContext.
+         * @param obj This object becomes owned by this Service.
+         * @note obj will take a Service::shared_ptr to this and vice versa. In
+         * case \a this Service is not yet reference counted, obj will hold the
+         * only reference count to this.
          *
          * @return true if it could be added, false if such
          * service already exists.
@@ -187,37 +207,58 @@ namespace RTT
         virtual bool addService( shared_ptr obj );
 
         /**
-         * Remove a previously added sub-service.
-         * @param the name of the service to remove.
+         * Remove a previously added sub-service, potentially freeing it (and \a this) from
+         * memory.
+         * @param service_name the name of the service to remove.
+         * @note Since service_name holds a reference to \a this Service,
+         * removeService may also delete this Service. In order to protect
+         * against such deletion, take a Service::shared_ptr to \a this before
+         * calling removeService.
          */
         virtual void removeService( std::string const& service_name );
 
         /**
-         * Returns this Service.
+         * Returns \a this Service, unless no shared_ptr yet exists.
          * @return a shared pointer from this.
+         * @throw std::runtime_exception when no Service::shared_ptr to this
+         * exists yet.
          */
         Service::shared_ptr provides();
 
         /**
          * Returns a sub-Service which resorts under
-         * this Service.
-         * @param service_name The name of the sub-service.
+         * this Service, creating a new one if it does not yet exists.
+         * Use getService() if no Service object creation should be done.
+         *
+         * @param service_name The name of the sub-service to be returned
+         * or created, or the result of provides() in case of "this".
+         * @see provides() for querying for "this".
          */
         Service::shared_ptr provides(const std::string& service_name);
+
         /**
-         * Returns a shared pointer to strictly a sub-service.
-         * This method will not return the this pointer when
-         * service_name equals "this".
+         * Returns a shared pointer to strictly a sub-service of a null
+         * pointer if !hasService(service_name).
+         * This method will not return the \a this pointer when
+         * service_name equals "this" or create new service objects.
+         *
+         * @param service_name The name of the sub-service to be returned.
+         * or created, or the result of provides() in case of "this".
          */
         shared_ptr getService(const std::string& service_name);
 
         /**
          * Check if this service has the sub-service \a service_name.
+         *
+         * @param service_name The name of the sub-service to be queried.
          */
         bool hasService(const std::string& service_name);
 
         /**
-         * Clear all added operations from the repository, saving memory space.
+         * Clear all added operations, properties and sub-services from this Service.
+         * @note Since sub-services hold a reference to \a this Service,
+         * clear() may also delete this Service. In order to protect
+         * against such deletion, take a Service::shared_ptr to \a this before calling clear().
          */
         void clear();
 

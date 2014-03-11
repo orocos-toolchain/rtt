@@ -304,7 +304,7 @@ bool ComponentLoader::import( std::string const& path_list )
 
     bool all_good = true, found = false;
     // perform search in paths:
-    for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
+    for (vector<string>::reverse_iterator it = paths.rbegin(); it != paths.rend(); ++it)
     {
         // Scan path/* (non recursive) for components
         path p = path(*it);
@@ -541,7 +541,7 @@ bool ComponentLoader::loadLibrary( std::string const& name )
     string file = arg.filename();
 #endif
 
-    for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
+    for (vector<string>::reverse_iterator it = paths.rbegin(); it != paths.rend(); ++it)
     {
         path p = path(*it) / dir / (file + FULL_COMPONENT_SUFFIX);
         tryouts.push_back( p.string() );
@@ -561,7 +561,7 @@ bool ComponentLoader::loadLibrary( std::string const& name )
             return true;
     }
     log(Debug) << "No such library found in path: " << name << ". Tried:"<< endlog();
-    for(vector<string>::iterator it=tryouts.begin(); it != tryouts.end(); ++it)
+    for(vector<string>::reverse_iterator it=tryouts.rbegin(); it != tryouts.rend(); ++it)
         log(Debug) << *it << endlog();
     return false;
 }
