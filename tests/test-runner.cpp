@@ -80,6 +80,7 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
 	assert(0 != rtMem);
 	freeMem		= init_memory_pool(BUILD_TEST_RT_MEM_POOL_SIZE, rtMem);
 	assert((size_t)-1 != freeMem); // increase MEMORY_SIZE above most likely, as TLSF has a several kilobyte overhead
+    (void)freeMem;          // avoid compiler warning
 #endif
 	__os_init(argc, argv);
 

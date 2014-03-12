@@ -35,7 +35,9 @@ extern "C" {
 #ifdef ORO_MEMORY_POOL
 extern size_t init_memory_pool(size_t, void *);
 extern size_t get_used_size(void *);
+extern size_t get_used_size_mp();
 extern size_t get_max_size(void *);
+extern size_t get_max_size_mp();
 extern void destroy_memory_pool(void *);
 extern size_t add_new_area(void *, size_t, void *);
 extern void *malloc_ex(size_t, void *);
