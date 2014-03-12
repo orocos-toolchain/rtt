@@ -49,6 +49,7 @@ public:
     InputPort<double> d_event;
     InputPort<bool>   b_event;
     InputPort<int>    t_event;
+    Operation<void(void)>   v_event;
     Operation<void(double)> o_event;
     OutputPort<double> d_event_source;
     OutputPort<bool>   b_event_source;
@@ -68,7 +69,7 @@ public:
 public:
     StateTest()
         :
-         d_event("d_event"), b_event("b_event"), t_event("t_event"), o_event("o_event"),
+         d_event("d_event"), b_event("b_event"), t_event("t_event"), v_event("v_event"),o_event("o_event"),
          d_event_source("d_event_source"), b_event_source("b_event_source"), t_event_source("t_event_source")
          ,sa( ScriptingService::Create(tc) )
     {
@@ -79,8 +80,10 @@ public:
         tc->ports()->addPort( b_event );
         tc->ports()->addPort( t_event );
 #ifdef ORO_SIGNALLING_OPERATIONS
+        tc->provides()->addEventOperation( v_event );
         tc->provides()->addEventOperation( o_event );
 #else
+        tc->provides()->addOperation( v_event );
         tc->provides()->addOperation( o_event );
 #endif
 
@@ -786,6 +789,54 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition )
     BOOST_CHECK( SimulationThread::Instance()->run(100) );
     checkState( "x", tc);
     BOOST_CHECK( sm->inState("FINI") );
+    this->checkState("x",tc);
+    this->finishState("x", tc);
+}
+
+BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition2 )
+{
+    // test event reception in sub states.
+    string prog = string("StateMachine X {\n")
+    + " initial state INIT {\n"
+    + "    transitions { select STATE1 }\n"
+    + " }\n"
+    + " state STATE1 {\n"
+    + "    transition v_event() select STATE2\n" // test signal transition
+    + " }\n"
+    + " state STATE2 {\n"
+    + "    transition v_event() select FINI\n"   // test signal transition
+    + " }\n"
+    + " final state FINI {} \n"
+    + "}\n"
+    + "RootMachine X x()\n";
+    this->parseState( prog, tc );
+    StateMachinePtr sm = sa->getStateMachine("x");
+    BOOST_REQUIRE( sm );
+    // into STATE1
+    this->runState("x", tc);
+    checkState( "x", tc);
+    BOOST_CHECK_EQUAL( "STATE1", sm->getCurrentStateName() );
+    // remain in STATE1
+    BOOST_CHECK( SimulationThread::Instance()->run(100) );
+    checkState( "x", tc);
+    BOOST_CHECK_EQUAL( "STATE1", sm->getCurrentStateName() );
+    // into STATE2
+    OperationCaller<void(void)> mo( tc->provides()->getOperation("v_event"), tc->engine());
+    BOOST_REQUIRE( mo.ready() );
+    mo();
+    checkState( "x", tc);
+    BOOST_CHECK_EQUAL( "STATE2", sm->getCurrentStateName() );
+    // remain in STATE2
+    BOOST_CHECK( SimulationThread::Instance()->run(100) );
+    checkState( "x", tc);
+    BOOST_CHECK_EQUAL( "STATE2", sm->getCurrentStateName() );
+    // into FINI
+    mo();
+    checkState( "x", tc);
+    BOOST_CHECK_EQUAL( "FINI", sm->getCurrentStateName() );
+    BOOST_CHECK( SimulationThread::Instance()->run(100) );
+    checkState( "x", tc);
+    BOOST_CHECK_EQUAL( "FINI", sm->getCurrentStateName() );
     this->checkState("x",tc);
     this->finishState("x", tc);
 }
