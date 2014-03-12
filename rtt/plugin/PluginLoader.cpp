@@ -416,7 +416,7 @@ bool PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
 
     bool all_good = true, found = false;
     // perform search in paths:
-    for (vector<string>::reverse_iterator it = paths.rbegin(); it != paths.rend(); ++it)
+    for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
     {
         // Scan path/types/* (non recursive)
         path p = path(*it) / subdir;
@@ -517,7 +517,7 @@ bool PluginLoader::loadLibrary( std::string const& name )
     // search in plugins/types:
     string subdir = "plugins"; string kind = "plugin";
     while (true) {
-        for (vector<string>::reverse_iterator it = paths.rbegin(); it != paths.rend(); ++it)
+        for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
         {
             path p = path(*it) / dir / subdir / (file + FULL_PLUGINS_SUFFIX);
             tryouts.push_back( p.string() );
@@ -542,7 +542,7 @@ bool PluginLoader::loadLibrary( std::string const& name )
         kind   = "typekit";
     }
     log(Debug) << "No such "<< kind << " found in path: " << name << ". Tried:"<< endlog();
-    for(vector<string>::reverse_iterator it=tryouts.rbegin(); it != tryouts.rend(); ++it)
+    for(vector<string>::iterator it=tryouts.begin(); it != tryouts.end(); ++it)
         log(Debug) << *it << endlog();
 
     return false;
