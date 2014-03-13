@@ -60,6 +60,8 @@ namespace RTT { namespace extras {
      *      fd_activity->watch(device_fd);
      *      // optional, set a timeout in milliseconds
      *      fd_activity->setTimeout(1000);
+     *      // or in microseconds
+     *      fd_activity->setTimeout_us(1000);
      *   }
      * </code>
      *
@@ -103,7 +105,8 @@ namespace RTT { namespace extras {
         std::set<int> m_watched_fds;
         bool m_running;
         int  m_interrupt_pipe[2];
-        int  m_timeout;
+        int  m_timeout_us;		//! timeout in microseconds
+        Seconds m_period;		//! intended period
         /** Lock that protects the access to m_fd_set and m_watched_fds */
         mutable RTT::os::Mutex m_lock;
         fd_set m_fd_set;
@@ -144,9 +147,43 @@ namespace RTT { namespace extras {
          */
         FileDescriptorActivity(int scheduler, int priority, base::RunnableInterface* _r = 0, const std::string& name ="FileDescriptorActivity" );
 
+        /**
+         * Create a FileDescriptorActivity with a given scheduler type, priority, _intended_ period, and
+         * RunnableInterface instance.
+         * @param scheduler
+         *        The scheduler in which the activitie's thread must run. Use ORO_SCHED_OTHER or
+         *        ORO_SCHED_RT.
+         * @param priority The priority of the underlying thread.
+         * @param period The _intended_ periodicity of the activity
+         * @param _r The optional runner, if none, this->loop() is called.
+         * @param name The name of the underlying thread.
+         */
+        FileDescriptorActivity(int scheduler, int priority, Seconds period, base::RunnableInterface* _r = 0, const std::string& name ="FileDescriptorActivity" );
+
+        /**
+         * Create a FileDescriptorActivity with a given scheduler type, priority, _intended_ period,
+         * CPU affinity, and RunnableInterface instance.
+         * @param scheduler
+         *        The scheduler in which the activitie's thread must run. Use ORO_SCHED_OTHER or
+         *        ORO_SCHED_RT.
+         * @param priority The priority of the underlying thread.
+         * @param period The _intended_ periodicity of the activity
+         * @param cpu_affinity The prefered cpu to run on (a mask)
+         * @param _r The optional runner, if none, this->loop() is called.
+         * @param name The name of the underlying thread.
+         */
+        FileDescriptorActivity(int scheduler, int priority, Seconds period, unsigned cpu_affinity,
+							   base::RunnableInterface* _r = 0, const std::string& name ="FileDescriptorActivity" );
+
         virtual ~FileDescriptorActivity();
 
         bool isRunning() const;
+
+		/// Get the _intended_ period (not the actual running period)
+        virtual Seconds getPeriod() const;
+
+		/// Set the _intended_ period (not the actual running period)
+        virtual bool setPeriod(Seconds period);
 
         /** Sets the file descriptor the activity should be listening to.
          * @arg close_on_stop { if true, the file descriptor will be closed by the
@@ -201,13 +238,27 @@ namespace RTT { namespace extras {
 
         /** Sets the timeout, in milliseconds, for waiting on the IO. Set to 0
          * for blocking behaviour (no timeout).
+		 * @pre 0 <= timeout (otherwise an error is logged and \a timeout
+		 * is ignored)
          */
         void setTimeout(int timeout);
+
+        /** Sets the timeout, in microseconds, for waiting on the IO. Set to 0
+         * for blocking behaviour (no timeout).
+		 * @pre 0 <= timeout (otherwise an error is logged and \a timeout_us
+		 * is ignored)
+         */
+        void setTimeout_us(int timeout_us);
 
         /** Get the timeout, in milliseconds, for waiting on the IO. Set to 0
          * for blocking behaviour (no timeout).
          */
         int getTimeout() const;
+
+        /** Get the timeout, in microseconds, for waiting on the IO. Set to 0
+         * for blocking behaviour (no timeout).
+         */
+        int getTimeout_us() const;
 
         virtual bool start();
         virtual void loop();
