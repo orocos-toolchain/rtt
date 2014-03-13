@@ -47,6 +47,14 @@
 #include <vector>
 #include <string>
 
+#include <boost/enable_shared_from_this.hpp>
+#if BOOST_VERSION >= 104000 && BOOST_VERSION < 105300
+#include <boost/smart_ptr/enable_shared_from_this2.hpp>
+#endif
+#if BOOST_VERSION >= 105300
+#include <boost/smart_ptr/enable_shared_from_raw.hpp>
+#endif
+
 namespace RTT
 {
     /**
@@ -61,11 +69,29 @@ namespace RTT
      * to it using addOperationCaller. @see RTT::Scripting for an example.
      * @ingroup Services
      */
-    class RTT_API ServiceRequester
+    class RTT_API ServiceRequester :
+#if BOOST_VERSION >= 104000
+#if BOOST_VERSION < 105300
+        public boost::enable_shared_from_this2<ServiceRequester>
+#else
+        public boost::enable_shared_from_raw
+#endif
+#else
+        public boost::enable_shared_from_this<ServiceRequester>
+#endif
+
     {
     public:
         typedef std::vector<std::string> RequesterNames;
         typedef std::vector<std::string> OperationCallerNames;
+        typedef boost::shared_ptr<ServiceRequester> shared_ptr;
+        typedef boost::shared_ptr<const ServiceRequester> shared_constptr;
+
+#if BOOST_VERSION >= 105300
+        ServiceRequester::shared_ptr shared_from_this() { return boost::shared_from_raw(this); }
+        ServiceRequester::shared_constptr shared_from_this() const { return boost::shared_from_raw(this); }
+#endif
+
         ServiceRequester(const std::string& name, TaskContext* owner = 0);
         virtual ~ServiceRequester();
 
@@ -78,6 +104,12 @@ namespace RTT
          * (indirectly).
          */
         TaskContext* getServiceOwner() const { return mrowner; }
+
+        /**
+         * Sets the owning TaskContext that is considered as the
+         * caller of requested operations.
+         */
+        void setOwner(TaskContext* new_owner);
 
         /**
          * Returns the service we're referencing.
@@ -93,16 +125,19 @@ namespace RTT
 
         base::OperationCallerBaseInvoker* getOperationCaller(const std::string& name);
 
-        ServiceRequester* requires() { return this; }
+        ServiceRequester::shared_ptr requires();
 
-        ServiceRequester* requires(const std::string& service_name) {
-            ServiceRequester* sp = mrequests[service_name];
-            if (sp)
-                return sp;
-            sp = new ServiceRequester(service_name, mrowner);
-            mrequests[service_name] = sp;
-            return sp;
-        }
+        ServiceRequester::shared_ptr requires(const std::string& service_name);
+
+        /**
+         * Add a new ServiceRequester to this TaskContext.
+         *
+         * @param obj This object becomes owned by this TaskContext.
+         *
+         * @return true if it could be added, false if such
+         * service requester already exists.
+         */
+        bool addServiceRequester(shared_ptr obj);
 
         /**
          * Query if this service requires certain sub-services.
@@ -124,21 +159,26 @@ namespace RTT
          * @return true if all methods of that are required are provided, false
          * if not all methods could yet be matched.
          */
-        bool connectTo(Service::shared_ptr sp);
+        virtual bool connectTo(Service::shared_ptr sp);
 
         /**
          * Returns true when all methods were resolved.
          * @return
          */
-        bool ready() const;
+        virtual bool ready() const;
 
         /**
          * Disconnects all methods from their implementation.
          */
-        void disconnect();
+        virtual void disconnect();
+
+        /**
+         * Remove all operation callers from this service requester.
+         */
+        virtual void clear();
 
     protected:
-        typedef std::map< std::string, ServiceRequester* > Requests;
+        typedef std::map< std::string, ServiceRequester::shared_ptr > Requests;
         /// the services we implement.
         Requests mrequests;
 
