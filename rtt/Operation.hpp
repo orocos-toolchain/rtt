@@ -176,6 +176,24 @@ namespace RTT
         }
 
 #ifdef ORO_SIGNALLING_OPERATIONS
+
+        /**
+         * Call this function on an empty Operation object, in order to make it a signalling
+         * operation without implementation. This function is automatically called when you
+         * add this object to a Service with addEventOperation().
+         * If a signal function is already set, this function does nothing.
+         */
+        void signals() {
+            // attaches a signal to a Local OperationCaller
+            ExecutionEngine* null_e = 0;
+            if (!impl)
+                impl = boost::make_shared<internal::LocalOperationCaller<Signature> >( boost::function<Signature>(), this->mowner, null_e, OwnThread);
+            if (!signal) {
+                signal = boost::make_shared<internal::Signal<Signature> >();
+                impl->setSignal( signal );
+            }
+        }
+
         /**
          * Indicate that this operation signals a given function.
          * @param func The function to call after the operation is executed

@@ -95,6 +95,7 @@ namespace RTT
         class OperationInterfacePartFused
             : public OperationInterfacePart
         {
+        protected:
             typedef typename boost::function_traits<Signature>::result_type result_type;
             //! The factory for converting data sources to C++ types in call()
             typedef create_sequence<typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
@@ -172,31 +173,61 @@ namespace RTT
             }
 
 #ifdef ORO_SIGNALLING_OPERATIONS
-            virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
-                // convert our args and signature into a boost::fusion Sequence.
-                if ( args.size() != OperationInterfacePartFused::arity() ) throw wrong_number_of_args_exception(OperationInterfacePartFused::arity(), args.size() );
-                // note: in boost 1.41.0+ the function make_unfused() is available.
-#if BOOST_VERSION >= 104100
-                return op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
-                                                                            boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin())),
-                                                                            boost::lambda::_1
-                                                                            )
-                                                                )
-                                   );
-#else
-                return op->signals( boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
-                                                                            boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin())),
-                                                                            boost::lambda::_1
-                                                                            )
-                                                                )
-                                   );
-#endif
+            virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const
+            {
+                throw no_asynchronous_operation_exception("cannot use produceSignal on non-signalling operations");
             }
 #endif
             boost::shared_ptr<base::DisposableInterface> getLocalOperation() const {
                 return op->getImplementation();
             }
         };
+
+
+#ifdef ORO_SIGNALLING_OPERATIONS
+        /**
+         * OperationInterfacePart implementation for signalling operations that uses boost::fusion
+         * to produce items.
+         */
+        template<typename Signature>
+        class EventOperationInterfacePartFused
+            : public OperationInterfacePartFused<Signature>
+        {
+            typedef typename boost::function_traits<Signature>::result_type result_type;
+            //! The factory for converting data sources to C++ types in call()
+            typedef create_sequence<typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
+            //! The factory for converting data sources to C++ types in collect(). This includes SendHandle.
+            typedef create_sequence<typename boost::function_types::parameter_types<typename CollectType<Signature>::type>::type > CollectSequenceFactory;
+
+        public:
+            EventOperationInterfacePartFused( Operation<Signature>* o)
+                : OperationInterfacePartFused<Signature>(o)
+            {
+            }
+
+
+            virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
+                // convert our args and signature into a boost::fusion Sequence.
+                if ( args.size() != OperationInterfacePartFused<Signature>::arity() ) throw wrong_number_of_args_exception(OperationInterfacePartFused<Signature>::arity(), args.size() );
+                // note: in boost 1.41.0+ the function make_unfused() is available.
+#if BOOST_VERSION >= 104100
+                return OperationInterfacePartFused<Signature>::op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
+                                                                            boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin())),
+                                                                            boost::lambda::_1
+                                                                            )
+                                                                )
+                                   );
+#else
+                return OperationInterfacePartFused<Signature>::op->signals( boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
+                                                                            boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin())),
+                                                                            boost::lambda::_1
+                                                                            )
+                                                                )
+                                   );
+#endif
+            }
+        };
+#endif
 
         /**
          * OperationInterfacePart implementation that only provides synchronous
