@@ -115,7 +115,7 @@ namespace RTT {
         try {
             return shared_from_this();
         } catch( boost::bad_weak_ptr& /*bw*/ ) {
-            log(Error) <<"When using boost < 1.40.0 or boost > 1.53.0 : You are not allowed to call provides() on a Service that does not yet belong to a TaskContext or another Service (for example in a constructor)." << endlog();
+            log(Error) <<"When using boost < 1.40.0 : You are not allowed to call provides() on a Service that does not yet belong to a TaskContext or another Service (for example in a constructor)." << endlog();
             log(Error) <<"Try to avoid using provides() in this case: omit it or use the service directly." <<endlog();
             throw std::runtime_error("Illegal use of provides()");
         }
