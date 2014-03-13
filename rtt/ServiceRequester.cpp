@@ -89,6 +89,50 @@ namespace RTT
         return 0;
     }
 
+    void ServiceRequester::setOwner(TaskContext *new_owner)
+    {
+        for(OperationCallers::iterator it = mmethods.begin(); it != mmethods.end(); ++it)
+            it->second->setCaller( new_owner ? new_owner->engine() : 0);
+
+        this->mrowner = new_owner;
+    }
+
+    ServiceRequester::shared_ptr ServiceRequester::requires() {
+        try {
+            return shared_from_this();
+        } catch( boost::bad_weak_ptr& /*bw*/ ) {
+            log(Error) <<"When using boost < 1.40.0 : You are not allowed to call provides() on a ServiceRequester that does not yet belong to a TaskContext or another ServiceRequester." << endlog();
+            log(Error) <<"Try to avoid using requires() in this case: omit it or use the service requester directly." <<endlog();
+            log(Error) <<"OR: upgrade to boost 1.40.0, then this error will go away." <<endlog();
+            throw std::runtime_error("Illegal use of requires()");
+        }
+    }
+
+    ServiceRequester::shared_ptr ServiceRequester::requires(const std::string& service_name) {
+        if (service_name == "this")
+            return requires();
+        shared_ptr sp = mrequests[service_name];
+        if (sp)
+            return sp;
+        sp = boost::make_shared<ServiceRequester>(service_name, mrowner);
+        mrequests[service_name] = sp;
+        return sp;
+    }
+
+    bool ServiceRequester::addServiceRequester(ServiceRequester::shared_ptr obj) {
+        if ( mrequests.find( obj->getRequestName() ) != mrequests.end() ) {
+            log(Error) << "Could not add ServiceRequester " << obj->getRequestName() <<": name already in use." <<endlog();
+            return false;
+        }
+
+        // only set the owner if one is present.
+        if ( mrowner ) {
+            obj->setOwner( mrowner );
+        }
+        mrequests[obj->getRequestName()] = obj;
+        return true;
+    }
+
     bool ServiceRequester::connectTo( Service::shared_ptr sp) {
         for (OperationCallers::iterator it = mmethods.begin(); it != mmethods.end(); ++it) {
             if ( !it->second->ready() ) {
@@ -135,5 +179,11 @@ namespace RTT
                 return false;
             }
         return true;
+    }
+
+    void ServiceRequester::clear()
+    {
+        mmethods.clear();
+        mrequests.clear();
     }
 }

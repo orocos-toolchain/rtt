@@ -87,12 +87,12 @@ class  RTT_corba_CServiceRequester_i
     : public virtual POA_RTT::corba::CServiceRequester, public virtual PortableServer::RefCountServantBase
 {
 protected:
-    RTT::ServiceRequester* mservice;
+    RTT::ServiceRequester::shared_ptr mservice;
     std::map<std::string, std::pair<RTT::corba::CServiceRequester_var, PortableServer::ServantBase_var> > mrequests;
     PortableServer::POA_var mpoa;
 public:
   // Constructor 
-    RTT_corba_CServiceRequester_i (RTT::ServiceRequester* service, PortableServer::POA_ptr poa);
+    RTT_corba_CServiceRequester_i (RTT::ServiceRequester::shared_ptr service, PortableServer::POA_ptr poa);
   
   // Destructor 
   virtual ~RTT_corba_CServiceRequester_i (void);

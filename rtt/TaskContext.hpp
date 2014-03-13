@@ -278,13 +278,13 @@ namespace RTT
          * Returns the object that manages which methods this Task
          * requires to be implemented by another task.
          */
-        ServiceRequester* requires() { return tcrequests; }
+        ServiceRequester::shared_ptr requires() { return tcrequests; }
 
         /**
          * Returns the object that manages which methods this Task
          * requires to be implemented by another service.
          */
-        ServiceRequester* requires(const std::string& service_name) {
+        ServiceRequester::shared_ptr requires(const std::string& service_name) {
             return tcrequests->requires(service_name);
         }
 
@@ -670,7 +670,7 @@ namespace RTT
         LocalServices localservs;
 
         Service::shared_ptr tcservice;
-        ServiceRequester*           tcrequests;
+        ServiceRequester::shared_ptr tcrequests;
         os::Mutex mportlock;
 
         // non copyable
