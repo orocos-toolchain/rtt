@@ -844,6 +844,72 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition2 )
     this->finishState("x", tc);
 }
 
+BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition3 )
+{
+    // test event reception in sub states.
+    string prog = string("StateMachine X {\n")
+    + " initial state INIT {\n"
+    + "    transitions { select STATE1 }\n"
+    + " }\n"
+    + " state STATE1 {\n"
+    + "    var double d;\n"       
+    + "    transition v_event() select STATE2\n" // test signal transition
+    + "    transition v_event() select ERROR\n"   // This one should not be taken.
+    + "    transition o_event(d) select ERROR\n"   // This one should not be taken.
+    + "    transition v_event() select ERROR\n"   // This one should not be taken.
+    + " }\n"
+    + " state STATE2 {\n"
+    + "    transition v_event() select FINI\n"   // test signal transition
+    + "    transition v_event() select ERROR\n"   // This one should not be taken.
+    + "    transition o_event(d) select ERROR\n"   // This one should not be taken.
+    + "    transition v_event() select ERROR\n"   // This one should not be taken.
+    + " }\n"
+    + " state ERROR {} \n"
+    + " final state FINI {} \n"
+    + "}\n"
+    + "RootMachine X x()\n";
+    this->parseState( prog, tc );
+    StateMachinePtr sm = sa->getStateMachine("x");
+    BOOST_REQUIRE( sm );
+    sm->trace(true);
+    // into STATE1
+    this->runState("x", tc);
+    checkState( "x", tc);
+    BOOST_CHECK_EQUAL( "STATE1", sm->getCurrentStateName() );
+    // remain in STATE1
+    BOOST_CHECK( SimulationThread::Instance()->run(100) );
+    checkState( "x", tc);
+    BOOST_CHECK_EQUAL( "STATE1", sm->getCurrentStateName() );
+    // into STATE2
+    OperationCaller<void(void)> mo( tc->provides()->getOperation("v_event"), tc->engine());
+    OperationCaller<void(double)> mo2( tc->provides()->getOperation("o_event"), tc->engine());
+    BOOST_REQUIRE( mo.ready() );
+    mo();
+    mo();
+    mo2(3);
+    mo2(3);
+    BOOST_CHECK( SimulationThread::Instance()->run(1) ); // allow to transition
+    checkState( "x", tc);
+    BOOST_CHECK_EQUAL( "STATE2", sm->getCurrentStateName() );
+    // remain in STATE2
+    BOOST_CHECK( SimulationThread::Instance()->run(100) );
+    checkState( "x", tc);
+    BOOST_CHECK_EQUAL( "STATE2", sm->getCurrentStateName() );
+    // into FINI
+    mo();
+    mo();
+    mo2(3);
+    mo2(3);
+    BOOST_CHECK( SimulationThread::Instance()->run(1) ); // allow to transition
+    checkState( "x", tc);
+    BOOST_CHECK_EQUAL( "FINI", sm->getCurrentStateName() );
+    BOOST_CHECK( SimulationThread::Instance()->run(100) );
+    checkState( "x", tc);
+    BOOST_CHECK_EQUAL( "FINI", sm->getCurrentStateName() );
+    this->checkState("x",tc);
+    this->finishState("x", tc);
+}
+
 BOOST_AUTO_TEST_CASE( testStateOperationSignalTransitionProgram )
 {
     string prog = string("StateMachine X {\n")

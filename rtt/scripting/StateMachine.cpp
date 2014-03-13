@@ -1130,7 +1130,7 @@ namespace RTT {
 
     // in exit/entry or transition programs
     bool StateMachine::inTransition() const {
-        return currentProg != 0  && currentProg != currentRun && currentProg != currentHandle;
+        return currentProg != 0  && currentProg != currentRun && currentProg != currentHandle || (current != next);
     }
 
     // only run program may be interrupted.
