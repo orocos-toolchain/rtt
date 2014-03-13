@@ -282,7 +282,11 @@ BOOST_AUTO_TEST_CASE( testOperationSignal )
     m0 = op0.getImplementation();
     BOOST_CHECK( m0.ready() );
 
-    m0.call(); // return unspecified number (no implementation!).
+    try {
+        m0.call(); // return unspecified number (no implementation!).
+    } catch (SendStatus sf) {
+        BOOST_FAIL("Should not throw a SendFailure!");
+    }
 
     BOOST_CHECK_EQUAL( -1.0, sig );
 

@@ -133,9 +133,8 @@ namespace RTT
             ExecutionEngine* getMessageProcessor() const { return this->myengine; }
 
             SendHandle<Signature> do_send(shared_ptr cl) {
-                assert(this->myengine); // myengine must be either the caller's engine or GlobalEngine::Instance().
                 //std::cout << "Sending clone..."<<std::endl;
-                if ( this->myengine->process( cl.get() ) ) {
+                if ( this->myengine && this->myengine->process( cl.get() ) ) {
                     cl->self = cl;
                     return SendHandle<Signature>( cl );
                 } else {

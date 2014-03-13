@@ -601,6 +601,10 @@ namespace RTT
                     throw parse_exception_wrong_type_of_argument
                         ( peer->getName(), evname, e.whicharg, e.expected_, e.received_ );
                 }
+            catch( const no_asynchronous_operation_exception& e )
+                {
+                    throw parse_exception_fatal_semantic_error("StateMachine can't create EventTransition on Operation '" + evname + "' since it was not added with addEventOperation()." );
+                }
             catch( ... )
                 {
                     assert( false );

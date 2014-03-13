@@ -308,6 +308,27 @@ namespace RTT
             return op;
         }
 
+#ifdef ORO_SIGNALLING_OPERATIONS
+        /**
+         * Add an Event/Signalling operation object to the interface. This version exports an
+         * existing Operation object to the normal Operation interface of the component and
+         * additionally provides signalling support for RTT State Machines.
+         *
+         * @param op The operation object to add.
+         *
+         * @return The given parameter \a op
+         */
+        template<class Signature>
+        Operation<Signature>& addEventOperation( Operation<Signature>& op )
+        {
+            op.signals();
+            if ( this->addLocalOperation( op ) == false )
+                return op;
+            this->add( op.getName(), new internal::EventOperationInterfacePartFused<Signature>( &op ) );
+            return op;
+        }
+#endif
+
         /**
          * Add an operation object to the interface. This version exports an
          * existing Operation object to the synchronous interface of the component
@@ -369,6 +390,30 @@ namespace RTT
             ownedoperations.push_back(op);
             return addOperation( *op );
         }
+
+#ifdef ORO_SIGNALLING_OPERATIONS
+        /**
+         * Add an operation which provides call-back / event functionality.
+         * The function \a func must be a C++ function.
+         *
+         * @param name The name of the new operation
+         * @param func A pointer to a function, for example &Bar::foo (C++ class function).
+         * @param serv A pointer to the object that will execute the function in case of a C++ class function,
+         * @param et The ExecutionThread choice: will the owning TaskContext of this service execute
+         * the function \a func in its own thread, or will the client's thread (the caller) execute \a func ?
+         *
+         * @return A newly created operation object, which you may further document or query.
+         */
+        template<class Func, class Service>
+        Operation< typename internal::GetSignature<Func>::Signature >&
+        addEventOperation( const std::string name, Func func, Service* serv, ExecutionThread et = ClientThread )
+        {
+            typedef typename internal::GetSignature<Func>::Signature Signature;
+            Operation<Signature>* op = new Operation<Signature>(name, func, serv, et, this->getOwnerExecutionEngine() );
+            ownedoperations.push_back(op);
+            return addEventOperation( *op );
+        }
+#endif
 
         /**
          * Add an operation to the synchronous interface by means of a function.

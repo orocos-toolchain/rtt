@@ -14,7 +14,7 @@
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis></subtitle>
     <copyright>
-      <year>2003,2004,2005,2006,2007,2008,2009,2010</year>
+      <year>2003,2004,2005,2006,2007,2008,2009,2010,2014</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
     
@@ -1395,8 +1395,53 @@
 	    may or must thus perform the necessary cleanup.
 	  </para>
 	</section>
-      </section>
-      <section id="instantiating">
+	<section>
+	  <title>Operation Event Transitions</title>
+	  <para>
+			A second source of transitions are the invocation of Operations
+			of the TaskContext the state machine runs in. In order to
+			respond in a state machine to such an event, the operation needs
+			to be added with the addEventOperation function:
+	  </para>
+	  <programlisting>  // member variable of 'MyComp':
+  Operation&lt;void(int)> requestSafe; // don't forget to initialize with a "name" in the constructor.
+
+  // ...
+
+     // for example: in the TaskContext constructor:
+     this->provides()->addEventOperation(requestSafe).doc("This operation does nothing except for requesting the SAFE state");
+		</programlisting>
+	  <note><para>A StateMachine can only react to Operations
+	  which have been added with 'addEventOperation' to the TaskContext.
+	  </para></note>
+	  <note><para>A StateMachine can only react to Operations
+		of the component it runs in.
+	  </para></note>
+	  <para>
+			Reacting to an Operation call is similar to responding to port
+			events above:
+	  </para>
+	  <programlisting>  state X {
+    var int reason;
+
+    transition requestSafe(reason) if ( reason == 3 ) then {
+       // transition succeeds, transition program:
+       // ...
+    } select SAFE else {
+       // transition fails, failure program:
+       // ...
+    } select OTHER_STATE
+
+    // other events likewise...
+  }</programlisting>
+	  <para>
+			As with Event ports, both the transition programs and the the select statements
+			are optional, but at least a program or select statement
+			must be given.
+	  </para>
+	</section> 
+	</section>
+     <section id="instantiating">
 	<title>Instantiating Machines: SubMachines and RootMachines</title>
 	<para>
 	  As mentioned before: you can look at a SubMachine

@@ -78,7 +78,12 @@ public:
         tc->ports()->addPort( d_event );
         tc->ports()->addPort( b_event );
         tc->ports()->addPort( t_event );
+#ifdef ORO_SIGNALLING_OPERATIONS
+        tc->provides()->addEventOperation( o_event );
+#else
         tc->provides()->addOperation( o_event );
+#endif
+
         tc->ports()->addPort( d_event_source );
         tc->ports()->addPort( b_event_source );
         tc->ports()->addPort( t_event_source );
