@@ -812,6 +812,7 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition2 )
     this->parseState( prog, tc );
     StateMachinePtr sm = sa->getStateMachine("x");
     BOOST_REQUIRE( sm );
+    sm->trace(true);
     // into STATE1
     this->runState("x", tc);
     checkState( "x", tc);
@@ -824,6 +825,7 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition2 )
     OperationCaller<void(void)> mo( tc->provides()->getOperation("v_event"), tc->engine());
     BOOST_REQUIRE( mo.ready() );
     mo();
+    BOOST_CHECK( SimulationThread::Instance()->run(1) ); // allow to transition
     checkState( "x", tc);
     BOOST_CHECK_EQUAL( "STATE2", sm->getCurrentStateName() );
     // remain in STATE2
@@ -832,6 +834,7 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition2 )
     BOOST_CHECK_EQUAL( "STATE2", sm->getCurrentStateName() );
     // into FINI
     mo();
+    BOOST_CHECK( SimulationThread::Instance()->run(1) ); // allow to transition
     checkState( "x", tc);
     BOOST_CHECK_EQUAL( "FINI", sm->getCurrentStateName() );
     BOOST_CHECK( SimulationThread::Instance()->run(100) );
@@ -919,8 +922,8 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + " }\n"
         + " state ISPOSITIVE {\n"
         + "   entry { do log(\"ISPOSITIVE\");}\n"
-        + "   transition b_event(eb)\n"
-        + "      if (eb == true) then { do log(\"Local ISPOSITIVE->INIT Transition for b_event\");} select INIT\n" // 20
+        + "   transition b_event(eb)\n" // 20
+        + "      if (eb == true) then { do log(\"Local ISPOSITIVE->INIT Transition for b_event\");} select INIT\n"
 #ifdef ORO_SIGNALLING_OPERATIONS
         + "   transition o_event(et)\n"
         + "      if ( et == 3.0 ) then { do log(\"Local ISPOSITIVE->INIT Transition for o_event\");} select INIT\n"
@@ -979,7 +982,7 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
         + "     do test.assert( !y1.inState(\"ISNEGATIVE\") )\n"
         + "     if ( !y1.inState(\"ISPOSITIVE\") ) then\n"
-        + "          do test.assertMsg( false, \"Not ISNEGATIVE but \" + y1.getState() )\n"
+        + "          do test.assertMsg( false, \"Not ISPOSITIVE but \" + y1.getState() )\n"
         + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
         + "     do o_event( 3.0 )\n" // go to INIT.
         + "     do yield\n"

@@ -20,6 +20,11 @@ namespace RTT
              */
             typedef boost::shared_ptr<OperationCallerInterface> shared_ptr;
 
+            /**
+             * Initializes an empty OperationCallerInterface with owner,
+             * executor and caller set to zero and the ExecutionThread type
+             * to OwnThread.
+             */
             OperationCallerInterface();
 
             OperationCallerInterface(OperationCallerInterface const& orig);
@@ -68,6 +73,8 @@ namespace RTT
              */
             bool setThread(ExecutionThread et,
                            ExecutionEngine* executor);
+
+            ExecutionThread getThread() const { return met; }
 
             /**
              * Executed when the operation execution resulted in a

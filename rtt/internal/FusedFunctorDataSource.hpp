@@ -482,6 +482,10 @@ namespace RTT
               {
               }
 
+              ~FusedMSignal() {
+                  delete mact;
+              }
+
               /**
                * A Fused function that takes the arguments of the signal,
                * puts them into the assignable data sources and

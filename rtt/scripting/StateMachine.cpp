@@ -485,6 +485,7 @@ namespace RTT {
         for (EventList::iterator eit = hlist.begin();
              eit != hlist.end();
              ++eit) {
+            assert( get<6>(*eit).connected() == false );
             get<6>(*eit).connect();
         }
     }
@@ -499,6 +500,7 @@ namespace RTT {
                 for (EventList::iterator eit = hlist.begin();
                      eit != hlist.end();
                      ++eit) {
+                    assert( get<6>(*eit).connected() == true );
                     get<6>(*eit).disconnect();
                 }
 
@@ -511,8 +513,10 @@ namespace RTT {
                                               StateInterface* elseto, boost::shared_ptr<ProgramInterface> elseprog )
     {
         Logger::In in("StateMachine::createEventTransition");
-        if ( false ) { // todo: check for OwnThread
-            log(Error) << "Can not receive event '"<< ename <<"' in StateMachine for Operation not executed in OwnThread."<< endlog();
+        DisposableInterface::shared_ptr di =  sp->getLocalOperation(ename);
+        OperationCallerInterface::shared_ptr oci = dynamic_pointer_cast<OperationCallerInterface>(di);
+        if ( !oci || oci->getThread() == ClientThread ) {
+            log(Error) << "Can not receive event '"<< ename <<"' in StateMachine for Operation not executed in OwnThread or not a local operation."<< endlog();
             return false;
         }
 
@@ -543,7 +547,7 @@ namespace RTT {
         // with the SM. handle.destroy() can be called upon SM destruction.
         Handle handle;
 
-        log(Debug) << "Creating Signal handler for Operation '"<< ename <<"'."<<Logger::endl;
+        log(Debug) << "Creating Signal handler for Operation '"<< ename <<"' from state "<< from->getName() << " to state " << to->getName() <<Logger::endl;
 #ifdef ORO_SIGNALLING_OPERATIONS
         handle = sp->produceSignal( ename, new CommandFunction( boost::bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto) ), args );
 #endif
@@ -551,6 +555,8 @@ namespace RTT {
             Logger::log() << Logger::Error << "Could not setup handle for event '"<<ename<<"'."<<Logger::endl;
             return false; // event does not exist...
         }
+        // all our handles must start in disconnected state:
+        handle.disconnect();
         // BIG NOTE : we MUST store handle otherwise, the connection is destroyed (cfr setup vs connect).
         // Off course, we also need it to connect/disconnect the event.
         eventMap[from].push_back( boost::make_tuple( sp, ename, args, to, guard, transprog, handle, elseto, elseprog) );
@@ -576,16 +582,19 @@ namespace RTT {
         if ( !current)
             return true;
 
-        TRACE("Received Signal in state '"+ current->getName()+"'.");
         if (from == 0)
             from  = current;
         if (to == 0)
             to = current;
+        TRACE("Received Signal in state '"+ current->getName()+"' for transition from state '" + from->getName() + "' to state '" + to->getName() + "'");
         if ( from == current && !this->inTransition() ) {
             if ( c->evaluate() && checkConditions(to, false) == 1 ) {
                 TRACE( "Valid transition from " + from->getName() +
-                            +" to "+to->getName()+".");
-                changeState( to, p );              //  valid transition to 'to'.
+                       +" to "+to->getName()+".");
+                // stepping == true ! We don't want to execute the whole state transition
+                changeState( to, p, true );              //  valid transition to 'to'.
+                // trigger EE in order to force execution of the remainder of the state transition:
+                this->getEngine()->getActivity()->trigger();
             }
             else {
                 TRACE( "Rejected transition from " + from->getName() +
@@ -597,7 +606,7 @@ namespace RTT {
         else {
             if (this->inTransition() ) {
                 TRACE( "Rejected transition from " + from->getName() +
-                              " within " + current->getName() + ": in transition.");
+                              " within " + current->getName() + ": already in transition.");
             } else {
                 TRACE( "Rejected transition from " + from->getName() +
                               + " within " + current->getName() + ": wrong state.");
@@ -662,7 +671,7 @@ namespace RTT {
                 }
                 // if cres == -1 : precondition failed, increment reqstep...
             }
-            if ( reqstep + 1 == reqend ) {
+             if ( reqstep + 1 == reqend ) {
                 // to a state specified by the user (global)
                 for ( ; it1 != it2; ++it1 ) {
                     if ( get<0>(*it1)->evaluate() && checkConditions( get<1>(*it1) ) == 1 ) {
@@ -917,7 +926,6 @@ namespace RTT {
         assert(s);
 //        TRACE_INIT();
 //        TRACE( "Planning to leave state " + s->getName() );
-        disableEvents(s);
         currentExit = s->getExitProgram();
         if ( currentExit ) {
             currentExit->reset();
@@ -966,8 +974,6 @@ namespace RTT {
         TransList::iterator it;
         for ( it= stateMap.find(s)->second.begin(); it != stateMap.find(s)->second.end(); ++it)
             get<0>(*it)->reset();
-
-        enableEvents(s);
 
         next = s;
         currentEntry = s->getEntryProgram();
@@ -1045,7 +1051,11 @@ namespace RTT {
             }
             // make change transition after exit of previous state:
             TRACE("Formally  transitioning from      '"+ (current ? current->getName() : "(null)") + "' to '"+ (next ? next->getName() : "(null)") +"'" );
+
+            disableEvents(current);
             current = next;
+            enableEvents(current);
+
         }
 
         if ( currentEntry ) {

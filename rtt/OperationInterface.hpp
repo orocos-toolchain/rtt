@@ -187,7 +187,7 @@ namespace RTT
          * @param args The data sources to fill in with the arguments the operation was given.
          * The number of elements and their type must match the signature of the operation.
          *
-         * @return a new Signal Handle
+         * @return a new Signal Handle, the Handle is returned in the connected state !
          * @throw wrong_number_of_args_exception
          * @throw wrong_types_of_args_exception
          * @throw name_not_found_exception
