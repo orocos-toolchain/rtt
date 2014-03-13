@@ -178,9 +178,9 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     endforeach(ROSDEP ${pkg_DEPS2})
 
   elseif(ORO_USE_CATKIN)
-     # Parse package.xml file
+     # Parse package.xml file in ${PROJECT_SOURCE_DIR}/package.xml to set ${PROJECT_NAME}_VERSION and ${PROJECT_NAME}_BUILD_DEPENDS
     if(NOT _CATKIN_CURRENT_PACKAGE)
-      catkin_package_xml()
+      catkin_package_xml(DIRECTORY ${PROJECT_SOURCE_DIR})
     endif()
 
     # Set output directories for catkin
@@ -198,9 +198,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     endif()
 
     # Get catkin build_depend dependencies
-    orocos_get_catkin_deps( DEPS )
-    #message("orocos_get_manifest_deps are: ${DEPS}")
-    foreach(DEP ${DEPS})
+    foreach(DEP ${${PROJECT_NAME}_BUILD_DEPENDS})
       # We use OROCOS_ONLY so that we only find .pc files with the orocos target on them
       orocos_use_package( ${DEP} OROCOS_ONLY) 
     endforeach(DEP ${DEPS}) 
