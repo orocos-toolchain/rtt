@@ -45,16 +45,6 @@ namespace RTT
             void setOwner(ExecutionEngine* ee);
 
             /**
-             * Set an executor which will execute this method
-             * when it is called or sent. If ee is set to 0,
-             * the method will be executed in the client's thread or
-             * the GlobalExecutionEngine.
-             * @param ee The ExecutionEngine of the component that
-             * is executing this operation.
-             */
-            void setExecutor(ExecutionEngine* ee);
-
-            /**
              * Sets the caller's engine of this operation.
              * This object will be used to test if asynchronous
              * messaging is required.
@@ -87,10 +77,12 @@ namespace RTT
              * Helpful function to tell us if this operations is to be sent or not.
              */
             bool isSend() { return met == OwnThread && myengine != caller; }
+
+            ExecutionEngine* getMessageProcessor() const;
+
         protected:
             ExecutionEngine* myengine;
             ExecutionEngine* caller;
-            ExecutionEngine* ownerEngine;
             ExecutionThread met;
         };
     }

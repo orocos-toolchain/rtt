@@ -386,7 +386,7 @@ namespace RTT
 
         /**
          * A OperationCaller implementation which delegates C++ to datasource
-         * conversions when C++ code tries to call remote methods, only
+         * conversions when C++ code tries to call remote operations, only
          * available in an OperationInterfacePart, and not through an
          * OperationBase. The datasources created as such are not
          * subject to copy/clone semantics since they only serve as
@@ -395,7 +395,7 @@ namespace RTT
          * of all involved objects, and a SendHandleC object is used
          * to track the results of asynchronous calls.
          *
-         * @param OperationCallerT The function signature of the method. For example,
+         * @param OperationCallerT The function signature of the remote operation. For example,
          * bool( int, Frame, double)
          *
          */

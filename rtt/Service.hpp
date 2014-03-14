@@ -388,31 +388,31 @@ namespace RTT
         }
 
         /**
-         * Add an operation to the interface by means of a C++ function.
+         * Add an operation to the interface by means of a C++ Class member function.
          * The function \a func must be a C++ member function and
-         * \a serv is the object having that function.
+         * \a obj is the object having that function.
          *
          * @param name The name of the new operation
          * @param func A pointer to a function, for example, &Bar::foo (C++ class function).
-         * @param serv A pointer to the object that will execute the function.
+         * @param obj A pointer to the object that will execute the function.
          * @param et The ExecutionThread choice: will the owning TaskContext of this service execute
          * the function \a func in its own thread, or will the client's thread (the caller) execute \a func ?
          *
          * @return A newly created operation object, which you may further document or query.
          */
-        template<class Func, class Service>
+        template<class Func, class Class>
         Operation< typename internal::GetSignature<Func>::Signature >&
-        addOperation( const std::string name, Func func, Service* serv, ExecutionThread et = ClientThread )
+        addOperation( const std::string name, Func func, Class* obj, ExecutionThread et = ClientThread )
         {
             typedef typename internal::GetSignature<Func>::Signature Signature;
-            Operation<Signature>* op = new Operation<Signature>(name, func, serv, et, this->getOwnerExecutionEngine() );
+            Operation<Signature>* op = new Operation<Signature>(name, func, obj, et, this->getOwnerExecutionEngine() );
             ownedoperations.push_back(op);
             return addOperation( *op );
         }
 
         /**
-         * Add an operation to the interface by means of a C function.
-         * The function \a func must be a C function.
+         * Add an operation to the interface by means of a free C/C++ function.
+         * The function \a func must be a free C/C++ function.
          *
          * @param name The name of the new operation
          * @param func A pointer to a C function, for example, &foo (or a \b static C++ class function).
@@ -435,22 +435,44 @@ namespace RTT
 #ifdef ORO_SIGNALLING_OPERATIONS
         /**
          * Add an operation which provides call-back / event functionality.
-         * The function \a func must be a C++ function.
+         * The function \a func must be a free C/C++ function.
          *
          * @param name The name of the new operation
-         * @param func A pointer to a function, for example &Bar::foo (C++ class function).
-         * @param serv A pointer to the object that will execute the function in case of a C++ class function,
+         * @param func A pointer to a free C/C++ function, for example, &foo (or a \b static C++ class function).
          * @param et The ExecutionThread choice: will the owning TaskContext of this service execute
          * the function \a func in its own thread, or will the client's thread (the caller) execute \a func ?
          *
          * @return A newly created operation object, which you may further document or query.
          */
-        template<class Func, class Service>
+        template<class Func>
+        Operation< Func >&
+        addEventOperation( const std::string name, Func* func, ExecutionThread et = ClientThread )
+        {
+            typedef Func Signature;
+            boost::function<Signature> bfunc = func;
+            Operation<Signature>* op = new Operation<Signature>(name, bfunc, et, this->getOwnerExecutionEngine() );
+            ownedoperations.push_back(op);
+            return addEventOperation( *op );
+        }
+
+        /**
+         * Add an operation which provides call-back / event functionality.
+         * The function \a func must be a C++ Class member function.
+         *
+         * @param name The name of the new operation
+         * @param func A pointer to a function, for example &Bar::foo (C++ class function).
+         * @param obj A pointer to the object that will execute the function in case of a C++ class function,
+         * @param et The ExecutionThread choice: will the owning TaskContext of this service execute
+         * the function \a func in its own thread, or will the client's thread (the caller) execute \a func ?
+         *
+         * @return A newly created operation object, which you may further document or query.
+         */
+        template<class Func, class Class>
         Operation< typename internal::GetSignature<Func>::Signature >&
-        addEventOperation( const std::string name, Func func, Service* serv, ExecutionThread et = ClientThread )
+        addEventOperation( const std::string name, Func func, Class* obj, ExecutionThread et = ClientThread )
         {
             typedef typename internal::GetSignature<Func>::Signature Signature;
-            Operation<Signature>* op = new Operation<Signature>(name, func, serv, et, this->getOwnerExecutionEngine() );
+            Operation<Signature>* op = new Operation<Signature>(name, func, obj, et, this->getOwnerExecutionEngine() );
             ownedoperations.push_back(op);
             return addEventOperation( *op );
         }
@@ -458,22 +480,22 @@ namespace RTT
 
         /**
          * Add an operation to the synchronous interface by means of a function.
-         * The function \a func must be a C++ function.
+         * The function \a func must be a C++ Class member function.
          *
          * @param name The name of the new operation
          * @param func A pointer to a function, for example &Bar::foo (C++ class function).
-         * @param serv A pointer to the object that will execute the function in case of a C++ class function,
+         * @param obj A pointer to the object that will execute the function in case of a C++ class function,
          * @param et The ExecutionThread choice: will the owning TaskContext of this service execute
          * the function \a func in its own thread, or will the client's thread (the caller) execute \a func ?
          *
          * @return A newly created operation object, which you may further document or query.
          */
-        template<class Func, class Service>
+        template<class Func, class Class>
         Operation< typename internal::GetSignature<Func>::Signature >&
-        addSynchronousOperation( const std::string name, Func func, Service* serv, ExecutionThread et = ClientThread )
+        addSynchronousOperation( const std::string name, Func func, Class* obj, ExecutionThread et = ClientThread )
         {
             typedef typename internal::GetSignature<Func>::Signature Signature;
-            Operation<Signature>* op = new Operation<Signature>(name, func, serv, et, this->getOwnerExecutionEngine() );
+            Operation<Signature>* op = new Operation<Signature>(name, func, obj, et, this->getOwnerExecutionEngine() );
             ownedoperations.push_back(op);
             return addSynchronousOperation( *op );
         }
