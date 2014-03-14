@@ -53,7 +53,7 @@ namespace RTT {
 bool operator==(const PropertyBag& a, const PropertyBag& b) {
     if( a.size() == b.size() ) {
         PropertyBag::const_iterator ita = a.begin();
-        PropertyBag::const_iterator itb = b.begin();
+//        PropertyBag::const_iterator itb = b.begin();
         while ( ita != a.end() ) {
             //if ( (*ita)->equals(*itb) )
                 return false;
