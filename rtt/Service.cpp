@@ -203,7 +203,7 @@ namespace RTT {
         simpleoperations[op.getName()] = &op;
         // finally set the (new) owner:
         if (mowner) {
-            op.setExecutor(mowner->engine());
+            // also updates the Executor:
             op.setOwner(mowner->engine());
         }
         return true;
