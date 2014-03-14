@@ -51,15 +51,12 @@ namespace RTT
 {
   using namespace detail;
 
-  Parser::Parser(TaskContext* c) : mcaller(c ? c->engine() : 0) {
+  Parser::Parser(ExecutionEngine* caller) : mcaller(caller) {
 
       if (mcaller == 0) {
-          //log(Warning) << "Parser does not know which TaskContext is executing (calling) the parsed code. Using Global Engine." <<endlog();
+          log(Debug) << "WARNING: Parser does not know which TaskContext is executing (calling) the parsed code. Using Global Engine. Please specify the caller explicitly in order to avoid any asynchronous operation problems." <<endlog();
           mcaller = GlobalEngine::Instance();
-      } else {
-          //log(Debug) << "Parsing code as if " << mcaller->getName() << " is executing it."<<endl;
       }
-
   }
 
   void Parser::runScript(std::string const& code, TaskContext* mowner, ScriptingService* service, std::string const& filename ) {

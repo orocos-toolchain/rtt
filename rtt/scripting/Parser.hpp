@@ -68,11 +68,11 @@ namespace RTT
     public:
         /**
          * Create a parser and allow to explicitly specify which
-         * TaskContext is calling it. This allows to generate the correct
+         * TaskContext's ExecutionEngine is calling it. This allows to generate the correct
          * asynchonous method invocation code in case caller and parser
          * are not identical.
          */
-        Parser(TaskContext* caller = 0);
+        Parser(ExecutionEngine* caller = 0);
 
         /**
          * Runs all statements in \a code.

@@ -53,6 +53,7 @@
 #include "../OperationCaller.hpp"
 #include "../internal/mystd.hpp"
 #include "../plugin/ServicePlugin.hpp"
+#include "../internal/GlobalEngine.hpp"
 
 ORO_SERVICE_NAMED_PLUGIN( RTT::scripting::ScriptingService, "scripting" )
 
@@ -538,7 +539,7 @@ namespace RTT {
     {
 
       Logger::In in("ScriptingService::loadFunctions");
-      Parser p;
+      Parser p(mowner->engine());
       Functions exec;
       Functions ret;
       try {
@@ -599,7 +600,7 @@ namespace RTT {
     bool ScriptingService::evalInternal(const string& filename, const string& code )
     {
         Logger::In in("ScriptingService");
-        Parser parser;
+        Parser parser( GlobalEngine::Instance() );
         try {
             parser.runScript(code, mowner, this, filename );
         }
@@ -630,7 +631,7 @@ namespace RTT {
     bool ScriptingService::loadPrograms( const string& code, const string& filename, bool mrethrow ){
 
       Logger::In in("ProgramLoader::loadProgram");
-      Parser parser;
+      Parser parser(mowner->engine());
       Parser::ParsedPrograms pg_list;
       try {
           Logger::log() << Logger::Info << "Parsing file "<<filename << Logger::endl;
@@ -715,7 +716,7 @@ namespace RTT {
     bool ScriptingService::loadStateMachines( const string& code, const string& filename, bool mrethrow )
     {
         Logger::In in("ScriptingService::loadStateMachine");
-        Parser parser;
+        Parser parser(mowner->engine());
         Parser::ParsedStateMachines pg_list;
         try {
             Logger::log() << Logger::Info << "Parsing file "<<filename << Logger::endl;
