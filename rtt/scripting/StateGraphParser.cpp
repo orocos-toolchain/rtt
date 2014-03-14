@@ -473,14 +473,14 @@ namespace RTT
                                      evname, "callback" );
         } else {
             // check if it's a port.
-            if ( peer->hasService(evname) == false || peer->provides(evname)->hasOperation("read") == false) {
+            if ( peer->hasService(evname) == false || peer->getService(evname)->hasOperation("read") == false) {
                 if (curstate)
                     ORO_THROW( parse_exception_fatal_semantic_error("In state "+curstate->getName()+": InputPort or Operation "+evname+" not found in Task "+peer->getName() ));
                 else
                     ORO_THROW( parse_exception_fatal_semantic_error("In statemachine: InputPort or Operation "+evname+" not found in Task "+peer->getName() ));
             }
             argsparser =
-                new ArgumentsParser( *expressionparser, context, peer->provides(evname),
+                new ArgumentsParser( *expressionparser, context, peer->getService(evname),
                                      evname, "read" );
         }
 
@@ -532,9 +532,9 @@ namespace RTT
         if (evname.empty()) {
             if (curcondition == 0)
                 curcondition = new ConditionTrue;
-        } else if ( peer->provides(evname) && peer->provides(evname)->hasOperation("read") ) { // is a port
+        } else if ( peer->hasService(evname) && peer->getService(evname)->hasOperation("read") ) { // is a port
             try {
-                assert(peer->provides(evname)); // checked in seeneventname()
+                assert(peer->hasService(evname)); // checked in seeneventname()
                 ConditionInterface* evcondition = 0;
                 if ( global_port_events.count(evname) ){
                     // clone the cached condition in order to avoid a second read on the port.
@@ -545,7 +545,7 @@ namespace RTT
                     evcondition = new ConditionBoolDataSource( cur_port_events[evname]->getResult().get() );
                 } else {
                     // combine the implicit 'read(arg) == NewData' with the guard, if any.
-                    DataSourceBase::shared_ptr read_dsb = peer->provides(evname)->produce("read", evargs, context->engine() );
+                    DataSourceBase::shared_ptr read_dsb = peer->getService(evname)->produce("read", evargs, context->engine() );
                     DataSource<FlowStatus>* read_ds = dynamic_cast<DataSource<FlowStatus>*>(read_dsb.get());
                     assert(read_ds);
                     evcondition = new ConditionCompare<FlowStatus,std::equal_to<FlowStatus> >( new ConstantDataSource<FlowStatus>(NewData), read_ds );
