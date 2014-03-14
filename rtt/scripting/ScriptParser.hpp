@@ -41,6 +41,7 @@ namespace RTT
             CommonParser* commonparser;
             StateGraphParser* stateparser;
             ProgramGraphParser* programparser;
+            ProgramGraphParser* statementparser;
 
             void clear();
 

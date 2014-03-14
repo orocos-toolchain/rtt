@@ -44,8 +44,11 @@ namespace RTT
             context(tc), caller(tcaller), storage( Service::Create("stack") ),
             mpositer(positer), ln_offset(0),
             commonparser(new CommonParser),
-            stateparser(new StateGraphParser(mpositer, context, caller, commonparser)),
-            programparser(new ProgramGraphParser(mpositer, tc, tcaller, *commonparser))
+            // Both state and programs are executed (called) in the target context (see seenprogram, seenstatemachine):
+            stateparser(new StateGraphParser(mpositer, context, context->engine(), commonparser)),
+            programparser(new ProgramGraphParser(mpositer, context, context->engine(), *commonparser)),
+            // statements are directly executed:
+            statementparser(new ProgramGraphParser(mpositer, context, caller, *commonparser))
     {
         BOOST_SPIRIT_DEBUG_RULE( production );
         BOOST_SPIRIT_DEBUG_RULE( statemachine );
@@ -66,17 +69,18 @@ namespace RTT
         statemachine = stateparser->parser();
         program = programparser->programParser();
         function = programparser->functionParser();
-        statement = programparser->statementParser();
+        statement = statementparser->statementParser();
 
         // prepare parser to parse statements right away:
         programparser->initBodyParser("script", storage, 0);
+        statementparser->initBodyParser("script", storage, 0);
                 //mpositer.get_position().line);
         stateparser->storeOffset();
     }
 
     void ScriptParser::seenstatement()
     {
-        ProgramInterfacePtr ret = programparser->bodyParserResult();
+        ProgramInterfacePtr ret = statementparser->bodyParserResult();
         int steps = 0;
         // we execute the result directly.
         ret->loaded( GlobalEngine::Instance() );
@@ -99,7 +103,7 @@ namespace RTT
             }
         }
         ret->unloaded();
-        programparser->initBodyParser("script", storage, 0);
+        statementparser->initBodyParser("script", storage, 0);
                 //mpositer.get_position().line);
         stateparser->storeOffset();
     }
@@ -214,6 +218,7 @@ namespace RTT
     ScriptParser::~ScriptParser()
     {
         clear();
+        delete statementparser;
         delete programparser;
         delete stateparser;
         delete commonparser;
