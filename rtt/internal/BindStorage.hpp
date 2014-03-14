@@ -277,18 +277,21 @@ namespace RTT
             typedef typename boost::function_traits<ToBind>::result_type result_type;
             typedef RStore<result_type> RStoreType;
 
+            // stores the original function pointer
             boost::function<ToBind> mmeth;
-
             mutable RStore<result_type> retv;
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&> vStore;
 #ifdef ORO_SIGNALLING_OPERATIONS
             typename Signal<ToBind>::shared_ptr msig;
 #endif
-            // stores the original function pointer
 
-            // the list of all our storage.
-            bf::vector< RStore<result_type>&> vStore;
             BindStorageImpl() :  vStore(boost::ref(retv)) {}
-            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv)
+#ifdef ORO_SIGNALLING_OPERATIONS
+                                                         , msig(orig.msig)
+#endif
+            {}
 
             void exec() {
 #ifdef ORO_SIGNALLING_OPERATIONS
@@ -316,14 +319,18 @@ namespace RTT
             // Store the argument.
             mutable AStore<arg1_type> a1;
             mutable RStore<result_type> retv;
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&, AStore<arg1_type>& > vStore;
 #ifdef ORO_SIGNALLING_OPERATIONS
             typename Signal<ToBind>::shared_ptr msig;
 #endif
 
-            // the list of all our storage.
-            bf::vector< RStore<result_type>&, AStore<arg1_type>& > vStore;
             BindStorageImpl() : vStore(retv,a1) {}
-            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1)
+#ifdef ORO_SIGNALLING_OPERATIONS
+                                                         , msig(orig.msig)
+#endif
+            {}
             void store(arg1_type t1) { a1(t1); }
             void exec() {
 #ifdef ORO_SIGNALLING_OPERATIONS
@@ -351,14 +358,18 @@ namespace RTT
             mutable AStore<arg1_type> a1;
             mutable AStore<arg2_type> a2;
             mutable RStore<result_type> retv;
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>& > vStore;
 #ifdef ORO_SIGNALLING_OPERATIONS
             typename Signal<ToBind>::shared_ptr msig;
 #endif
 
-            // the list of all our storage.
-            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>& > vStore;
             BindStorageImpl() : vStore(retv,a1,a2) {}
-            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1,a2) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1,a2)
+#ifdef ORO_SIGNALLING_OPERATIONS
+                                                         , msig(orig.msig)
+#endif
+            {}
 
             void store(arg1_type t1, arg2_type t2) { a1(t1); a2(t2); }
             void exec() {
@@ -389,14 +400,18 @@ namespace RTT
             mutable AStore<arg2_type> a2;
             mutable AStore<arg3_type> a3;
             mutable RStore<result_type> retv;
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>& > vStore;
 #ifdef ORO_SIGNALLING_OPERATIONS
             typename Signal<ToBind>::shared_ptr msig;
 #endif
 
-            // the list of all our storage.
-            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>& > vStore;
             BindStorageImpl() : vStore(retv,a1,a2,a3) {}
-            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1,a2,a3) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1,a2,a3)
+#ifdef ORO_SIGNALLING_OPERATIONS
+                                                         , msig(orig.msig)
+#endif
+            {}
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3) { a1(t1); a2(t2); a3(t3); }
             void exec() {
@@ -428,14 +443,18 @@ namespace RTT
             mutable AStore<arg3_type> a3;
             mutable AStore<arg4_type> a4;
             mutable RStore<result_type> retv;
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>& > vStore;
 #ifdef ORO_SIGNALLING_OPERATIONS
             typename Signal<ToBind>::shared_ptr msig;
 #endif
 
-            // the list of all our storage.
-            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>& > vStore;
             BindStorageImpl() : vStore(retv,a1,a2,a3,a4) {}
-            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1,a2,a3,a4) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1,a2,a3,a4)
+#ifdef ORO_SIGNALLING_OPERATIONS
+                                                         , msig(orig.msig)
+#endif
+            {}
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4) { a1(t1); a2(t2); a3(t3); a4(t4); }
             void exec() {
@@ -469,14 +488,18 @@ namespace RTT
             mutable AStore<arg4_type> a4;
             mutable AStore<arg5_type> a5;
             mutable RStore<result_type> retv;
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>&, AStore<arg5_type>& > vStore;
 #ifdef ORO_SIGNALLING_OPERATIONS
             typename Signal<ToBind>::shared_ptr msig;
 #endif
 
-            // the list of all our storage.
-            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>&, AStore<arg5_type>& > vStore;
             BindStorageImpl() : vStore(retv,a1,a2,a3,a4,a5) {}
-            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1,a2,a3,a4,a5) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1,a2,a3,a4,a5)
+#ifdef ORO_SIGNALLING_OPERATIONS
+                                                         , msig(orig.msig)
+#endif
+            {}
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5) { a1(t1); a2(t2); a3(t3); a4(t4); a5(t5);}
             void exec() {
@@ -512,14 +535,18 @@ namespace RTT
             mutable AStore<arg5_type> a5;
             mutable AStore<arg6_type> a6;
             mutable RStore<result_type> retv;
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>&, AStore<arg5_type>&, AStore<arg6_type>& > vStore;
 #ifdef ORO_SIGNALLING_OPERATIONS
             typename Signal<ToBind>::shared_ptr msig;
 #endif
 
-            // the list of all our storage.
-            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>&, AStore<arg5_type>&, AStore<arg6_type>& > vStore;
             BindStorageImpl() : vStore(retv,a1,a2,a3,a4,a5,a6) {}
-            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1,a2,a3,a4,a5,a6) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1,a2,a3,a4,a5,a6) 
+#ifdef ORO_SIGNALLING_OPERATIONS
+                                                         , msig(orig.msig)
+#endif
+            {}
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5, arg6_type t6) { a1(t1); a2(t2); a3(t3); a4(t4); a5(t5); a6(t6);}
             void exec() {
@@ -557,14 +584,18 @@ namespace RTT
             mutable AStore<arg6_type> a6;
             mutable AStore<arg7_type> a7;
             mutable RStore<result_type> retv;
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>&, AStore<arg5_type>&, AStore<arg6_type>&, AStore<arg7_type>& > vStore;
 #ifdef ORO_SIGNALLING_OPERATIONS
             typename Signal<ToBind>::shared_ptr msig;
 #endif
 
-            // the list of all our storage.
-            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>&, AStore<arg5_type>&, AStore<arg6_type>&, AStore<arg7_type>& > vStore;
             BindStorageImpl() : vStore(retv,a1,a2,a3,a4,a5,a6,a7) {}
-            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1,a2,a3,a4,a5,a6,a7) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1,a2,a3,a4,a5,a6,a7)
+#ifdef ORO_SIGNALLING_OPERATIONS
+                                                         , msig(orig.msig)
+#endif
+            {}
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5, arg6_type t6, arg7_type t7) { a1(t1); a2(t2); a3(t3); a4(t4); a5(t5); a6(t6); a7(t7);}
             void exec() {

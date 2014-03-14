@@ -690,9 +690,6 @@ namespace RTT
             {
                 LocalOperationCaller<Signature>* ret = new LocalOperationCaller<Signature>(*this);
                 ret->setCaller( caller );
-#ifdef ORO_SIGNALLING_OPERATIONS
-                ret->setSignal( this->msig );
-#endif
                 return ret;
             }
 
