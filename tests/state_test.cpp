@@ -72,12 +72,8 @@ public:
 public:
     StateTest()
         :
-<<<<<<< HEAD
          d_event("d_event"), b_event("b_event"), t_event("t_event"), v_event("v_event"),o_event("o_event"),
-=======
-         d_event("d_event"), b_event("b_event"), t_event("t_event"),v_event("v_event"),o_event("o_event"),
          v1_event("v1_event"),v2_event("v2_event"),v3_event("v3_event"),
->>>>>>> snrkiwi/statemachine-operations
          d_event_source("d_event_source"), b_event_source("b_event_source"), t_event_source("t_event_source")
          ,sa( ScriptingService::Create(tc) )
     {
