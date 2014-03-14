@@ -125,7 +125,7 @@ namespace RTT
         /**
          * Returns the name of this TaskContext.
          */
-        virtual const std::string& getName() { return tcservice->getName(); }
+        virtual const std::string& getName() const { return tcservice->getName(); }
 
         /**
          * Sets the activity of this TaskContext. The
