@@ -50,6 +50,9 @@
 #include "RTTCorbaConversion.hpp"
 #include "../../types/TransportPlugin.hpp"
 #include "../../types/TypekitPlugin.hpp"
+#ifdef OS_RT_MALLOC
+#include "../../rt_string.hpp"
+#endif
 
 using namespace std;
 using namespace RTT::detail;
@@ -170,6 +173,10 @@ namespace RTT {
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<std::string>() );
             if ( name == "array" )
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol< std::vector<double> >() );
+#endif
+#ifdef OS_RT_MALLOC
+            if ( name == "rt_string")
+                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<rt_string>() );
 #endif
             if ( name == "void" )
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol(false)); // warn=false
