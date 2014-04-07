@@ -46,6 +46,9 @@ email                : peter.soetens@fmtc.be
 #include "TaskContextServer.hpp"
 #include "TaskContextProxy.hpp"
 #include "CorbaConnPolicy.hpp"
+#ifdef OS_RT_MALLOC
+#include <rtt/rt_string.hpp>
+#endif
 
 namespace RTT { 
   namespace corba {
@@ -351,6 +354,51 @@ namespace RTT {
         return true;
       }
     };
+
+#ifdef OS_RT_MALLOC
+    template<>
+    struct AnyConversion< rt_string >
+    {
+      typedef const char*     CorbaType;
+      typedef rt_string     StdType;
+
+      static bool toCorbaType(CorbaType& cb,const StdType& orig) {
+        cb = orig.c_str();
+        return true;
+      }
+
+      static CorbaType toAny(const StdType& orig) {
+        return orig.c_str();
+      }
+
+      static bool toStdType(StdType& dest, const CorbaType orig) {
+        dest = StdType(orig);
+        return true;
+      }
+
+      static bool update(const CORBA::Any& any, StdType& ret) {
+        CorbaType orig;
+        if ( any >>= orig )
+          {
+            ret = orig;
+            return true;
+          }
+        return false;
+      }
+
+      static CORBA::Any_ptr createAny( const StdType& t ) {
+        CORBA::Any_ptr ret = new CORBA::Any();
+        *ret <<= toAny( t );
+        return ret;
+      }
+
+      static bool updateAny( StdType const& t, CORBA::Any& any ) {
+        any <<= toAny( t );
+        return true;
+      }
+
+    };
+#endif
   }
 }
 
