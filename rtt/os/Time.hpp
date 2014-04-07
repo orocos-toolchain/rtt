@@ -100,6 +100,10 @@ namespace RTT
 
     inline psecs nsecs_to_psecs(const nsecs ns) { return ns * PSECS_IN_NSECS; }
 
+    inline msecs Seconds_to_msecs(const Seconds s) { return msecs( rint( s * secs_to_msecs(1) ) ); }
+    inline Seconds msecs_to_Seconds(const msecs ns) { return Seconds( ns ) / Seconds(MSECS_IN_SECS); }
+    inline usecs Seconds_to_usecs(const Seconds s) { return usecs( rint( s * secs_to_usecs(1) ) ); }
+    inline Seconds usecs_to_Seconds(const usecs ns) { return Seconds( ns ) / Seconds(USECS_IN_SECS); }
     inline nsecs Seconds_to_nsecs(const Seconds s) { return nsecs( rint( s * secs_to_nsecs(1) ) ); }
     inline Seconds nsecs_to_Seconds(const nsecs ns) { return Seconds( ns ) / Seconds(NSECS_IN_SECS); }
     inline psecs Seconds_to_psecs(const Seconds s) { return psecs( rint( s * secs_to_psecs(1) ) ); }

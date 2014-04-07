@@ -311,6 +311,13 @@ namespace RTT
          */
         void lognl();
 
+#ifdef  OROSEM_LOG4CPP_LOGGING
+        /**
+         * Name of the log4cpp category that RTT logs to
+         */
+        static const std::string log4cppCategoryName;
+#endif
+
     private:
         /**
          * Returns true if the next message will be logged.

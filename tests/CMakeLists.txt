@@ -110,7 +110,7 @@ IF (BUILD_TESTING)
     COMPILE_DEFINITIONS "${COMPILE_DEFS}")
     ADD_TEST( core-test ${RUNTIME_OUTPUT_DIRECTORY}/core-test )
 
-    ADD_EXECUTABLE( task-test test-runner.cpp tasks_test.cpp taskthread_test.cpp tasks_multiple_test.cpp )
+    ADD_EXECUTABLE( task-test test-runner.cpp tasks_test.cpp taskthread_test.cpp taskthread_fd_test.cpp tasks_multiple_test.cpp )
     TARGET_LINK_LIBRARIES( task-test orocos-rtt-${OROCOS_TARGET}_dynamic ${TEST_LIBRARIES})
     SET_TARGET_PROPERTIES( task-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
