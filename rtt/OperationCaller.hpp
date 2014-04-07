@@ -66,14 +66,14 @@ namespace RTT
 
     /**
      * A OperationCaller serves as a placeholder (aka 'proxy') for a remote
-     * Operation. If you want to call an operation, you need a method to do it.
+     * Operation. If you want to call an operation, you need this class to do it.
      *
-     * The OperationCaller has the exact same signature template argument as the operation
+     * The OperationCaller has the exact same signature template argument as the Operation
      * it wishes to call.
      *
-     * Asynchronous methods need a caller's ExecutionEngine to be able to process
-     * the completion message. In case the caller has no ExecutionEngine, the
-     * GlobalExecutionEngine is used instead.
+     * OwnThread operations need the caller's ExecutionEngine to be able to inform
+     * it of completion . In case the caller has no ExecutionEngine, the
+     * GlobalEngine is used instead, and the GlobalEngine will block until the call completes.
      *
      * @ingroup RTTComponentInterface
      * @ingroup Operations
@@ -105,8 +105,9 @@ namespace RTT
         {}
 
         /**
-         * Create an empty OperationCaller object.
-         * Use assignment to initialise it.
+         * Create an OperationCaller object with a name and optional caller.
+         * @param name The name of the operation that will be called.
+         * @param name The ExecutionEngine of the TaskContext calling the operation.
          */
         OperationCaller(std::string name, ExecutionEngine* caller = 0)
             : Base(), mname(name), mcaller(caller)
@@ -275,6 +276,7 @@ namespace RTT
          * @param name The name of this method
          * @param meth A pointer to a class member function
          * @param object An object of the class which has \a meth as member function.
+         * @note FOR INTERNAL TESTING ONLY. Don't use in application code.
          */
         template<class M, class ObjectType>
         OperationCaller(std::string name, M meth, ObjectType object, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0, ExecutionThread et = ClientThread)
@@ -287,6 +289,7 @@ namespace RTT
          *
          * @param name the name of this method
          * @param meth an pointer to a function or function object.
+         * @note FOR INTERNAL TESTING ONLY. Don't use in application code.
          */
         template<class M>
         OperationCaller(std::string name, M meth, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0, ExecutionThread et = ClientThread)
@@ -324,9 +327,8 @@ namespace RTT
             return this->impl && this->impl->ready();
         }
 
-
         /**
-         * Get the name of this method.
+         * Get the name of this OperationCaller.
          */
         std::string const& getName() const {return mname;}
 
@@ -414,6 +416,7 @@ namespace RTT
      * @param name The name of the resulting OperationCaller object
      * @param method A pointer to a member function to be executed.
      * @param object A pointer to the object which has the above member function.
+     * @note FOR INTERNAL TESTING ONLY. Don't use in application code.
      */
     template<class F, class O>
     OperationCaller< typename internal::UnMember<F>::type > method(std::string name, F method, O object, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0) {
@@ -425,6 +428,7 @@ namespace RTT
      *
      * @param name The name of the resulting OperationCaller object
      * @param method A pointer to a function to be executed.
+     * @note FOR INTERNAL TESTING ONLY. Don't use in application code.
      */
     template<class F>
     OperationCaller<F> method(std::string name, F method, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0) {
@@ -435,6 +439,7 @@ namespace RTT
      *
      * @param name The name of the resulting OperationCaller object
      * @param method A pointer to a function to be executed.
+     * @note FOR INTERNAL TESTING ONLY. Don't use in application code.
      */
     template<class F>
     OperationCaller< typename internal::ArgMember<F>::type > method_ds(std::string name, F method, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0) {

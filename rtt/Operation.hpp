@@ -78,13 +78,14 @@ namespace RTT
          * used to attach Signal handlers to (using signals() ) or
          * set the function to call later on with calls().
          * @param name The name of this instance.
+         * @post The resulting operation will have OwnThread execution semantics.
          */
         Operation(const std::string& name)
         :OperationBase(name)
         {
-            // set null implementation such that we can
+            // set null implementation such that we can already add it to the interface and register signals.
             ExecutionEngine* null_e = 0;
-            impl = boost::make_shared<internal::LocalOperationCaller<Signature> >( boost::function<Signature>(), this->mowner, null_e, OwnThread);
+            impl = boost::make_shared<internal::LocalOperationCaller<Signature> >( boost::function<Signature>(), null_e, null_e, OwnThread);
         }
 
         /**
@@ -92,12 +93,12 @@ namespace RTT
          * @param name The name of this instance.
          * @param func The function to execute, for example &foo.
          * @param et The thread that should execute the function when the operation is invoked.
-         * @param ownerEngine the execution engine of the owner of this operation if any.
+         * @param ownerEngine the execution engine of the owner of this operation if any. Will be automatically set when you use Service::addOperation().
          */
-        Operation(const std::string& name, boost::function<Signature> func, ExecutionThread et = ClientThread, ExecutionEngine* ee = NULL )
+        Operation(const std::string& name, boost::function<Signature> func, ExecutionThread et = ClientThread, ExecutionEngine* ownerEngine = NULL )
         :OperationBase(name)
         {
-            this->calls(func, et, ee);
+            this->calls(func, et, ownerEngine);
         }
 
         /**
@@ -106,13 +107,13 @@ namespace RTT
          * @param func The function to execute, for example &Bar::foo
          * @param o The object that has this function, for example &bar
          * @param et The thread that should execute the function when the operation is invoked.
-         * @param ownerEngine the execution engine of the owner of this operation if any.
+         * @param ownerEngine the execution engine of the owner of this operation if any. Will be automatically set when you use Service::addOperation().
          */
         template<class Function, class Object>
-        Operation(const std::string& name, Function func, Object o, ExecutionThread et = ClientThread, ExecutionEngine* ee = NULL )
+        Operation(const std::string& name, Function func, Object o, ExecutionThread et = ClientThread, ExecutionEngine* ownerEngine = NULL )
         :OperationBase(name)
         {
-            this->calls(func, o, et, ee);
+            this->calls(func, o, et, ownerEngine);
         }
 
         ~Operation()
@@ -145,8 +146,8 @@ namespace RTT
          */
         Operation& calls(boost::function<Signature> func, ExecutionThread et = ClientThread, ExecutionEngine* ownerEngine = NULL ) {
             // creates a Local OperationCaller
-            ExecutionEngine* null_e = 0;
-            impl = boost::make_shared<internal::LocalOperationCaller<Signature> >(func, this->mowner, null_e, et, ownerEngine);
+            ExecutionEngine* null_caller = 0;
+            impl = boost::make_shared<internal::LocalOperationCaller<Signature> >(func, ownerEngine ? ownerEngine : this->mowner, null_caller, et);
 #ifdef ORO_SIGNALLING_OPERATIONS
             if (signal)
                 impl->setSignal(signal);
@@ -166,8 +167,8 @@ namespace RTT
         template<class Function, class Object>
         Operation& calls(Function func, Object o, ExecutionThread et = ClientThread, ExecutionEngine* ownerEngine = NULL ) {
             // creates a Local OperationCaller or sets function
-            ExecutionEngine* null_e = 0;
-            impl = boost::make_shared<internal::LocalOperationCaller<Signature> >(func, o, this->mowner, null_e, et, ownerEngine);
+            ExecutionEngine* null_caller = 0;
+            impl = boost::make_shared<internal::LocalOperationCaller<Signature> >(func, o, ownerEngine ? ownerEngine : this->mowner, null_caller, et);
 #ifdef ORO_SIGNALLING_OPERATIONS
             if (signal)
                 impl->setSignal(signal);
@@ -185,9 +186,9 @@ namespace RTT
          */
         void signals() {
             // attaches a signal to a Local OperationCaller
-            ExecutionEngine* null_e = 0;
+            ExecutionEngine* null_caller = 0;
             if (!impl)
-                impl = boost::make_shared<internal::LocalOperationCaller<Signature> >( boost::function<Signature>(), this->mowner, null_e, OwnThread);
+                impl = boost::make_shared<internal::LocalOperationCaller<Signature> >( boost::function<Signature>(), this->mowner, null_caller, OwnThread);
             if (!signal) {
                 signal = boost::make_shared<internal::Signal<Signature> >();
                 impl->setSignal( signal );
@@ -201,9 +202,9 @@ namespace RTT
          */
         Handle signals(boost::function<Signature> func) {
             // attaches a signal to a Local OperationCaller
-            ExecutionEngine* null_e = 0;
+            ExecutionEngine* null_caller = 0;
             if (!impl)
-                impl = boost::make_shared<internal::LocalOperationCaller<Signature> >( boost::function<Signature>(), this->mowner, null_e, OwnThread);
+                impl = boost::make_shared<internal::LocalOperationCaller<Signature> >( boost::function<Signature>(), this->mowner, null_caller, OwnThread);
             if (!signal) {
                 signal = boost::make_shared<internal::Signal<Signature> >();
                 impl->setSignal( signal );
@@ -241,7 +242,7 @@ namespace RTT
         typename internal::LocalOperationCaller<Signature>::shared_ptr impl;
         virtual void ownerUpdated() {
             if (impl)
-                impl->setExecutor( this->mowner );
+                impl->setOwner( this->mowner );
         }
     };
 

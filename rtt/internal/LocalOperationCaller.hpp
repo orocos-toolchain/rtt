@@ -124,23 +124,17 @@ namespace RTT
              * not called, this object will not be destroyed.
              */
             void dispose() {
-                //this->~LocalOperationCallerImpl();
-                //oro_rt_free(this);
                 self.reset();
             }
 
-            
-            ExecutionEngine* getMessageProcessor() const { return this->myengine; }
-
             SendHandle<Signature> do_send(shared_ptr cl) {
                 //std::cout << "Sending clone..."<<std::endl;
-                if ( this->myengine && this->myengine->process( cl.get() ) ) {
+                ExecutionEngine* receiver = this->getMessageProcessor();
+                if ( receiver && receiver->process( cl.get() ) ) {
                     cl->self = cl;
                     return SendHandle<Signature>( cl );
                 } else {
                     // cleanup. Done by shared_ptr.
-                    //cl->~OperationCallerBase();
-                    //oro_rt_free(cl);
                     return SendHandle<Signature>();
                 }
             }
@@ -649,14 +643,12 @@ namespace RTT
              * @param object An object of the class which has \a meth as member function.
              * @param ee The executing engine. This is the owner engine or the GlobalEngine. If null, will be the GlobalEngine.
              * @param caller The caller engine. From which component we call this Operation.
-             * @param oe The owner engine. In which component this Operation lives
              */
             template<class M, class ObjectType>
-            LocalOperationCaller(M meth, ObjectType object, ExecutionEngine* ee, ExecutionEngine* caller, ExecutionThread et = ClientThread, ExecutionEngine* oe = NULL )
+            LocalOperationCaller(M meth, ObjectType object, ExecutionEngine* ee, ExecutionEngine* caller, ExecutionThread et = ClientThread)
             {
-                this->setExecutor( ee );
                 this->setCaller( caller );
-                this->setOwner(oe);
+                this->setOwner(ee );
                 this->setThread( et, ee );
                 this->mmeth = OperationCallerBinder<Signature>()(meth, object);
             }
@@ -667,11 +659,10 @@ namespace RTT
              * @param meth an pointer to a function or function object.
              */
             template<class M>
-            LocalOperationCaller(M meth, ExecutionEngine* ee, ExecutionEngine* caller, ExecutionThread et = ClientThread, ExecutionEngine* oe = NULL )
+            LocalOperationCaller(M meth, ExecutionEngine* ee, ExecutionEngine* caller, ExecutionThread et = ClientThread )
             {
-                this->setExecutor( ee );
                 this->setCaller( caller );
-                this->setOwner(oe);
+                this->setOwner( ee );
                 this->setThread( et, ee );
                 this->mmeth = meth;
             }
@@ -689,14 +680,13 @@ namespace RTT
             base::OperationCallerBase<Signature>* cloneI(ExecutionEngine* caller) const
             {
                 LocalOperationCaller<Signature>* ret = new LocalOperationCaller<Signature>(*this);
-                ret->setCaller( caller );
+                ret->setCaller( caller ); // mandatory !
                 return ret;
             }
 
             typename LocalOperationCallerImpl<Signature>::shared_ptr cloneRT() const
             {
-                //void* obj = oro_rt_malloc(sizeof(LocalOperationCallerImpl<Signature>));
-                //return new(obj) LocalOperationCaller<Signature>(*this);
+                // returns identical copy of this;
                 return boost::allocate_shared<LocalOperationCaller<Signature> >(os::rt_allocator<LocalOperationCaller<Signature> >(), *this);
             }
         };
