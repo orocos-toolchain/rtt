@@ -170,7 +170,7 @@ namespace RTT {
              * So channel->getOutputEndpoint() == channel
              * @return
              */
-            virtual bool channelReady(base::ChannelElementBase::shared_ptr channel);
+            virtual bool channelReady(base::ChannelElementBase::shared_ptr channel, ConnPolicy const& policy);
         };
     }
 }

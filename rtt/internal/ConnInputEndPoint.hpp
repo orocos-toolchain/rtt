@@ -92,6 +92,10 @@ namespace RTT
             return this->port;
         }
 
+        virtual ConnID* getConnID() const { 
+            return this->cid; 
+        }
+
     };
 
 }}

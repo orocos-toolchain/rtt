@@ -239,7 +239,7 @@ void CDataFlowInterface_i::deregisterChannel(CChannelElement_ptr channel)
     }
 }
 
-CORBA::Boolean CDataFlowInterface_i::channelReady(const char * reader_port_name, CChannelElement_ptr channel) ACE_THROW_SPEC ((
+CORBA::Boolean CDataFlowInterface_i::channelReady(const char * reader_port_name, CChannelElement_ptr channel, CConnPolicy const& policy ) ACE_THROW_SPEC ((
 	      CORBA::SystemException
 	      ,::RTT::corba::CNoSuchPortException
 	    ))
@@ -260,7 +260,9 @@ CORBA::Boolean CDataFlowInterface_i::channelReady(const char * reader_port_name,
         for (; it != channel_list.end(); ++it) {
             if (it->first->_is_equivalent (channel) ) {
                 try {
-                    return ip->channelReady( it->second );
+                    ConnPolicy cp;
+                    cp=toRTT(policy);
+                    return ip->channelReady( it->second, cp );
                 }
                 catch(std::exception const& e)
                 {

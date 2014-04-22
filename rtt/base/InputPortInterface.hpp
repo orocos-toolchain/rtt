@@ -92,7 +92,7 @@ namespace RTT
 
         ConnPolicy getDefaultPolicy() const;
 
-        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy = ConnPolicy() );
+        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
 
         /** Removes the input channel
          *
@@ -138,7 +138,7 @@ namespace RTT
          * If sending inputReady() returns failure, this method returns
          * false and the connection is aborted (this->connected() == false).
          */
-        virtual bool channelReady(base::ChannelElementBase::shared_ptr channel);
+        virtual bool channelReady(base::ChannelElementBase::shared_ptr channel, ConnPolicy const& policy);
 
 #ifdef ORO_SIGNALLING_PORTS
         /** Returns the event object that gets emitted when new data is

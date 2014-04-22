@@ -101,7 +101,7 @@ bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_por
     // Register the channel's input to the output port.
     if ( output_port.addConnection( input_port.getPortID(), channel_input, policy ) ) {
         // notify input that the connection is now complete.
-        if ( input_port.channelReady( channel_input->getOutputEndPoint() ) == false ) {
+        if ( input_port.channelReady( channel_input->getOutputEndPoint(), policy ) == false ) {
             output_port.disconnect( &input_port );
             log(Error) << "The input port "<< input_port.getName()
                        << " could not successfully read from the connection from output port " << output_port.getName() <<endlog();
@@ -175,16 +175,10 @@ bool ConnFactory::createAndCheckStream(base::InputPortInterface& input_port, Con
         return false;
     }
 
-    // In stream mode, a buffer is always installed at input side.
-    //
-    ConnPolicy policy2 = policy;
-    policy2.pull = false;
-    // pass new name upwards.
-    policy.name_id = policy2.name_id;
-    conn_id->name_id = policy2.name_id;
+    conn_id->name_id = policy.name_id;
 
     chan->getOutputEndPoint()->setOutput( outhalf );
-    if ( input_port.channelReady( chan->getOutputEndPoint() ) == true ) {
+    if ( input_port.channelReady( chan->getOutputEndPoint(), policy ) == true ) {
         log(Info) << "Created input stream for input port "<< input_port.getName() <<endlog();
         return true;
     }

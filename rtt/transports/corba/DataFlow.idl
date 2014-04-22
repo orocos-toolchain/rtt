@@ -233,7 +233,7 @@ module RTT
        * or not present in this interface.
        * @return false if the connection could not be used.
        */
-      boolean channelReady(in string input_port,in CChannelElement channel)
+	boolean channelReady(in string input_port,in CChannelElement channel, in CConnPolicy cp)
             raises(CNoSuchPortException);
     };
   };
