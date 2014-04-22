@@ -62,6 +62,8 @@ public:
     void testSequential();
     void testScheduler();
     void testAllocation();
+	void testFileDescriptor();
+	void testFileDescriptor_NoFD();
 };
 
 #endif

@@ -137,7 +137,6 @@ BOOST_AUTO_TEST_CASE( testMakeArrayBinaryDataArchive )
     rtos_enable_rt_warning();
     io::stream<io::array_source>  inbuf(sink,1000);
     binary_data_iarchive in( inbuf );
-    boost::serialization::array<double> ma = boost::serialization::make_array(r, 10);
     in & make_nvp("array", make_array(r, 10) );
     rtos_disable_rt_warning();
 

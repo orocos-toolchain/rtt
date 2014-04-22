@@ -155,7 +155,7 @@ namespace RTT
 	    rv = pthread_create(&(task->thread), &(task->attr),
 	    		rtos_posix_thread_wrapper, xcookie);
 
-	if ( cpu_affinity != ~0 ) {
+	if ( cpu_affinity != (unsigned)~0 ) {
 	  log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
 	  if (0 != rtos_task_set_cpu_affinity(task, cpu_affinity))
 	    {
