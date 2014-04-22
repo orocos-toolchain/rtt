@@ -44,7 +44,6 @@
 #include "../base/ChannelElementBase.hpp"
 
 #ifndef NO_TYPE_INFO_FACTORY_FUNCTIONS
-#include "../internal/ConnFactory.hpp"
 #include "MemberFactory.hpp"
 #include "ValueFactory.hpp"
 #include "CompositionFactory.hpp"
@@ -56,8 +55,6 @@
 
 namespace RTT
 { namespace types {
-        using internal::ConnFactory;
-        using internal::ConnFactoryPtr;
 
     /**
      * A class for representing a user type, and which can build
@@ -69,6 +66,7 @@ namespace RTT
     {
     public:
         typedef const std::type_info * TypeId;
+        typedef boost::shared_ptr<internal::ConnFactory> ConnFactoryPtr;
 
         TypeInfo(const std::string& name) : mtypenames(1,name) {}
 
@@ -417,19 +415,13 @@ namespace RTT
          * Returns a new InputPort<T> object where T is the type represented by
          * this TypeInfo object.
          */
-        base::InputPortInterface* inputPort(std::string const& name) const
-        {
-            return mconnf ? mconnf->inputPort(name) : 0; 
-        }
+        base::InputPortInterface* inputPort(std::string const& name) const;
 
         /**
          * Returns a new OutputPort<T> object where T is the type represented by
          * this TypeInfo object.
          */
-        base::OutputPortInterface* outputPort(std::string const& name) const
-        {
-            return mconnf ? mconnf->outputPort(name) : 0; 
-        }
+        base::OutputPortInterface* outputPort(std::string const& name) const;
 
         /**
          * Creates single data or buffered storage for this type.
@@ -437,18 +429,9 @@ namespace RTT
          * @param policy Describes the kind of storage requested by the user
          * @return a storage element.
          */
-        base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const
-        {
-            return mconnf ? mconnf->buildDataStorage(policy) : base::ChannelElementBase::shared_ptr();
-        }
-        base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const
-        {
-            return mconnf ? mconnf->buildChannelOutput(port) : base::ChannelElementBase::shared_ptr();
-        }
-        base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const
-        {
-            return mconnf ? mconnf->buildChannelInput(port) : base::ChannelElementBase::shared_ptr();
-        }
+        base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const;
+        base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const;
+        base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const;
 
 #endif // NO_TYPE_INFO_FACTORY_FUNCTIONS
 
@@ -488,7 +471,7 @@ namespace RTT
         std::vector<std::string> mtypenames;
         const char* mtid_name;
         TypeId mtid;
-        boost::shared_ptr<ConnFactory> mconnf;
+        boost::shared_ptr<internal::ConnFactory> mconnf;
         boost::shared_ptr<MemberFactory> mmembf;
         boost::shared_ptr<ValueFactory> mdsf;
         boost::shared_ptr<CompositionFactory> mcompf;
