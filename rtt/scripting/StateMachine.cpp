@@ -530,11 +530,6 @@ namespace RTT {
             return false;
         }
 
-        if ( to == 0 && from == 0 ) {
-            log(Error) << "Can't do a global-to-global event transition. Please specify a target state after 'select'." << endlog();
-            return false;
-        }
-
         if ( to == 0 )
             to = from;
 
@@ -552,7 +547,7 @@ namespace RTT {
         // with the SM. handle.destroy() can be called upon SM destruction.
         Handle handle;
 
-        log(Debug) << "Creating Signal handler for Operation '"<< ename <<"' from state "<< (from ? from->getName() : string("(global)")) << " to state " << to->getName() <<Logger::endl;
+        log(Debug) << "Creating Signal handler for Operation '"<< ename <<"' from state "<< (from ? from->getName() : string("(global)")) << " to state " << ( to ? to->getName() : string("(global)") <<Logger::endl;
 #ifdef ORO_SIGNALLING_OPERATIONS
         handle = sp->produceSignal( ename, new CommandFunction( boost::bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto) ), args );
 #endif
