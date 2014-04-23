@@ -280,7 +280,7 @@ void FileDescriptorActivity::loop()
         }
         else if (ret == 0)
         {
-            log(Error) << "FileDescriptorActivity: timeout in select()" << endlog();
+//            log(Error) << "FileDescriptorActivity: timeout in select()" << endlog();
             m_has_timeout = true;
         }
 
