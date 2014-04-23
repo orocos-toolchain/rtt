@@ -525,16 +525,16 @@ macro( orocos_library LIB_TARGET_NAME )
       endforeach()
 
       # Working directory is necessary to be able to find the source files.
-      execute_process( COMMAND ${TYPEGEN_EXE} --output ${PROJECT_SOURCE_DIR}/typekit ${ORO_TYPEGEN_HEADERS_IMPORTS} ${PROJECT_NAME} ${ORO_TYPEGEN_HEADERS_DEFAULT_ARGS} 
+      execute_process( COMMAND ${TYPEGEN_EXE} --output ${PROJECT_BINARY_DIR}/typekit ${ORO_TYPEGEN_HEADERS_IMPORTS} ${PROJECT_NAME} ${ORO_TYPEGEN_HEADERS_DEFAULT_ARGS} 
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
         )
       # work around generated manifest.xml file:
       #execute_process( COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_SOURCE_DIR}/typekit/manifest.xml )
-      add_subdirectory( ${PROJECT_SOURCE_DIR}/typekit ${PROJECT_BINARY_DIR}/typekit)
+      add_subdirectory(${PROJECT_BINARY_DIR}/typekit ${PROJECT_BINARY_DIR}/typekit)
 
       list(APPEND OROCOS_DEFINED_TYPES " -l${PROJECT_NAME}-typekit-${OROCOS_TARGET}")
       list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${PROJECT_NAME}-typekit")
-      list(APPEND ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/typekit")
+      list(APPEND ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS "${PROJECT_BINARY_DIR}/typekit")
     endif (NOT TYPEGEN_EXE)
   endmacro( orocos_typegen_headers )
 
