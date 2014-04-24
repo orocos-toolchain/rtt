@@ -12,11 +12,8 @@ namespace RTT {
          * from a property bag.
          *
          * For each PropertyBag found with a type not equal to 'PropertyBag', it
-         * will first try to use the user's TypeInfo::composeType function and return
-         * that in target if it generates a Property. If composeType
-         * did not return anything (because it's not implemented), it will try to
-         * create an empty target, decompose it and then updated the decomposition with
-         * the sourcebag.
+         * will use the type's TypeInfo::composeType function and return
+         * that in target if it generates a Property.
          *
          * @param sourcebag Contains a PropertyBag to be composed into a known type.
          * @param target The target type to compose the source bag into.

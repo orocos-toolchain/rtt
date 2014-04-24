@@ -31,7 +31,7 @@
 #include <types/Operators.hpp>
 #include <types/OperatorTypes.hpp>
 
-#include <types/VectorTemplateComposition.hpp>
+#include <types/SequenceTypeInfo.hpp>
 
 struct TypekitFixture
 {
@@ -40,25 +40,15 @@ struct TypekitFixture
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE( TypekitTestSuite, TypekitFixture )
 
-//! Tests the StdVectorTemplateTypeInfo class.
+//! Tests the SequenceTypeInfo class.
 BOOST_AUTO_TEST_CASE( testVectorTypeInfo )
 {
-    Types()->addType( new types::StdVectorTemplateTypeInfo<std::string,true>("strings") );
-    Types()->type("strings")->addConstructor(newConstructor(types::stdvector_ctor<std::string>() ) );
-    Types()->type("strings")->addConstructor(newConstructor(types::stdvector_ctor2<std::string>() ) );
-    Types()->type("strings")->addConstructor(new types::StdVectorBuilder<std::string>() );
-
-#if 1
-    Types()->addType( new types::StdVectorTemplateTypeInfo<bool,true>("bools") );
-    Types()->type("bools")->addConstructor(newConstructor(types::stdvector_ctor<bool>() ) );
-    Types()->type("bools")->addConstructor(newConstructor(types::stdvector_ctor2<bool>() ) );
-    Types()->type("bools")->addConstructor(new types::StdVectorBuilder<bool>() );
+    Types()->addType( new types::SequenceTypeInfo<std::vector<std::string> >("strings") );
+#if 0 // not supported
+    Types()->addType( new types::SequenceTypeInfo<std::vector<bool> >("bools") );
 #endif
 
-    Types()->addType( new types::StdVectorTemplateTypeInfo<int,true>("ints") );
-    Types()->type("ints")->addConstructor(newConstructor(types::stdvector_ctor<int>() ) );
-    Types()->type("ints")->addConstructor(newConstructor(types::stdvector_ctor2<int>() ) );
-    Types()->type("ints")->addConstructor(new types::StdVectorBuilder<int>() );
+    Types()->addType( new types::SequenceTypeInfo<std::vector<int> >("ints") );
 }
 
 //! This test tries to compose/decompose a default built variable of
