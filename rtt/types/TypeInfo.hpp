@@ -55,6 +55,7 @@
 
 namespace RTT
 { namespace types {
+    typedef boost::shared_ptr<internal::ConnFactory> ConnFactoryPtr;
 
     /**
      * A class for representing a user type, and which can build
@@ -66,7 +67,6 @@ namespace RTT
     {
     public:
         typedef const std::type_info * TypeId;
-        typedef boost::shared_ptr<internal::ConnFactory> ConnFactoryPtr;
 
         TypeInfo(const std::string& name) : mtypenames(1,name) {}
 
