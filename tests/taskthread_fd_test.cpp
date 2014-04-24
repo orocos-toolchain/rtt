@@ -171,20 +171,21 @@ BOOST_AUTO_TEST_CASE(testFileDescriptor )
 BOOST_AUTO_TEST_CASE(testFileDescriptor_Write )
 {
 	TestFileDescriptor		mcomp("Comp");
-    FileDescriptorActivity	mtask( 15, mcomp.engine());
+    mcomp.setActivity( new FileDescriptorActivity( 15 ) );
+    FileDescriptorActivity* mtask = dynamic_cast<FileDescriptorActivity*>( mcomp.getActivity() );
 	char					ch='a';
 	int						rc;
 
-    BOOST_CHECK( mtask.hasError() == false );
-    BOOST_CHECK( mtask.hasTimeout() == false );
+    BOOST_CHECK( mtask->hasError() == false );
+    BOOST_CHECK( mtask->hasTimeout() == false );
 
     BOOST_CHECK( mcomp.configure() == true );
-    BOOST_CHECK( mtask.isWatched(mcomp.fd[0]) == true );
+    BOOST_CHECK( mtask->isWatched(mcomp.fd[0]) == true );
 
-    BOOST_CHECK( mtask.start() == true );
-    BOOST_CHECK( mtask.isRunning() == false );
-    BOOST_CHECK( mtask.hasError() == false );
-    BOOST_CHECK( mtask.hasTimeout() == false );
+    BOOST_CHECK( mcomp.start() == true );
+    BOOST_CHECK( mtask->isRunning() == false );
+    BOOST_CHECK( mtask->hasError() == false );
+    BOOST_CHECK( mtask->hasTimeout() == false );
 
 	// no activity
     usleep(1000000/4);
@@ -214,9 +215,9 @@ BOOST_AUTO_TEST_CASE(testFileDescriptor_Write )
     BOOST_CHECK_LE( 0, mcomp.countUpdate );
 
 	// unwatch
-    BOOST_CHECK( mtask.isWatched(mcomp.fd[0]) == true );
-	mtask.unwatch(mcomp.fd[0]);
-    BOOST_CHECK( mtask.isWatched(mcomp.fd[0]) == false );
+    BOOST_CHECK( mtask->isWatched(mcomp.fd[0]) == true );
+	mtask->unwatch(mcomp.fd[0]);
+    BOOST_CHECK( mtask->isWatched(mcomp.fd[0]) == false );
 
 	++ch;
 	rc = write(mcomp.fd[1], &ch, sizeof(ch));
@@ -239,23 +240,25 @@ BOOST_AUTO_TEST_CASE(testFileDescriptor_Write )
     BOOST_CHECK_LE( 0, mcomp.countUpdate );
 #endif
 
-    BOOST_CHECK( mtask.stop() == true );
+    // Note: normally not allowed once loaded in a TC:
+    BOOST_CHECK( mtask->stop() == true );
 }
 
 BOOST_AUTO_TEST_CASE(testFileDescriptor_Timeout )
 {
 	TestFileDescriptor		mcomp("Comp");
-    FileDescriptorActivity	mtask( 15, mcomp.engine());
+    mcomp.setActivity( new FileDescriptorActivity( 15 ) );
+    FileDescriptorActivity* mtask = dynamic_cast<FileDescriptorActivity*>( mcomp.getActivity() );
 	char					ch='a';
 	int						rc;
 	static const int		RATE = 10;
 	static const int		timeout_ms = 1000 / RATE;
 
     BOOST_CHECK( mcomp.configure() == true );
-	mtask.setTimeout( timeout_ms );
-	BOOST_CHECK( timeout_ms == mtask.getTimeout() );
-    BOOST_CHECK( mtask.start() == true );
-    BOOST_CHECK( mtask.isRunning() == false );
+	mtask->setTimeout( timeout_ms );
+	BOOST_CHECK( timeout_ms == mtask->getTimeout() );
+    BOOST_CHECK( mcomp.start() == true );
+    BOOST_CHECK( mtask->isRunning() == false );
 
 	// no activity
     usleep(1000000/4);

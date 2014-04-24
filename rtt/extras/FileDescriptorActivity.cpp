@@ -81,6 +81,8 @@ FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* 
     , m_running(false)
     , m_timeout_us(0)
     , m_period(0)
+    , m_has_error(false)
+    , m_has_timeout(false)
 {
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
@@ -101,6 +103,8 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Runn
     , m_running(false)
     , m_timeout_us(0)
     , m_period(0)
+    , m_has_error(false)
+    , m_has_timeout(false)
 {
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
@@ -112,6 +116,8 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Seco
     , m_running(false)
     , m_timeout_us(0)
     , m_period(period >= 0.0 ? period : 0.0)        // intended period
+    , m_has_error(false)
+    , m_has_timeout(false)
 {
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
@@ -123,6 +129,8 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Seco
     , m_running(false)
     , m_timeout_us(0)
     , m_period(period >= 0.0 ? period : 0.0)        // intended period
+    , m_has_error(false)
+    , m_has_timeout(false)
 {
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
@@ -208,6 +216,9 @@ bool FileDescriptorActivity::isWatched(int fd) const
 
 bool FileDescriptorActivity::start()
 {
+    if ( isActive() )
+        return false;
+
     if (pipe(m_interrupt_pipe) == -1)
     {
         log(Error) << "FileDescriptorActivity: cannot create control pipe" << endlog();
@@ -226,14 +237,20 @@ bool FileDescriptorActivity::start()
 }
 
 bool FileDescriptorActivity::trigger()
-{ return write(m_interrupt_pipe[1], &CMD_TRIGGER, 1) == 1; }
+{ 
+    if (isActive() ) 
+        return write(m_interrupt_pipe[1], &CMD_TRIGGER, 1) == 1; 
+    else
+        return false;
+}
 
 struct fd_watch {
     int& fd;
     fd_watch(int& fd) : fd(fd) {}
     ~fd_watch()
     {
-        close(fd);
+        if (fd != -1) 
+            close(fd);
         fd = -1;
     };
 };
@@ -364,6 +381,12 @@ bool FileDescriptorActivity::stop()
     // This is bad and will have to be fixed in RTT 2.0 by having delayed stops
     // (i.e. setting the task context's state to FATAL only when loop() has
     // quit)
-    return Activity::stop();
+    if ( Activity::stop() == true )
+    {
+        fd_watch watch_pipe_0(m_interrupt_pipe[0]);
+        fd_watch watch_pipe_1(m_interrupt_pipe[1]);
+        return true;
+    }
+    return false;
 }
 
