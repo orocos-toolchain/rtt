@@ -78,14 +78,14 @@ namespace RTT
          * used to attach Signal handlers to (using signals() ) or
          * set the function to call later on with calls().
          * @param name The name of this instance.
-         * @post The resulting operation will have OwnThread execution semantics.
+         * @post The resulting operation will have ClientThread execution semantics.
          */
         Operation(const std::string& name)
         :OperationBase(name)
         {
             // set null implementation such that we can already add it to the interface and register signals.
             ExecutionEngine* null_e = 0;
-            impl = boost::make_shared<internal::LocalOperationCaller<Signature> >( boost::function<Signature>(), null_e, null_e, OwnThread);
+            impl = boost::make_shared<internal::LocalOperationCaller<Signature> >( boost::function<Signature>(), null_e, null_e, ClientThread);
         }
 
         /**
@@ -188,7 +188,7 @@ namespace RTT
             // attaches a signal to a Local OperationCaller
             ExecutionEngine* null_caller = 0;
             if (!impl)
-                impl = boost::make_shared<internal::LocalOperationCaller<Signature> >( boost::function<Signature>(), this->mowner, null_caller, OwnThread);
+                impl = boost::make_shared<internal::LocalOperationCaller<Signature> >( boost::function<Signature>(), this->mowner, null_caller, ClientThread);
             if (!signal) {
                 signal = boost::make_shared<internal::Signal<Signature> >();
                 impl->setSignal( signal );
@@ -204,7 +204,7 @@ namespace RTT
             // attaches a signal to a Local OperationCaller
             ExecutionEngine* null_caller = 0;
             if (!impl)
-                impl = boost::make_shared<internal::LocalOperationCaller<Signature> >( boost::function<Signature>(), this->mowner, null_caller, OwnThread);
+                impl = boost::make_shared<internal::LocalOperationCaller<Signature> >( boost::function<Signature>(), this->mowner, null_caller, ClientThread);
             if (!signal) {
                 signal = boost::make_shared<internal::Signal<Signature> >();
                 impl->setSignal( signal );

@@ -54,7 +54,6 @@
 // here we define some generally useful template stuff that is missing
 // from the STL..
 namespace RTT { namespace internal {
-    using namespace boost;
 
     // combines remove_reference and remove_const
     template<typename T>

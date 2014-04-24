@@ -515,15 +515,15 @@ namespace RTT {
         Logger::In in("StateMachine::createEventTransition");
         DisposableInterface::shared_ptr di =  sp->getLocalOperation(ename);
         OperationCallerInterface::shared_ptr oci = dynamic_pointer_cast<OperationCallerInterface>(di);
-        if ( !oci || oci->getThread() == ClientThread ) {
-            log(Error) << "Can not receive event '"<< ename <<"' in StateMachine for Operation not executed in OwnThread or not a local operation."<< endlog();
+        if ( !oci ) {
+            log(Error) << "Can not receive event '"<< ename <<"' in StateMachine : not a local operation."<< endlog();
             return false;
         }
 
         if ( !( sp && guard ) ) {
             log(Error) << "Invalid arguments for event '"<< ename <<"'. ";
             if (!sp)
-                log() <<"EventService was null. ";
+                log() <<"Service was null. ";
             if (!guard)
                 log() <<"Guard Condition was null. ";
             log() << endlog();
@@ -547,9 +547,9 @@ namespace RTT {
         // with the SM. handle.destroy() can be called upon SM destruction.
         Handle handle;
 
-        log(Debug) << "Creating Signal handler for Operation '"<< ename <<"' from state "<< (from ? from->getName() : string("(global)")) << " to state " << ( to ? to->getName() : string("(global)") <<Logger::endl;
+        log(Debug) << "Creating Signal handler for Operation '"<< ename <<"' from state "<< (from ? from->getName() : string("(global)")) << " to state " << ( to ? to->getName() : string("(global)") ) <<Logger::endl;
 #ifdef ORO_SIGNALLING_OPERATIONS
-        handle = sp->produceSignal( ename, new CommandFunction( boost::bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto) ), args );
+        handle = sp->produceSignal( ename, new CommandFunction( boost::bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto) ), args, this->getEngine() );
 #endif
         if ( !handle.ready() ) {
             Logger::log() << Logger::Error << "Could not setup handle for event '"<<ename<<"'."<<Logger::endl;

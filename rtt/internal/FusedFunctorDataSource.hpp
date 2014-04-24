@@ -43,6 +43,8 @@
 #include "CreateSequence.hpp"
 #include "../SendStatus.hpp"
 #include "BindStorage.hpp"
+#include "../ExecutionEngine.hpp"
+#include "../os/oro_allocator.hpp"
 #include <boost/bind.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/function.hpp>
@@ -50,6 +52,7 @@
 #include <boost/fusion/include/invoke.hpp>
 #include <boost/fusion/include/invoke_procedure.hpp>
 #include <boost/mpl/bool.hpp>
+#include <boost/make_shared.hpp>
 
 namespace RTT
 {
@@ -458,11 +461,11 @@ namespace RTT
           };
 
         /**
-         * A Factory that reacts to a Signal by writing the arguments in
-         * data sources and calling an action.
+         * A Function object that reacts to a Signal by writing the arguments in
+         * data sources and calling an action object.
          */
         template<typename Signature>
-        struct FusedMSignal
+        struct FusedMSignal : public base::DisposableInterface
         {
             typedef typename boost::function_traits<Signature>::result_type
                     result_type;
@@ -470,38 +473,86 @@ namespace RTT
             typedef create_sequence<
                     typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
             typedef typename SequenceFactory::atype DataSourceSequence;
-            base::ActionInterface* mact;
+            boost::shared_ptr<base::ActionInterface> mact;
             DataSourceSequence args;
+            ExecutionEngine* subscriber;
+            /**
+             * Used to refcount self as long as dispose() is not called.
+             * This refcount is real-time since both shared_ptr and object
+             * were allocated with the rt_allocator class.
+             */
+            boost::shared_ptr<FusedMSignal<Signature> > self;
         public:
-              typedef boost::shared_ptr<FusedMSignal<Signature> >
-                      shared_ptr;
+            typedef boost::shared_ptr<FusedMSignal<Signature> > shared_ptr;
 
-              FusedMSignal(base::ActionInterface* act,
-                           const DataSourceSequence& s = DataSourceSequence() ) :
-                  mact(act), args(s)
-              {
-              }
+            /**
+             * Create a new object which takes ownership of the action to be executed upon signal.
+             * @param act The action to be executed upon invoke()
+             * @param s   The data  sources we have to fill in before executing the action
+             * @param subscr The ExecutionEngine that will execute the action in it's thread.
+             * If null is given, the action is executed synchronously within invoke()
+             */
+            FusedMSignal(base::ActionInterface* act,
+                         const DataSourceSequence& s, 
+                         ExecutionEngine* subscr ) :
+                mact(act), args(s), subscriber(subscr), self()
+            {
+            }
 
-              ~FusedMSignal() {
-                  delete mact;
-              }
+            ~FusedMSignal() {
+            }
 
-              /**
-               * A Fused function that takes the arguments of the signal,
-               * puts them into the assignable data sources and
-               * executes the associated action.
-               */
-              result_type invoke(typename SequenceFactory::data_type seq) {
-                  SequenceFactory::set( seq, args );
-                  mact->execute();
-                  return NA<result_type>::na();
-              }
+            /**
+             * A Fused function that takes the arguments of the signal,
+             * puts them into the assignable data sources and
+             * executes the associated action.
+             */
+            result_type invoke(typename SequenceFactory::data_type seq) {
+                if ( subscriber ) {
+                    // asynchronous
+                    shared_ptr sg = this->cloneRT();
+                    SequenceFactory::set( seq, sg->args );
+                  
+                    sg->self = sg;
+                    if ( subscriber->process( sg.get() ) ) {
+                        // all ok
+                    } else {
+                        sg->dispose();
+                    }
+                } else {
+                    // synchronous
+                    SequenceFactory::set( seq, args );
+                    mact->execute();
+                }
 
-              void setArguments(const DataSourceSequence& a1)
-              {
-                  args = a1;
-              }
-          };
+                return NA<result_type>::na();
+            }
+
+            void executeAndDispose() {
+                mact->execute();
+                dispose();
+            }
+
+            /**
+             * As long as dispose (or executeAndDispose() ) is
+             * not called, this object will not be destroyed.
+             */
+            void dispose() {
+                self.reset();
+            }
+
+
+            void setArguments(const DataSourceSequence& a1)
+            {
+                args = a1;
+            }
+
+            typename FusedMSignal<Signature>::shared_ptr cloneRT() const
+            {
+                // returns identical copy of this;
+                return boost::allocate_shared<FusedMSignal<Signature> >(os::rt_allocator<FusedMSignal<Signature> >(), *this);
+            }
+        };
 
     }
 }

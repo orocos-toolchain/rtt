@@ -6,7 +6,7 @@ using namespace base;
 using namespace internal;
 
 OperationCallerInterface::OperationCallerInterface()
-    : myengine(0), caller(0), met(OwnThread)
+    : myengine(0), caller(0), met(ClientThread)
 {}
 
 OperationCallerInterface::OperationCallerInterface(OperationCallerInterface const& orig)

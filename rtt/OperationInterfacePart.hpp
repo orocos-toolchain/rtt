@@ -186,10 +186,13 @@ namespace RTT
          * @param func The function to execute
          * @param args The data sources to fill in with the arguments the operation was given.
          * The number of elements and their type must match the signature of the operation.
+         * @param subscriber The execution engine of the Task which wishes to receive the signal.
+         * The action \a func will be executed in this engine. Set to zero to use the engine of
+         * the ExecutionType of the Operation (OwnThread or ClientThread).
          * @return A valid Signal Handle if the arguments were valid.
          * @throw no_asynchronous_operation_exception
          */
-        virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const = 0;
+        virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* subscriber) const = 0;
 #endif
         /**
          * Returns any local operation associated with this operation.
