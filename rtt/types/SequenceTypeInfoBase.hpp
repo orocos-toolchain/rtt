@@ -180,8 +180,6 @@ namespace RTT
                 // 2. we decompose result one-level deep and 
                 // 3. 'refresh' it with the composed children of step 1.
                 if ( composePropertyBag(source, target) && composeTemplateProperty(target, result ) ){
-                    assert(result.size() == source.size());
-                    assert(source.size() == target.size());
                     ads->updated();
                     Logger::log() <<Logger::Debug<<"Successfuly composed Sequence from "<< source.getType() <<Logger::endl;
                     return true;
