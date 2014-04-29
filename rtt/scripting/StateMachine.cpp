@@ -530,11 +530,6 @@ namespace RTT {
             return false;
         }
 
-        if ( to == 0 && from == 0 ) {
-            log(Error) << "Can't do a global-to-global event transition. Please specify a target state after 'select'." << endlog();
-            return false;
-        }
-
         if ( to == 0 )
             to = from;
 
