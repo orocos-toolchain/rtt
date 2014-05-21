@@ -88,7 +88,7 @@ namespace RTT
          */
         bool ready() const
         {
-            return this->getDataSource();
+            return this->getDataSource().get() != 0;
         }
 
         /**
