@@ -105,7 +105,7 @@ namespace RTT
          * when ready() returns true, otherwise, an exception
          * is thrown.
          */
-        bool ready() const { return this->getDataSource(); }
+        bool ready() const { return this->getDataSource().get() != 0; }
 
         /**
          * A call on this method will lead to a call to the PropertyIntrospection
