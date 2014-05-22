@@ -58,7 +58,7 @@ namespace RTT { namespace scripting
 
       symbols<nil_t> keywordstable;
       // parses any reserved keyword
-      rule_t keyword,keywords,endofkeyword;
+      lexeme_rule_t keyword,keywords,endofkeyword;
 
       // the normal identifier throws an error if it fails to match
       // because a keyword was used.  Normally this is no problem, but
@@ -89,7 +89,7 @@ namespace RTT { namespace scripting
       CommonParser();
       ~CommonParser();
 
-      void seenillegalidentifier();
+      void seenillegalidentifier(iter_t begin, iter_t end );
 
       /** 
        * Returns a rule which parses a keyword followed by a

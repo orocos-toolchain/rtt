@@ -113,21 +113,12 @@ namespace RTT {
         endofkeyword = (~identchar) | eol_p | end_p;
         keyword = lexeme_d[keywords >> eps_p(endofkeyword)];
 
-        // if a rule is going to be used inside a lexeme_d, then it
-        // needs to be of a different type..  Since identifier is used
-        // both inside and outside of lexeme_d, we need two versions of
-        // it.  Those are provided here: lexeme_identifier and
-        // identifier..
-        idr  = lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - keyword;
-        idlr = lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - keyword;
-        // #warning " Rule on stack  ?? "
-        //RULE( identifier_base, lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - as_lower_d[keywords] );
-        //BOOST_SPIRIT_DEBUG_RULE( identifier_base );
-        lexeme_identifier = idlr | keyword[bind( &CommonParser::seenillegalidentifier, this )];
-        lexeme_notassertingidentifier = idlr;
+        idlr = lexeme_d[alpha_p >> *identchar][assign( lastparsedident )];
 
-        notassertingidentifier = idr >> !str_p("[]");
-        identifier = (idr >> !str_p("[]")) | keyword[bind( &CommonParser::seenillegalidentifier, this )];
+        // silently parses every identifier except keywords
+        notassertingidentifier = (idlr >> !str_p("[]")) - keyword;
+        // loudly asserts when a keyword comes in
+        identifier = keyword[bind( &CommonParser::seenillegalidentifier, this, _1, _2 )] | (idlr >> !str_p("[]") );
 
         // this is a recursive rule. 't' stands for 'template' and 'terminal' (followed by a '(')
         templ = ch_p('<') >> identifier >> *templ >> '>';
@@ -143,9 +134,10 @@ namespace RTT {
         type_name = lexeme_d[ alpha_p >> *t_identchar ] - keyword;
     }
 
-    void CommonParser::seenillegalidentifier()
+    void CommonParser::seenillegalidentifier(iter_t begin, iter_t end )
     {
-        throw parse_exception_illegal_identifier( lastparsedident );
+        std::string ident(begin, end);
+        throw parse_exception_illegal_identifier( ident );
     }
 
 }

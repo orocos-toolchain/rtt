@@ -143,6 +143,7 @@ namespace RTT { namespace scripting
       void globaldef(  );
       void seenfunctionarg();
       void seenfunctionend();
+      void seenvalidinput();
 
       void seenfuncidentifier( iter_t begin, iter_t end);
       void seencallfuncstatement();
@@ -201,7 +202,7 @@ namespace RTT { namespace scripting
       base::ActionInterface* for_init_command;
       std::stack<base::ActionInterface*> for_incr_command;
       std::string program_text;
-      bool exportf,globalf;
+      bool exportf,globalf, parserused;
       int ln_offset;
   public:
       ProgramGraphParser( iter_t& positer, TaskContext* context, ExecutionEngine* caller, CommonParser& cp);
@@ -249,6 +250,11 @@ namespace RTT { namespace scripting
 
       ProgramInterfacePtr bodyParserResult();
 
+      /**
+       * Returns true if the parser was already used (even partially).
+       * an initBodyParser will reset this to false.
+       */
+      bool parserUsed() const;
   };
 }}
 
