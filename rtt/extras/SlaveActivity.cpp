@@ -39,6 +39,7 @@
 #include "SlaveActivity.hpp"
 #include "../os/MainThread.hpp"
 #include "Logger.hpp"
+#include <rtt/ExecutionEngine.hpp>
 
 namespace RTT {
     using namespace extras;
@@ -178,8 +179,20 @@ namespace RTT {
 
     bool SlaveActivity::trigger()
     {
-        if (mmaster)
+        ExecutionEngine *master = dynamic_cast<ExecutionEngine*>( mmaster->getRunner() );
+        ExecutionEngine * r= dynamic_cast<ExecutionEngine*>( runner );
+        if(!master || !r){
+            Logger::log() << Logger::Fatal << " SlaveActivity: cannot push messages to another engine, current engine is unsupported." << Logger::endl;
+            return false;
+        }else{
+            master->takeoverMessages( r );
+        }
+
+        if(mmaster)
+        {
             return mmaster->trigger();
+        }
+
         return false;
     }
 
