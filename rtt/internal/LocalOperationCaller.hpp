@@ -330,9 +330,9 @@ namespace RTT
             /**
              * Invoke this operator if the method has no arguments.
              */
+            template<class Xignored>
             result_type call_impl()
             {
-
                 if ( this->isSend() ) {
                     SendHandle<Signature> h = send_impl();
                     if ( h.collect() == SendSuccess )

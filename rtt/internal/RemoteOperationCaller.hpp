@@ -104,6 +104,7 @@ namespace RTT
              *
              * @return true if ready and succesfully sent.
              */
+            template<class Xignored>
             result_type call_impl() {
                 mmeth.call();
                 return sendargs.getResult();
