@@ -175,6 +175,7 @@ namespace RTT
                         mservice->getOwner()->dataOnPortRemoved( *it );
                 }
                 (*it)->disconnect(); // remove all connections and callbacks.
+                (*it)->setInterface(0);
                 mports.erase(it);
                 return;
             }
@@ -186,6 +187,7 @@ namespace RTT
               ++it)
             if ( (*it)->getName() == name ) {
                 (*it)->disconnect(); // remove all connections and callbacks.
+                (*it)->setInterface(0);
                 mports.erase(it);
                 return;
             }
