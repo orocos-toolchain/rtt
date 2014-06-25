@@ -72,7 +72,7 @@ namespace RTT
              */
             result_type call()
             {
-                return BaseImpl::call_impl();
+                return BaseImpl::template call_impl<int>();
             }
 
             SendHandle<F> send()
