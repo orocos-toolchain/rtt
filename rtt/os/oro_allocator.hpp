@@ -186,8 +186,6 @@ namespace RTT { namespace os {
             Alloc().deallocate( t, n);
         }
 
-        void operator=(const local_allocator&);
-
         // the pool stores block-size/pointer pairs. Also uses Alloc for allocation.
         typedef std::multimap< size_t, pointer> pool_type;
         typedef typename pool_type::iterator       pool_it;
@@ -303,8 +301,6 @@ namespace RTT { namespace os {
 
         template <class U>
         struct rebind { typedef rt_allocator<U> other; };
-    private:
-        void operator=(const rt_allocator&);
     };
 
     template <class T>
