@@ -296,10 +296,18 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME};${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
     if(APPLE)
-      SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
-	INSTALL_NAME_DIR "@rpath"
-	)
-      orocos_add_link_flags( ${COMPONENT_NAME} "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX},-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
+      if (CMAKE_VERSION VERSION_LESS "3.0.0")
+        SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
+          INSTALL_NAME_DIR "@rpath"
+          )
+      else()
+        # cope with CMake 3.x
+        SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
+          INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX};${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+          BUILD_WITH_INSTALL_RPATH TRUE
+          INSTALL_RPATH_USE_LINK_PATH TRUE
+          MACOSX_RPATH ON)
+      endif()
     endif()
 
     orocos_add_compile_flags( ${COMPONENT_NAME} ${USE_OROCOS_CFLAGS_OTHER})
@@ -386,10 +394,18 @@ macro( orocos_library LIB_TARGET_NAME )
       INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
     if(APPLE)
-      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-        INSTALL_NAME_DIR "@rpath"
-        )
-      orocos_add_link_flags( ${LIB_TARGET_NAME} "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
+      if (CMAKE_VERSION VERSION_LESS "3.0.0")
+        SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+          INSTALL_NAME_DIR "@rpath"
+          )
+      else()
+        # cope with CMake 3.x
+        SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+          INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+          BUILD_WITH_INSTALL_RPATH TRUE
+          INSTALL_RPATH_USE_LINK_PATH TRUE
+          MACOSX_RPATH ON)
+      endif()
     endif()
 
     orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER} )
@@ -456,10 +472,18 @@ macro( orocos_library LIB_TARGET_NAME )
       INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/bin;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
     if(APPLE)
-      SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
-	INSTALL_NAME_DIR "@rpath"
-	)
-      orocos_add_link_flags( ${EXE_TARGET_NAME} "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/bin,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
+      if (CMAKE_VERSION VERSION_LESS "3.0.0")
+        SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
+          INSTALL_NAME_DIR "@rpath"
+          )
+      else()
+        # cope with CMake 3.x
+        SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
+          INSTALL_RPATH "@executable_path/../bin;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+          BUILD_WITH_INSTALL_RPATH TRUE
+          INSTALL_RPATH_USE_LINK_PATH TRUE
+          MACOSX_RPATH ON)
+      endif()
     endif()
 
     if(CMAKE_DEBUG_POSTFIX)
@@ -591,10 +615,18 @@ macro( orocos_library LIB_TARGET_NAME )
       INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
     if(APPLE)
-      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-	INSTALL_NAME_DIR "@rpath"
-	)
-      orocos_add_link_flags( ${LIB_TARGET_NAME} "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/types,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
+      if (CMAKE_VERSION VERSION_LESS "3.0.0")
+        SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+          INSTALL_NAME_DIR "@rpath"
+          )
+      else()
+        # cope with CMake 3.x
+        SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+          INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/types;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+          BUILD_WITH_INSTALL_RPATH TRUE
+          INSTALL_RPATH_USE_LINK_PATH TRUE
+          MACOSX_RPATH ON)
+      endif()
     endif()
 
     orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER})
@@ -679,10 +711,18 @@ macro( orocos_library LIB_TARGET_NAME )
       INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
     if(APPLE)
-      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-	INSTALL_NAME_DIR "@rpath"
-	)
-      orocos_add_link_flags( ${LIB_TARGET_NAME} "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/plugins,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
+      if (CMAKE_VERSION VERSION_LESS "3.0.0")
+        SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+          INSTALL_NAME_DIR "@rpath"
+          )
+      else()
+        # cope with CMake 3.x
+        SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+          INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/plugins;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+          BUILD_WITH_INSTALL_RPATH TRUE
+          INSTALL_RPATH_USE_LINK_PATH TRUE
+          MACOSX_RPATH ON)
+      endif()
     endif()
 
     orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER})
