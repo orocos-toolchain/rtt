@@ -46,6 +46,7 @@
 
 #include <rtt/os/Mutex.hpp>
 #include "rtt-base-fwd.hpp"
+#include "../internal/rtt-internal-fwd.hpp"
 
 namespace RTT { namespace base {
 
@@ -168,6 +169,13 @@ namespace RTT { namespace base {
          * port (or a proxy representing the port) otherwise.
          */
         virtual PortInterface* getPort() const;
+
+        /**
+         * Gets the Connection ID of this channel. This is only
+         * stored in connection endpoints.
+         * @return null if no ConnID is associated with this element.
+         */
+        virtual internal::ConnID* getConnID() const;
     };
 
     void RTT_API intrusive_ptr_add_ref( ChannelElementBase* e );

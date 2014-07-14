@@ -40,6 +40,7 @@
 #include "InputPortInterface.hpp"
 #include "OutputPortInterface.hpp"
 #include "DataFlowInterface.hpp"
+#include "../internal/ConnInputEndPoint.hpp"
 #include "../Logger.hpp"
 #include <exception>
 #include <stdexcept>
@@ -103,10 +104,19 @@ bool InputPortInterface::addConnection(ConnID* port_id, ChannelElementBase::shar
     return true;
 }
 
-bool InputPortInterface::channelReady(ChannelElementBase::shared_ptr channel)
+bool InputPortInterface::channelReady(ChannelElementBase::shared_ptr channel, RTT::ConnPolicy const& policy)
 {
-    if ( channel && channel->inputReady() )
-        return true;
+    // cid is deleted/owned by the ConnectionManager.
+    if ( channel ) {
+        internal::ConnID* cid = channel->getConnID();
+        if (cid ) {
+            this->addConnection(cid, channel, policy);
+            if ( channel->inputReady() )
+                return true;
+        } else {
+            log(Error) << "Can't add ChannelElement which is not a ConnInputEndPoint to Port "<< this->getName() <<endlog();
+        }            
+    }
     if (channel) {
         // in-the-middle disconnection, we need to inform both ends of
         // the channel that it's going to be disposed. Both endpoints

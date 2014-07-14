@@ -58,6 +58,7 @@ public:
     OutputPort<double> d_event_source;
     OutputPort<bool>   b_event_source;
     OutputPort<int>    t_event_source;
+    Operation<void(double)> c_event;
     ScriptingService::shared_ptr sa;
 
     RTT::Operation<void(RTT::rt_string)>    setState_op;
@@ -82,7 +83,7 @@ public:
     StateTest()
         :
          d_event("d_event"), b_event("b_event"), t_event("t_event"), v_event("v_event"),o_event("o_event"),
-         v1_event("v1_event"),v2_event("v2_event"),v3_event("v3_event"),
+         v1_event("v1_event"),v2_event("v2_event"),v3_event("v3_event"),c_event("c_event"),
          d_event_source("d_event_source"), b_event_source("b_event_source"), t_event_source("t_event_source")
          ,sa( ScriptingService::Create(tc) ),
          setState_op("setState", &StateTest::setState, this, RTT::OwnThread)
@@ -90,21 +91,25 @@ public:
         tc->stop();
         tc->setActivity( new SimulationActivity(0.001) );
 
+        tc->addPeer(caller);
+
         tc->ports()->addPort( d_event );
         tc->ports()->addPort( b_event );
         tc->ports()->addPort( t_event );
 #ifdef ORO_SIGNALLING_OPERATIONS
+        tc->provides()->addEventOperation( o_event );
         tc->provides()->addEventOperation( v_event );
         tc->provides()->addEventOperation( v1_event );
         tc->provides()->addEventOperation( v2_event );
         tc->provides()->addEventOperation( v3_event );
-        tc->provides()->addEventOperation( o_event );
+        caller->provides()->addEventOperation( c_event );
 #else
+        tc->provides()->addOperation( o_event );
         tc->provides()->addOperation( v_event );
         tc->provides()->addOperation( v1_event );
         tc->provides()->addOperation( v2_event );
         tc->provides()->addOperation( v3_event );
-        tc->provides()->addOperation( o_event );
+        caller->provides()->addOperation( c_event );
 #endif
 
         tc->provides()->addOperation(setState_op).doc("Communicates state from SM").arg("state", "Name of state");
@@ -1007,7 +1012,7 @@ BOOST_AUTO_TEST_CASE( testStateSubStateCommands)
 #ifdef ORO_SIGNALLING_OPERATIONS
 BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition )
 {
-    // test event reception in sub states.
+    // test event reception from own component
     string prog = string("StateMachine X {\n")
         + " var   double et = 0.0\n"
         + " initial state INIT {\n"
@@ -1021,19 +1026,47 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition )
     BOOST_REQUIRE( sm );
     this->runState("x", tc);
     checkState( "x", tc);
-    OperationCaller<void(double)> mo( tc->provides()->getOperation("o_event"), tc->engine());
+    OperationCaller<void(double)> mo( tc->provides()->getOperation("o_event") );
     mo(3.33);
     checkState( "x", tc);
-    BOOST_CHECK( SimulationThread::Instance()->run(100) );
+    BOOST_CHECK( SimulationThread::Instance()->run(2) );
     checkState( "x", tc);
     BOOST_CHECK( sm->inState("FINI") );
     this->checkState("x",tc);
     this->finishState("x", tc);
 }
 
-BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition2 )
+BOOST_AUTO_TEST_CASE( testStateOperationCallerSignalTransition )
 {
-    // test event reception in sub states.
+    // test event reception from another component
+    string prog = string("StateMachine X {\n")
+        + " var   double et = 0.0\n"
+        + " initial state INIT {\n"
+        + "    transition caller.c_event(et) select FINI\n" // test signal transition
+        + " }\n"
+        + " final state FINI {} \n"
+        + "}\n"
+        + "RootMachine X x()\n";
+    this->parseState( prog, tc );
+    StateMachinePtr sm = sa->getStateMachine("x");
+    BOOST_REQUIRE( sm );
+    this->runState("x", tc);
+    checkState( "x", tc);
+    BOOST_CHECK( SimulationThread::Instance()->run(2) );
+    checkState( "x", tc);
+    OperationCaller<void(double)> mc( caller->provides()->getOperation("c_event") );
+    mc(6.66);
+    checkState( "x", tc);
+    BOOST_CHECK( SimulationThread::Instance()->run(2) );
+    checkState( "x", tc);
+    BOOST_CHECK( sm->inState("FINI") );
+    this->checkState("x",tc);
+    this->finishState("x", tc);
+}
+
+BOOST_AUTO_TEST_CASE( testStateOperationSignalMultiTransition )
+{
+    // test multi-event reception from own component
     string prog = string("StateMachine X {\n")
     + " initial state INIT {\n"
     + "    transitions { select STATE1 }\n"
@@ -1082,9 +1115,9 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition2 )
     this->finishState("x", tc);
 }
 
-BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition3 )
+BOOST_AUTO_TEST_CASE( testStateOperationSignalTransitionPriority )
 {
-    // test event reception in sub states.
+    // test event reception transition priority
     string prog = string("StateMachine X {\n")
     + " initial state INIT {\n"
     + "    transitions { select STATE1 }\n"
@@ -1148,9 +1181,9 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition3 )
     this->finishState("x", tc);
 }
 
-BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition4 )
+BOOST_AUTO_TEST_CASE( testStateOperationSignalTransitionAround )
 {
-    // test event reception in sub states.
+    // test event reception hopping from one state to another
     string prog = string("StateMachine X {\n")
     + " initial state INIT {\n"
     + "    transitions { select IDLE }\n"
@@ -1238,11 +1271,12 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalTransitionProgram )
     //checkState( prog, tc);
     this->runState("x", tc);
     checkState( "x", tc);
-    // causes error state when received in INIT:
+    // transition to FINI:
     OperationCaller<void(double)> mo( tc->provides()->getOperation("o_event"), tc->engine());
     mo(3.33);
+    mo(6.33); // should be ignored
     checkState( "x", tc);
-    BOOST_CHECK( SimulationThread::Instance()->run(1000) );
+    BOOST_CHECK( SimulationThread::Instance()->run(10) );
     BOOST_CHECK_EQUAL( i, 5 );
     checkState( "x", tc);
     BOOST_CHECK( sm->inState("FINI") );
@@ -1255,9 +1289,43 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalGuard )
     string prog = string("StateMachine X {\n")
         + " var   double et = 0.0\n"
         + " initial state INIT {\n"
-        + "    transition o_event(et) if (et == 3.33) then select FINI\n" // test guard
+        + "    transition o_event(et) if (et == 3.33) then \n"
+        + "        select FINI\n" // test guard
+        + "        else select FAIL\n" // test guard
         + " }\n"
         + " final state FINI {} \n"
+        + " state FAIL {} \n"
+        + "}\n"
+        + "RootMachine X x()\n";
+    this->parseState( prog, tc );
+    StateMachinePtr sm = sa->getStateMachine("x");
+    BOOST_REQUIRE( sm );
+    //checkState( prog, tc);
+    this->runState("x", tc);
+    checkState( "x", tc);
+    // transition to FINI:
+    OperationCaller<void(double)> mo( tc->provides()->getOperation("o_event") );
+    mo(3.33);
+    mo(6.33); // should be ignored
+    checkState( "x", tc);
+    BOOST_CHECK( SimulationThread::Instance()->run(10) );
+    checkState( "x", tc);
+    BOOST_CHECK( sm->inState("FINI") );
+    this->checkState("x",tc);
+    this->finishState("x", tc);
+}
+
+BOOST_AUTO_TEST_CASE( testStateOperationCallerSignalGuard )
+{
+    string prog = string("StateMachine X {\n")
+        + " var   double et = 0.0\n"
+        + " initial state INIT {\n"
+        + "    transition caller.c_event(et) if (et == 3.33) then\n"
+        + "       select FINI\n"
+        + "       else select FAIL\n" // test guard
+        + " }\n"
+        + " final state FINI {} \n"
+        + " state FAIL {} \n"
         + "}\n"
         + "RootMachine X x()\n";
     this->parseState( prog, tc );
@@ -1267,7 +1335,7 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalGuard )
     this->runState("x", tc);
     checkState( "x", tc);
     // causes error state when received in INIT:
-    OperationCaller<void(double)> mo( tc->provides()->getOperation("o_event"), tc->engine());
+    OperationCaller<void(double)> mo( caller->provides()->getOperation("c_event") );
     mo(3.33);
     checkState( "x", tc);
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );

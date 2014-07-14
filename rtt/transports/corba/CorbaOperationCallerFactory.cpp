@@ -408,7 +408,7 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceCollect(con
 }
 
 #ifdef ORO_SIGNALLING_OPERATIONS
-Handle CorbaOperationCallerFactory::produceSignal(base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
+Handle CorbaOperationCallerFactory::produceSignal(base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* subscriber) const {
     log(Error) << "Can not attach Signal to remote Corba Operation '"<<method <<"'" <<endlog();
     return Handle();
 }

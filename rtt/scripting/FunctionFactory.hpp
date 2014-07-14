@@ -87,7 +87,7 @@ namespace RTT
                                    ) const;
 
 #ifdef ORO_SIGNALLING_OPERATIONS
-        Handle produceSignal(base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const;
+        Handle produceSignal(base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* subscriber) const;
 #endif
     };
 }}

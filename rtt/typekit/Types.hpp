@@ -10,6 +10,7 @@
 
 #include "rtt-typekit-config.h"
 #include "RTTTypes.hpp"
+#include <rtt/rt_string.hpp>
 #include <string>
 #include <vector>
 
@@ -195,5 +196,35 @@
 #ifdef ORO_CORELIB_ATTRIBUTE_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Attribute< std::vector<double> >;
 #endif
+
+
+RTT_TYPEKIT_EXT_TMPL template class std::basic_string<char, std::char_traits<char>, RTT::os::rt_allocator<char> >;
+
+#ifdef CORELIB_DATASOURCE_HPP
+#if 0
+RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< RTT::rt_string >;
+#endif
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< RTT::rt_string >;
+#endif
+#ifdef ORO_CORELIB_DATASOURCES_HPP
+#if 0
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< RTT::rt_string >;
+#endif
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< RTT::rt_string >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< RTT::rt_string >;
+#endif
+#ifdef ORO_OUTPUT_PORT_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< RTT::rt_string >;
+#endif
+#ifdef ORO_INPUT_PORT_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::InputPort< RTT::rt_string >;
+#endif
+#ifdef ORO_PROPERTY_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Property< RTT::rt_string >;
+#endif
+#ifdef ORO_CORELIB_ATTRIBUTE_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Attribute< RTT::rt_string >;
+#endif
+
 
 #endif

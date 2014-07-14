@@ -166,13 +166,16 @@ namespace RTT { namespace os {
         }
     public:
         local_allocator() {}
-        local_allocator(const local_allocator&) {}
+        local_allocator(const local_allocator&) { /* Use default mutex and empty pool */ }
         ~local_allocator() {}
         template <class U, class A>
-        local_allocator(const local_allocator<U,A>&) {}
+        local_allocator(const local_allocator<U,A>&) { /* Use default mutex and empty pool */ }
 
         template <class U>
         struct rebind { typedef local_allocator<U, typename Alloc::template rebind<U>::other > other; };
+
+        void operator=(const local_allocator&) { /* Keep existing mutex and pool. */ }
+
     private:
         Mutex pool_lock;
         /**
@@ -185,8 +188,6 @@ namespace RTT { namespace os {
         void _shrink( pointer t, size_type n) {
             Alloc().deallocate( t, n);
         }
-
-        void operator=(const local_allocator&);
 
         // the pool stores block-size/pointer pairs. Also uses Alloc for allocation.
         typedef std::multimap< size_t, pointer> pool_type;
@@ -202,15 +203,9 @@ namespace RTT { namespace os {
                 }
             }
         };
-        static pool_wrapper_type pool;
+        pool_wrapper_type pool;
 
     };
-
-    template< class T, class A>
-    typename local_allocator<T,A>::pool_wrapper_type local_allocator<T,A>::pool;
-
-//     template< class T, class A>
-//     Mutex local_allocator<T,A>::pool_lock;
 
     template <class T, class A, class A2>
     inline bool operator==(const local_allocator<T,A>& ,
@@ -300,11 +295,11 @@ namespace RTT { namespace os {
         ~rt_allocator() {}
         template <class U>
         rt_allocator(const rt_allocator<U>&) {}
+        void operator=(const rt_allocator&) {}
 
         template <class U>
         struct rebind { typedef rt_allocator<U> other; };
     private:
-        void operator=(const rt_allocator&);
     };
 
     template <class T>

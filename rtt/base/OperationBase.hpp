@@ -52,8 +52,9 @@ namespace RTT
     class Operation;
 
     /**
-     * Users can choose if an operation is executed in the component's thread
-     * or in the thread of the caller.
+     * Users can choose if an operation's function is
+     * executed in the component's thread (\a OwnThread)
+     * or in the thread of the caller (\a ClientThread).
      */
     enum ExecutionThread { OwnThread, ClientThread };
 
@@ -116,6 +117,10 @@ namespace RTT
                 mowner = ee;
                 // inform Operation<T> to update the implementation.
                 this->ownerUpdated();
+            }
+
+            ExecutionEngine* getOwner() const {
+                return mowner;
             }
         };
     }

@@ -105,7 +105,7 @@ namespace RTT
          * when ready() returns true, otherwise, an exception
          * is thrown.
          */
-        bool ready() const { return this->getDataSource(); }
+        bool ready() const { return this->getDataSource().get() != 0; }
 
         /**
          * A call on this method will lead to a call to the PropertyIntrospection
@@ -171,6 +171,13 @@ namespace RTT
          * used in its place or vice versa.
          */
         virtual PropertyBase* clone() const = 0;
+
+        /**
+         * Deliver a shallow copy of this PropertyBase with a shared
+         * DataSource. The original may be deleted and the clone can be
+         * transparantly used in its place or vice versa.
+         */
+        virtual PropertyBase* copy() const = 0;
 
         /**
          * Create a new default instance of the PropertyBase.

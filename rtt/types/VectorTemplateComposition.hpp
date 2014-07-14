@@ -36,121 +36,56 @@
 
 #include "../Property.hpp"
 #include "../PropertyBag.hpp"
-#include "SequenceTypeInfo.hpp"
 #include "Types.hpp"
 #include "../Logger.hpp"
 #include "../internal/DataSources.hpp"
-#include <ostream>
-#include <sstream>
 #include <vector>
 
 namespace RTT
-{ namespace types {
-    template <typename T, bool has_ostream>
-    struct StdVectorTemplateTypeInfo
-        : public SequenceTypeInfo<std::vector<T>, has_ostream >
-    {
-        StdVectorTemplateTypeInfo<T,has_ostream>( std::string name )
-            : SequenceTypeInfo<std::vector<T>, has_ostream >(name)
+{ 
+    namespace types {
+
+        template<class T>
+        bool composeTemplateProperty(const PropertyBag& bag, T& result)
         {
-        }
-    };
+            TypeInfoRepository::shared_ptr tir = Types();
+            if ( tir->type( bag.getType()) == tir->getTypeInfo< T >() ) {
+                Property< typename T::value_type>* comp;
+                int dimension = bag.size();
+                result.resize( dimension );
 
-    template<typename T>
-    std::ostream& operator << (std::ostream& os, const std::vector<T>& vec)
-    {
-        os<<'[';
-        for(unsigned int i=0;i<vec.size();i++){
-            if(i>0)
-                os<<',';
-            os<<vec[i]<<' ';
+                // Get values
+                int size_correction = 0;
+                for (int i = 0; i < dimension ; i++) {
+                    base::PropertyBase* element = bag.getItem( i );
+                    comp = dynamic_cast< Property< typename T::value_type>* >( element );
+                    if ( comp == 0 ) {
+                        // detect LEGACY element:
+                        if ( element->getName() == "Size" ) {
+                            // oops, our result vector will be one smaller.
+                            size_correction += 1;
+                            continue;
+                        }
+                        Logger::log() << Logger::Error << "Aborting composition of Property< T > "
+                                      << ": Exptected data element "<< i << " to be of type " << internal::DataSourceTypeInfo< typename T::value_type>::getTypeName()
+                                      <<" got type " << element->getType()
+                                      <<Logger::endl;
+                        return false;
+                    }
+                    result[ i - size_correction ] = comp->get();
+                }
+                result.resize( dimension - size_correction );
+            }
+            else {
+                Logger::log() << Logger::Error << "Composing Property< T > :"
+                              << " type mismatch, got type '"<< bag.getType()
+                              << "', expected 'vector<" <<  internal::DataSourceTypeInfo< typename T::value_type>::getTypeName() <<">'."<<Logger::endl;
+                return false;
+            }
+            return true;
         }
-
-        return os << ']';
     }
-
-    template<typename T>
-    std::istream& operator >> (std::istream& is,std::vector<T>& vec)
-    {
-        return is;
-    }
-
-    template<typename T>
-    struct stdvector_ctor
-        : public std::unary_function<int, const std::vector<T>&>
-    {
-        typedef const std::vector<T>& (Signature)( int );
-        mutable boost::shared_ptr< std::vector<T> > ptr;
-        stdvector_ctor()
-            : ptr( new std::vector<T>() ) {}
-        const std::vector<T>& operator()( int size ) const
-        {
-            ptr->resize( size );
-            return *(ptr);
-        }
-    };
-
-    /**
-     * See internal::NArityDataSource which requires a function object like
-     * this one.
-     */
-    template<typename T>
-    struct stdvector_varargs_ctor
-    {
-        typedef const std::vector<T>& result_type;
-        typedef T argument_type;
-        result_type operator()( const std::vector<T>& args ) const
-        {
-            return args;
-        }
-    };
-
-    /**
-     * Constructs an array with \a n elements, which are given upon
-     * construction time.
-     */
-     template<typename T>
-     struct StdVectorBuilder
-         : public TypeConstructor
-     {
-         virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const {
-             if (args.size() == 0 )
-                 return base::DataSourceBase::shared_ptr();
-             typename internal::NArityDataSource<stdvector_varargs_ctor<T> >::shared_ptr vds = new internal::NArityDataSource<stdvector_varargs_ctor<T> >();
-             for(unsigned int i=0; i != args.size(); ++i) {
-                 typename internal::DataSource<T>::shared_ptr dsd = boost::dynamic_pointer_cast< internal::DataSource<T> >( args[i] );
-                 if (dsd)
-                     vds->add( dsd );
-                 else
-                     return base::DataSourceBase::shared_ptr();
-             }
-             return vds;
-         }
-     };
-
-    template<typename T>
-    struct stdvector_ctor2
-        : public std::binary_function<int, T, const std::vector<T>&>
-    {
-        typedef const std::vector<T>& (Signature)( int, T );
-        mutable boost::shared_ptr< std::vector<T> > ptr;
-        stdvector_ctor2()
-            : ptr( new std::vector<T>() ) {}
-        const std::vector<T>& operator()( int size, T value ) const
-        {
-            ptr->resize( size );
-            ptr->assign( size, value );
-            return *(ptr);
-        }
-    };
-}}
-
-#ifdef __clang__
-namespace std {
-    using RTT::types::operator<<;
-    using RTT::types::operator>>;
 }
-#endif
 
 #endif
 

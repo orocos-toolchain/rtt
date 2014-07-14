@@ -360,7 +360,7 @@ namespace RTT
         /**
          * Sets the internal implementation of the OperationCaller object.
          */
-        void setOperationCallerImpl( OperationCallerBasePtr new_impl) const {
+        void setOperationCallerImpl( OperationCallerBasePtr new_impl) {
             this->impl = new_impl;
         }
 

@@ -162,9 +162,9 @@ namespace RTT
     // a function is very similar to a program, but it also has a name
     function = (
             // optional visibility qualifiers:
-       !( keyword_p( "export" )[boost::bind(&ProgramGraphParser::exportdef, this)] | keyword_p( "global" )[boost::bind(&ProgramGraphParser::globaldef, this)] | keyword_p("local") )
-       >> (keyword_p( "function" ) | commonparser.notassertingidentifier[boost::bind( &ProgramGraphParser::seenreturntype, this, _1, _2)])
-       >> expect_ident( commonparser.identifier[ boost::bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ] )
+       !( keyword_p( "export" )[boost::bind(&ProgramGraphParser::exportdef, this)] | keyword_p( "global" )[boost::bind(&ProgramGraphParser::globaldef, this)] | keyword_p("local") )[boost::bind(&ProgramGraphParser::seenvalidinput, this)]
+       >> (keyword_p( "function" )[boost::bind(&ProgramGraphParser::seenvalidinput, this)] | commonparser.notassertingidentifier[boost::bind( &ProgramGraphParser::seenreturntype, this, _1, _2)] )
+       >> expect_ident( commonparser.identifier[boost::bind(&ProgramGraphParser::seenvalidinput, this)][ boost::bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ] )
        >> !funcargs
        >> opencurly
        >> content
@@ -179,7 +179,7 @@ namespace RTT
 
     // a program looks like "program { content }".
     program =
-        keyword_p( "program" )
+        keyword_p( "program" )[boost::bind(&ProgramGraphParser::seenvalidinput, this)]
       >> expect_ident( commonparser.identifier[ boost::bind( &ProgramGraphParser::programdef, this, _1, _2 ) ] )
       >> opencurly
       >> content
@@ -273,6 +273,10 @@ namespace RTT
 //        return program_builder->getFunction();
 //    }
 
+    bool ProgramGraphParser::parserUsed() const {
+        return parserused;
+    }
+
     void ProgramGraphParser::setStack(Service::shared_ptr st) {
         context = st;
         valuechangeparser.load(context);
@@ -280,6 +284,7 @@ namespace RTT
 
     void ProgramGraphParser::clearParseState() {
         exportf = false;
+        parserused = false;
         rettype.clear();
     }
 
@@ -415,6 +420,10 @@ namespace RTT
       exportf = false; globalf = false;
 
       valuechangeparser.reset();
+  }
+
+  void ProgramGraphParser::seenvalidinput() {
+      parserused = true;
   }
 
   void ProgramGraphParser::seencondition()

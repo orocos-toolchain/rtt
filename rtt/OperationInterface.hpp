@@ -186,6 +186,9 @@ namespace RTT
          * @param func The function to execute
          * @param args The data sources to fill in with the arguments the operation was given.
          * The number of elements and their type must match the signature of the operation.
+         * @param subscriber The execution engine of the Task which wishes to receive the signal.
+         * The action \a func will be executed in this engine. Set to zero to use the engine of
+         * the ExecutionType of the Operation (OwnThread or ClientThread).
          *
          * @return a new Signal Handle, the Handle is returned in the connected state !
          * @throw wrong_number_of_args_exception
@@ -193,7 +196,7 @@ namespace RTT
          * @throw name_not_found_exception
          * @throw no_asynchronous_operation_exception
          */
-        Handle produceSignal(const std::string& name, base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const;
+        Handle produceSignal(const std::string& name, base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* subscriber) const;
 #endif
         /**
          * The descriptions of an argumentlist.

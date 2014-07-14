@@ -32,11 +32,15 @@ namespace RTT
         boost::spirit::classic::assertion<std::string> expect_eof("Invalid input in file.");
         guard<std::string> no_function_guard;
 
-        error_status<> handle_no_function(scanner_t const& scan, parser_error<std::string, iter_t>&e )
-        {
-            return error_status<>( error_status<>::fail );
-        }
+    }
 
+    error_status<> ScriptParser::handle_no_function(scanner_t const& scan, parser_error<std::string, iter_t>&e )
+    {
+        // only fail if the parser could not make sense of it, otherwise, rethrow:
+        if ( programparser->parserUsed() == false )
+            return error_status<>( error_status<>::fail );
+        else
+            return error_status<>( error_status<>::rethrow );
     }
 
     ScriptParser::ScriptParser(iter_t& positer, TaskContext* tc,
@@ -60,7 +64,7 @@ namespace RTT
                 = *(
                         statemachine[bind(&ScriptParser::seenstatemachine, this)]
                         | program[bind(&ScriptParser::seenprogram, this)]
-                        | no_function_guard(function[bind(&ScriptParser::seenfunction, this)])[&handle_no_function]
+                        | no_function_guard(function[bind(&ScriptParser::seenfunction, this)])[boost::bind(&ScriptParser::handle_no_function,this,_1,_2)]
                         | statement[bind(&ScriptParser::seenstatement, this)]
                         | commonparser->notassertingeos
                         )

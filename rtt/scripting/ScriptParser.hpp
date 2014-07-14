@@ -50,6 +50,8 @@ namespace RTT
             void seenfunction();
             void seenstatemachine();
 
+            error_status<> handle_no_function(scanner_t const& scan, parser_error<std::string, iter_t>&e );
+
         public:
             /**
              * Initialize with an initial position, the TaskContext in which context to

@@ -201,7 +201,7 @@ RTT::base::PortInterface* RemoteInputPort::antiClone() const
 { return type_info->outputPort(getName()); }
 
 
-bool RemoteInputPort::channelReady(RTT::base::ChannelElementBase::shared_ptr channel) {
+bool RemoteInputPort::channelReady(RTT::base::ChannelElementBase::shared_ptr channel, RTT::ConnPolicy const& policy) {
     if (! channel_map.count( channel.get() ) ) {
         log(Error) <<"No such channel found in "<< getName() <<".channelReady( channel ): aborting connection."<<endlog();
         return false;
@@ -209,7 +209,8 @@ bool RemoteInputPort::channelReady(RTT::base::ChannelElementBase::shared_ptr cha
     try {
         CChannelElement_ptr cce = channel_map[ channel.get() ];
         assert( cce );
-        return dataflow->channelReady( this->getName().c_str(),  cce );
+        CConnPolicy cpolicy = toCORBA(policy);
+        return dataflow->channelReady( this->getName().c_str(),  cce, cpolicy );
     }
     catch(CORBA::Exception& e)
     {

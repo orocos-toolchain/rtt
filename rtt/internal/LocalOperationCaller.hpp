@@ -130,10 +130,11 @@ namespace RTT
             SendHandle<Signature> do_send(shared_ptr cl) {
                 //std::cout << "Sending clone..."<<std::endl;
                 ExecutionEngine* receiver = this->getMessageProcessor();
+                cl->self = cl;
                 if ( receiver && receiver->process( cl.get() ) ) {
-                    cl->self = cl;
                     return SendHandle<Signature>( cl );
                 } else {
+                    cl->dispose();
                     // cleanup. Done by shared_ptr.
                     return SendHandle<Signature>();
                 }
@@ -329,9 +330,9 @@ namespace RTT
             /**
              * Invoke this operator if the method has no arguments.
              */
+            template<class Xignored>
             result_type call_impl()
             {
-
                 if ( this->isSend() ) {
                     SendHandle<Signature> h = send_impl();
                     if ( h.collect() == SendSuccess )

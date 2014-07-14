@@ -86,8 +86,6 @@ namespace RTT
          */
         bool inputReady()
         {
-            // cid is deleted/owned by the ConnectionManager.
-            port->addConnection(cid, this);
             return base::ChannelElement<T>::inputReady();
         }
 
@@ -132,6 +130,10 @@ namespace RTT
 
         virtual base::PortInterface* getPort() const {
             return this->port;
+        }
+
+        virtual ConnID* getConnID() const { 
+            return this->cid; 
         }
     };
 

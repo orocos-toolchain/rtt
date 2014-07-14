@@ -23,7 +23,7 @@ namespace RTT
             /**
              * Initializes an empty OperationCallerInterface with owner,
              * executor and caller set to zero and the ExecutionThread type
-             * to OwnThread.
+             * to ClientThread.
              */
             OperationCallerInterface();
 

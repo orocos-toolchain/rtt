@@ -145,7 +145,7 @@ namespace RTT
                 {
                     // if not available, just convert to int.
                     if ( to_string.count( ds->get() ) == 0 ) {
-                        log(Warning) << "No enum-to-string mapping defined for enum " << this->getTypeName() <<". Converting to int."<<endlog();
+                        //log(Warning) << "No enum-to-string mapping defined for enum " << this->getTypeName() <<". Converting to int."<<endlog();
                         return new internal::ValueDataSource<int>( ds->get() );
                     }
                     internal::ValueDataSource<std::string>::shared_ptr vds =  new internal::ValueDataSource<std::string>( to_string.find(ds->get())->second );

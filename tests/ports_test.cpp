@@ -540,6 +540,9 @@ BOOST_AUTO_TEST_CASE(testPortAddRemove)
     tc.ports()->removePort("Write");
     tc.ports()->removePort("Read");
     tc.ports()->removePort("ERead");
+    BOOST_CHECK(wp1->getInterface() == 0);
+    BOOST_CHECK(rp1->getInterface() == 0);
+    BOOST_CHECK(ep1->getInterface() == 0);
 
     wp1->write(0.1);
 

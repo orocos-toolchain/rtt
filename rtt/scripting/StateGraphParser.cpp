@@ -289,7 +289,7 @@ namespace RTT
 
         // @todo: capturing events are only on local ports ?!.
         eventline  =
-            /*!peerparser->parser() >>*/ commonparser->identifier[ boost::bind( &StateGraphParser::seeneventname, this,_1,_2)]
+            !peerparser->parser() >> commonparser->identifier[ boost::bind( &StateGraphParser::seeneventname, this,_1,_2)]
             >> expect_eventargs(argslist[ boost::bind( &StateGraphParser::seeneventargs, this)])
             >> expect_eventselect(transline[ boost::bind( &StateGraphParser::seeneventtrans, this)]);
 

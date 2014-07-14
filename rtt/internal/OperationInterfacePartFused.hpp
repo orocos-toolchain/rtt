@@ -173,7 +173,7 @@ namespace RTT
             }
 
 #ifdef ORO_SIGNALLING_OPERATIONS
-            virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const
+            virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* subscriber) const
             {
                 throw no_asynchronous_operation_exception("cannot use produceSignal on non-signalling operations");
             }
@@ -206,20 +206,23 @@ namespace RTT
             }
 
 
-            virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
+            virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* subscriber) const {
+                base::OperationCallerInterface::shared_ptr impl = this->op->getOperationCaller();
+                if ( subscriber == impl->getMessageProcessor() )
+                    subscriber = 0; // clear out to avoid dispatching
                 // convert our args and signature into a boost::fusion Sequence.
                 if ( args.size() != OperationInterfacePartFused<Signature>::arity() ) throw wrong_number_of_args_exception(OperationInterfacePartFused<Signature>::arity(), args.size() );
                 // note: in boost 1.41.0+ the function make_unfused() is available.
 #if BOOST_VERSION >= 104100
-                return OperationInterfacePartFused<Signature>::op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
-                                                                            boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin())),
+                return this->op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
+                                                                                                                    boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
                                                                             boost::lambda::_1
                                                                             )
                                                                 )
                                    );
 #else
-                return OperationInterfacePartFused<Signature>::op->signals( boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
-                                                                            boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin())),
+                return this->op->signals( boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
+                                                                                                                            boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()),subscriber),
                                                                             boost::lambda::_1
                                                                             )
                                                                 )
@@ -255,7 +258,7 @@ namespace RTT
             virtual base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking) const
             { throw no_asynchronous_operation_exception("cannot use produceCollect on synchronous operations"); }
 #ifdef ORO_SIGNALLING_OPERATIONS
-            virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const
+            virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* subscriber) const
             { throw no_asynchronous_operation_exception("cannot use produceSignal on synchronous operations"); }
 #endif
             virtual base::DataSourceBase::shared_ptr produceHandle() const
@@ -410,8 +413,11 @@ namespace RTT
                     return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >::sources(args.begin()), blocking );
                 }
 #ifdef ORO_SIGNALLING_OPERATIONS
-                virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
+                virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* subscriber) const {
                     if ( args.size() != arity() ) throw wrong_number_of_args_exception(arity(), args.size() );
+                    base::OperationCallerInterface::shared_ptr impl = op->getOperationCaller();
+                    if ( subscriber == impl->getMessageProcessor() )
+                        subscriber = 0; // clear out to avoid dispatching
                     // the user won't give the necessary object argument, so we glue it in front.
                     ArgList a2;
                     a2.reserve(args.size()+1);
@@ -419,15 +425,15 @@ namespace RTT
                     a2.insert(a2.end(), args.begin(), args.end());
                     // note: in boost 1.41.0+ the function make_unfused() is available.
     #if BOOST_VERSION >= 104100
-                    return op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
-                                                                                boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin())),
+                    return this->op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
+                                                                                boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()),subscriber),
                                                                                 _1
                                                                                 )
                                                                     )
                                        );
     #else
-                    return op->signals( boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
-                                                                                boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin())),
+                    return this->op->signals( boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
+                                                                                        boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()),subscriber),
                                                                                 _1
                                                                                 )
                                                                     )
@@ -436,7 +442,7 @@ namespace RTT
                 }
 #endif
                 boost::shared_ptr<base::DisposableInterface> getLocalOperation() const {
-                    return op->getImplementation();
+                    return this->op->getImplementation();
                 }
             };
     }

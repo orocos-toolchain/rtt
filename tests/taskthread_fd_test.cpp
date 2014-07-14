@@ -183,7 +183,6 @@ BOOST_AUTO_TEST_CASE(testFileDescriptor_Write )
     BOOST_CHECK( mtask->isWatched(mcomp.fd[0]) == true );
 
     BOOST_CHECK( mcomp.start() == true );
-    BOOST_CHECK( mtask->isRunning() == false );
     BOOST_CHECK( mtask->hasError() == false );
     BOOST_CHECK( mtask->hasTimeout() == false );
 
@@ -258,7 +257,6 @@ BOOST_AUTO_TEST_CASE(testFileDescriptor_Timeout )
 	mtask->setTimeout( timeout_ms );
 	BOOST_CHECK( timeout_ms == mtask->getTimeout() );
     BOOST_CHECK( mcomp.start() == true );
-    BOOST_CHECK( mtask->isRunning() == false );
 
 	// no activity
     usleep(1000000/4);
