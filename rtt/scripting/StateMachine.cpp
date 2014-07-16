@@ -327,8 +327,10 @@ namespace RTT {
             this->executePending();
             break;
         case Status::running:
-            if ( this->executePending() == false)
+            if ( this->executePending() == false) {
+                TRACE("Yielding...");
                 break;
+            }
             // if all pending done:
             this->requestNextState();     // one state at a time
             this->executePending();       // execute steps of next state
@@ -451,12 +453,13 @@ namespace RTT {
                         smStatus = Status::error;
 
                 }
-                next = newState;
                 currentTrans = transProg;
-                // if error in current Exit, skip it.
-                if ( currentExit && currentExit->inError() )
-                    currentExit = 0;
+
+                next = newState;
+
+                disableEvents(current);
                 leaveState(current);
+                assert( currentEntry == 0); // we assume that in executePending, trans and exit get executed first and entry is stil null.
             }
         // schedule a run for the next 'step'.
         // if handle above finished, run will be called directly
@@ -592,15 +595,20 @@ namespace RTT {
             if ( c->evaluate() && checkConditions(to, false) == 1 ) {
                 TRACE( "Valid transition from " + from->getName() +
                        +" to "+to->getName()+".");
-                // stepping == true ! We don't want to execute the whole state transition
-                changeState( to, p, true );              //  valid transition to 'to'.
+                // stepping == false ! This executes the whole state transition
+                changeState( to, p, false );              //  valid transition to 'to'. Q: should stepping be on or off ?
                 // trigger EE in order to force execution of the remainder of the state transition:
                 this->getEngine()->getActivity()->trigger();
             }
             else {
+                if ( c->evaluate() == false ) 
                 TRACE( "Rejected transition from " + from->getName() +
                         " to " + to->getName() +
                         " within state " + current->getName() + ": guards failed.");
+                if ( checkConditions(to,false) != 1 ) 
+                TRACE( "Rejected transition from " + from->getName() +
+                        " to " + to->getName() +
+                        " within state " + current->getName() + ": preconditions failed.");
             }
         }
 #if 1
@@ -999,8 +1007,7 @@ namespace RTT {
         if ( inError() )
             return false;
 
-        TRACE("executePending..." );
-
+        // first try to finish the current entry program, if any:
         if ( currentEntry ) {
             TRACE("Executing entry program of '"+ (current ? current->getName() : "(null)") +"'" );
             if ( this->executeProgram(currentEntry, stepping) == false )
@@ -1013,9 +1020,8 @@ namespace RTT {
                 return false;
             }
         }
-        // from this point on, events must be enabled.
 
-        // first try to execute transition program on behalf of current state.
+        // if a transition has been scheduled, proceed directly instead of doing a run:
         if ( currentTrans ) {
             TRACE("Executing transition program from '"+ (current ? current->getName() : "(null)") + "' to '"+ ( next ? next->getName() : "(null)")+"'" );
             // exception : transition during handle, first finish handle !
@@ -1048,9 +1054,6 @@ namespace RTT {
             }
         }
 
-        // we only get here if all entry/transition/exit programs have been executed.
-        // so now we schedule a new entry program for the next state.
-
         // only reset the reqstep if we changed state.
         // if we did not change state, it will be reset in requestNextState().
         if ( current != next ) {
@@ -1069,14 +1072,12 @@ namespace RTT {
             // make change transition after exit of previous state:
             TRACE("Formally  transitioning from      '"+ (current ? current->getName() : "(null)") + "' to '"+ (next ? next->getName() : "(null)") +"'" );
 
-            disableEvents(current);
             current = next;
-            enableEvents(current);
-            enterState(current);
-
+            enterState(next);
+            enableEvents(next);
         }
 
-        // give new current a chance to execute the entry program and run program :
+        // finally, execute the current Entry of the new state:
         if ( currentEntry ) {
             TRACE("Executing entry program of '"+ (current ? current->getName() : "(null)") +"'" );
             if ( this->executeProgram(currentEntry, stepping) == false )
@@ -1088,6 +1089,10 @@ namespace RTT {
                 currentProg = currentRun;
                 return false;
             }
+            // Either way, if currentEntry was set here, we get out by returning true or false.
+            // currentHandle is unlikely to be set, but currentRun is set by 'changeState' and
+            // should only be executed the next execution cycle (if no transition is scheduled by then).
+            return true;
         }
 
         // Handle is executed after the transitions failed.
@@ -1198,7 +1203,7 @@ namespace RTT {
         }
 
         current = getInitialState();
-        next    = getInitialState();
+        next = current;
         enterState( getInitialState() );
         reqstep = stateMap.find( next )->second.begin();
         reqend = stateMap.find( next )->second.end();
@@ -1209,6 +1214,8 @@ namespace RTT {
 
         // execute the entry program of the initial state.
         if ( !inError() ) {
+            enableEvents(current);
+
             if ( this->executePending() ) {
                 smStatus = Status::active;
                 TRACE("Activated.");
