@@ -587,7 +587,7 @@ namespace RTT
             //             else
             //cerr << "Registering "<<evname<<" handler for SM."<<endl;
             try {
-                res = curtemplate->createEventTransition( peer->provides(), evname, evargs, curstate, next_state, curcondition->clone(), transProgram );
+                res = curtemplate->createEventTransition( peer->provides(), caller, evname, evargs, curstate, next_state, curcondition->clone(), transProgram );
                 if (!res)
                     throw parse_exception_fatal_semantic_error("StateMachine could not install a Signal Handler for Operation "+evname);
             }

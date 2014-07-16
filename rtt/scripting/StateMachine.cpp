@@ -506,7 +506,7 @@ namespace RTT {
 
     }
 
-    bool StateMachine::createEventTransition( ServicePtr sp,
+    bool StateMachine::createEventTransition( ServicePtr sp, ExecutionEngine* target_engine,
                                               const std::string& ename, vector<DataSourceBase::shared_ptr> args,
                                               StateInterface* from, StateInterface* to,
                                               ConditionInterface* guard, boost::shared_ptr<ProgramInterface> transprog,
@@ -549,7 +549,8 @@ namespace RTT {
 
         log(Debug) << "Creating Signal handler for Operation '"<< ename <<"' from state "<< (from ? from->getName() : string("(global)")) << " to state " << ( to ? to->getName() : string("(global)") ) <<Logger::endl;
 #ifdef ORO_SIGNALLING_OPERATIONS
-        handle = sp->produceSignal( ename, new CommandFunction( boost::bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto) ), args, this->getEngine() );
+        // this->getEngine() is still null at this point, since the SM is unloaded().
+        handle = sp->produceSignal( ename, new CommandFunction( boost::bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto) ), args, target_engine );
 #endif
         if ( !handle.ready() ) {
             Logger::log() << Logger::Error << "Could not setup handle for event '"<<ename<<"'."<<Logger::endl;

@@ -160,7 +160,7 @@ namespace RTT {
 #ifndef NDEBUG
                 bool eresult =
 #endif
-                    ret->createEventTransition(sp, ename, newargs, fromState, toState, condition, tprog, elseState, eprog );
+                    ret->createEventTransition(sp, ret->getService()->getOwner()->engine(), ename, newargs, fromState, toState, condition, tprog, elseState, eprog );
                 assert( eresult );
             }
         }
