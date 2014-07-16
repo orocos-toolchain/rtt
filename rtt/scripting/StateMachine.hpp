@@ -478,8 +478,10 @@ namespace RTT
          *        The program to be executed between exit of \a from and entry of \a to.
          * @param sp
          *        The Service in which \a ename can be found.
+         * @param target_engine
+         *        The ExecutionEngine which will execute this StateMachine.
          */
-        bool createEventTransition( ServicePtr sp,
+        bool createEventTransition( ServicePtr sp, ExecutionEngine* target_engine,
                                     const std::string& ename, std::vector<base::DataSourceBase::shared_ptr> args,
                                     StateInterface* from, StateInterface* to,
                                     ConditionInterface* guard, boost::shared_ptr<ProgramInterface> transprog,

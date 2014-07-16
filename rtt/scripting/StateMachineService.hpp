@@ -66,10 +66,10 @@ namespace RTT
         StateMachineServicePtr copy(ParsedStateMachinePtr newsc, std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacements, bool instantiate );
 
         /**
-         * By constructing this object, a stateMachine is added to a taskcontext
-         * as a Service, with its commands and methods.
+         * By constructing this object, a stateMachine can be added to a taskcontext
+         * as a Service, with its operations.
          */
-        StateMachineService(ParsedStateMachinePtr statemachine, TaskContext* tc=0);
+        StateMachineService(ParsedStateMachinePtr statemachine, TaskContext* tc);
 
         ~StateMachineService();
 
