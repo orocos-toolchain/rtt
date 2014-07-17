@@ -170,6 +170,8 @@ void __os_exit(void)
 
     types::GlobalsRepository::Release();
 
+    types::TypeInfoRepository::Release();
+
     types::TypekitRepository::Release();
 
     Logger::log() << Logger::Debug << "Stopping StartStopManager." << Logger::endl;
