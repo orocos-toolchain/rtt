@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE( testTimers )
     BOOST_CHECK( timer.isArmed( 2 ) );
     BOOST_CHECK( timer.isArmed( 3 ) );
 
-    sleep(1);
+    sleep(2);
 
     // Test clearing
     BOOST_CHECK( !timer.isArmed( 0 ) );
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE( testTimerPeriod )
     BOOST_CHECK( timer.isArmed( 2 ) );
     BOOST_CHECK( timer.isArmed( 3 ) );
 
-    sleep(1);
+    sleep(2);
 
     // Test clearing
     BOOST_CHECK( timer.killTimer( 0 ) );
