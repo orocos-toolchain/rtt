@@ -48,10 +48,13 @@
 namespace RTT {
 
 /**
- * Returns the status of a send() invocation.
+ * Returns the status of a send() or collect() invocation.
  */
 enum SendStatus {
-    SendFailure = -1, SendNotReady = 0, SendSuccess = 1
+    CollectFailure = -2, /** Returned when the result of the send() could not be collected. This happens when the 'caller' has not been set in the OperationCaller. */
+    SendFailure = -1,    /** Returned when the send() failed to deliver the operation call to the receiving component. This happens when the operation's component is in FatalError or has a full message queue. */
+    SendNotReady = 0,    /** Returned when the send() succeeded, but the operation has not yet been executed by the receiving component. */
+    SendSuccess = 1      /** Returned when the send() was a success and the results can be collected. */
 };
 
 RTT_API std::ostream& operator<<(std::ostream& os, SendStatus fs);
