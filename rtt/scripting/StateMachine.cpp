@@ -215,6 +215,7 @@ namespace RTT {
         if ( smStatus != Status::inactive && smStatus != Status::unloaded && smStatus != Status::error) {
             TRACE( "Will start." );
             smStatus = Status::running;
+            os::MutexLock lock(execlock);
             runState( current );
             return true;
         }
@@ -379,6 +380,7 @@ namespace RTT {
     bool StateMachine::requestInitialState()
     {
         TRACE_INIT();
+        os::MutexLock lock(execlock);
         // all conditions that must be satisfied to enter the initial state :
         if ( interruptible() && ( current == initstate || current == finistate ) )
         {
@@ -394,6 +396,7 @@ namespace RTT {
     bool StateMachine::requestFinalState()
     {
         TRACE_INIT();
+        os::MutexLock lock(execlock);
         // if we are inactive or in transition, don't do anything.
         if ( current == 0 || ( !inError() && !interruptible() ) ) {
             TRACE("Won't enter final state.");
@@ -545,8 +548,8 @@ namespace RTT {
 
         log(Debug) << "Creating Signal handler for Operation '"<< ename <<"' from state "<< (from ? from->getName() : string("(global)")) << " to state " << ( to ? to->getName() : string("(global)") ) <<Logger::endl;
 #ifdef ORO_SIGNALLING_OPERATIONS
-        // this->getEngine() is still null at this point, since the SM is unloaded().
-        handle = sp->produceSignal( ename, new CommandFunction( boost::bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto) ), args, target_engine );
+        // don't deliver this signal asynchronously, we want it right away.
+        handle = sp->produceSignal( ename, new CommandFunction( boost::bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto) ), args, 0 );
 #endif
         if ( !handle.ready() ) {
             Logger::log() << Logger::Error << "Could not setup handle for event '"<<ename<<"'."<<Logger::endl;
@@ -567,17 +570,18 @@ namespace RTT {
     {
         TRACE_INIT();
         // called by event to begin Transition to 'to'.
-        // This interrupts the current run program at an interruption point ?
+        // This interrupts the current run program at yield point
         // the transition and/or exit program can cleanup...
 
-        // this will never be called if the event connection is destroyed, unless called from the
-        // CompletionProcessor (asyn event arrival). Therefore we must add extra checks :
-        // only transition if this event was meant for this state and we are not
+        MutexLock lock(execlock); // recursive
+
+        if ( !current)
+            return true;
+
+        // Only transition if this event was meant for this state and we are not
         // in transition already.
         // If condition fails, check precondition 'else' state (if present) and
         // execute else program (may be null).
-        if ( !current)
-            return true;
 
         if (from == 0)
             from  = current;
@@ -616,6 +620,7 @@ namespace RTT {
     StateInterface* StateMachine::requestNextState(bool stepping)
     {
         TRACE_INIT();
+        os::MutexLock lock(execlock);
         // bad idea, user, don't run this if we're not active...
         if( current == 0 )
             return 0;
@@ -731,6 +736,7 @@ namespace RTT {
 
     StateInterface* StateMachine::nextState()
     {
+        os::MutexLock lock(execlock);
         // bad idea, user, don't run this if we're not active...
         if ( current == 0 )
             return 0;
@@ -784,6 +790,7 @@ namespace RTT {
 
     bool StateMachine::requestStateChange( StateInterface * s_n )
     {
+        os::MutexLock lock(execlock);
         // bad idea, user, don't run this if we're not active...
         if( current == 0 )
             return false;
