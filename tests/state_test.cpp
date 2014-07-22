@@ -24,7 +24,8 @@
 #include <scripting/StateMachine.hpp>
 #include <scripting/ParsedStateMachine.hpp>
 #include <scripting/DumpObject.hpp>
-#include <scripting/Parser.hpp>
+#include <scripting/parse_exception.hpp>
+#include <rtt/internal/GlobalEngine.hpp>
 
 #include <Service.hpp>
 #include <TaskContext.hpp>
@@ -40,13 +41,13 @@
 
 using namespace RTT;
 using namespace RTT::detail;
+using namespace RTT::internal;
 using namespace std;
 
 class StateTest
     : public OperationsFixture
 {
 public:
-    Parser parser;
     InputPort<double> d_event;
     InputPort<bool>   b_event;
     InputPort<int>    t_event;
@@ -887,6 +888,7 @@ BOOST_AUTO_TEST_CASE( testStateSubStateVars)
         + " SubMachine Y y1(isnegative = d_dummy)\n"
         + " initial state INIT {\n"
         + " entry {\n"
+        + "     do y1.trace(true)\n"
         + "     do y1.activate()\n"
         + "     set y1.t = -1.0 \n"
         + " }\n"
@@ -1291,7 +1293,7 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalGuard )
         + " initial state INIT {\n"
         + "    transition o_event(et) if (et == 3.33) then \n"
         + "        select FINI\n" // test guard
-        + "        else select FAIL\n" // test guard
+        + "        else {log(\"received et != 3.33: \"+et+\": will fail.\") } select FAIL\n" // test guard
         + " }\n"
         + " final state FINI {} \n"
         + " state FAIL {} \n"
@@ -1304,7 +1306,7 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalGuard )
     this->runState("x", tc);
     checkState( "x", tc);
     // transition to FINI:
-    OperationCaller<void(double)> mo( tc->provides()->getOperation("o_event") );
+    OperationCaller<void(double)> mo( tc->provides()->getOperation("o_event"), GlobalEngine::Instance() );
     mo(3.33);
     mo(6.33); // should be ignored
     checkState( "x", tc);
@@ -1372,7 +1374,7 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "      if (eb == true) then { do log(\"Local ISPOSITIVE->INIT Transition for b_event\");} select INIT\n"
 #ifdef ORO_SIGNALLING_OPERATIONS
         + "   transition o_event(et)\n"
-        + "      if ( et == 3.0 ) then { do log(\"Local ISPOSITIVE->INIT Transition for o_event\");} select INIT\n"
+        + "      if ( et == 3.0 ) then { do log(\"Local ISPOSITIVE->INIT Transition for o_event == \" + et);} select INIT\n"
 #endif
         + " }\n"
         + " state TESTSELF {\n"
@@ -1400,7 +1402,7 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + " }"
         + " run {\n"
 
-        + "     do d_event_source.write(-1.0)\n"
+        + "     do d_event_source.write(-1.0)\n" // 11
         + "     do nothing\n"
         + "     do test.assert( !y1.inState(\"INIT\") )\n"
         + "     do test.assert( !y1.inState(\"ISPOSITIVE\") )\n"
@@ -1409,7 +1411,7 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "     do yield\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
 
-        + "     do d_event_source.write(+1.0)\n"
+        + "     do d_event_source.write(+1.0)\n" // 21
         + "     do nothing\n"
         + "     do test.assert( !y1.inState(\"INIT\") )\n"
         + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
@@ -1419,7 +1421,8 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
         + "     do b_event_source.write( true )\n" // go to INIT.
         + "     do yield\n"
-        + "     do test.assert( y1.inState(\"INIT\") )\n"
+
+        + "     do test.assert( y1.inState(\"INIT\") )\n" // 31
 #ifdef ORO_SIGNALLING_OPERATIONS
         // test operation
         + "     do d_event_source.write(+1.0)\n"
@@ -1431,6 +1434,140 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "          do test.assertMsg( false, \"Not ISPOSITIVE but \" + y1.getState() )\n"
         + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
         + "     do o_event( 3.0 )\n" // go to INIT.
+        + "     do yield\n"
+        + "     do yield\n"
+        + "     do yield\n"
+        + "     do test.assert( y1.inState(\"INIT\") )\n"
+#endif
+        // test self transitions
+        + "     set y1.eflag = true;\n"
+        + "     do t_event_source.write(1)\n"
+        + "     do nothing\n"
+        + "     do test.assert( !y1.inState(\"INIT\") )\n"
+        + "     do test.assert( !y1.inState(\"ISPOSITIVE\") )\n"
+        + "     do test.assert( !y1.inState(\"ISNEGATIVE\") )\n"
+        + "     do test.assert( y1.inState(\"TESTSELF\") )\n"
+        + "     do test.assert( y1.eflag == false ) /* first */\n"
+        + "     do t_event_source.write(1)\n"
+        + "     do nothing\n"
+        + "     do test.assert( y1.inState(\"TESTSELF\") )\n"
+        + "     do test.assert( y1.eflag == false ) /* second */\n" // no entry
+        + "     do log(\"Trigger b_event.\");\n"
+        + "     do b_event_source.write(true);\n"
+        + "     yield;\n"
+        + "     do test.assert( y1.inState(\"INIT\") ) /* last */\n"
+        + " }\n"
+        + " transitions {\n"
+        + "     select FINI\n"
+        + " }\n"
+        + " }\n"
+        + " final state FINI {\n"
+        + " entry {\n"
+        + "     do y1.deactivate()\n"
+        //+ "     do test.assert(false)\n"
+        + " }\n"
+        + " transitions {\n"
+        + "     select INIT\n"
+        + " }\n"
+        + " }\n"
+        + " }\n"
+        + " RootMachine X x() \n" // instantiate a hierarchical SC
+        ;
+
+     this->doState("x", prog, tc );
+     //BOOST_CHECK( tc->engine()->states()->getStateMachine( "x" )->inState("FINI") );
+     this->finishState( "x", tc);
+}
+
+
+BOOST_AUTO_TEST_CASE( testStateLevelEvents)
+{
+    // test event reception in sub states.
+    string prog = string("StateMachine Y {\n")
+        + " var   int t = 0\n"
+        + " var   double et = 0.0\n"
+        + " var   bool eb = false\n"
+        + " var   bool eflag = false\n"
+        + " transition if ( t_event.read(t) == NewData && t == 1 ) then { do log(\"Global Transition to TESTSELF\");} select TESTSELF\n" // test self transition
+        + " transition if ( d_event.read(et) == NewData && et < 0.) then \n"
+        + "     { do log(\"Global ISNEGATIVE Transition\");} select ISNEGATIVE\n"
+        + "     else { do log(\"Global ISPOSITIVE Transition\");} select ISPOSITIVE\n" // NewData == false !!!
+        + " initial state INIT {\n"
+        + "   entry { do log(\"INIT\"); set eb = false; }\n"
+        + " }\n"
+        + " state ISNEGATIVE {\n"
+        + "   entry { do log(\"ISNEGATIVE\");}\n"
+        + "   transition if ( b_event.read(eb) == NewData && eb )\n"
+        + "      then { do log(\"Local ISNEGATIVE->INIT Transition\");} select INIT\n"
+        + " }\n"
+        + " state ISPOSITIVE {\n"
+        + "   entry { do log(\"ISPOSITIVE\");}\n"
+        + "   transition if ( b_event.read(eb) == NewData && eb == true) \n" // 20
+        + "      then { do log(\"Local ISPOSITIVE->INIT Transition for b_event\");} select INIT\n"
+#ifdef ORO_SIGNALLING_OPERATIONS
+        + "   transition o_event(et) if ( et == 3.0)\n"
+        + "      then { do log(\"Local ISPOSITIVE->INIT Transition for o_event == \" + et);} select INIT\n"
+#endif
+        + " }\n"
+        + " state TESTSELF {\n"
+        + "   entry {\n"
+        + "      do log(\"TESTSELF\");\n"
+        + "      set eflag = !eflag\n"
+        + "   }\n"
+        + "   transition if ( t_event.read(t) == NewData ) { do log(\"Self Transition in TESTSELF\");} select TESTSELF\n"     // does not execute entry {}, overrides global t_event()
+        + "   transition if ( b_event.read(eb) == NewData && eb == true )\n"
+        + "      then { do log(\"Local TESTSELF->INIT Transition\");} select INIT\n"
+        + "      else { log(\"Failed to select INIT upon event.\");}\n"
+        + " }\n"
+        + " final state FINI {\n"
+        + "   entry { do log(\"FINI\");}\n"
+        + " }\n"
+        + " }\n" // 40
+        + string("StateMachine X {\n") // 1
+        + " SubMachine Y y1()\n"
+        + " initial state INIT {\n"
+        + " entry {\n"
+        + "     do y1.trace(true)\n"
+        + "     do y1.activate()\n"
+        + "     do y1.start()\n"
+        + "     do yield\n"
+        + " }"
+        + " run {\n"
+
+        + "     do d_event_source.write(-1.0)\n" // 11
+        + "     do nothing\n"
+        + "     do test.assert( !y1.inState(\"INIT\") )\n"
+        + "     do test.assert( !y1.inState(\"ISPOSITIVE\") )\n"
+        + "     do test.assert( y1.inState(\"ISNEGATIVE\") )\n"
+        + "     do b_event_source.write( true )\n" // go to INIT.
+        + "     do yield\n"
+        + "     do test.assert( y1.inState(\"INIT\") )\n"
+
+        + "     do d_event_source.write(+1.0)\n"
+        + "     do nothing\n"
+        + "     do test.assert( !y1.inState(\"INIT\") )\n"//21
+        + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
+        + "     do test.assert( !y1.inState(\"ISNEGATIVE\") )\n"
+        + "     if ( !y1.inState(\"ISPOSITIVE\") ) then\n"
+        + "          do test.assertMsg( false, \"Not ISNEGATIVE but \" + y1.getState() )\n"
+        + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
+        + "     do b_event_source.write( true )\n" // go to INIT.
+        + "     do yield\n"
+
+        + "     do test.assert( y1.inState(\"INIT\") )\n"
+#ifdef ORO_SIGNALLING_OPERATIONS
+        // test operation
+        + "     do d_event_source.write(+1.0)\n"
+        + "     do nothing\n" // 31
+        + "     do test.assert( !y1.inState(\"INIT\") )\n"
+        + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
+        + "     do test.assert( !y1.inState(\"ISNEGATIVE\") )\n"
+        + "     if ( !y1.inState(\"ISPOSITIVE\") ) then\n"
+        + "          do test.assertMsg( false, \"Not ISPOSITIVE but \" + y1.getState() )\n"
+        + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
+        + "     do o_event( 3.0 )\n" // go to INIT.
+        + "     do yield\n"
+        + "     do yield\n" // 40
         + "     do yield\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
 #endif
@@ -1585,7 +1722,7 @@ void StateTest::finishState(std::string const& name, TaskContext* tc, bool test)
     StateMachinePtr sm = sa->getStateMachine(name);
     BOOST_REQUIRE( sm );
     BOOST_CHECK( sa->getStateMachine( name )->stop() );
-    BOOST_CHECK( SimulationThread::Instance()->run(500) );
+    BOOST_CHECK( SimulationThread::Instance()->run(10) );
     if (test) {
         stringstream errormsg;
         errormsg << " on line " << sm->getLineNumber() <<", status is "<< sa->getStateMachineStatusStr(name) <<endl <<"here  > " << sline << endl;;
@@ -1594,10 +1731,10 @@ void StateTest::finishState(std::string const& name, TaskContext* tc, bool test)
     // you can call deactivate even when the proc is not running.
     // but deactivation may be 'in progress if exit state has commands in it.
     BOOST_CHECK( sa->getStateMachine( name )->deactivate() );
-    BOOST_CHECK( SimulationThread::Instance()->run(200) );
+    BOOST_CHECK( SimulationThread::Instance()->run(10) );
     if ( sm->isActive() )
         BOOST_CHECK( sa->getStateMachine( name )->deactivate() );
-    BOOST_CHECK( SimulationThread::Instance()->run(200) );
+    BOOST_CHECK( SimulationThread::Instance()->run(10) );
     BOOST_CHECK( sa->getStateMachine( name )->isActive() == false );
 
     // only stop now, since deactivate won't work if simtask not running.
