@@ -201,7 +201,11 @@ namespace RTT
         {
             // abs_time is since epoch, so set p_time to epoch, then add our abs_time.
             boost::posix_time::ptime p_time = boost::posix_time::from_time_t(0);
+
+            // If the line below fails to compile, #define BOOST_DATE_TIME_POSIX_TIME_STD_CONFIG globally
+            // or #include <rtt/rtt-config.h> before any of your include headers.
             boost::posix_time::nanosec abs_p_time = boost::posix_time::nanoseconds(abs_time);
+
             // wakeup time = epoch date + time since epoch
             p_time = p_time + abs_p_time;
             return c.timed_wait(m, p_time, &Condition::retfalse );

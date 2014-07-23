@@ -69,6 +69,10 @@ namespace RTT
         return typerepos;
     }
 
+    void TypeInfoRepository::Release() {
+        typerepos.reset();
+    }
+
     TypeInfo* TypeInfoRepository::type( const std::string& name ) const
     {
         MutexLock lock(type_lock);

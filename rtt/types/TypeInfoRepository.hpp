@@ -65,6 +65,7 @@ namespace RTT
         ~TypeInfoRepository();
         typedef boost::shared_ptr<TypeInfoRepository> shared_ptr;
         static shared_ptr Instance();
+        static void Release();
         /**
          * Retrieve a type with a given \a name.
          * @param name The type name as specified by the

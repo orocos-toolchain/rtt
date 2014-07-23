@@ -150,7 +150,7 @@ namespace RTT {
     TimeService::nsecs
     TimeService::getNSecs() const
     {
-        return ticks2nsecs(offset) + (use_clock) ? (rtos_get_time_ns()) : (0); 
+      return rtos_get_time_ns();
     }
 
     TimeService::nsecs
