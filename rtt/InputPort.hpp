@@ -232,6 +232,7 @@ namespace RTT
             typedef FlowStatus (InputPort<T>::*ReadSample)(typename base::ChannelElement<T>::reference_t);
             ReadSample read_m = &InputPort<T>::read;
             object->addSynchronousOperation("read", read_m, this).doc("Reads a sample from the port.").arg("sample", "");
+            object->addSynchronousOperation("clear", &InputPortInterface::clear, this).doc("Clears any remaining data in this port. After a clear, a read() will return NoData if no writes happened in between.");
             return object;
         }
 #endif
