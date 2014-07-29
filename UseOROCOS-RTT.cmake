@@ -501,6 +501,72 @@ macro( orocos_library LIB_TARGET_NAME )
     INSTALL(TARGETS ${EXE_TARGET_NAME} RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
   endmacro( orocos_executable )
 
+  # Configure an executable to work with Orocos.
+  # The caller is responsible for any ADD_EXECUTABLE(), ADD_TEST(), or INSTALL()
+  # calls for this target.
+  # WARNING the target name is *not* suffixed with OROCOS_TARGET. That is left
+  # to the caller, if necessary.
+  #
+  # Usage: orocos_configure_executable( executablename src1 src2 src3 [INSTALL bin] )
+  #
+  macro( orocos_configure_executable EXE_TARGET_NAME )
+
+    ORO_PARSE_ARGUMENTS(ORO_EXECUTABLE
+      "INSTALL"
+      ""
+      ${ARGN}
+      )
+    SET( SOURCES ${ORO_EXECUTABLE_DEFAULT_ARGS} )
+    if ( ORO_EXECUTABLE_INSTALL )
+      set(AC_INSTALL_DIR ${ORO_EXECUTABLE_INSTALL})
+    else()
+      set(AC_INSTALL_DIR lib)
+    endif()
+
+    if (ORO_USE_ROSBUILD)
+      MESSAGE( STATUS "[UseOrocos] Configuring executable ${EXE_TARGET_NAME} in rosbuild source tree." )
+# TODO      rosbuild_add_executable(${EXE_TARGET_NAME} ${SOURCES} )
+    else()
+      MESSAGE( STATUS "[UseOrocos] Configuring executable ${EXE_TARGET_NAME}" )
+    endif()
+
+    SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
+      OUTPUT_NAME ${EXE_TARGET_NAME}
+      INSTALL_RPATH_USE_LINK_PATH 1
+      INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/bin;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins;${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+      )
+    if(APPLE)
+      if (CMAKE_VERSION VERSION_LESS "3.0.0")
+        SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
+          INSTALL_NAME_DIR "@rpath"
+          )
+      else()
+        # cope with CMake 3.x
+        SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
+          MACOSX_RPATH ON)
+      endif()
+    endif()
+
+    if(CMAKE_DEBUG_POSTFIX)
+      set_target_properties( ${EXE_TARGET_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
+    endif(CMAKE_DEBUG_POSTFIX)
+
+    orocos_add_compile_flags(${EXE_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER})
+    orocos_add_link_flags(${EXE_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
+
+    TARGET_LINK_LIBRARIES( ${EXE_TARGET_NAME}
+      ${OROCOS-RTT_LIBRARIES}
+      )
+
+    # Only link in case there is something *and* the user didn't opt-out:
+    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
+      target_link_libraries( ${EXE_TARGET_NAME} ${USE_OROCOS_LIBRARIES} )
+      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+        message(STATUS "[UseOrocos] Linking target '${EXE_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
+      endif()
+    endif()
+  endmacro( orocos_configure_executable )
+
   # Type headers should add themselves by calling 'orocos_typegen_headers()'
   # They will be processed by typegen to generate a typekit from it, with the
   # name of the current project. You may also pass additional options to typegen
