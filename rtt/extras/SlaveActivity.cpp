@@ -94,6 +94,11 @@ namespace RTT {
         return mmaster ? mmaster->thread() : os::MainThread::Instance();
     }
 
+    base::ActivityInterface *SlaveActivity::getMaster() const
+    {
+        return mmaster;
+    }
+
     bool SlaveActivity::initialize()
     {
         return true;

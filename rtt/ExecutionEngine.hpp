@@ -182,6 +182,23 @@ namespace RTT
          * Set the 'owner' task in the exception state.
          */
         void setExceptionTask();
+
+        /**
+         * Set the master ExecutionEngine.
+         * If set, all incoming messages are forwarded to the master.
+         *
+         * @param master The new master ExecutionEngine.
+         */
+        void setMaster(ExecutionEngine *master);
+
+        /**
+         * Overwritten version of RTT::base::RunnableInterface::setActivity().
+         * This version will also set the master ExecutionEngine if the new activity is a SlaveActivity that runs an ExecutionEngine.
+         *
+         * @param task The ActivityInterface running this interface.
+         */
+        virtual void setActivity( base::ActivityInterface* task );
+
     protected:
         /**
          * Call this if you wish to block on a message arriving in the Execution Engine.
@@ -245,6 +262,12 @@ namespace RTT
 
         os::Mutex msg_lock;
         os::Condition msg_cond;
+
+        /**
+         * A master ExecutionEngine which should process our messages.
+         * This is used for ExecutionEngines running in a SlaveActivity which forward incoming messages to their master engine.
+         */
+        ExecutionEngine *mmaster;
 
         void processMessages();
         void processFunctions();
