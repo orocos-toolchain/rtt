@@ -179,9 +179,7 @@ namespace RTT {
 
     bool SlaveActivity::trigger()
     {
-        ExecutionEngine *master = 0;
-        if (mmaster)
-            master = dynamic_cast<ExecutionEngine*>( mmaster->getRunner() );
+        ExecutionEngine *master = dynamic_cast<ExecutionEngine*>( mmaster->getRunner() );
         ExecutionEngine * r= dynamic_cast<ExecutionEngine*>( runner );
         if(!master || !r){
             Logger::log() << Logger::Fatal << " SlaveActivity: cannot push messages to another engine, current engine is unsupported." << Logger::endl;
