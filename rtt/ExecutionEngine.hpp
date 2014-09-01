@@ -182,13 +182,6 @@ namespace RTT
          * Set the 'owner' task in the exception state.
          */
         void setExceptionTask();
-
-        /**
-         * this function is mentioned for activietes that are not running by her own
-         * but need to push messages to this execution engine, like SlaveActivity
-         */
-        void takeoverMessages(ExecutionEngine *remote);
-
     protected:
         /**
          * Call this if you wish to block on a message arriving in the Execution Engine.

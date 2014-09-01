@@ -238,17 +238,6 @@ namespace RTT
             msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
     }
 
-    void ExecutionEngine::takeoverMessages( ExecutionEngine *remote )
-    {
-        DisposableInterface* com(0);
-        {
-            while ( remote->mqueue->dequeue( com ) ) {
-                assert( com );
-                mqueue->enqueue( com );
-            }
-        }
-    }
-
     bool ExecutionEngine::process( DisposableInterface* c )
     {
         if ( c && this->getActivity() ) {
