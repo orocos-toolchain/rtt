@@ -152,7 +152,18 @@
 #define	PTR_MASK	(sizeof(void *) - 1)
 #define BLOCK_SIZE	(0xFFFFFFFF - PTR_MASK)
 
-#define GET_NEXT_BLOCK(_addr, _r) ((bhdr_t *) ((char *) (_addr) + (_r)))
+
+/* Dereferencing type-punned pointers will break strict aliasing.*/
+#ifdef __GNUC__
+/* GCC guarantees that casting through a union is valid. */
+#define TYPE_PUN(dsttype, srctype, x)           \
+    (((union {srctype *a; dsttype *b;})(x)).b)
+#else
+#define TYPE_PUN(dsttype, srctype, x)    ( (dsttype*)(x) )
+#endif /* __GNUC__ */
+
+#define GET_NEXT_BLOCK(_addr, _r) TYPE_PUN(bhdr_t, char, (char *) (_addr) + (_r))
+
 #define	MEM_ALIGN		  ((BLOCK_ALIGN) - 1)
 #define ROUNDUP_SIZE(_r)          (((_r) + MEM_ALIGN) & ~MEM_ALIGN)
 #define ROUNDDOWN_SIZE(_r)        ((_r) & ~MEM_ALIGN)
@@ -443,14 +454,14 @@ static __inline__ bhdr_t *process_area(void *area, size_t size)
         (sizeof(area_info_t) <
          MIN_BLOCK_SIZE) ? MIN_BLOCK_SIZE : ROUNDUP_SIZE(sizeof(area_info_t)) | USED_BLOCK | PREV_USED;
     ib->prev_hdr = encode_prev_block( NULL, ib->size );
-    b = (bhdr_t *) GET_NEXT_BLOCK(ib->ptr.buffer, ib->size & BLOCK_SIZE);
+    b = GET_NEXT_BLOCK(ib->ptr.buffer, ib->size & BLOCK_SIZE);
     b->size = ROUNDDOWN_SIZE(size - 3 * BHDR_OVERHEAD - (ib->size & BLOCK_SIZE)) | USED_BLOCK | PREV_USED;
     b->prev_hdr = encode_prev_block( NULL, b->size );
     b->ptr.free_ptr.prev = b->ptr.free_ptr.next = 0;
     lb = GET_NEXT_BLOCK(b->ptr.buffer, b->size & BLOCK_SIZE);
     lb->size = 0 | USED_BLOCK | PREV_FREE;
     lb->prev_hdr = encode_prev_block( b, lb->size );
-    ai = (area_info_t *) ib->ptr.buffer;
+    ai = TYPE_PUN(area_info_t, u8_t, ib->ptr.buffer);
     ai->next = 0;
     ai->end = lb;
     return ib;
@@ -501,7 +512,7 @@ size_t init_memory_pool(size_t mem_pool_size, void *mem_pool)
                       (mem_pool, ROUNDUP_SIZE(sizeof(tlsf_t))), ROUNDDOWN_SIZE(mem_pool_size - sizeof(tlsf_t)));
     b = GET_NEXT_BLOCK(ib->ptr.buffer, ib->size & BLOCK_SIZE);
     free_ex(b->ptr.buffer, tlsf);
-    tlsf->area_head = (area_info_t *) ib->ptr.buffer;
+    tlsf->area_head = TYPE_PUN(area_info_t, u8_t, ib->ptr.buffer);
 
 #if TLSF_STATISTIC
     tlsf->used_size = mem_pool_size - (b->size & BLOCK_SIZE);
@@ -581,7 +592,7 @@ size_t add_new_area(void *area, size_t area_size, void *mem_pool)
     }
 
     /* Inserting the area in the list of linked areas */
-    ai = (area_info_t *) ib0->ptr.buffer;
+    ai = TYPE_PUN(area_info_t, u8_t, ib0->ptr.buffer);
     ai->next = tlsf->area_head;
     ai->end = lb0;
     tlsf->area_head = ai;
