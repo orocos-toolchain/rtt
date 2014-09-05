@@ -1023,7 +1023,7 @@ void print_block(bhdr_t * b)
         return;
     PRINT_MSG(">> [%p] (", b);
     if ((b->size & BLOCK_SIZE))
-        PRINT_MSG("%lu bytes, ", (unsigned long) (b->size & BLOCK_SIZE));
+        PRINT_MSG("%lu bytes, ", (unsigned long) ((intptr_t)b->size & BLOCK_SIZE));
     else
         PRINT_MSG("sentinel, ");
     if ((b->size & BLOCK_STATE) == FREE_BLOCK)
@@ -1031,7 +1031,7 @@ void print_block(bhdr_t * b)
     else
         PRINT_MSG("used, ");
     if ((b->size & PREV_STATE) == PREV_FREE)
-        PRINT_MSG("prev. free [%p])\n", b->prev_hdr & BLOCK_SIZE);
+        PRINT_MSG("prev. free [%p])\n", (void*)((intptr_t)b->prev_hdr & BLOCK_SIZE));
     else
         PRINT_MSG("prev used)\n");
 }
