@@ -150,7 +150,7 @@
 #define TLSF_SIGNATURE	(0x2A59FA59)
 
 #define	PTR_MASK	(sizeof(void *) - 1)
-#define BLOCK_SIZE	(0xFFFFFFFF - PTR_MASK)
+#define BLOCK_SIZE	((intptr_t)~PTR_MASK)
 
 
 /* Dereferencing type-punned pointers will break strict aliasing.*/
