@@ -492,12 +492,12 @@ size_t init_memory_pool(size_t mem_pool_size, void *mem_pool)
     tlsf = (tlsf_t *) mem_pool;
     /* Check if already initialised */
     if (tlsf->tlsf_signature == TLSF_SIGNATURE) {
-        mp = mem_pool;
         b = GET_NEXT_BLOCK(mp, ROUNDUP_SIZE(sizeof(tlsf_t)));
         return b->size & BLOCK_SIZE;
     }
 
-    mp = mem_pool;
+    if(mp == 0)
+        mp = mem_pool;
 
     /* Zeroing the memory pool */
     memset(mem_pool, 0, sizeof(tlsf_t));
@@ -649,10 +649,12 @@ size_t get_max_size_mp()
 void destroy_memory_pool(void *mem_pool)
 {
 /******************************************************************/
+    if((void*)mp == (void*)mem_pool){
+        mp = 0;
+    }
+
     tlsf_t *tlsf = (tlsf_t *) mem_pool;
-
     tlsf->tlsf_signature = 0;
-
     TLSF_DESTROY_LOCK(&tlsf->lock);
 
 }
