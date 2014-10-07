@@ -1012,7 +1012,7 @@ namespace RTT {
                 if ( this->executeProgram(currentTrans, stepping) == false )
                     return false;
             // done.
-            TRACE("Finished  transition program from '"+ current->getName() + "' to '"+next->getName()+"'" );
+            TRACE("Finished  transition program from '"+ (current ? current->getName() : "(null)") + "' to '"+ ( next ? next->getName() : "(null)")+"'" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
                 currentProg = currentExit ? currentExit : (currentEntry ? currentEntry : currentRun);
@@ -1026,7 +1026,7 @@ namespace RTT {
             if ( this->executeProgram(currentExit, stepping) == false )
                 return false;
             // done.
-            TRACE("Finished  exit program from '"+ current->getName() + "' (going to '"+ (next ? next->getName() : "(null)") +"')" );
+            TRACE("Finished  exit program from '"+ (current ? current->getName() : "(null)") + "' (going to '"+ (next ? next->getName() : "(null)") +"')" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
                 currentProg = (currentEntry ? currentEntry : currentRun);
@@ -1064,7 +1064,7 @@ namespace RTT {
             if ( this->executeProgram(currentEntry, stepping) == false )
                 return false;
             // done.
-            TRACE("Finished  entry program of '"+ current->getName() +"'" );
+            TRACE("Finished  entry program of '"+ (current ? current->getName() : "(null)") +"'" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
                 currentProg = currentRun;
@@ -1079,7 +1079,7 @@ namespace RTT {
             if ( this->executeProgram(currentHandle, stepping) == false )
                 return false;
             // done.
-            TRACE("Finished  handle program of '"+ current->getName() +"'" );
+            TRACE("Finished  handle program of '"+ (current ? current->getName() : "(null)") +"'" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
                 currentProg = currentRun;
@@ -1093,7 +1093,7 @@ namespace RTT {
             if ( this->executeProgram(currentRun, stepping) == false )
                 return false;
             // done.
-            TRACE("Finished  run program of '"+ current->getName() +"'" );
+            TRACE("Finished  run program of '"+ (current ? current->getName() : "(null)") +"'" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping )
                 return false;
@@ -1114,7 +1114,7 @@ namespace RTT {
             currentProg->step();
         else
             currentProg->execute();
-        if ( currentProg->inError() ) {
+        if ( currentProg && currentProg->inError() ) {
             smStatus = Status::error;
             smpStatus = nill;
             TRACE("Encountered run-time error at line " << this->getLineNumber() );
