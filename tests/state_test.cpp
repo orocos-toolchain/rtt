@@ -75,7 +75,7 @@ public:
     }
     void doState(const std::string& name, const std::string& prog, TaskContext*, bool test=true, int runs = 1000 );
     void parseState( const std::string& prog, TaskContext*, bool test=true );
-    void runState(const std::string& name, TaskContext*, bool test=true, int runs = 1000 );
+void runState(const std::string& name, TaskContext*, bool test=true, int runs = 1000, bool trace = true );
     void checkState( const std::string& name, TaskContext*, bool test=true );
     void finishState( std::string const& name, TaskContext*, bool test=true );
 
@@ -1539,7 +1539,6 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
      this->finishState( "x", tc);
 }
 
-
 BOOST_AUTO_TEST_CASE( testStateLevelEvents)
 {
     // test event reception in sub states.
@@ -1674,6 +1673,126 @@ BOOST_AUTO_TEST_CASE( testStateLevelEvents)
      this->finishState( "x", tc);
 }
 
+BOOST_AUTO_TEST_CASE( testSelfDeactivatingStateMachineinEntry )
+{
+    string prog = string("StateMachine X {\n")
+        + " initial state INIT {\n"
+        + " transitions {select FINI} \n"
+        + " }\n"
+        + " final state FINI {\n"
+        + "  entry{\n"
+        + "   try scripting.deactivateStateMachine(\"x\")\n"
+        + "  }\n"
+        + " }\n"
+        + "}\n"
+        + "RootMachine X x()\n";
+    this->parseState( prog, tc );
+    StateMachinePtr sm = sa->getStateMachine("x");
+    BOOST_REQUIRE( sm );
+    // causes deactivation of SM:
+    runState( "x", tc, false);//without trace
+    BOOST_CHECK( !sm->isActive() );
+    // causes deactivation of SM:
+    runState( "x", tc, true);//with trace
+    BOOST_CHECK( !sm->isActive() );
+
+}
+
+BOOST_AUTO_TEST_CASE( testSelfDeactivatingStateMachineinRun )
+{
+    string prog = string("StateMachine X {\n")
+        + " initial state INIT {\n"
+        + " transitions {select FINI} \n"
+        + " }\n"
+        + " final state FINI {\n"
+        + "  run{\n"
+        + "   try scripting.deactivateStateMachine(\"x\")\n"
+        + "  }\n"
+        + " }\n"
+        + "}\n"
+        + "RootMachine X x()\n";
+    this->parseState( prog, tc );
+    StateMachinePtr sm = sa->getStateMachine("x");
+    BOOST_REQUIRE( sm );
+    // causes deactivation of SM:
+    runState( "x", tc, true, 1000, false);//without trace
+    BOOST_CHECK( !sm->isActive() );
+    // causes deactivation of SM:
+    runState( "x", tc, true, 1000, true);//with trace
+    BOOST_CHECK( !sm->isActive() );
+}
+
+BOOST_AUTO_TEST_CASE( testSelfDeactivatingStateMachineinHandle )
+{
+    string prog = string("StateMachine X {\n")
+        + " initial state INIT {\n"
+        + "  handle{\n"
+        + "   try scripting.deactivateStateMachine(\"x\")\n"
+        + "  }\n"
+        + " transition if false == true then select FINI \n"
+        + " }\n"
+        + " final state FINI {\n"
+        + " }\n"
+        + "}\n"
+        + "RootMachine X x()\n";
+    this->parseState( prog, tc );
+    StateMachinePtr sm = sa->getStateMachine("x");
+    BOOST_REQUIRE( sm );
+    // causes deactivation of SM:
+    runState( "x", tc, true, 1000, false);//without trace
+    BOOST_CHECK( !sm->isActive() );
+    // causes deactivation of SM:
+    runState( "x", tc, true, 1000, true);//with trace
+    BOOST_CHECK( !sm->isActive() );
+}
+
+BOOST_AUTO_TEST_CASE( testSelfDeactivatingStateMachineinExit )
+{
+    string prog = string("StateMachine X {\n")
+        + " initial state INIT {\n"
+        + "  exit{\n"
+        + "   try scripting.deactivateStateMachine(\"x\")\n"
+        + "  }\n"
+        + " transitions {select FINI} \n"
+        + " }\n"
+        + " final state FINI {\n"
+        + " }\n"
+        + "}\n"
+        + "RootMachine X x()\n";
+    this->parseState( prog, tc );
+    StateMachinePtr sm = sa->getStateMachine("x");
+    BOOST_REQUIRE( sm );
+    // causes deactivation of SM:
+    runState( "x", tc, false);//without trace
+    BOOST_CHECK( !sm->isActive() );
+    // causes deactivation of SM:
+    runState( "x", tc, true);//with trace
+    BOOST_CHECK( !sm->isActive() );
+}
+
+BOOST_AUTO_TEST_CASE( testSelfDeactivatingStateMachineinTransition )
+{
+    string prog = string("StateMachine X {\n")
+        + " initial state INIT {\n"
+        + "  transition if true then {\n"
+        + "   scripting.deactivateStateMachine(\"x\")\n"
+        + "  }select FINI \n"
+        + " }\n"
+        + " final state FINI {\n"
+        + " }\n"
+        + "}\n"
+        + "RootMachine X x()\n";
+    this->parseState( prog, tc );
+    StateMachinePtr sm = sa->getStateMachine("x");
+    BOOST_REQUIRE( sm );
+    // causes deactivation of SM:
+    runState( "x", tc, true, 1000, false);//without trace
+    BOOST_CHECK( !sm->isActive() );
+    // causes deactivation of SM:
+    runState( "x", tc, true, 1000, true);//with trace
+    BOOST_CHECK( !sm->isActive() );
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 void StateTest::doState(  const std::string& name, const std::string& prog, TaskContext* tc, bool test, int runs )
@@ -1709,11 +1828,11 @@ void StateTest::parseState(const std::string& prog, TaskContext* tc, bool test )
     }
 }
 
-void StateTest::runState(const std::string& name, TaskContext* tc, bool test, int runs )
+void StateTest::runState(const std::string& name, TaskContext* tc, bool test, int runs, bool trace )
 {
     StateMachinePtr sm = sa->getStateMachine(name);
     BOOST_REQUIRE( sm );
-    sm->trace(true);
+    sm->trace(trace);
     OperationCaller<bool(StateMachine*)> act = tc->provides(name)->getOperation("activate");
     OperationCaller<bool(StateMachine*)> autom = tc->provides(name)->getOperation("automatic");
     BOOST_CHECK( act(sm.get()) );
