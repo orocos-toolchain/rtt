@@ -1353,8 +1353,8 @@
             Both the transition programs and the the select statements
             are optional, but at least a program or select statement
             must be given. The <programlisting>  transition x_in_port(d) if (d >1.3) then {
-	    </programlisting> short notation statement is equivalent to writing:
-	    <programlisting>  transition if ( x_in_port(d) == NewData &amp;&amp; d >1.3) then {...
+	    </programlisting> short notation statement is equivalent to writing (NOTE: the added .read(d) part) :
+	    <programlisting>  transition if ( x_in_port.read(d) == NewData &amp;&amp; d >1.3) then {...
 	    </programlisting>
 	  </para>
 	  <important>
@@ -1365,7 +1365,7 @@
 	      will give all transitions a chance to see the NewData return
 	      value. If a user would use the long form, only the first
 	      transition statement would see NewData, all the others
-	      would see OldData as return value. Hence the short
+	      would see OldData as return value. In this case, the short
 	      notation is prefered.
 	    </para>
 	  </important>
@@ -1389,10 +1389,28 @@
 	    Event transitions are enabled after the entry program and
 	    before the exit program (also in automatic mode).  All events
 	    are processed in a state until the first event that leads
-	    to a valid state transition. In the mean time, the run program
-	    or handle programs may continue, but will be interrupted if an
-	    event occurs. The event transition program and/or exit program
-	    may or must thus perform the necessary cleanup.
+	    to a valid state transition. In the mean time, the run 
+	    or handle program may continue, but will be interrupted
+			in a yield statement if an event leads to a transition. 
+			Run or handle programs without yield will be allowed to 
+			finish normally, before the transition is taken.
+	  </para>
+	</section>
+	<section>
+	  <title>Reacting to level events on Ports</title>
+	  <para>
+			Another pattern of using ports to handle events, is to
+			implement level events instead of edge events as seen above.
+			The syntax for level events shows that the port must be read
+			out in the if statement, as a normal port read:
+	  </para>
+	  <programlisting>  transition if (robotState.read(robot_state) != NoData &amp;&amp; Robot.STATE_SAFE == robot_state) select SAFE;
+		</programlisting>
+	  <para>
+			The example above shows reading a robotState port and storing the
+			result in the robot_state variable. The transition then checks if
+			the robot_state variable is equal to the defined STATE_SAFE constant
+			in the Robot peer component.
 	  </para>
 	</section>
 	<section>
