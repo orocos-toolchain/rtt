@@ -600,6 +600,21 @@ namespace RTT
          * regular setActivity() does.
          */
         void forceActivity( base::ActivityInterface* new_act);
+
+        /**
+         * Reimplement this method to influence how writing to
+         * event ports is handled by the component. This
+         * method will be executed in the writer's thread.
+         *
+         * @retval true to indicate that the user callback should be
+         * invoked and trigger the component (the default)
+         * @retval false to ignore the new data and not trigger the
+         * component or invoke a user callback
+         */
+        virtual bool dataOnPortHook( base::PortInterface* port ) {
+            return true;
+        }
+
     private:
 
         typedef std::map< std::string, TaskContext* > PeerMap;

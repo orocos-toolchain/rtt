@@ -424,8 +424,10 @@ namespace RTT
 
     void TaskContext::dataOnPort(PortInterface* port)
     {
-        portqueue->enqueue( port );
-        this->getActivity()->trigger();
+        if ( this->dataOnPortHook(port) && this->isRunning() ) {
+            portqueue->enqueue( port );
+            this->getActivity()->trigger();
+        }
     }
 
     void TaskContext::dataOnPortCallback(InputPortInterface* port, TaskContext::SlotFunction callback) {
