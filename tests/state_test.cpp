@@ -56,10 +56,10 @@ public:
     Operation<void(void)>   v1_event;
     Operation<void(void)>   v2_event;
     Operation<void(void)>   v3_event;
+    Operation<void(double)> c_event;
     OutputPort<double> d_event_source;
     OutputPort<bool>   b_event_source;
     OutputPort<int>    t_event_source;
-    Operation<void(double)> c_event;
     ScriptingService::shared_ptr sa;
 
     RTT::Operation<void(RTT::rt_string)>    setState_op;
