@@ -216,12 +216,6 @@ namespace RTT
          * run this activity. Will not be null.
          */
         virtual os::ThreadInterface* thread() = 0;
-
-        /**
-         * Returns the current RunnableInterface for this
-         */
-        virtual RunnableInterface* getRunner();
-
     };
 
 }}
