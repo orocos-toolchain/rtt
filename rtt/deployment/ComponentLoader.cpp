@@ -768,11 +768,14 @@ RTT::TaskContext *ComponentLoader::loadComponent(const std::string & name, const
     return instance;
 }
 
-bool ComponentLoader::unloadComponent( RTT::TaskContext* tc ) {
+bool ComponentLoader::unloadComponent( RTT::TaskContext* tc, const std::string& name ) {
     if (!tc)
         return false;
     CompList::iterator it;
-    it = comps.find( tc->getName() );
+    if (name.empty())
+        it = comps.find( tc->getName() );
+    else
+        it = comps.find( name );
 
     if ( it != comps.end() ) {
         delete tc;
