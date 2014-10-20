@@ -250,7 +250,6 @@ namespace RTT
             // forward message to master ExecutionEngine if available
             if (mmaster) {
                 bool result = mmaster->process(c);
-                msg_cond.broadcast();
                 return result;
             }
 
@@ -264,6 +263,12 @@ namespace RTT
 
     void ExecutionEngine::waitForMessages(const boost::function<bool(void)>& pred)
     {
+        // forward the call to the master ExecutionEngine which is processing messages for us...
+        if (mmaster) {
+            mmaster->waitForMessages(pred);
+            return;
+        }
+
         if (this->getActivity()->thread()->isSelf())
             waitAndProcessMessages(pred);
         else
@@ -287,8 +292,8 @@ namespace RTT
     void ExecutionEngine::setActivity( base::ActivityInterface* task )
     {
         extras::SlaveActivity *slave_activity = dynamic_cast<extras::SlaveActivity *>(task);
-        if (slave_activity) {
-            ExecutionEngine *master = dynamic_cast<ExecutionEngine *>(slave_activity->getMaster());
+        if (slave_activity && slave_activity->getMaster()) {
+            ExecutionEngine *master = dynamic_cast<ExecutionEngine *>(slave_activity->getMaster()->getRunner());
             setMaster(master);
         } else {
             setMaster(0);
@@ -298,6 +303,12 @@ namespace RTT
 
     void ExecutionEngine::waitForMessagesInternal(boost::function<bool(void)> const& pred)
     {
+        // forward the call to the master ExecutionEngine which is processing messages for us...
+        if (mmaster) {
+            mmaster->waitForMessagesInternal(pred);
+            return;
+        }
+
         if ( pred() )
             return;
         // only to be called from the thread not executing step().
@@ -310,6 +321,12 @@ namespace RTT
 
     void ExecutionEngine::waitAndProcessMessages(boost::function<bool(void)> const& pred)
     {
+        // forward the call to the master ExecutionEngine which is processing messages for us...
+        if (mmaster) {
+            mmaster->waitAndProcessMessages(pred);
+            return;
+        }
+
         while ( !pred() ){
             // may not be called while holding the msg_lock !!!
             this->processMessages();

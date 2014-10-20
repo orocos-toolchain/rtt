@@ -67,4 +67,7 @@ bool ActivityInterface::run(RunnableInterface* _r)
     return true;
 }
 
-
+RunnableInterface* ActivityInterface::getRunner() const
+{
+    return runner;
+}
