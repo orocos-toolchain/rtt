@@ -53,8 +53,12 @@ public:
     bool is_calling, is_sending;
     int cbcount;
 
+    void eventCallback( base::PortInterface* port) {
+        this->trigger(); // call updateHook()
+    }
+
     TheServer(string name) : TaskContext(name), mi1("mi"), mo1("mo"), is_calling(false), is_sending(false), cbcount(0) {
-        ports()->addEventPort( mi1 );
+        ports()->addEventPort( mi1, boost::bind(&TheServer::eventCallback, this, _1) );
         ports()->addPort( mo1 );
         this->createOperationCallerFactories( this );
         ts = corba::TaskContextServer::Create( this, true ); //use-naming

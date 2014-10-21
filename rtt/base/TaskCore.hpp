@@ -275,16 +275,20 @@ namespace RTT
 
         /**
          * Invoke this method to \a execute
-         * the ExecutionEngine and the update() method.
-         * @retval false if this->engine()->getActivity()->execute() == false
+         * the ExecutionEngine and the updateHook() method. This
+         * method is only useful if this TaskCore is a Slave (ie
+         * it doesn't have it's own thread) and is to be called
+         * from the Master.
+         *
+         * @retval false if this->engine()->execute() == false
          * @retval true otherwise.
          */
         virtual bool update();
 
         /**
-         * Invoke this method to \a trigger the thread of this TaskContext to execute
-         * its ExecutionEngine and the update() method.
-         * @retval false if this->engine()->getActivity()->trigger() == false
+         * Invoke this method to \a trigger the thread of this TaskCore to execute
+         * its ExecutionEngine and the updateHook() method asynchronously.
+         * @retval false if this->engine()->trigger() == false
          * @retval true otherwise.
          */
         virtual bool trigger();

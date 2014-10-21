@@ -284,6 +284,8 @@ BOOST_AUTO_TEST_CASE( testTrigger )
     BOOST_CHECK( pertc.trigger() == false );
     BOOST_CHECK( pertc.start() == true );
     BOOST_CHECK( pertc.trigger() == false );
+    usleep(1000*1000); // let it run for 1s
+    BOOST_CHECK( pertc.trigger() == false );
 }
 
 /**

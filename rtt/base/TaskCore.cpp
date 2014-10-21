@@ -89,16 +89,16 @@ namespace RTT {
 
     bool TaskCore::update()
     {
-        if ( !this->engine()->getActivity() )
+        if ( !this->engine() )
             return false;
-        return this->engine()->getActivity()->execute();
+        return this->engine()->execute();
     }
 
     bool TaskCore::trigger()
     {
-        if ( !this->engine()->getActivity() )
+        if ( !this->engine() )
             return false;
-        return this->engine()->getActivity()->trigger();
+        return this->engine()->trigger();
     }
 
     bool TaskCore::configure() {
@@ -271,12 +271,12 @@ namespace RTT {
 
     Seconds TaskCore::getPeriod() const
     {
-        return this->engine()->getActivity() ? this->engine()->getActivity()->getPeriod() : -1.0;
+        return this->engine() ? this->engine()->getPeriod() : -1.0;
     }
 
     bool TaskCore::setPeriod(Seconds s)
     {
-        return this->engine()->getActivity() ? this->engine()->getActivity()->setPeriod(s) : false;
+        return this->engine() ? this->engine()->setPeriod(s) : false;
     }
 
     unsigned TaskCore::getCpuAffinity() const

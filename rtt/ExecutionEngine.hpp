@@ -109,6 +109,37 @@ namespace RTT
         base::TaskCore* getTaskCore() const { return taskc; }
 
         /**
+         * Sets the period at which updateHook() will be called, in seconds.
+         * If s == 0, updateHook() will be called each time trigger() is called.
+         */
+        bool setPeriod(Seconds s);
+
+        /**
+         * Returns the update period of this engine.
+         */
+        Seconds getPeriod() const;
+
+        /**
+         * Invoke this method to \a trigger the thread of this ExecutionEngine to execute
+         * and call the updateHook() method asynchronously.
+         * @retval false if this->engine()->getActivity()->trigger() == false
+         * @retval true otherwise.
+         */
+        bool trigger();
+
+        /**
+         * Invoke this method to \a execute
+         * the updateHook() method synchronously. This
+         * method is only useful if this Engine is a Slave (ie
+         * it doesn't have it's own thread) and is to be called
+         * from the Master.
+         *
+         * @retval false if this->engine()->getActivity()->execute() == false
+         * @retval true otherwise.
+         */
+        bool execute();
+
+        /**
          * Queue and execute (process) a given message. The message is
          * executed in step() or loop() directly after all other
          * queued ActionInterface objects. The constructor parameter
@@ -269,6 +300,16 @@ namespace RTT
          */
         ExecutionEngine *mmaster;
 
+        /**
+         * The period at which the TaskCore's updateHook() must be called.
+         */
+        double update_period;
+
+        /**
+         * When set to true, a next step() will execute runFunctions() and if Running, updateHook() as well.
+         */
+        bool mtrigger, mstopRequested;
+
         void processMessages();
         void processFunctions();
         void processChildren();
@@ -280,6 +321,8 @@ namespace RTT
          * functions of this TaskContext and its children.
          */
         virtual void step();
+
+        virtual void loop();
 
         virtual bool breakLoop();
 
