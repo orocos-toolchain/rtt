@@ -153,6 +153,8 @@ namespace RTT
 #endif
         if (callback)
             mservice->getOwner()->dataOnPortCallback(&port,callback); // the handle will be deleted when the port is removed.
+        else
+            mservice->getOwner()->dataOnPortCallback(&port,boost::bind(&TaskCore::trigger, mservice->getOwner()) ); // default schedules an updateHook()
 
 #ifndef ORO_SIGNALLING_PORTS
         port.signalInterface(true);
