@@ -303,12 +303,6 @@ namespace RTT
 
     void ExecutionEngine::waitForMessagesInternal(boost::function<bool(void)> const& pred)
     {
-        // forward the call to the master ExecutionEngine which is processing messages for us...
-        if (mmaster) {
-            mmaster->waitForMessagesInternal(pred);
-            return;
-        }
-
         if ( pred() )
             return;
         // only to be called from the thread not executing step().
@@ -321,12 +315,6 @@ namespace RTT
 
     void ExecutionEngine::waitAndProcessMessages(boost::function<bool(void)> const& pred)
     {
-        // forward the call to the master ExecutionEngine which is processing messages for us...
-        if (mmaster) {
-            mmaster->waitAndProcessMessages(pred);
-            return;
-        }
-
         while ( !pred() ){
             // may not be called while holding the msg_lock !!!
             this->processMessages();
