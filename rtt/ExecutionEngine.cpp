@@ -242,16 +242,15 @@ namespace RTT
 
     bool ExecutionEngine::process( DisposableInterface* c )
     {
+        // forward message to master ExecutionEngine if available
+        if (mmaster) {
+            return mmaster->process(c);
+        }
+
         if ( c && this->getActivity() ) {
             // We only reject running functions when we're in the FatalError state.
             if (taskc && taskc->mTaskState == TaskCore::FatalError )
                 return false;
-
-            // forward message to master ExecutionEngine if available
-            if (mmaster) {
-                bool result = mmaster->process(c);
-                return result;
-            }
 
             bool result = mqueue->enqueue( c );
             this->getActivity()->trigger();
