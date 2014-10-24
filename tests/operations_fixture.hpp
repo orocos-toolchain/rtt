@@ -66,7 +66,7 @@ public:
     void printNumber(const std::string& what, int n) { cout << "print: " << what << n << endl; }
 
     bool fail() {
-        throw false;
+        throw std::runtime_error("OperationsFixture::fail() called.");
         return true; // should be ignored anyway.
     }
 
@@ -75,7 +75,8 @@ public:
     }
 
     bool assertBool(bool b) {
-        if (!b) throw b;
+        if (!b)
+            throw std::runtime_error("OperationsFixture::assertBool( b ) failed (arg was false).");
         return b;
     }
 
@@ -87,18 +88,19 @@ public:
     {
         if (a != b) {
             cerr << "AssertEqual failed: a != b " << a << " != " << b << "." << endl;
-            throw b;
+            throw std::runtime_error("OperationsFixture::assertEqual( a, b ) failed (a != b).");
         }
         return a == b;
     }
     bool assertMsg( bool b, const std::string& msg) {
         if ( b == false ) {
             cout << "Asserted :" << msg << endl;
-            throw b;
+            throw std::runtime_error("OperationsFixture::assertMsg( b, msg ) faild (b was false).");
         }
         return true; // allow to continue to check other commands.
     }
     int increase() { return ++i;}
+
     void resetI() { i = 0; }
     int getI() const { return i; }
     int i;

@@ -343,13 +343,14 @@ namespace RTT
               typename base::OperationCallerBase<Signature>::shared_ptr ff;
               DataSourceSequence args;
               mutable SendHandle<Signature> sh; // mutable because of get() const
+              mutable bool isqueued;
           public:
               typedef boost::intrusive_ptr<FusedMSendDataSource<Signature> >
                       shared_ptr;
 
               FusedMSendDataSource(typename base::OperationCallerBase<Signature>::shared_ptr g,
                                      const DataSourceSequence& s = DataSourceSequence() ) :
-                  ff(g), args(s)
+                  ff(g), args(s), sh(), isqueued(false)
               {
               }
 
@@ -370,9 +371,16 @@ namespace RTT
 
               value_t get() const
               {
+                  if (isqueued)
+                      return sh;
                   // put the member's object as first since SequenceFactory does not know about the OperationCallerBase type.
                   sh = bf::invoke(&base::OperationCallerBase<Signature>::send, bf::cons<base::OperationCallerBase<Signature>*, typename SequenceFactory::data_type>(ff.get(), SequenceFactory::data(args)));
+                  isqueued = true;
                   return sh;
+              }
+
+              void reset() {
+                  isqueued = false;
               }
 
               virtual FusedMSendDataSource<Signature>* clone() const
@@ -404,7 +412,7 @@ namespace RTT
               // push the SendHandle pointer in front.
               typedef typename CollectType<Signature>::type CollectSignature;
               typedef typename boost::function_types::parameter_types<CollectSignature>::type arg_types;
-              typedef typename mpl::push_front<arg_types, SendHandle<Signature>& >::type handle_and_arg_types;
+              typedef typename mpl::push_front<arg_types, SendHandle<Signature> >::type handle_and_arg_types;
               typedef create_sequence< handle_and_arg_types
                       > SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
