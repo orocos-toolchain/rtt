@@ -106,6 +106,7 @@ module RTT
     {
         CPortType type;
         string   name;
+        string   description;
         string   type_name;
     };
 

@@ -67,6 +67,7 @@
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1196
 
 #include "ServiceI.h"
+#include "CorbaLib.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;
@@ -117,29 +118,82 @@ char * RTT_corba_CService_i::getServiceDescription (
 ::RTT::corba::CService_ptr RTT_corba_CService_i::getService (
     const char * service_name)
 {
-    Service::shared_ptr provider = mservice->getService(service_name);
+    std::string svc(service_name);
+    if ( svc == "this" )
+        return _this();
+
+    Service::shared_ptr provider = mservice->getService(svc);
     if ( !provider )
     	return RTT::corba::CService::_nil();
 
-    // check for existing service
-    for(Servants::iterator it = mservs.begin(); it != mservs.end(); ++it) {
-    	CORBA::String_var sname = it->first->getName();
-    	if ( sname.in() == service_name )
-    		return  RTT::corba::CService::_duplicate( it->first.in() );
+    // Creates service requester
+    if ( mservs.find(svc) == mservs.end() ) {
+        log(Debug) << "Creating CService for "<< service_name <<endlog();
+
+        RTT_corba_CService_i* serv_i;
+        RTT::corba::CService_ptr serv;
+        serv_i = new RTT_corba_CService_i( provider, mpoa );
+        serv = serv_i->activate_this();
+        mservs[svc] = std::pair<RTT::corba::CService_var,PortableServer::ServantBase_var>(serv, serv_i);
     }
-    // not found: new service
-    
-    RTT_corba_CService_i* serv_i;
-    RTT::corba::CService_var serv;
-    serv_i = new RTT_corba_CService_i( provider, mpoa );
-    serv = serv_i->activate_this();
-    mservs.push_back( std::pair<RTT::corba::CService_var,PortableServer::ServantBase_var>( RTT::corba::CService::_duplicate(serv.in()), serv_i ) );
-    //CService_i::registerServant(serv, mtask->provides(service_name));
-    return RTT::corba::CService::_duplicate( serv.in() );
+    // Now return it.
+    return RTT::corba::CService::_duplicate( mservs[svc].first.in() );
 }
 
 ::CORBA::Boolean RTT_corba_CService_i::hasService (
     const char * name)
 {
     return mservice->hasService( name );
+}
+
+::RTT::corba::CServiceDescription * RTT_corba_CService_i::getCServiceDescription (
+    void)
+{
+    ::RTT::corba::CServiceDescription_var d = new ::RTT::corba::CServiceDescription;
+    unsigned int j = 0;
+
+    d->name = getName();
+    d->description = getServiceDescription();
+
+    ::RTT::corba::COperationInterface::COperationList_var operations = getOperations();
+    d->operations = operations;
+
+    ::RTT::corba::CDataFlowInterface::CPortDescriptions_var ports = getPortDescriptions();
+    d->ports = ports;
+
+    ::RTT::corba::CConfigurationInterface::CPropertyNames_var properties = getPropertyList();
+    d->properties = properties;
+
+    ::RTT::corba::CConfigurationInterface::CAttributeNames_var attributes = getAttributeList();
+    d->attributes = attributes;
+
+    // Child services
+    Service::ProviderNames providers = mservice->getProviderNames();
+    d->children.length( providers.size() );
+    d->children_descriptions.length( providers.size() );
+    j = 0;
+    for (unsigned int i=0; i != providers.size(); ++i )
+    {
+        if (providers[i] == "this") continue;
+
+        // omit PortObject services
+        if (mservice->getPort(providers[i])) continue;
+
+        ::RTT::corba::CService_ptr provider = getService(providers[i].c_str());
+        Servants::const_iterator it = mservs.find(providers[i]);
+        if (it != mservs.end()) {
+            RTT_corba_CService_i *child = dynamic_cast<RTT_corba_CService_i *>(it->second.second.in());
+            if (child) {
+                ::RTT::corba::CServiceDescription_var child_description = child->getCServiceDescription();
+                d->children[j] = provider;
+                d->children_descriptions[j] = child_description;
+                j++;
+            }
+            break;
+        }
+    }
+    d->children.length(j); // set real size
+    d->children_descriptions.length(j); // set real size
+
+    return d._retn();
 }
