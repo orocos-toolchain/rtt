@@ -43,6 +43,7 @@
 #include "CommandComposite.hpp"
 #include "CommandBinary.hpp"
 #include "CallFunction.hpp"
+#include "CmdFunction.hpp"
 #include "ConditionComposite.hpp"
 #include "TryCommand.hpp"
 #include <sstream>
@@ -121,7 +122,14 @@ namespace RTT {
                       const std::vector<DataSourceBase::shared_ptr>& args
                       , ExecutionEngine* caller
                       ) const {
+            bool issend = false;
+            return produceHelper(args, caller, issend);
+        }
 
+            DataSourceBase::shared_ptr FunctionFactory::produceHelper(
+                          const std::vector<DataSourceBase::shared_ptr>& args
+                          , ExecutionEngine* caller, bool issend
+                          ) const {
             // check if correct number of args :
             boost::shared_ptr<ProgramInterface> orig = func;
             std::vector<AttributeBase*> origlist = orig->getArguments();
@@ -166,32 +174,34 @@ namespace RTT {
             // the args of the copy can now safely be removed (saves memory):
             //fcopy->clearArguments();
 
-            // the command gets ownership of the new function :
-            // this command is a DataSourceBase...
-            AttributeBase* ar= fcopy->getResult();
             if (!caller)
                 caller = GlobalEngine::Instance();
-            if (ar)
-                return ar->getDataSource()->getTypeInfo()->buildActionAlias( new CallFunction( icom, fcopy, proc, caller ), ar->getDataSource()).get();
-            else // void case, returns result of runFunction (backwards compatibility).
-                return new DataSourceCommand( new CallFunction( icom, fcopy, proc, caller ) );
+            if (issend == false) {
+                // the command gets ownership of the new function :
+                // this command is a DataSourceBase...
+                AttributeBase* ar= fcopy->getResult();
+                if (ar)
+                    return ar->getDataSource()->getTypeInfo()->buildActionAlias( new CallFunction( icom, fcopy, proc, caller ), ar->getDataSource()).get();
+                else // void case, returns result of runFunction (backwards compatibility).
+                    return new DataSourceCommand( new CallFunction( icom, fcopy, proc, caller ) );
+            } else {
+                return new CmdFunction( icom, fcopy, proc, caller );
+            }
         }
 
         base::DataSourceBase::shared_ptr FunctionFactory::produceHandle() const {
-        	throw no_asynchronous_operation_exception("Send not yet implemented for scripting functions.");
-        	return 0;
+        	return new ValueDataSource<SendStatus>(SendNotReady);
         }
         base::DataSourceBase::shared_ptr FunctionFactory::produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller
                                    ) const {
-        	throw no_asynchronous_operation_exception("Send not yet implemented for scripting functions.");
-            return 0;
+        	return produceHelper(args, caller, true);
         }
         base::DataSourceBase::shared_ptr FunctionFactory::produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, DataSource<bool>::shared_ptr blocking
                                    ) const {
-            if (args.size() != 2) {
-                log(Error) <<"Invalid number of arguments. Script functions can only collect the return value." <<endlog();
+            if (args.size() >= 1) {
+                return args[0]; // returns the original CmdFunction. Ignore the rest for now.
             }
-        	throw no_asynchronous_operation_exception("Send not yet implemented for scripting functions.");
+            log(Error) <<"FunctionFactory: Must provide an argument in produceCollect." <<endlog();
             return 0;
         }
 #ifdef ORO_SIGNALLING_OPERATIONS

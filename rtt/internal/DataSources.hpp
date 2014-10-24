@@ -532,7 +532,6 @@ namespace RTT
                 // call alias->get() with alias->evaluate().
                 action->readArguments();
                 bool r = action->execute();
-                action->reset();
                 // alias may only be evaluated after action was executed.
                 alias->evaluate();
                 return r;
@@ -542,7 +541,6 @@ namespace RTT
             {
                 action->readArguments();
                 action->execute();
-                action->reset();
                 return alias->get();
             }
 
@@ -556,7 +554,7 @@ namespace RTT
                 return alias->rvalue();
             }
 
-            virtual void reset() { alias->reset(); }
+            virtual void reset() { action->reset(); alias->reset(); }
 
             virtual ActionAliasDataSource<T>* clone() const {
                 return new ActionAliasDataSource(action, alias.get());
@@ -592,7 +590,6 @@ namespace RTT
                     // call alias->get() with alias->evaluate().
                     action->readArguments();
                     bool r = action->execute();
-                    action->reset();
                     // alias may only be evaluated after action was executed.
                     alias->evaluate();
                     return r;
@@ -602,7 +599,6 @@ namespace RTT
                 {
                     action->readArguments();
                     action->execute();
-                    action->reset();
                     return alias->get();
                 }
 
@@ -625,7 +621,7 @@ namespace RTT
                     return alias->rvalue();
                 }
 
-                virtual void reset() { alias->reset(); }
+                virtual void reset() { action->reset(); alias->reset(); }
 
                 virtual ActionAliasAssignableDataSource<T>* clone() const {
                     return new ActionAliasAssignableDataSource(action, alias.get());

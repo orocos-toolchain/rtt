@@ -59,6 +59,11 @@ namespace RTT
     {
         ProgramInterfacePtr func;
         ExecutionEngine* proc;
+
+        base::DataSourceBase::shared_ptr produceHelper(
+                      const std::vector<base::DataSourceBase::shared_ptr>& args
+                      , ExecutionEngine* caller, bool issend
+                      ) const;
     public:
         FunctionFactory(ProgramInterfacePtr func, ExecutionEngine* procs);
 

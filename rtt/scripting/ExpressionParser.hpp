@@ -66,10 +66,11 @@ namespace RTT { namespace scripting
   {
     base::DataSourceBase::shared_ptr ret;
     boost::shared_ptr<base::AttributeBase> mhandle;
+    ConditionInterface* mcmdcnd;
     std::string mobject;
     std::string mmethod;
     ExecutionEngine* mcaller;
-    bool mis_send;
+    bool mis_send, mis_cmd;
 
     rule_t datacall, arguments, peerpath, object, method;
 
@@ -77,7 +78,7 @@ namespace RTT { namespace scripting
     void seenobjectname( iter_t begin, iter_t end );
     void seendataname();
     void seendatacall();
-    void seensend();
+
     CommonParser& commonparser;
     ExpressionParser& expressionparser;
     PeerParser peerparser;
@@ -94,6 +95,10 @@ namespace RTT { namespace scripting
     base::DataSourceBase* getParseResult()
       {
         return ret.get();
+      }
+    ConditionInterface* getParseCmdResult()
+      {
+        return mcmdcnd;
       }
     boost::shared_ptr<base::AttributeBase> getParseHandle()
       {
@@ -159,6 +164,8 @@ namespace RTT { namespace scripting
      */
     boost::shared_ptr<base::AttributeBase> mhandle;
 
+    ConditionInterface* mcmdcnd;
+
     // the name that was parsed as the object to use a certain
     // data of..
     std::string mobjectname;
@@ -201,6 +208,7 @@ namespace RTT { namespace scripting
     rule_t& parser();
 
     base::DataSourceBase::shared_ptr getResult();
+    ConditionInterface* getCmdResult();
 
     /**
      * In case the parsed result returns a SendHandle,
