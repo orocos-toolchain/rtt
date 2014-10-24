@@ -371,6 +371,7 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerDFI.ior");
 
+    BOOST_REQUIRE(tp);
     corba::CDataFlowInterface_var ports = tp->server()->ports();
 
     corba::CDataFlowInterface::CPortNames_var names =
@@ -398,6 +399,8 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     tp = corba::TaskContextProxy::Create( "peerPC", /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerPC.ior");
+
+    BOOST_REQUIRE(tp);
 
     s = tp->server();
     // server to our own tc.
@@ -488,6 +491,8 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerPP.ior");
 
+    BOOST_REQUIRE(tp);
+
     base::PortInterface* untyped_port;
 
     untyped_port = tp->ports()->getPort("mi");
@@ -551,6 +556,8 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
     tp = corba::TaskContextProxy::Create( "peerDH" , /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerDH.ior");
+
+    BOOST_REQUIRE(tp);
 
     s = tp->server();
 
@@ -618,6 +625,8 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     tp = corba::TaskContextProxy::Create( "peerBH" , /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerBH.ior");
+
+    BOOST_REQUIRE(tp);
 
     s = tp->server();
 
