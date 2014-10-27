@@ -135,11 +135,15 @@ class  RTT_corba_COperationInterface_i
   virtual ~RTT_corba_COperationInterface_i (void);
 
   virtual
-  RTT::corba::COperationInterface::COperationList * getOperations (
+  RTT::corba::COperationInterface::COperationDescriptions * getOperations (
       void);
 
   virtual
-  ::RTT::corba::CDescriptions * getArguments (
+  ::RTT::corba::CArgumentDescriptions * getArguments (
+      const char * operation);
+
+  virtual
+  ::RTT::corba::CTypeList * getCollectTypes (
       const char * operation);
 
   virtual
