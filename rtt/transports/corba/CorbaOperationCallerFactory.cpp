@@ -50,20 +50,34 @@ using namespace std;
 using namespace RTT;
 using namespace RTT::detail;
 
-CorbaOperationCallerFactory::CorbaOperationCallerFactory( const std::string& method_name, corba::CService_ptr fact, PortableServer::POA_ptr the_poa )
+CorbaOperationCallerFactory::CorbaOperationCallerFactory(const std::string &method_name, corba::CService_ptr fact, PortableServer::POA_ptr the_poa )
     : RTT::OperationInterfacePart(),
       mfact(corba::CService::_duplicate(fact) ),
       mpoa(PortableServer::POA::_duplicate(the_poa)),
       method(method_name)
 {}
 
+CorbaOperationCallerFactory::CorbaOperationCallerFactory(const COperationInterface::COperation &operation, corba::CService_ptr fact, PortableServer::POA_ptr the_poa )
+    : RTT::OperationInterfacePart(),
+      mfact(corba::CService::_duplicate(fact) ),
+      mpoa(PortableServer::POA::_duplicate(the_poa)),
+      method(operation.name.in()),
+      mdescription(new COperationInterface::COperation(operation))
+{}
+
 CorbaOperationCallerFactory::~CorbaOperationCallerFactory() {}
 
 unsigned int CorbaOperationCallerFactory::arity()  const {
+    if (mdescription)
+        return mdescription->arity;
+
     return mfact->getArity( method.c_str() );
 }
 
 unsigned int CorbaOperationCallerFactory::collectArity()  const {
+    if (mdescription)
+        return mdescription->collect_arity;
+
     return mfact->getCollectArity( method.c_str() );
 }
 
@@ -111,6 +125,9 @@ std::string CorbaOperationCallerFactory::getName() const {
 }
 
 std::string CorbaOperationCallerFactory::description() const {
+    if (mdescription)
+        return mdescription->description.in();
+
     try {
         CORBA::String_var result = mfact->getDescription( method.c_str() );
         return std::string( result.in() );
@@ -121,6 +138,7 @@ std::string CorbaOperationCallerFactory::description() const {
 }
 
 std::vector< ArgumentDescription > CorbaOperationCallerFactory::getArgumentList() const {
+    corba::CDescriptions_var result;
     CDescriptions ret;
     try {
         corba::CDescriptions_var result = mfact->getArguments( method.c_str() );
@@ -223,7 +241,8 @@ public:
         unsigned int v=0;
         for (vector<DataSourceBase::shared_ptr>::iterator it = argcopy.begin(); it != argcopy.end(); ++it, ++v)
             argcopy[v] = (*it)->copy(alreadyCloned);
-        return new CorbaOperationCallerCall(CService::_duplicate( mfact.in() ), mop, argcopy, mcaller, mctt, mresult->copy(alreadyCloned), mdocall, moneway);
+        DataSourceBase::shared_ptr result = mresult ? mresult->copy(alreadyCloned) : 0;
+        return new CorbaOperationCallerCall(CService::_duplicate( mfact.in() ), mop, argcopy, mcaller, mctt, result, mdocall, moneway);
     }
 };
 
@@ -246,7 +265,12 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produce(const std:
         // will throw if wrong args.
         mfact->checkOperation(method.c_str(), nargs.in() );
         // convert returned any to local type:
-        const types::TypeInfo* ti = this->getArgumentType(0);
+        const types::TypeInfo* ti = 0;
+        if (mdescription && mdescription->return_type.in()) {
+            ti = Types()->type( mdescription->return_type.in() );
+        } else {
+            ti = this->getArgumentType(0);
+        }
         if ( ti ) {
             if ( ti != Types()->type("void") ) {
                 // create a method call object and a return value and let the former store results in the latter.
@@ -290,7 +314,7 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceSend(const 
         mfact->checkOperation(method.c_str(), nargs.inout() );
         // Will return a CSendHandle_var:
         DataSource<CSendHandle_var>::shared_ptr result = new ValueDataSource<CSendHandle_var>();
-        bool oneway = (mfact->getCollectArity(method.c_str()) == 0);
+        bool oneway = (mdescription && mdescription->send_oneway);
         return new ActionAliasDataSource<CSendHandle_var>(new CorbaOperationCallerCall(mfact.in(),method,args,caller, 0, result, false, oneway), result.get() );
     } catch ( corba::CNoSuchNameException& nsn ) {
         throw  name_not_found_exception( nsn.name.in() );
@@ -383,7 +407,12 @@ public:
 
 
 base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking) const {
-    unsigned int expected = mfact->getCollectArity(method.c_str());
+    unsigned int expected = 0;
+    if (mdescription)
+        expected = mdescription->collect_arity;
+    else
+        expected = mfact->getCollectArity(method.c_str());
+
     if (args.size() !=  expected + 1) {
         throw wrong_number_of_args_exception( expected + 1, args.size() );
     }

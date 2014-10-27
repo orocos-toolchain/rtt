@@ -125,7 +125,17 @@ module RTT
      */
     interface COperationInterface
     {
-	typedef sequence<string> COperationList;
+      struct COperation
+      {
+        string name;
+        string description;
+        unsigned short arity;
+        unsigned short collect_arity;
+        boolean send_oneway;
+        string return_type;
+      };
+
+      typedef sequence<COperation> COperationList;
 
       /**
        * Get a list of all operations.
