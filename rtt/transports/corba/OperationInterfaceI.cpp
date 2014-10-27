@@ -239,7 +239,17 @@ RTT_corba_COperationInterface_i::~RTT_corba_COperationInterface_i (void)
     size_t drops=0;
     for (size_t i=0; i != flist.size(); ++i)
         if ( !mfact->isSynchronous(flist[i]) ) {
-            rlist[i - drops] = CORBA::string_dup( flist[i].c_str() );
+            RTT::OperationInterfacePart *op = mfact->getPart(flist[i]);
+            rlist[i - drops].name = CORBA::string_dup( flist[i].c_str() );
+            rlist[i - drops].description = CORBA::string_dup( op->description().c_str() );
+            rlist[i - drops].arity = op->arity();
+            rlist[i - drops].collect_arity = op->collectArity();
+            rlist[i - drops].send_oneway = (op->collectArity() == 0);
+            const RTT::types::TypeInfo *return_type = op->getArgumentType(0);
+            if (return_type) {
+                rlist[i - drops].return_type = CORBA::string_dup( return_type->getTypeName().c_str() );
+            }
+
         } else {
             ++drops;
         }

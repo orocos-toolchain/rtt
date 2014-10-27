@@ -165,8 +165,8 @@ namespace RTT
                     throw NonExistingDataSource();
                 if ( !misproperty && ( !mserv->hasAttribute( name.c_str())  || !mserv->isAttributeAssignable( name.c_str()) ))
                     throw NonExistingDataSource();
-#endif
                 this->get(); // initialize such that value()/rvalue() return a sane value !
+#endif
             }
 
             typename internal::DataSource<T>::result_t value() const {

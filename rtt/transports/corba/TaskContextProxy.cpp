@@ -230,10 +230,10 @@ namespace RTT
         // methods:
         log(Debug) << "Synchronizing Operations."<<endlog();
         for ( size_t i=0; i < cdescription.operations.length(); ++i) {
-            if ( parent->hasMember( string(cdescription.operations[i].in() )))
+            if ( parent->hasMember( string(cdescription.operations[i].name.in() )))
                 continue; // already added.
-            log(Debug) << "Providing operation: "<< cdescription.operations[i].in() <<endlog();
-            parent->add( cdescription.operations[i].in(), new CorbaOperationCallerFactory( cdescription.operations[i].in(), serv, ProxyPOA() ) );
+            log(Debug) << "Providing operation: "<< cdescription.operations[i].name.in() <<endlog();
+            parent->add( cdescription.operations[i].name.in(), new CorbaOperationCallerFactory( cdescription.operations[i], serv, ProxyPOA() ) );
         }
 
         // first do properties:
@@ -280,10 +280,12 @@ namespace RTT
         for (size_t i=0; i != cdescription.attributes.length(); ++i) {
             if ( parent->hasAttribute( string(cdescription.attributes[i].name.in()) ) )
                 continue; // previously added.
+#if 0
             if ( !serv->hasAttribute( cdescription.attributes[i].name.in() ) ) {
                 log(Error) <<"Attribute '"<< string(cdescription.attributes[i].name.in()) << "' present in getAttributeList() but not accessible."<<endlog();
                 continue;
             }
+#endif
             // If the type is known, immediately build the correct attribute and datasource,
             TypeInfo* ti = TypeInfoRepository::Instance()->type( cdescription.attributes[i].type_name.in() );
             if ( ti && ti->hasProtocol(ORO_CORBA_PROTOCOL_ID) ) {
@@ -291,7 +293,7 @@ namespace RTT
                 CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>(ti->getProtocol(ORO_CORBA_PROTOCOL_ID));
                 assert(ctt);
                 // this function should check itself for const-ness of the remote Attribute:
-                DataSourceBase::shared_ptr ds = ctt->createAttributeDataSource( serv, cdescription.attributes[i].name.in() );
+                DataSourceBase::shared_ptr ds = ctt->createAttributeDataSource( serv, cdescription.attributes[i].name.in(), cdescription.attributes[i].assignable );
                 if ( cdescription.attributes[i].assignable )
                     parent->setValue( ti->buildAttribute( cdescription.attributes[i].name.in(), ds));
                 else

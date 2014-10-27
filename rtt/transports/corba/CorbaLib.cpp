@@ -141,7 +141,7 @@ namespace RTT {
               return base::DataSourceBase::shared_ptr( );
           }
 
-          virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CService_ptr serv, const std::string& vname) {
+          virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CService_ptr serv, const std::string& vname, bool) {
               CORBA::String_var tname = serv->getAttributeTypeName( CORBA::string_dup( vname.c_str()));
               log(Warning) << "Corba: Remote attribute '"<< vname << "' has unknown type " << tname.in()  << endlog();
               return base::DataSourceBase::shared_ptr( );

@@ -168,7 +168,7 @@ char * RTT_corba_CServiceRequester_i::getRequestName (
     }
 
     // creates a local factory for this remote method.
-    OperationInterfacePart* tmp = new CorbaOperationCallerFactory(oname,svc, mpoa.in() );
+    OperationInterfacePart* tmp = new CorbaOperationCallerFactory(oname, svc, mpoa.in() );
     return mservice->getOperationCaller(oname)->setImplementationPart( tmp, mservice->getServiceOwner()->engine() );
 }
 

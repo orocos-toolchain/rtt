@@ -65,12 +65,15 @@ namespace RTT
         corba::CService_var mfact;
         PortableServer::POA_var mpoa;
         std::string method;
+        boost::shared_ptr<COperationInterface::COperation const> mdescription;
     public:
         typedef std::vector<base::DataSourceBase::shared_ptr> CArguments;
         typedef std::vector<std::string> Members;
         typedef std::vector< ArgumentDescription > CDescriptions;
 
         CorbaOperationCallerFactory( const std::string& method_name, corba::CService_ptr fact, PortableServer::POA_ptr the_poa );
+
+        CorbaOperationCallerFactory( const COperationInterface::COperation& operation, corba::CService_ptr fact, PortableServer::POA_ptr the_poa );
 
         virtual ~CorbaOperationCallerFactory();
 
