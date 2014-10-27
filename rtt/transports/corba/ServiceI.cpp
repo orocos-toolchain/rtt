@@ -155,7 +155,7 @@ char * RTT_corba_CService_i::getServiceDescription (
     d->name = getName();
     d->description = getServiceDescription();
 
-    ::RTT::corba::COperationInterface::COperationList_var operations = getOperations();
+    ::RTT::corba::COperationInterface::COperationDescriptions_var operations = getOperations();
     d->operations = operations;
 
     ::RTT::corba::CDataFlowInterface::CPortDescriptions_var ports = getPortDescriptions();

@@ -229,10 +229,10 @@ RTT_corba_COperationInterface_i::~RTT_corba_COperationInterface_i (void)
 {
 }
 
-::RTT::corba::COperationInterface::COperationList * RTT_corba_COperationInterface_i::getOperations (
+::RTT::corba::COperationInterface::COperationDescriptions * RTT_corba_COperationInterface_i::getOperations (
     void)
 {
-    RTT::corba::COperationInterface::COperationList_var rlist = new RTT::corba::COperationInterface::COperationList();
+    RTT::corba::COperationInterface::COperationDescriptions_var rlist = new RTT::corba::COperationInterface::COperationDescriptions();
 
     vector<string> flist = mfact->getNames();
     rlist->length( flist.size() );
@@ -242,13 +242,12 @@ RTT_corba_COperationInterface_i::~RTT_corba_COperationInterface_i (void)
             RTT::OperationInterfacePart *op = mfact->getPart(flist[i]);
             rlist[i - drops].name = CORBA::string_dup( flist[i].c_str() );
             rlist[i - drops].description = CORBA::string_dup( op->description().c_str() );
-            rlist[i - drops].arity = op->arity();
-            rlist[i - drops].collect_arity = op->collectArity();
+            ::RTT::corba::CArgumentDescriptions_var arguments = getArguments( flist[i].c_str() );
+            rlist[i - drops].arguments = arguments;
+            ::RTT::corba::CTypeList_var collect_types = getCollectTypes( flist[i].c_str() );
+            rlist[i - drops].collect_types = collect_types;
+            rlist[i - drops].result_type = CORBA::string_dup( mfact->getResultType(flist[i]).c_str() );
             rlist[i - drops].send_oneway = (op->collectArity() == 0);
-            const RTT::types::TypeInfo *return_type = op->getArgumentType(0);
-            if (return_type) {
-                rlist[i - drops].return_type = CORBA::string_dup( return_type->getTypeName().c_str() );
-            }
 
         } else {
             ++drops;
@@ -257,10 +256,10 @@ RTT_corba_COperationInterface_i::~RTT_corba_COperationInterface_i (void)
     return rlist._retn();
 }
 
-::RTT::corba::CDescriptions * RTT_corba_COperationInterface_i::getArguments (
+::RTT::corba::CArgumentDescriptions * RTT_corba_COperationInterface_i::getArguments (
     const char * operation)
 {
-    CDescriptions_var ret = new CDescriptions();
+    CArgumentDescriptions_var ret = new CArgumentDescriptions();
     if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)))
         throw ::RTT::corba::CNoSuchNameException( operation );
     // operation found, convert args:
@@ -270,6 +269,22 @@ RTT_corba_COperationInterface_i::~RTT_corba_COperationInterface_i (void)
         ret[i].name = CORBA::string_dup( args[i].name.c_str() );
         ret[i].description = CORBA::string_dup( args[i].description.c_str() );
         ret[i].type = CORBA::string_dup( args[i].type.c_str() );
+    }
+    return ret._retn();
+}
+
+::RTT::corba::CTypeList * RTT_corba_COperationInterface_i::getCollectTypes (
+    const char * operation)
+{
+    ::RTT::corba::CTypeList_var ret = new ::RTT::corba::CTypeList();
+    OperationInterfacePart *part = mfact->getPart( string(operation) );
+    if ( !part || mfact->isSynchronous(string(operation)))
+        throw ::RTT::corba::CNoSuchNameException( operation );
+
+    // operation found, convert args:
+    ret->length( part->collectArity() );
+    for (size_t i = 0; i != part->collectArity(); ++i) {
+        ret[i] = CORBA::string_dup( part->getCollectType(i+1)->getTypeName().c_str() );
     }
     return ret._retn();
 }

@@ -27,7 +27,7 @@ module RTT
     {
         string name;
         string description;
-        COperationInterface::COperationList operations;
+        COperationInterface::COperationDescriptions operations;
         CConfigurationInterface::CPropertyNames properties;
         CConfigurationInterface::CAttributeNames attributes;
         CDataFlowInterface::CPortDescriptions ports;

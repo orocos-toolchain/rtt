@@ -10,7 +10,7 @@ module RTT
 {
   module corba
   {
-      typedef sequence<any> CAnyArguments;
+    typedef sequence<any> CAnyArguments;
 
     /**
      * When querying an operation for
@@ -24,8 +24,20 @@ module RTT
       string type;        //! Qualified type
     };
 
-    typedef sequence<CArgumentDescription> CDescriptions;
-    
+    typedef sequence<CArgumentDescription> CArgumentDescriptions;
+
+    typedef sequence<string> CTypeList;
+
+    struct COperation
+    {
+      string name;
+      string description;
+      CArgumentDescriptions arguments;
+      CTypeList collect_types;
+      string result_type;
+      boolean send_oneway;
+    };
+
     /**
      * Is thrown when a wrong argument number is queried.
      */
@@ -125,27 +137,18 @@ module RTT
      */
     interface COperationInterface
     {
-      struct COperation
-      {
-        string name;
-        string description;
-        unsigned short arity;
-        unsigned short collect_arity;
-        boolean send_oneway;
-        string return_type;
-      };
-
-      typedef sequence<COperation> COperationList;
+      typedef sequence<string> COperationList;
+      typedef sequence<COperation> COperationDescriptions;
 
       /**
        * Get a list of all operations.
        */
-      COperationList getOperations();
+      COperationDescriptions getOperations();
 
       /**
        * Get a list of all arguments of a given operation.
        */
-      CDescriptions getArguments(in string operation) raises (CNoSuchNameException);
+      CArgumentDescriptions getArguments(in string operation) raises (CNoSuchNameException);
 
       /**
        * Returns the number of arguments required in callOperation() and sendOperation() for

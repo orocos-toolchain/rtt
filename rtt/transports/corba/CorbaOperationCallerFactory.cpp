@@ -57,60 +57,87 @@ CorbaOperationCallerFactory::CorbaOperationCallerFactory(const std::string &meth
       method(method_name)
 {}
 
-CorbaOperationCallerFactory::CorbaOperationCallerFactory(const COperationInterface::COperation &operation, corba::CService_ptr fact, PortableServer::POA_ptr the_poa )
+CorbaOperationCallerFactory::CorbaOperationCallerFactory(const COperation &operation, corba::CService_ptr fact, PortableServer::POA_ptr the_poa )
     : RTT::OperationInterfacePart(),
       mfact(corba::CService::_duplicate(fact) ),
       mpoa(PortableServer::POA::_duplicate(the_poa)),
       method(operation.name.in()),
-      mdescription(new COperationInterface::COperation(operation))
+      mdescription(new COperation(operation))
 {}
 
 CorbaOperationCallerFactory::~CorbaOperationCallerFactory() {}
 
 unsigned int CorbaOperationCallerFactory::arity()  const {
     if (mdescription)
-        return mdescription->arity;
+        return mdescription->arguments.length();
 
     return mfact->getArity( method.c_str() );
 }
 
 unsigned int CorbaOperationCallerFactory::collectArity()  const {
     if (mdescription)
-        return mdescription->collect_arity;
+        return mdescription->collect_types.length();
 
     return mfact->getCollectArity( method.c_str() );
 }
 
 const TypeInfo* CorbaOperationCallerFactory::getArgumentType(unsigned int i) const {
-    try {
-        CORBA::String_var tname = mfact->getArgumentType( method.c_str(), i);
-        if ( Types()->type( tname.in() ) != 0 )
-            return Types()->type( tname.in() );
-        // locally unknown type:
-        if (i == 0)
-            log(Warning) << "CorbaOperationCallerFactory: remote operation's "<< method <<" return type " << tname.in() << " is unknown in this process." << endlog();
-        else
-            log(Warning) << "CorbaOperationCallerFactory: remote operation's "<< method <<" argument "<< i <<" of type " << tname.in() << " is unknown in this process." << endlog();
-    } catch ( CNoSuchNameException& ) {
-        assert(false);
+    std::string tname;
+
+    if (mdescription) {
+        if (i == 0) {
+            tname = mdescription->result_type.in();
+        } else if (i <= mdescription->arguments.length()) {
+            tname = mdescription->arguments[i-1].type.in();
+        }
+
+    } else {
+        try {
+            tname = mfact->getArgumentType( method.c_str(), i);
+        } catch ( CNoSuchNameException& ) {
+            assert(false);
+        }
+        catch ( CWrongArgumentException& wae){
+            log(Error) << "CorbaOperationCallerFactory::getArgumentType: Wrong arg nbr: " << wae.which_arg <<" max is " << wae.max_arg <<endlog();
+        }
     }
-    catch ( CWrongArgumentException& wae){
-        log(Error) << "CorbaOperationCallerFactory::getArgumentType: Wrong arg nbr: " << wae.which_arg <<" max is " << wae.max_arg <<endlog();
-    }
+
+    if (tname.empty()) return 0;
+
+    if ( Types()->type( tname ) != 0 )
+        return Types()->type( tname );
+    // locally unknown type:
+    if (i == 0)
+        log(Warning) << "CorbaOperationCallerFactory: remote operation's "<< method <<" return type " << tname << " is unknown in this process." << endlog();
+    else
+        log(Warning) << "CorbaOperationCallerFactory: remote operation's "<< method <<" argument "<< i <<" of type " << tname << " is unknown in this process." << endlog();
+
     return 0;
 }
 
 const TypeInfo* CorbaOperationCallerFactory::getCollectType(unsigned int i) const {
-    try {
-        CORBA::String_var tname = mfact->getCollectType( method.c_str(), i);
-        return Types()->type( tname.in() );
-    } catch (...){
-        return 0;
+
+    if (mdescription && i < mdescription->collect_types.length()) {
+        return Types()->type( mdescription->collect_types[i].in() );
+
+    } else {
+
+        try {
+            CORBA::String_var tname = mfact->getCollectType( method.c_str(), i);
+            return Types()->type( tname.in() );
+        } catch (...){
+            return 0;
+        }
     }
+
+    return 0;
 }
 
 
 std::string CorbaOperationCallerFactory::resultType() const {
+    if (mdescription)
+        return mdescription->result_type.in();
+
     try {
         CORBA::String_var result = mfact->getResultType( method.c_str() );
         return std::string( result.in() );
@@ -138,10 +165,10 @@ std::string CorbaOperationCallerFactory::description() const {
 }
 
 std::vector< ArgumentDescription > CorbaOperationCallerFactory::getArgumentList() const {
-    corba::CDescriptions_var result;
-    CDescriptions ret;
+    corba::CArgumentDescriptions_var result;
+    CArgumentDescriptions ret;
     try {
-        corba::CDescriptions_var result = mfact->getArguments( method.c_str() );
+        corba::CArgumentDescriptions_var result = mfact->getArguments( method.c_str() );
         ret.reserve( result->length() );
         for (size_t i=0; i!= result->length(); ++i)
             ret.push_back( ArgumentDescription(std::string( result[i].name.in() ),
@@ -265,12 +292,7 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produce(const std:
         // will throw if wrong args.
         mfact->checkOperation(method.c_str(), nargs.in() );
         // convert returned any to local type:
-        const types::TypeInfo* ti = 0;
-        if (mdescription && mdescription->return_type.in()) {
-            ti = Types()->type( mdescription->return_type.in() );
-        } else {
-            ti = this->getArgumentType(0);
-        }
+        const types::TypeInfo* ti = this->getArgumentType(0);
         if ( ti ) {
             if ( ti != Types()->type("void") ) {
                 // create a method call object and a return value and let the former store results in the latter.
@@ -409,7 +431,7 @@ public:
 base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking) const {
     unsigned int expected = 0;
     if (mdescription)
-        expected = mdescription->collect_arity;
+        expected = mdescription->collect_types.length();
     else
         expected = mfact->getCollectArity(method.c_str());
 
