@@ -65,7 +65,7 @@ namespace RTT
             ReturnSignature(ToInvoke implementation) : impl(implementation) {}
             ~ReturnSignature() {}
 
-            result_type ret() {
+            result_type ret() const {
                 if (impl)
                     return impl->ret();
                 return NA<result_type>::na();
@@ -85,13 +85,13 @@ namespace RTT
             ReturnSignature(ToInvoke implementation) : impl(implementation) {}
             ~ReturnSignature() {}
 
-            result_type ret(arg1_type a1) {
+            result_type ret(arg1_type a1) const {
                 if (impl)
                     return impl->ret( a1 );
                 return NA<result_type>::na();
             }
 
-            result_type ret() {
+            result_type ret() const {
                 if (impl)
                     return impl->ret();
                 return NA<result_type>::na();
@@ -112,13 +112,13 @@ namespace RTT
             ReturnSignature(ToInvoke implementation) : impl(implementation) {}
             ~ReturnSignature() {}
 
-            result_type ret(arg1_type a1, arg2_type a2) {
+            result_type ret(arg1_type a1, arg2_type a2) const {
                 if (impl)
                     return impl->ret( a1,a2 );
                 return NA<result_type>::na();
             }
 
-            result_type ret() {
+            result_type ret() const {
                 if (impl)
                     return impl->ret();
                 return NA<result_type>::na();
@@ -139,13 +139,13 @@ namespace RTT
             ReturnSignature(ToInvoke implementation) : impl(implementation) {}
             ~ReturnSignature() { }
 
-            result_type ret(arg1_type a1, arg2_type a2, arg3_type a3) {
+            result_type ret(arg1_type a1, arg2_type a2, arg3_type a3) const {
                 if (impl)
                     return impl->ret( a1,a2,a3 );
                 return NA<result_type>::na();
             }
 
-            result_type ret() {
+            result_type ret() const {
                 if (impl)
                     return impl->ret();
                 return NA<result_type>::na();
@@ -168,13 +168,13 @@ namespace RTT
             ReturnSignature(ToInvoke implementation) : impl(implementation) {}
             ~ReturnSignature() { }
 
-            result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) {
+            result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) const {
                 if (impl)
                     return impl->ret( a1,a2,a3,a4 );
                 return NA<result_type>::na();
             }
 
-            result_type ret() {
+            result_type ret() const {
                 if (impl)
                     return impl->ret();
                 return NA<result_type>::na();
@@ -197,13 +197,13 @@ namespace RTT
             ReturnSignature(ToInvoke implementation) : impl(implementation) {}
             ~ReturnSignature() { }
 
-            result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5) {
+            result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5) const {
                 if (impl)
                     return impl->ret( a1,a2,a3,a4,a5 );
                 return NA<result_type>::na();
             }
 
-            result_type ret() {
+            result_type ret() const {
                 if (impl)
                     return impl->ret();
                 return NA<result_type>::na();
@@ -227,13 +227,13 @@ namespace RTT
             ReturnSignature(ToInvoke implementation) : impl(implementation) {}
             ~ReturnSignature() { }
 
-            result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5, arg6_type a6) {
+            result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5, arg6_type a6) const {
                 if (impl)
                     return impl->ret( a1,a2,a3,a4,a5,a6 );
                 return NA<result_type>::na();
             }
 
-            result_type ret() {
+            result_type ret() const {
                 if (impl)
                     return impl->ret();
                 return NA<result_type>::na();
@@ -258,13 +258,13 @@ namespace RTT
             ReturnSignature(ToInvoke implementation) : impl(implementation) {}
             ~ReturnSignature() { }
 
-            result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5, arg6_type a6, arg7_type a7) {
+            result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5, arg6_type a6, arg7_type a7) const {
                 if (impl)
                     return impl->ret( a1,a2,a3,a4,a5,a6,a7 );
                 return NA<result_type>::na();
             }
 
-            result_type ret() {
+            result_type ret() const {
                 if (impl)
                     return impl->ret();
                 return NA<result_type>::na();
