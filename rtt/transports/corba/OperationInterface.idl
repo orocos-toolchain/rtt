@@ -195,6 +195,13 @@ module RTT
                                  CWrongNumbArgException,
                                  CWrongTypeArgException,
                                  CCallInterrupted);
+
+      /**
+       * Send a void operation with a list of arguments as a oneway CORBA call.
+       * This method will return immediately.
+       */
+      oneway void sendOperationOneway(in string operation, in CAnyArguments args);
+
     };
 
   };
