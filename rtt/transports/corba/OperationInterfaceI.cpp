@@ -451,3 +451,19 @@ void RTT_corba_COperationInterface_i::checkOperation (
     }
     return CSendHandle::_nil();
 }
+
+void RTT_corba_COperationInterface_i::sendOperationOneway (
+    const char * operation,
+    const ::RTT::corba::CAnyArguments & args)
+{
+    try {
+        ::RTT::corba::CSendHandle_var resulthandle = sendOperation(operation, args);
+        if (resulthandle->checkStatus() == CSendFailure) {
+            log(Error) << "Oneway operation call '" << operation << "' failed" << endlog();
+        }
+    } catch(std::exception &e) {
+        log(Error) << e.what() << endlog();
+    }
+
+    return;
+}

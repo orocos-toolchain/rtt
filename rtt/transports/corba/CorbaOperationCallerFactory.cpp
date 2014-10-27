@@ -154,14 +154,15 @@ class CorbaOperationCallerCall: public ActionInterface
     // The type transporter for the return value
     CorbaTypeTransporter* mctt;
     bool mdocall;
+    bool moneway;
 public:
     CorbaOperationCallerCall(CService_ptr fact,
                     std::string op,
                     std::vector<base::DataSourceBase::shared_ptr> const& args,
                     ExecutionEngine* caller,
                     CorbaTypeTransporter* ctt,
-                    base::DataSourceBase::shared_ptr result, bool docall)
-    : mfact(CService::_duplicate(fact)), mop(op), margs(args), mcaller(caller), mresult(result), mctt(ctt), mdocall(docall)
+                    base::DataSourceBase::shared_ptr result, bool docall, bool oneway)
+    : mfact(CService::_duplicate(fact)), mop(op), margs(args), mcaller(caller), mresult(result), mctt(ctt), mdocall(docall), moneway(oneway)
     {
     }
 
@@ -192,11 +193,16 @@ public:
                 if (mctt)
                     return mctt->updateFromAny(&any.in(), mresult);
             } else {
-                CSendHandle_var sh = mfact->sendOperation( mop.c_str(), nargs.in() );
-                AssignableDataSource<CSendHandle_var>::shared_ptr ads = AssignableDataSource<CSendHandle_var>::narrow( mresult.get() );
-                if (ads) {
-                    ads->set( sh ); // _var creates a copy of the obj reference.
+                if (!moneway) {
+                    CSendHandle_var sh = mfact->sendOperation( mop.c_str(), nargs.in() );
+                    AssignableDataSource<CSendHandle_var>::shared_ptr ads = AssignableDataSource<CSendHandle_var>::narrow( mresult.get() );
+                    if (ads) {
+                        ads->set( sh ); // _var creates a copy of the obj reference.
+                    }
+                } else {
+                    mfact->sendOperationOneway( mop.c_str(), nargs.in() );
                 }
+
             }
             return true;
         } catch ( corba::CNoSuchNameException& ) {
@@ -210,14 +216,14 @@ public:
         }
     }
 
-    ActionInterface* clone() const { return new CorbaOperationCallerCall(CService::_duplicate( mfact.in() ), mop, margs, mcaller, mctt, mresult, mdocall); }
+    ActionInterface* clone() const { return new CorbaOperationCallerCall(CService::_duplicate( mfact.in() ), mop, margs, mcaller, mctt, mresult, mdocall, moneway); }
 
     virtual ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
         vector<DataSourceBase::shared_ptr> argcopy( margs.size() );
         unsigned int v=0;
         for (vector<DataSourceBase::shared_ptr>::iterator it = argcopy.begin(); it != argcopy.end(); ++it, ++v)
             argcopy[v] = (*it)->copy(alreadyCloned);
-        return new CorbaOperationCallerCall(CService::_duplicate( mfact.in() ), mop, argcopy, mcaller, mctt, mresult->copy(alreadyCloned), mdocall);
+        return new CorbaOperationCallerCall(CService::_duplicate( mfact.in() ), mop, argcopy, mcaller, mctt, mresult->copy(alreadyCloned), mdocall, moneway);
     }
 };
 
@@ -247,16 +253,16 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produce(const std:
                 CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
                 DataSourceBase::shared_ptr result = ti->buildValue();
                 // evaluate()/get() will cause the method to be called and remote return value will end up in result.
-                return ti->buildActionAlias(new CorbaOperationCallerCall(mfact.in(),method,args,caller, ctt, result, true), result );
+                return ti->buildActionAlias(new CorbaOperationCallerCall(mfact.in(),method,args,caller, ctt, result, true, false), result );
             } else {
-                return new DataSourceCommand( new CorbaOperationCallerCall(mfact.in(),method,args,caller, 0, DataSourceBase::shared_ptr() , true) );
+                return new DataSourceCommand( new CorbaOperationCallerCall(mfact.in(),method,args,caller, 0, DataSourceBase::shared_ptr() , true, false) );
             }
         } else {
             // it's returning a type we don't know ! Return a DataSource<Any>
             DataSource<CORBA::Any_var>::shared_ptr result = new AnyDataSource( new CORBA::Any() );
             // todo Provide a ctt  implementation for 'CORBA::Any_var' such that the result is updated !
             // The result is only for dummy reasons used now, since no ctt is set, no updating will be done.
-            return new ActionAliasDataSource<CORBA::Any_var>(new CorbaOperationCallerCall(mfact.in(),method,args,caller, 0, result, true), result.get() );
+            return new ActionAliasDataSource<CORBA::Any_var>(new CorbaOperationCallerCall(mfact.in(),method,args,caller, 0, result, true, false), result.get() );
         }
     } catch ( corba::CNoSuchNameException& nsn ) {
         throw  name_not_found_exception( nsn.name.in() );
@@ -284,7 +290,8 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceSend(const 
         mfact->checkOperation(method.c_str(), nargs.inout() );
         // Will return a CSendHandle_var:
         DataSource<CSendHandle_var>::shared_ptr result = new ValueDataSource<CSendHandle_var>();
-        return new ActionAliasDataSource<CSendHandle_var>(new CorbaOperationCallerCall(mfact.in(),method,args,caller, 0, result, false), result.get() );
+        bool oneway = (mfact->getCollectArity(method.c_str()) == 0);
+        return new ActionAliasDataSource<CSendHandle_var>(new CorbaOperationCallerCall(mfact.in(),method,args,caller, 0, result, false, oneway), result.get() );
     } catch ( corba::CNoSuchNameException& nsn ) {
         throw  name_not_found_exception( nsn.name.in() );
     } catch ( corba::CWrongNumbArgException& wa ) {
@@ -386,6 +393,7 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceCollect(con
     if (!ds) {
         throw wrong_types_of_args_exception(0,"CSendHandle_var",(*args.begin())->getTypeName() );
     }
+    if ( CORBA::is_nil(ds->get()) ) return new ValueDataSource<SendStatus>(SendSuccess);
     // check if args matches what CSendHandle expects.
     try {
         corba::CAnyArguments_var nargs = new corba::CAnyArguments();
