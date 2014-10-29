@@ -281,12 +281,15 @@ namespace RTT
 
         if ( expressionparser.hasResult() ) {
             DataSourceBase::shared_ptr expr = expressionparser.getResult();
+            ConditionInterface* cond = expressionparser.getCmdResult();
             expressionparser.dropResult();
             //assert( !expressionparser.hasResult() );
             try {
                 ActionInterface* ac = var->getDataSource()->updateAction( expr.get() );
                 assert(ac);
                 assigncommands.push_back( ac );
+                if (cond)
+                    conditions.push_back(cond);
             }
             catch( const bad_assignment& ) {
                 this->cleanup();
@@ -333,6 +336,7 @@ namespace RTT
     void ValueChangeParser::clear()
     {
         assigncommands.clear();
+        conditions.clear();
 
         definedvalues.clear();
 

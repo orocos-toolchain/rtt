@@ -849,6 +849,43 @@ BOOST_AUTO_TEST_CASE( testStateYieldbySend )
      this->finishState( "x", tc);
 }
 
+BOOST_AUTO_TEST_CASE( testStateYieldbyCmd )
+{
+    // test yielding and checking .cmd syntax
+    string prog = string("StateMachine X {\n")
+        + " initial state INIT {\n"
+        + " var double d = 0.0\n"
+        + " run {\n"
+        + "test.assertEqual( test.i, 0 )\n"
+        + "var SendStatus ss\n"
+        + "ss = test.increaseCmd.cmd() \n"
+        + "test.assert( ss == SendSuccess )\n"
+        + "test.assertEqual( test.i, 1 )\n"
+        + "ss = test.increaseCmd.cmd()\n"
+        + "test.assert( ss == SendSuccess )\n"
+        + "test.assertEqual( test.i , 2 )\n"
+
+        + "var SendStatus tss = methods.vo0.cmd() \n" // bug : does not evaluate conditions !
+        + "test.assert( tss == SendSuccess )\n"
+        + "tss = methods.vo0.cmd()\n"
+        + "test.assert( tss == SendSuccess )\n"
+
+        + " }\n"
+        + " transitions {\n"
+        + "       select FINI\n"
+        + " }\n"
+        + " }\n"
+        + " final state FINI {\n" // Failure state.
+        + " entry { do test.assert(true); }\n"
+        + " }\n"
+        + " }\n"
+        + " RootMachine X x\n" // instantiate a non hierarchical SC
+        ;
+     this->doState("x", prog, tc );
+     BOOST_CHECK( sa->getStateMachine( "x" )->inState("FINI") );
+     this->finishState( "x", tc);
+}
+
 BOOST_AUTO_TEST_CASE( testStateGlobalTransitions)
 {
     // test processing of transition statements.
