@@ -886,7 +886,9 @@ namespace RTT
     // some value changes generate a command, we need to add it to
     // the program.
       ActionInterface* ac = 0;
+      ConditionInterface* cond = 0;
       std::vector<ActionInterface*> acv = valuechangeparser.assignCommands();
+      std::vector<ConditionInterface*> conds = valuechangeparser.assignConditions();
       // and not forget to reset()..
       valuechangeparser.clear();
       if ( acv.size() == 1) {
@@ -895,11 +897,23 @@ namespace RTT
       else if (acv.size() > 1) {
           ac = new CommandComposite(acv);
       }
+      if ( conds.size() ==1 ) {
+          cond = conds.front();
+      }
+      else if ( conds.size() > 1) {
+          cond = conds.front();
+          int i = 1;
+          while ( i != conds.size() ) {
+              cond = new ConditionBinaryCompositeAND(cond, conds[i] );
+              ++i;
+          }
+      }
       if (ac) {
           program_builder->setCommand( ac );
-          // Since a valuechange does not add edges, we use this variant
-          // to create one.
-          program_builder->proceedToNext( new ConditionTrue, mpositer.get_position().line - ln_offset );
+          // check if one of the vars caused a condition:
+          if (cond == 0)
+              cond = new ConditionTrue;
+          program_builder->proceedToNext( cond, mpositer.get_position().line - ln_offset );
       }
   }
 

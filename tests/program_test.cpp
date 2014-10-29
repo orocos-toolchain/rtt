@@ -54,7 +54,7 @@ public:
     void loopProgram( ProgramInterfacePtr );
 
     ProgramTest()
-        : sa( ScriptingService::Create(tc) )
+        : parser(tc->engine()), sa( ScriptingService::Create(tc) )
     {
         tc->stop();
         BOOST_REQUIRE( tc->setActivity(new SimulationActivity(0.01)) );
@@ -581,8 +581,14 @@ BOOST_AUTO_TEST_CASE(testCmd)
         + "ss = test.increaseCmd.cmd()\n"
         + "test.assert( ss == SendSuccess )\n"
         + "test.assertEqual( test.i , 2 )\n"
+
+        + "tss = methods.vo0.cmd() \n"
+        + "test.assert( tss == SendSuccess )\n"
+        + "ss = methods.vo0.cmd()\n"
+        + "test.assert( ss == SendSuccess )\n"
         + "}";
     this->doProgram( prog, tc );
+    BOOST_REQUIRE( tss == SendSuccess );
     BOOST_CHECK_EQUAL( i, 2 );
     this->finishProgram( tc, "x");
 }

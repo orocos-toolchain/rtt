@@ -14,7 +14,6 @@
 
 #include <iostream>
 
-
 namespace RTT
 { namespace scripting {
 	using namespace detail;
@@ -60,7 +59,7 @@ namespace RTT
         : minit(init_com),
         mrunner(p), mcaller(caller),
         _v( v==0 ? new internal::UnboundDataSource< internal::ValueDataSource<ProgramInterface*> >(foo.get()) : v ),
-        _foo( foo ), isqueued(false), maccept(false)
+        _foo( foo ), ss(SendNotReady), isqueued(false), maccept(false)
         {
         }
 
@@ -102,13 +101,11 @@ namespace RTT
         }
 
         virtual bool evaluate() const {
-            cout << "evalute status: " << ss << endl;
             // return true if ready to be read
             return get() != SendNotReady;
         }
 
         virtual void reset() {
-            cout << "reset here" <<endl;
             mrunner->removeFunction( _foo.get() );
             maccept = false;
             isqueued = false;
@@ -150,10 +147,9 @@ namespace RTT
 
               bool evaluate()
               {
-                  // Here we assume that evaluate()/get() does not resend the operation, but does keep updating
-                  // the SendStatus. A special flag in CmdFunction and FusedMSendDataSource prevents
-                  // re-sending upon multiple get()'s.
-                  cout << "evalute: " << collectds->evaluate() << " status: " << collectds->rvalue() << endl;
+                  // We may not call collectds->evaluate() inhere, because this actively tries a collect,
+                  // and if it would succeed, we would proceed immediately, without giving the vertex node
+                  // a chance to do something with the return value of the cmd.
                   return collectds->rvalue() != SendNotReady;
               }
 
