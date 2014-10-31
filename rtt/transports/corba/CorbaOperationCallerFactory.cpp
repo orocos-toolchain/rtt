@@ -336,7 +336,11 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceSend(const 
         mfact->checkOperation(method.c_str(), nargs.inout() );
         // Will return a CSendHandle_var:
         DataSource<CSendHandle_var>::shared_ptr result = new ValueDataSource<CSendHandle_var>();
+#ifdef CORBA_SEND_ONEWAY_OPERATIONS
         bool oneway = (mdescription && mdescription->send_oneway);
+#else
+        bool oneway = false;
+#endif
         return new ActionAliasDataSource<CSendHandle_var>(new CorbaOperationCallerCall(mfact.in(),method,args,caller, 0, result, false, oneway), result.get() );
     } catch ( corba::CNoSuchNameException& nsn ) {
         throw  name_not_found_exception( nsn.name.in() );
