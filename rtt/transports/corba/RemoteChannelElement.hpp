@@ -153,7 +153,11 @@ namespace RTT {
                 // in push mode, transfer all data, in pull mode, only signal once for each sample.
                 if ( pull ) {
                     try
-                    { remote_side->remoteSignal(); }
+                    {
+#ifndef CORBA_PORTS_DISABLE_SIGNAL
+                        remote_side->remoteSignal();
+#endif
+                    }
 #ifdef CORBA_IS_OMNIORB
                     catch(CORBA::SystemException& e)
                     {
