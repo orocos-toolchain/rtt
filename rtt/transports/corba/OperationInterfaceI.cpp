@@ -438,7 +438,7 @@ void RTT_corba_COperationInterface_i::checkOperation (
     return new ::CORBA::Any();
 }
 
-::RTT::corba::CSendHandle_ptr RTT_corba_COperationInterface_i::sendOperation (
+RTT_corba_CSendHandle_i* RTT_corba_COperationInterface_i::sendOperationInternal (
     const char * operation,
     const ::RTT::corba::CAnyArguments & args)
 {
@@ -457,11 +457,8 @@ void RTT_corba_COperationInterface_i::checkOperation (
             SendHandleC resulthandle = orig.send();
             // we may not destroy the SendHandle, before the operation completes:
             resulthandle.setAutoCollect(true);
-            // our resulthandle copy makes sure that the resulthandle can return.
             RTT_corba_CSendHandle_i* ret_i = new RTT_corba_CSendHandle_i( resulthandle, mfact->getPart(operation) );
-            CSendHandle_var ret = ret_i->_this();
-            ret_i->_remove_ref(); // if POA drops this, it gets cleaned up.
-            return ret._retn();
+            return ret_i;
         } else {
             orig.check(); // will throw
         }
@@ -474,21 +471,39 @@ void RTT_corba_COperationInterface_i::checkOperation (
     } catch (wrong_types_of_args_exception& wta ) {
         throw ::RTT::corba::CWrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
     }
-    return CSendHandle::_nil();
+    return 0;
+}
+
+::RTT::corba::CSendHandle_ptr RTT_corba_COperationInterface_i::sendOperation (
+    const char * operation,
+    const ::RTT::corba::CAnyArguments & args)
+{
+    RTT_corba_CSendHandle_i* ret_i = sendOperationInternal(operation, args);
+    if (ret_i) {
+        // our resulthandle copy makes sure that the resulthandle can return.
+        CSendHandle_var ret = ret_i->_this();
+        ret_i->_remove_ref(); // if POA drops this, it gets cleaned up.
+        return ret._retn();
+    } else {
+        return CSendHandle::_nil();
+    }
 }
 
 void RTT_corba_COperationInterface_i::sendOperationOneway (
     const char * operation,
     const ::RTT::corba::CAnyArguments & args)
 {
+    RTT_corba_CSendHandle_i* ret_i = 0;
+
     try {
-        ::RTT::corba::CSendHandle_var resulthandle = sendOperation(operation, args);
-        if (resulthandle->checkStatus() == CSendFailure) {
-            log(Error) << "Oneway operation call '" << operation << "' failed" << endlog();
+        ret_i = sendOperationInternal(operation, args);
+
+        if (!ret_i || ret_i->checkStatus() == CSendFailure) {
+            log(Error) << "Sending the '" << operation << "'' operation failed (SendFailure)." << endlog();
         }
     } catch(std::exception &e) {
-        log(Error) << e.what() << endlog();
+        log(Error) << "Sending the '" << operation << "'' operation failed:" << e.what() << endlog();
     }
 
-    return;
+    if (ret_i) ret_i->_remove_ref(); // Drop the CSendHandle
 }

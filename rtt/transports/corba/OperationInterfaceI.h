@@ -189,6 +189,11 @@ class  RTT_corba_COperationInterface_i
   void sendOperationOneway (
       const char * operation,
       const ::RTT::corba::CAnyArguments & args);
+
+private:
+  RTT_corba_CSendHandle_i* sendOperationInternal (
+      const char * operation,
+      const ::RTT::corba::CAnyArguments & args);
 };
 
 
