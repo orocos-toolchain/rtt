@@ -7,6 +7,12 @@ IF(ENABLE_CORBA)
     ADD_DEFINITIONS( -DRTT_NO_STD_TYPES )
   endif (NOT PLUGINS_STD_TYPES_SUPPORT)
 
+  OPTION(PLUGINS_CORBA_PORTS_DISABLE_SIGNAL "Do not send remote signals for ports to the client side." OFF)
+  if (PLUGINS_CORBA_PORTS_DISABLE_SIGNAL)
+    MESSAGE("Disabled remote signalling in CORBA Transport library.")
+    ADD_DEFINITIONS( -DCORBA_PORTS_DISABLE_SIGNAL )
+  endif (PLUGINS_CORBA_PORTS_DISABLE_SIGNAL)
+
   OPTION(PLUGINS_CORBA_SEND_ONEWAY_OPERATIONS "Send oneway operations if collect arity is zero." OFF)
   if (PLUGINS_CORBA_SEND_ONEWAY_OPERATIONS)
     MESSAGE("Enabled oneway operation sending in CORBA Transport library.")
