@@ -274,6 +274,7 @@ public:
 };
 
 base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produce(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const {
+#ifndef CORBA_NO_CHECK_OPERATIONS
     corba::CAnyArguments_var nargs = new corba::CAnyArguments();
     nargs->length( args.size() );
 
@@ -287,10 +288,14 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produce(const std:
         DataSourceBase::shared_ptr tryout = ti->buildValue();
         ctt->updateAny(tryout, nargs[i]);
     }
+#endif // CORBA_NO_CHECK_OPERATIONS
+
     // check argument types and produce:
     try {
+#ifndef CORBA_NO_CHECK_OPERATIONS
         // will throw if wrong args.
         mfact->checkOperation(method.c_str(), nargs.in() );
+#endif // CORBA_NO_CHECK_OPERATIONS
         // convert returned any to local type:
         const types::TypeInfo* ti = this->getArgumentType(0);
         if ( ti ) {
@@ -321,6 +326,7 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produce(const std:
 }
 
 base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const {
+#ifndef CORBA_NO_CHECK_OPERATIONS
     corba::CAnyArguments_var nargs = new corba::CAnyArguments();
     nargs->length( args.size() );
     for (size_t i=0; i < args.size(); ++i ) {
@@ -331,9 +337,12 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceSend(const 
         DataSourceBase::shared_ptr tryout = ti->buildValue();
         ctt->updateAny(tryout, nargs[i]);
     }
+#endif // CORBA_NO_CHECK_OPERATIONS
     try {
+#ifndef CORBA_NO_CHECK_OPERATIONS
         // will throw if wrong args.
         mfact->checkOperation(method.c_str(), nargs.inout() );
+#endif // CORBA_NO_CHECK_OPERATIONS
         // Will return a CSendHandle_var:
         DataSource<CSendHandle_var>::shared_ptr result = new ValueDataSource<CSendHandle_var>();
 #ifdef CORBA_SEND_ONEWAY_OPERATIONS

@@ -19,6 +19,12 @@ IF(ENABLE_CORBA)
     ADD_DEFINITIONS( -DCORBA_SEND_ONEWAY_OPERATIONS )
   endif (PLUGINS_CORBA_SEND_ONEWAY_OPERATIONS)
 
+  OPTION(PLUGINS_CORBA_NO_CHECK_OPERATIONS "Check operation signature when constructing remote operation callers." OFF)
+  if (PLUGINS_CORBA_NO_CHECK_OPERATIONS)
+    MESSAGE("Disabled operation signature checking in CORBA Transport library.")
+    ADD_DEFINITIONS( -DCORBA_NO_CHECK_OPERATIONS )
+  endif (PLUGINS_CORBA_NO_CHECK_OPERATIONS)
+
   # Clang 2.9 needs this in order to get around undefined symbols of inlined operator>>= functions !
   GET_FILENAME_COMPONENT(CORBA_CXX_NAME "${CMAKE_CXX_COMPILER}" NAME)
   if ( ${CORBA_CXX_NAME} STREQUAL "clang++")
