@@ -680,6 +680,15 @@ namespace RTT
 //                cout << "Found !"<<endl;
                 string name = (*it)->getName();
                 context->attributes()->removeAttribute(name);
+                // This aliasing may happen only once for each var SendHandle. Since 'arg1' is not assignable, a next assigning will fail.
+                if ( dynamic_cast<ValueDataSource<SendStatus>*>(mhandle->getDataSource().get() ) ) {
+                    // This goes quite far: we also wrap the SH DataSource in a collect such that evaluating it does not cause a reset()+send(), but merely returns the SendStatus:
+                    context->attributes()->setValue( new SendHandleAlias( name, 
+                                                                          mhandle->getFactory()->produceCollect(std::vector<DataSourceBase::shared_ptr>(1,arg1), new ValueDataSource<bool>(false)), 
+                                                                          mhandle->getFactory() ) );
+                    parsestack.push( arg1 ); // effectively aliases RHS to lhs. Don't use the SendHandleAlias since it would not do the reset()+send().
+                    return;
+                }
                 AttributeBase* var = mhandle->clone();
                 var->setName( name ); // fill in the final handle name.
                 context->attributes()->setValue( var );

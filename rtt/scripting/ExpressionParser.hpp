@@ -42,6 +42,7 @@
 #include "CommonParser.hpp"
 #include "PeerParser.hpp"
 #include "ValueParser.hpp"
+#include "SendHandleAlias.hpp"
 #include "../internal/DataSource.hpp"
 #include "../types/Operators.hpp"
 #include "../Time.hpp"
@@ -65,7 +66,7 @@ namespace RTT { namespace scripting
   class DataCallParser
   {
     base::DataSourceBase::shared_ptr ret;
-    boost::shared_ptr<base::AttributeBase> mhandle;
+    boost::shared_ptr<SendHandleAlias> mhandle;
     ConditionInterface* mcmdcnd;
     std::string mobject;
     std::string mmethod;
@@ -100,7 +101,7 @@ namespace RTT { namespace scripting
       {
         return mcmdcnd;
       }
-    boost::shared_ptr<base::AttributeBase> getParseHandle()
+    boost::shared_ptr<SendHandleAlias> getParseHandle()
       {
         return mhandle;
       }
@@ -162,7 +163,7 @@ namespace RTT { namespace scripting
      * Contains the last SendHandle encountered, Will also be dropped
      * by dropResult().
      */
-    boost::shared_ptr<base::AttributeBase> mhandle;
+    boost::shared_ptr<SendHandleAlias> mhandle;
 
     ConditionInterface* mcmdcnd;
 
