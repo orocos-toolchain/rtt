@@ -70,6 +70,10 @@ public:
 
     RTT::rt_string mrt_state;
 
+    int var_i;
+    int const_i;
+    SendStatus tss;
+
     void log(const std::string& msg) {
         Logger::log(Logger::Info) << msg << endlog();
     }
@@ -127,6 +131,14 @@ public:
         SimulationThread::Instance()->stop();
 
         tc->addOperation("log", &StateTest::log, this);
+
+        tc->provides()->addAttribute("tvar_i", var_i);
+        tc->provides()->addAttribute("tss", tss);
+        tc->provides()->addConstant("tconst_i", const_i);
+
+        const_i = -1;
+        var_i = -1;
+        tss = SendNotReady;
     }
     ~StateTest(){
     }
@@ -865,7 +877,7 @@ BOOST_AUTO_TEST_CASE( testStateYieldbyCmd )
         + "test.assert( ss == SendSuccess )\n"
         + "test.assertEqual( test.i , 2 )\n"
 
-        + "var SendStatus tss = methods.vo0.cmd() \n" // bug : does not evaluate conditions !
+        + "tss = methods.vo0.cmd() \n" // bug : does not evaluate conditions !
         + "test.assert( tss == SendSuccess )\n"
         + "tss = methods.vo0.cmd()\n"
         + "test.assert( tss == SendSuccess )\n"
@@ -885,6 +897,105 @@ BOOST_AUTO_TEST_CASE( testStateYieldbyCmd )
      BOOST_CHECK( sa->getStateMachine( "x" )->inState("FINI") );
      this->finishState( "x", tc);
 }
+
+BOOST_AUTO_TEST_CASE( testStateSendFunction )
+{
+    // test yielding and checking .cmd syntax
+    string func = string("export function foo(int arg) {\n")
+        + "  do test.assert( tvar_i == arg ) \n"
+        + "  do test.assert( tvar_i != tconst_i ) \n"
+        + "  set tvar_i = tvar_i+2\n"
+        + "  do test.assert( tvar_i == arg + 2 ) \n"
+        + "}\n";
+    string prog = string("StateMachine X {\n")
+        + " initial state INIT {\n"
+        + " run {\n"
+        + "   tvar_i = 0\n"
+
+        + "   var SendHandle sh, sh2\n"
+        + "   sh = foo.send(tvar_i) \n"
+
+        + "   sh\n" // tests accidental sh evaluation
+
+        + "   test.assert( sh.collectIfDone() == SendNotReady )\n"
+        + "   test.assertEqual( tvar_i, 0 )\n"
+
+        + "   while ( sh.collectIfDone() == SendNotReady) \n"
+        + "      yield\n"
+        + "   test.assert( sh.collectIfDone() == SendSuccess )\n"
+        + "   test.assertEqual( tvar_i, 2 )\n"
+
+        + "   sh2 = foo.send(tvar_i) \n"
+        + "   test.assert( sh2 == SendNotReady )\n"
+        + "   test.assertEqual( tvar_i, 2 )\n"
+        + "   while ( sh2.collectIfDone() == SendNotReady) \n"
+        + "      yield\n"
+        + "   test.assert( sh2 == SendSuccess )\n"
+        + "   test.assertEqual( tvar_i , 4 )\n"
+
+        + " }\n"
+        + " transitions {\n"
+        + "       select FINI\n"
+        + " }\n"
+        + " }\n"
+        + " final state FINI {\n" // Failure state.
+        + " entry { do test.assert(true); }\n"
+        + " }\n"
+        + " }\n"
+        + " RootMachine X x\n" // instantiate a non hierarchical SC
+        ;
+    BOOST_REQUIRE( sa->loadPrograms(func, "func.ops", false) );
+    this->doState("x", prog, tc, true, 25 );
+     BOOST_CHECK( sa->getStateMachine( "x" )->inState("FINI") );
+     this->finishState( "x", tc);
+}
+
+BOOST_AUTO_TEST_CASE( testStateCmdFunction )
+{
+    // test yielding and checking .cmd syntax
+    string func = string("export function foo(int arg) {\n")
+        + "  do test.assert( tvar_i == arg ) \n"
+        + "  do test.assert( tvar_i != tconst_i ) \n"
+        + "  set tvar_i = tvar_i+2\n"
+        + "  do test.assert( tvar_i == arg + 2 ) \n"
+        + "}\n";
+    string prog = string("StateMachine X {\n")
+        + " initial state INIT {\n"
+        + " run {\n"
+        + "   var SendStatus ss\n"
+        + "   tvar_i = 0\n"
+
+        + "   ss = foo.cmd(tvar_i) \n"
+        + "   test.assert( ss == SendSuccess )\n"
+        + "   test.assertEqual( tvar_i, 2 )\n"
+
+        + "ss = foo.cmd(tvar_i)\n"
+        + "test.assert( ss == SendSuccess )\n"
+        + "test.assertEqual( tvar_i , 4 )\n"
+
+        + "tss = foo.cmd(tvar_i) \n"
+        + "test.assert( tss == SendSuccess )\n"
+        + "tss = foo.cmd(tvar_i)\n"
+        + "test.assert( tss == SendSuccess )\n"
+        + "test.assertEqual( tvar_i , 8 )\n"
+
+        + " }\n"
+        + " transitions {\n"
+        + "       select FINI\n"
+        + " }\n"
+        + " }\n"
+        + " final state FINI {\n" // Failure state.
+        + " entry { do test.assert(true); }\n"
+        + " }\n"
+        + " }\n"
+        + " RootMachine X x\n" // instantiate a non hierarchical SC
+        ;
+    BOOST_REQUIRE( sa->loadPrograms(func, "func.ops", false) );
+    this->doState("x", prog, tc, true, 25 );
+     BOOST_CHECK( sa->getStateMachine( "x" )->inState("FINI") );
+     this->finishState( "x", tc);
+}
+
 
 BOOST_AUTO_TEST_CASE( testStateGlobalTransitions)
 {
