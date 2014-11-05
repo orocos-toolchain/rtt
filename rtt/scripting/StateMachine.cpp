@@ -1179,6 +1179,7 @@ namespace RTT {
             TRACE("Won't activate: already active.");
             return false;
         }
+        os::MutexLock lock(execlock);
 
         smpStatus = nill;
 
@@ -1244,9 +1245,10 @@ namespace RTT {
             currentTrans = 0;
         // if we stalled, in previous deactivate
         // even skip/stop exit program.
-        if ( next != 0 && current )
+        if ( next != 0 && current ) {
             leaveState( current );
-        else {
+            disableEvents(current);
+        } else {
             currentExit = 0;
             currentTrans = 0;
         }
