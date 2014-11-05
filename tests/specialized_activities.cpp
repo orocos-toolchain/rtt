@@ -23,11 +23,16 @@ struct TestFDActivity : public FileDescriptorActivity
     int fd, other_fd, result;
 
     bool do_read;
+
+    RTT::os::Mutex mutex;
+
     TestFDActivity()
         : FileDescriptorActivity(0), step_count(0), count(0), other_count(0), do_read(false) {}
 
     void step()
     {
+        RTT::os::MutexLock lock(mutex);
+
         char buffer;
         if (isUpdated(fd))
         {
@@ -42,7 +47,7 @@ struct TestFDActivity : public FileDescriptorActivity
                 result = read(other_fd, &buffer, 1);
         }
         ++step_count;
-    };
+    }
 };
 
 BOOST_FIXTURE_TEST_SUITE(SecializedActivitiesSuite,SpecializedActivities)
@@ -119,6 +124,23 @@ BOOST_AUTO_TEST_CASE( testFileDescriptorActivity )
     BOOST_CHECK( activity->step_count >= 10 );
     BOOST_CHECK_EQUAL(2, activity->count);
     BOOST_CHECK_EQUAL(2, activity->other_count);
+    BOOST_CHECK( activity->stop() );
+    activity->setTimeout(0);
+
+    // Test triggering while step is running
+    activity->step_count = 0;
+    activity->mutex.lock();
+    BOOST_CHECK( activity->start() );
+    activity->trigger();
+    sleep(1);
+    // step is blocking now
+    // trigger another 65537 times
+    for(std::size_t i = 0; i < 65537; ++i) activity->trigger();
+    activity->mutex.unlock();
+    sleep(1);
+    BOOST_CHECK_EQUAL(2, activity->step_count);
+    BOOST_CHECK( activity->stop() );
+
 }
 
 
