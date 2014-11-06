@@ -67,15 +67,20 @@ namespace RTT
     {
     }
 
-     Activity::Activity(int scheduler, int priority, Seconds period, RunnableInterface* r, const std::string& name )
-         : ActivityInterface(r), os::Thread(scheduler, priority, period, 0, name )
-     {
-     }
+    Activity::Activity(int scheduler, int priority, RunnableInterface* r, const std::string& name )
+        : ActivityInterface(r), os::Thread(scheduler, priority, 0.0, 0, name )
+    {
+    }
 
-     Activity::Activity(int scheduler, int priority, Seconds period, unsigned cpu_affinity, RunnableInterface* r, const std::string& name )
-     : ActivityInterface(r), os::Thread(scheduler, priority, period, cpu_affinity, name )
-     {
-     }
+    Activity::Activity(int scheduler, int priority, Seconds period, RunnableInterface* r, const std::string& name )
+        : ActivityInterface(r), os::Thread(scheduler, priority, period, 0, name )
+    {
+    }
+
+    Activity::Activity(int scheduler, int priority, Seconds period, unsigned cpu_affinity, RunnableInterface* r, const std::string& name )
+    : ActivityInterface(r), os::Thread(scheduler, priority, period, cpu_affinity, name )
+    {
+    }
 
     Activity::~Activity()
     {
