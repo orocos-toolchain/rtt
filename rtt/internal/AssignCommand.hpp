@@ -80,12 +80,11 @@ namespace RTT
 
             bool execute()
             {
-                bool news = rhs->evaluate();
-                if (news) {
-                    lhs->set( rhs->rvalue() );
-                    return true;
-                }
-                return false;
+                // we ignore evaluate, which return value is legacy
+                // we always assign the current state of rhs
+                rhs->evaluate();
+                lhs->set( rhs->rvalue() );
+                return true;
             }
 
             void reset() {
