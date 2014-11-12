@@ -79,7 +79,7 @@ namespace RTT
 
   DataCallParser::DataCallParser( ExpressionParser& p, CommonParser& cp, TaskContext* c, ExecutionEngine* caller )
       : ret(), mhandle(), mcmdcnd(0), mobject(), mmethod(),
-        mcaller( caller ? caller : c->engine()), mis_send(false), mis_cmd(false), commonparser(cp), expressionparser( p ),
+        mcaller( caller ? caller : c->engine()), mcalltype(DEFAULT_CALLTYPE), commonparser(cp), expressionparser( p ),
         peerparser( c, cp, false ) // accept partial paths
   {
     BOOST_SPIRIT_DEBUG_RULE( datacall );
@@ -114,23 +114,19 @@ namespace RTT
     {
       std::string name( begin, end );
       if ( name == "send" ) {
-          mis_send = true;
-          mis_cmd  = false;
+          mcalltype = CALLTYPE_SEND;
           mmethod = mobject;
           mobject.clear();
       } else if (name == "cmd" ) {
-          mis_cmd = true;
-          mis_send = false;
+          mcalltype = CALLTYPE_CMD;
           mmethod = mobject;
           mobject.clear();
       } else if (name == "call" ) {
-          mis_send = false;
-          mis_cmd  = false;
+          mcalltype = CALLTYPE_CALL;
           mmethod = mobject;
           mobject.clear();
       } else {
-          mis_send = false;
-          mis_cmd  = false;
+          mcalltype = DEFAULT_CALLTYPE;
           mmethod = name;
       }
 //      cout << "seenmethodname "<< mobject << "." << mmethod<<endl;
@@ -147,7 +143,7 @@ namespace RTT
       if (true) {
           // it ain't...
           // set the proper object name again in case of a send()
-          if ( (mis_send || mis_cmd) && ops)
+          if ( (mcalltype != DEFAULT_CALLTYPE) && ops)
               mobject = ops->getName();
 //          cout << "DCP saw method "<< mmethod <<" of object "<<mobject<<" of peer "<<peer->getName()<<endl;
           // Check sanity of what we parsed:
@@ -232,24 +228,30 @@ namespace RTT
                 }
                 throw parse_exception_fatal_semantic_error( obj + "."+meth +": "+ obj +" is not a valid SendHandle object.");
             }
-            if (!mis_send && !mis_cmd) {
+
+            unsigned int arity = ops->getCollectArity(meth);
+            switch(mcalltype) {
+            case DEFAULT_CALLTYPE:
+            case CALLTYPE_CALL:
                 ret = ops->produce( meth, args, mcaller );
                 mhandle.reset();
-            } else if ( mis_send ){
+                break;
+            case CALLTYPE_SEND:
                 ret = ops->produceSend( meth, args, mcaller );
                 mhandle.reset( new SendHandleAlias( meth, ops->produceHandle(meth), ops->getPart(meth)) );
-            } else if ( mis_cmd ){
+                break;
+            case CALLTYPE_CMD:
                 ret = ops->produceSend( meth, args, mcaller );
                 args.clear();
                 args.push_back( ret ); // store the produceSend DS for collecting:
-                unsigned int arity = ops->getCollectArity(meth);
-                for ( int i =0; i != arity; ++i) {
+                for ( unsigned int i =0; i != arity; ++i) {
                     args.push_back( ops->getOperation(meth)->getCollectType( i + 1 )->buildValue() ); // this is only to satisfy produceCollect. We ignore the results...
                 }
                 ret = ops->produceCollect( meth, args, new ValueDataSource<bool>(false) ); // non-blocking, need extra condition:
                 DataSource<SendStatus>::shared_ptr dsss = boost::dynamic_pointer_cast<DataSource<SendStatus> >(ret);
                 assert(dsss);
                 mcmdcnd = new CmdCollectCondition( dsss ); // Replaces RTT 1.x completion condition.
+                break;
             }
         }
         catch( const wrong_number_of_args_exception& e )

@@ -902,7 +902,7 @@ namespace RTT
       }
       else if ( conds.size() > 1) {
           cond = conds.front();
-          int i = 1;
+          unsigned int i = 1;
           while ( i != conds.size() ) {
               cond = new ConditionBinaryCompositeAND(cond, conds[i] );
               ++i;
