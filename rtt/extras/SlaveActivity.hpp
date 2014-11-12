@@ -128,6 +128,8 @@ namespace RTT
 
         os::ThreadInterface* thread();
 
+        base::ActivityInterface *getMaster() const;
+
         bool initialize();
         void step();
         void loop();
