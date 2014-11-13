@@ -216,6 +216,11 @@ namespace RTT
          * run this activity. Will not be null.
          */
         virtual os::ThreadInterface* thread() = 0;
+
+        /**
+         * Returns a pointer to the RunnableInterface instance
+         */
+        virtual RunnableInterface* getRunner() const;
     };
 
 }}
