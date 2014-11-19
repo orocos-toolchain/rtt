@@ -103,6 +103,21 @@ namespace RTT
                  base::RunnableInterface* r = 0, const std::string& name ="Activity");
 
         /**
+         * @brief Create an Activity with a given scheduler type and priority.
+         *
+         * @param scheduler
+         *        The scheduler in which the activity's thread must run. Use ORO_SCHED_OTHER or
+         *        ORO_SCHED_RT.
+         * @param priority
+         *        The priority of this activity.
+         * @param r
+         *        The optional base::RunnableInterface to run exclusively within this Activity
+         * @param name The name of the underlying thread.
+         */
+        Activity(int scheduler, int priority,
+                 base::RunnableInterface* r = 0, const std::string& name ="Activity");
+
+        /**
          * @brief Create an Activity with a given scheduler type, priority and period.
          *
          * @param scheduler
