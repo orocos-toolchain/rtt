@@ -150,7 +150,7 @@ namespace RTT {
 
     bool Timer::startTimer(TimerId timer_id, double period)
     {
-        if ( timer_id < 0 || timer_id > int(mtimers.size()) || period < 0.0)
+        if ( timer_id < 0 || timer_id >= int(mtimers.size()) || period < 0.0)
         {
             log(Error) << "Invalid timer id or period" << endlog();
             return false;
@@ -169,7 +169,7 @@ namespace RTT {
 
     bool Timer::arm(TimerId timer_id, double wait_time)
     {
-        if ( timer_id < 0 || timer_id > int(mtimers.size()) || wait_time < 0.0)
+        if ( timer_id < 0 || timer_id >= int(mtimers.size()) || wait_time < 0.0)
         {
             log(Error) << "Invalid timer id or wait time" << endlog();
             return false;
@@ -190,7 +190,7 @@ namespace RTT {
     bool Timer::isArmed(TimerId timer_id) const
     {
         MutexLock locker(m);
-        if (timer_id < 0 || timer_id > int(mtimers.size()) )
+        if (timer_id < 0 || timer_id >= int(mtimers.size()) )
         {
             log(Error) << "Invalid timer id" << endlog();
             return false;
@@ -201,7 +201,7 @@ namespace RTT {
     double Timer::timeRemaining(TimerId timer_id) const
     {
         MutexLock locker(m);
-        if (timer_id < 0 || timer_id > int(mtimers.size()) )
+        if (timer_id < 0 || timer_id >= int(mtimers.size()) )
         {
             log(Error) << "Invalid timer id" << endlog();
             return 0.0;
@@ -217,7 +217,7 @@ namespace RTT {
     bool Timer::killTimer(TimerId timer_id)
     {
         MutexLock locker(m);
-        if (timer_id < 0 || timer_id > int(mtimers.size()) )
+        if (timer_id < 0 || timer_id >= int(mtimers.size()) )
         {
             log(Error) << "Invalid timer id" << endlog();
             return false;
