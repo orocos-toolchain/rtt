@@ -218,10 +218,9 @@ namespace RTT
         virtual os::ThreadInterface* thread() = 0;
 
         /**
-         * Returns the current RunnableInterface for this
+         * Returns a pointer to the RunnableInterface instance
          */
-        virtual RunnableInterface* getRunner();
-
+        virtual RunnableInterface* getRunner() const;
     };
 
 }}

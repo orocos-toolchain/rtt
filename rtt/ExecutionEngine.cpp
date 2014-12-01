@@ -45,6 +45,7 @@
 #include "internal/MWSRQueue.hpp"
 #include "TaskContext.hpp"
 #include "internal/CatchConfig.hpp"
+#include "extras/SlaveActivity.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
@@ -71,7 +72,8 @@ namespace RTT
     ExecutionEngine::ExecutionEngine( TaskCore* owner )
         : taskc(owner),
           mqueue(new MWSRQueue<DisposableInterface*>(ORONUM_EE_MQUEUE_SIZE) ),
-          f_queue( new MWSRQueue<ExecutableInterface*>(ORONUM_EE_MQUEUE_SIZE) )
+          f_queue( new MWSRQueue<ExecutableInterface*>(ORONUM_EE_MQUEUE_SIZE) ),
+          mmaster(0)
     {
     }
 
@@ -238,23 +240,18 @@ namespace RTT
             msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
     }
 
-    void ExecutionEngine::takeoverMessages( ExecutionEngine *remote )
-    {
-        DisposableInterface* com(0);
-        {
-            while ( remote->mqueue->dequeue( com ) ) {
-                assert( com );
-                mqueue->enqueue( com );
-            }
-        }
-    }
-
     bool ExecutionEngine::process( DisposableInterface* c )
     {
+        // forward message to master ExecutionEngine if available
+        if (mmaster) {
+            return mmaster->process(c);
+        }
+
         if ( c && this->getActivity() ) {
             // We only reject running functions when we're in the FatalError state.
             if (taskc && taskc->mTaskState == TaskCore::FatalError )
                 return false;
+
             bool result = mqueue->enqueue( c );
             this->getActivity()->trigger();
             msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
@@ -265,6 +262,12 @@ namespace RTT
 
     void ExecutionEngine::waitForMessages(const boost::function<bool(void)>& pred)
     {
+        // forward the call to the master ExecutionEngine which is processing messages for us...
+        if (mmaster) {
+            mmaster->waitForMessages(pred);
+            return;
+        }
+
         if (this->getActivity()->thread()->isSelf())
             waitAndProcessMessages(pred);
         else
@@ -280,6 +283,22 @@ namespace RTT
             waitForMessagesInternal(pred); // same as for messages.
     }
 
+    void ExecutionEngine::setMaster(ExecutionEngine *master)
+    {
+        mmaster = master;
+    }
+
+    void ExecutionEngine::setActivity( base::ActivityInterface* task )
+    {
+        extras::SlaveActivity *slave_activity = dynamic_cast<extras::SlaveActivity *>(task);
+        if (slave_activity && slave_activity->getMaster()) {
+            ExecutionEngine *master = dynamic_cast<ExecutionEngine *>(slave_activity->getMaster()->getRunner());
+            setMaster(master);
+        } else {
+            setMaster(0);
+        }
+        RTT::base::RunnableInterface::setActivity(task);
+    }
 
     void ExecutionEngine::waitForMessagesInternal(boost::function<bool(void)> const& pred)
     {
