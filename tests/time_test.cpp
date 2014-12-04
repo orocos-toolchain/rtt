@@ -61,6 +61,7 @@ struct TestTimer
 {
     std::vector< std::pair<Timer::TimerId, Seconds> > occured;
     TimeService::Seconds mstart;
+    boost::function<void(Timer::TimerId)> mcallback;
     TestTimer()
         :Timer(32, ORO_SCHED_RT, os::HighestPriority)
     {
@@ -72,6 +73,11 @@ struct TestTimer
         Seconds now = TimeService::Instance()->secondsSince( 0 );
         occured.push_back( std::make_pair(id, now) );
         //cout << "Occured: "<< id <<" on " << now - mstart <<"\n";
+
+        if (mcallback) {
+            mcallback(id);
+            mcallback = NULL;
+        }
     }
 
     ~TestTimer()
@@ -201,7 +207,7 @@ BOOST_AUTO_TEST_CASE( testTimers )
 
     // Test wrong parameters.
     BOOST_CHECK( timer.arm(4, -0.1) == false);
-    BOOST_CHECK( timer.arm(500, 0.1) == false);
+    BOOST_CHECK( timer.arm(32, 0.1) == false);
 
     timer.occured.clear();
 
@@ -289,6 +295,59 @@ BOOST_AUTO_TEST_CASE( testTimerPeriod )
     timer.setMaxTimers( 5 ); // clears the timer
     sleep(1);
     BOOST_CHECK( timer.occured.size() == 0 );
+}
+
+BOOST_AUTO_TEST_CASE( testTimerWaitFor )
+{
+    TestTimer timer;
+    Seconds now = hbg->secondsSince( 0 );
+
+    // Test waitFor
+    BOOST_CHECK( timer.arm(0, 1.0) );
+    BOOST_CHECK( timer.isArmed( 0 ) == true );
+    BOOST_CHECK( timer.waitFor( 0 ) == true );
+    BOOST_CHECK( timer.isArmed( 0 ) == false );
+    BOOST_REQUIRE_CLOSE( hbg->secondsSince(0), now + 1.0, 0.1 );
+
+    // Test waitForUntil
+    now = hbg->secondsSince( 0 );
+    BOOST_CHECK( timer.arm(0, 1.0) );
+    BOOST_CHECK( timer.isArmed( 0 ) == true );
+    BOOST_CHECK( timer.waitForUntil(0, hbg->getNSecs() + RTT::Seconds_to_nsecs(0.5) ) == false );
+    BOOST_CHECK( timer.isArmed( 0 ) == true );
+    BOOST_REQUIRE_CLOSE( hbg->secondsSince( 0 ), now + 0.5, 0.1 );
+    sleep(1);
+    BOOST_CHECK( timer.isArmed( 0 ) == false );
+
+    // Test killing of one timer
+    now = hbg->secondsSince( 0 );
+    BOOST_CHECK( timer.arm(0, 1.0) );
+    BOOST_CHECK( timer.isArmed( 0 ) );
+    // program timer 1 to kill timer 0 after 0.5 seconds
+    timer.mcallback = boost::bind(&Timer::killTimer, &timer, 0);
+    BOOST_CHECK( timer.arm(1, 0.5) );
+    BOOST_CHECK( timer.isArmed( 1 ) );
+    // wait for timer 0
+    BOOST_CHECK( timer.waitFor( 0 ) );
+    // callback killed timer 1
+    BOOST_CHECK( timer.isArmed( 0 ) == false );
+    BOOST_CHECK( timer.isArmed( 1 ) == false );
+    BOOST_REQUIRE_CLOSE( hbg->secondsSince(0), now + 0.5, 0.1 );
+
+    // Test stopping the timer thread while another thread is waiting
+    now = hbg->secondsSince( 0 );
+    BOOST_CHECK( timer.arm(0, 1.0) );
+    BOOST_CHECK( timer.isArmed( 0 ) );
+    // program timer 1 to stop the timer activity after 0.5 seconds
+    timer.mcallback = boost::bind(&ActivityInterface::stop, timer.getActivity());
+    BOOST_CHECK( timer.arm(1, 0.5) );
+    BOOST_CHECK( timer.isArmed( 1 ) );
+    // wait for timer 0
+    BOOST_CHECK( timer.waitFor( 0 ) );
+    // callback stopped the timer activity and waitFor(0) should have returned
+    BOOST_CHECK( timer.isArmed( 0 ) == false );
+    BOOST_CHECK( timer.isArmed( 1 ) == false );
+    BOOST_REQUIRE_CLOSE( hbg->secondsSince(0), now + 0.5, 0.1 );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -185,7 +185,7 @@ namespace RTT
          * @param  abs_time The absolute time to wait until before the condition happens.
          * Use rtos_get_time_ns() to get the current time and Seconds_to_nsecs to add a
          * certain amount to the result.
-         * @returns true if timer has expired or if it was killed before abs_time passed and false if the timer is not armed
+         * @returns true if timer has expired or if it was killed before abs_time and false if the timer is not armed
          */
         bool waitForUntil(RTT::os::Timer::TimerId id, nsecs abs_time);
 
