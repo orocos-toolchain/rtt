@@ -250,7 +250,7 @@ namespace RTT {
         }
         if (mtimers[timer_id].expires == 0) return false;
 
-        return mtimers[timer_id].expired.wait(m) && this->getThread()->isRunning();
+        return mtimers[timer_id].expired.wait(m);
     }
 
     bool Timer::waitForUntil(TimerId timer_id, nsecs abs_time)
@@ -263,7 +263,7 @@ namespace RTT {
         }
         if (mtimers[timer_id].expires == 0) return false;
 
-        return mtimers[timer_id].expired.wait_until(m, abs_time) && this->getThread()->isRunning();
+        return mtimers[timer_id].expired.wait_until(m, abs_time);
     }
 
 
