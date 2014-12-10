@@ -292,22 +292,11 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       LIBRARY_OUTPUT_DIRECTORY ${ORO_COMPONENT_OUTPUT_DIRECTORY}
       DEFINE_SYMBOL "RTT_COMPONENT"
       ${LIB_COMPONENT_VERSION}
-      INSTALL_RPATH "${USE_OROCOS_LIBRARY_DIRS_WITHOUT_DESTDIR};${OROCOS-RTT_LIBRARY_DIRS};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins;${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
-    if(APPLE)
-      if (CMAKE_VERSION VERSION_LESS "3.0.0")
-        SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
-          INSTALL_NAME_DIR "@rpath"
-          )
-      else()
-        # cope with CMake 3.x
-        SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
-          MACOSX_RPATH ON)
-      endif()
-    endif()
 
     orocos_add_compile_flags( ${COMPONENT_NAME} ${USE_OROCOS_CFLAGS_OTHER})
     orocos_add_link_flags( ${COMPONENT_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
+    orocos_set_install_rpath( ${COMPONENT_NAME} ${USE_OROCOS_LIBRARY_DIRS})
 
     TARGET_LINK_LIBRARIES( ${COMPONENT_NAME}
       ${OROCOS-RTT_LIBRARIES} 
@@ -333,6 +322,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_COMPS " -l${COMPONENT_LIB_NAME}")
     list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${COMPONENT_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_component )
 
 # Utility libraries should add themselves by calling 'orocos_library()' 
@@ -386,22 +376,11 @@ macro( orocos_library LIB_TARGET_NAME )
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
       OUTPUT_NAME ${LIB_NAME}
       ${LIB_COMPONENT_VERSION}
-      INSTALL_RPATH "${USE_OROCOS_LIBRARY_DIRS_WITHOUT_DESTDIR};${OROCOS-RTT_LIBRARY_DIRS};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins;${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
-    if(APPLE)
-      if (CMAKE_VERSION VERSION_LESS "3.0.0")
-        SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-          INSTALL_NAME_DIR "@rpath"
-          )
-      else()
-        # cope with CMake 3.x
-        SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-          MACOSX_RPATH ON)
-      endif()
-    endif()
 
     orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER} )
     orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER} )
+    orocos_set_install_rpath( ${LIB_TARGET_NAME} "${USE_OROCOS_LIBRARY_DIRS};${OROCOS-RTT_LIBRARY_DIRS};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins;${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}" )
 
     TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} 
       ${OROCOS-RTT_LIBRARIES} 
@@ -421,6 +400,7 @@ macro( orocos_library LIB_TARGET_NAME )
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_LIBS " -l${LIB_NAME}")
     list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${LIB_TARGET_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_library )
 
   # Executables should add themselves by calling 'orocos_executable()'
@@ -460,19 +440,7 @@ macro( orocos_library LIB_TARGET_NAME )
 
     SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
       OUTPUT_NAME ${EXE_NAME}
-      INSTALL_RPATH "${USE_OROCOS_LIBRARY_DIRS_WITHOUT_DESTDIR};${OROCOS-RTT_LIBRARY_DIRS};${CMAKE_INSTALL_PREFIX}/bin;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins;${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
-    if(APPLE)
-      if (CMAKE_VERSION VERSION_LESS "3.0.0")
-        SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
-          INSTALL_NAME_DIR "@rpath"
-          )
-      else()
-        # cope with CMake 3.x
-        SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
-          MACOSX_RPATH ON)
-      endif()
-    endif()
 
     if(CMAKE_DEBUG_POSTFIX)
       set_target_properties( ${EXE_TARGET_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
@@ -480,6 +448,7 @@ macro( orocos_library LIB_TARGET_NAME )
 
     orocos_add_compile_flags(${EXE_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER})
     orocos_add_link_flags(${EXE_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
+    orocos_set_install_rpath( ${EXE_TARGET_NAME} ${USE_OROCOS_LIBRARY_DIRS})
 
     TARGET_LINK_LIBRARIES( ${EXE_TARGET_NAME} 
       ${OROCOS-RTT_LIBRARIES} 
@@ -529,19 +498,7 @@ macro( orocos_library LIB_TARGET_NAME )
 
     SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
       OUTPUT_NAME ${EXE_TARGET_NAME}
-      INSTALL_RPATH "${USE_OROCOS_LIBRARY_DIRS_WITHOUT_DESTDIR};${OROCOS-RTT_LIBRARY_DIRS};${CMAKE_INSTALL_PREFIX}/bin;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins;${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
-    if(APPLE)
-      if (CMAKE_VERSION VERSION_LESS "3.0.0")
-        SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
-          INSTALL_NAME_DIR "@rpath"
-          )
-      else()
-        # cope with CMake 3.x
-        SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
-          MACOSX_RPATH ON)
-      endif()
-    endif()
 
     if(CMAKE_DEBUG_POSTFIX)
       set_target_properties( ${EXE_TARGET_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
@@ -549,6 +506,7 @@ macro( orocos_library LIB_TARGET_NAME )
 
     orocos_add_compile_flags(${EXE_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER})
     orocos_add_link_flags(${EXE_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
+    orocos_set_install_rpath( ${EXE_TARGET_NAME} ${USE_OROCOS_LIBRARY_DIRS})
 
     TARGET_LINK_LIBRARIES( ${EXE_TARGET_NAME}
       ${OROCOS-RTT_LIBRARIES}
@@ -612,6 +570,7 @@ macro( orocos_library LIB_TARGET_NAME )
       list(APPEND OROCOS_DEFINED_TYPES " -l${PROJECT_NAME}-typekit-${OROCOS_TARGET}")
       list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${PROJECT_NAME}-typekit")
       list(APPEND ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS "${PROJECT_BINARY_DIR}/typekit")
+      list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types")
     endif (NOT TYPEGEN_EXE)
   endmacro( orocos_typegen_headers )
 
@@ -664,22 +623,11 @@ macro( orocos_library LIB_TARGET_NAME )
       OUTPUT_NAME ${LIB_NAME}
       LIBRARY_OUTPUT_DIRECTORY ${ORO_TYPEKIT_OUTPUT_DIRECTORY}
       ${LIB_COMPONENT_VERSION}
-      INSTALL_RPATH "${USE_OROCOS_LIBRARY_DIRS_WITHOUT_DESTDIR};${OROCOS-RTT_LIBRARY_DIRS};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins;${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
-    if(APPLE)
-      if (CMAKE_VERSION VERSION_LESS "3.0.0")
-        SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-          INSTALL_NAME_DIR "@rpath"
-          )
-      else()
-        # cope with CMake 3.x
-        SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-          MACOSX_RPATH ON)
-      endif()
-    endif()
 
     orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER})
     orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
+    orocos_set_install_rpath( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARY_DIRS})
 
     TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME}
       ${OROCOS-RTT_LIBRARIES} 
@@ -703,6 +651,7 @@ macro( orocos_library LIB_TARGET_NAME )
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_TYPES " -l${LIB_NAME}")
     list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${LIB_TARGET_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_typekit )
 
   # plugin libraries should add themselves by calling 'orocos_plugin()' 
@@ -756,22 +705,11 @@ macro( orocos_library LIB_TARGET_NAME )
       OUTPUT_NAME ${LIB_NAME}
       LIBRARY_OUTPUT_DIRECTORY ${ORO_PLUGIN_OUTPUT_DIRECTORY}
       ${LIB_COMPONENT_VERSION}
-      INSTALL_RPATH "${USE_OROCOS_LIBRARY_DIRS_WITHOUT_DESTDIR};${OROCOS-RTT_LIBRARY_DIRS};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins;${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
-    if(APPLE)
-      if (CMAKE_VERSION VERSION_LESS "3.0.0")
-        SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-          INSTALL_NAME_DIR "@rpath"
-          )
-      else()
-        # cope with CMake 3.x
-        SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-          MACOSX_RPATH ON)
-      endif()
-    endif()
 
     orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER})
     orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
+    orocos_set_install_rpath( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARY_DIRS})
 
     TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} 
       ${OROCOS-RTT_LIBRARIES}
@@ -796,6 +734,7 @@ macro( orocos_library LIB_TARGET_NAME )
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_PLUGINS " -l${LIB_NAME}")
     list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${LIB_TARGET_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_plugin )
 
   # service libraries should add themselves by calling 'orocos_service()' 
@@ -1036,6 +975,7 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS      ${${_depend}_EXPORTED_TARGETS})
       list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES    ${${_depend}_LIBRARIES})
       list(APPEND ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS ${${_depend}_INCLUDE_DIRS})
+      list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS ${${_depend}_LIBRARY_DIRS})
     endforeach()
 
     if(${PROJECT_NAME}_EXPORTED_TARGETS)
@@ -1046,6 +986,9 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
     endif()
     if(${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS)
       list(REMOVE_DUPLICATES ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS)
+    endif()
+    if(${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS)
+      list(REMOVE_DUPLICATES ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS)
     endif()
 
     # Store a list of exported targets, libraries and include directories on the cache so that other packages within the same workspace can use them.
@@ -1061,6 +1004,10 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
     if(${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS)
       message(STATUS "[UseOrocos] Exporting include directories ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS}.")
       set(${PC_NAME}_EXPORTED_OROCOS_INCLUDE_DIRS ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS} CACHE INTERNAL "Include directories exported by package ${PC_NAME}")
+    endif()
+    if(${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS)
+      message(STATUS "[UseOrocos] Exporting library directories ${${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS}.")
+      set(${PC_NAME}_EXPORTED_OROCOS_LIBRARY_DIRS ${${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS} CACHE INTERNAL "Library directories exported by package ${PC_NAME}")
     endif()
 
     # Also set the uninstall target:
