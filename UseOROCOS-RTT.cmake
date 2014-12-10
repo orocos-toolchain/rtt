@@ -189,14 +189,6 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     set(ORO_TYPEKIT_OUTPUT_DIRECTORY   ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types)
     set(ORO_PLUGIN_OUTPUT_DIRECTORY    ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins)
 
-    # Make sure a devel prefix's pkgconfig path is available if it hasn't already been source'd
-    if (NOT $ENV{PKG_CONFIG_PATH} MATCHES "${CATKIN_DEVEL_PREFIX}/lib/pkgconfig")
-      set(ENV{PKG_CONFIG_PATH} "${CATKIN_DEVEL_PREFIX}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
-    endif()
-    if("$ENV{VERBOSE}")
-      message(STATUS "[UseOrocos] PKG_CONFIG_PATH: $ENV{PKG_CONFIG_PATH}")
-    endif()
-
     # Get catkin build_depend dependencies
     foreach(DEP ${${PROJECT_NAME}_BUILD_DEPENDS})
       # We use OROCOS_ONLY so that we only find .pc files with the orocos target on them
