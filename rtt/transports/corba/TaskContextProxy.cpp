@@ -94,6 +94,16 @@ namespace RTT
     TaskContextProxy::TaskContextProxy(std::string name, bool is_ior)
         : TaskContext("NotFound")
     {
+        initFromURIOrTaskname(name, is_ior);
+    }
+
+    TaskContextProxy::TaskContextProxy(): TaskContext("NotFound")
+    {
+
+    }
+
+    void TaskContextProxy::initFromURIOrTaskname(string name, bool is_ior)
+    {
         Logger::In in("TaskContextProxy");
         this->clear();
         this->setActivity( new SequentialActivity() );
@@ -158,7 +168,7 @@ namespace RTT
 
         this->synchronize();
     }
-
+    
     TaskContextProxy::TaskContextProxy( ::RTT::corba::CTaskContext_ptr taskc)
         : TaskContext("CORBAProxy"), mtask( corba::CTaskContext::_duplicate(taskc) )
     {
