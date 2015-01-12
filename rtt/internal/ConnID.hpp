@@ -47,6 +47,7 @@
 #define ORO_CONNID_HPP_
 
 #include "../rtt-config.h"
+#include <string>
 
 namespace RTT
 {
@@ -57,7 +58,46 @@ namespace RTT
          */
         class RTT_API ConnID
         {
+            std::string inputTaskName;
+            std::string inputPortName;
+            std::string outputTaskName;
+            std::string outputPortName;
+            
         public:
+            void setInputTaskName(const std::string &name)
+            {
+                inputTaskName = name;
+            };
+            void setOutputTaskName(const std::string &name)
+            {
+                outputTaskName = name;
+            };
+            void setInputPortName(const std::string &name)
+            {
+                inputPortName = name;
+            };
+            void setOutputPortName(const std::string &name)
+            {
+                outputPortName = name;
+            };
+            
+            const std::string &getInputTaskName() const
+            {
+                return inputTaskName;
+            };
+            const std::string &getOutputTaskName() const
+            {
+                return outputTaskName;
+            };
+            const std::string &getInputPortName() const
+            {
+                return inputPortName;
+            };
+            const std::string &getOutputPortName() const
+            {
+                return outputPortName;
+            };
+            
             virtual bool isSameID(ConnID const& id) const = 0;
             virtual ConnID* clone() const = 0;
             virtual ~ConnID() {}
