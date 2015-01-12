@@ -72,10 +72,10 @@ using namespace RTT;
 using namespace RTT::detail;
 
 // Implementation skeleton constructor
-RTT_corba_CService_i::RTT_corba_CService_i ( RTT::Service::shared_ptr service, PortableServer::POA_ptr poa)
+RTT_corba_CService_i::RTT_corba_CService_i ( RTT::Service::shared_ptr service, PortableServer::POA_ptr poa, const std::string &oName )
     : RTT_corba_CConfigurationInterface_i( service.get(), PortableServer::POA::_duplicate( poa) ), 
       RTT_corba_COperationInterface_i( service.get(), PortableServer::POA::_duplicate( poa) ),
-      RTT::corba::CDataFlowInterface_i( service.get(), PortableServer::POA::_duplicate( poa) ),
+      RTT::corba::CDataFlowInterface_i( service.get(), PortableServer::POA::_duplicate( poa), oName ),
       mpoa(poa), mservice(service)
 {
 }
@@ -131,7 +131,7 @@ char * RTT_corba_CService_i::getServiceDescription (
     
     RTT_corba_CService_i* serv_i;
     RTT::corba::CService_var serv;
-    serv_i = new RTT_corba_CService_i( provider, mpoa );
+    serv_i = new RTT_corba_CService_i( provider, mpoa , getOwnerName());
     serv = serv_i->activate_this();
     mservs.push_back( std::pair<RTT::corba::CService_var,PortableServer::ServantBase_var>( RTT::corba::CService::_duplicate(serv.in()), serv_i ) );
     //CService_i::registerServant(serv, mtask->provides(service_name));

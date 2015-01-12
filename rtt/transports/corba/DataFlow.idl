@@ -122,6 +122,11 @@ module RTT
       typedef sequence<CPortDescription> CPortDescriptions;
 
       /**
+      * Return the name of the instance that owns this interface.
+      */
+      string getOwnerName();
+      
+      /**
        * Returns the names of the ports of this component.
        */
       CPortNames getPorts();

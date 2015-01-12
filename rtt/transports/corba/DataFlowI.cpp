@@ -65,14 +65,22 @@ using namespace RTT::internal;
 
 CDataFlowInterface_i::ServantMap CDataFlowInterface_i::s_servant_map;
 
-CDataFlowInterface_i::CDataFlowInterface_i (RTT::DataFlowInterface* interface, PortableServer::POA_ptr poa)
-    : mdf(interface), mpoa(PortableServer::POA::_duplicate(poa))
+CDataFlowInterface_i::CDataFlowInterface_i (RTT::DataFlowInterface* interface, PortableServer::POA_ptr poa, const std::string &oname)
+    : mdf(interface), mpoa(PortableServer::POA::_duplicate(poa)), ownerName(oname)
 {
 }
 
 CDataFlowInterface_i::~CDataFlowInterface_i ()
 {
 	channel_list.clear();
+}
+
+char* CDataFlowInterface_i::getOwnerName()
+{
+    char *ret = new char[ownerName.size() + 1];
+    memcpy(ret, ownerName.c_str(), ownerName.size());
+    ret[ownerName.size()] = 0;
+    return ret;
 }
 
 RTT::DataFlowInterface* CDataFlowInterface_i::getDataFlowInterface() const
@@ -129,7 +137,7 @@ CDataFlowInterface_ptr CDataFlowInterface_i::getRemoteInterface(RTT::DataFlowInt
         if (it->getDataFlowInterface() == dfi)
             return it->objref;
     }
-    CDataFlowInterface_i* servant = new CDataFlowInterface_i(dfi, poa );
+    CDataFlowInterface_i* servant = new CDataFlowInterface_i(dfi, poa ,dfi->getOwner()->getName());
     CDataFlowInterface_ptr server = servant->_this();
     servant->_remove_ref();
     registerServant( server, servant);
@@ -252,6 +260,8 @@ CORBA::Boolean CDataFlowInterface_i::channelReady(const char * reader_port_name,
     if (ip == 0)
         throw corba::CNoSuchPortException();
 
+    ip->setOwnerName(getOwnerName());
+    
     CORBA_CHECK_THREAD();
     // lookup the C++ channel that matches the corba channel and
     // inform our local port that that C++ channel is ready.
@@ -386,6 +396,8 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
     if (!transporter)
         throw CNoCorbaTransport();
 
+    port->setOwnerName(getOwnerName());
+    
     CORBA_CHECK_THREAD();
     // Convert to RTT policy.
     ConnPolicy policy2 = toRTT(corba_policy);
@@ -461,6 +473,8 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
     if (port == 0)
         throw CNoSuchPortException();
 
+    port->setOwnerName(getOwnerName());
+    
     TypeInfo const* type_info = port->getTypeInfo();
     if (!type_info)
         throw CNoCorbaTransport();
@@ -576,7 +590,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
         }
 
         // Creates a proxy to the remote input port
-        RemoteInputPort port(writer->getTypeInfo(), reader_interface, reader_port, mpoa);
+        RemoteInputPort port(writer->getTypeInfo(), reader_interface, reader_port, mpoa, reader_interface->getOwnerName());
         port.setInterface( mdf ); // cheating !
         // Connect to proxy.
         return writer->createConnection(port, toRTT(policy));

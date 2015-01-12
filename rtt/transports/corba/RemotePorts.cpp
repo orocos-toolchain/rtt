@@ -55,11 +55,15 @@ template<typename BaseClass>
 RemotePort<BaseClass>::RemotePort(RTT::types::TypeInfo const* type_info,
         CDataFlowInterface_ptr dataflow,
         std::string const& name,
-        PortableServer::POA_ptr poa)
+        PortableServer::POA_ptr poa,
+        std::string const& ownerName)
     : BaseClass(name)
     , type_info(type_info)
     , dataflow(CDataFlowInterface::_duplicate(dataflow))
-    , mpoa(PortableServer::POA::_duplicate(poa)) { }
+    , mpoa(PortableServer::POA::_duplicate(poa)) 
+    { 
+        BaseClass::setOwnerName(ownerName);
+    }
 
 template<typename BaseClass>
 CDataFlowInterface_ptr RemotePort<BaseClass>::getDataFlowInterface() const
@@ -110,8 +114,9 @@ bool RemotePort<BaseClass>::addConnection(RTT::internal::ConnID* port_id, Channe
 
 RemoteInputPort::RemoteInputPort(RTT::types::TypeInfo const* type_info,
         CDataFlowInterface_ptr dataflow, std::string const& reader_port,
-        PortableServer::POA_ptr poa)
-    : RemotePort< RTT::base::InputPortInterface >(type_info, dataflow, reader_port, poa)
+        PortableServer::POA_ptr poa,
+        std::string const& ownerName)
+    : RemotePort< RTT::base::InputPortInterface >(type_info, dataflow, reader_port, poa, ownerName)
 {}
 
 RTT::base::DataSourceBase* RemoteInputPort::getDataSource()
@@ -222,8 +227,9 @@ bool RemoteInputPort::channelReady(RTT::base::ChannelElementBase::shared_ptr cha
 
 RemoteOutputPort::RemoteOutputPort(RTT::types::TypeInfo const* type_info,
         CDataFlowInterface_ptr dataflow, std::string const& reader_port,
-        PortableServer::POA_ptr poa)
-    : RemotePort< RTT::base::OutputPortInterface >(type_info, dataflow, reader_port, poa)
+        PortableServer::POA_ptr poa,
+        std::string const& ownerName)
+    : RemotePort< RTT::base::OutputPortInterface >(type_info, dataflow, reader_port, poa, ownerName)
 {}
 
 bool RemoteOutputPort::keepsLastWrittenValue() const

@@ -113,6 +113,7 @@ namespace RTT {
         {
             DataFlowInterface* mdf;
             PortableServer::POA_var mpoa;
+            std::string ownerName;
 
             /** Keeps track of servants, such that we can dispose them
              * at the end.
@@ -136,9 +137,11 @@ namespace RTT {
             RTT::os::Mutex channel_list_mtx;
         public:
             // standard constructor
-            CDataFlowInterface_i(DataFlowInterface* interface, PortableServer::POA_ptr poa);
+            CDataFlowInterface_i(DataFlowInterface* interface, PortableServer::POA_ptr poa, const std::string &ownerName);
             virtual ~CDataFlowInterface_i();
 
+            virtual char* getOwnerName();
+            
             DataFlowInterface* getDataFlowInterface() const;
 
             static void registerServant(CDataFlowInterface_ptr objref, CDataFlowInterface_i* servant);

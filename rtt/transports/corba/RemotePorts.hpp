@@ -72,7 +72,8 @@ namespace RTT {
             RemotePort(types::TypeInfo const* type_info,
                     CDataFlowInterface_ptr dataflow,
                     std::string const& name,
-                    PortableServer::POA_ptr poa);
+                    PortableServer::POA_ptr poa,
+                    std::string const& ownerName);
 
             PortableServer::POA_ptr _default_POA();
             CDataFlowInterface_ptr getDataFlowInterface() const;
@@ -100,7 +101,8 @@ namespace RTT {
             RemoteOutputPort(types::TypeInfo const* type_info,
                     CDataFlowInterface_ptr dataflow,
                     std::string const& name,
-                    PortableServer::POA_ptr poa);
+                    PortableServer::POA_ptr poa,
+                    std::string const& ownerName);
 
             bool keepsLastWrittenValue() const;
             void keepLastWrittenValue(bool new_flag);
@@ -138,7 +140,8 @@ namespace RTT {
             RemoteInputPort(types::TypeInfo const* type_info,
                     CDataFlowInterface_ptr dataflow,
                     std::string const& name,
-                    PortableServer::POA_ptr poa);
+                    PortableServer::POA_ptr poa,
+                    std::string const& ownerName);
 
             /**
              * This method will do more than just building the output half, it
