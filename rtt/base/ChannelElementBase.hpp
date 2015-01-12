@@ -47,6 +47,7 @@
 #include <rtt/os/Mutex.hpp>
 #include "rtt-base-fwd.hpp"
 #include "../internal/rtt-internal-fwd.hpp"
+#include <string>
 
 namespace RTT { namespace base {
 
