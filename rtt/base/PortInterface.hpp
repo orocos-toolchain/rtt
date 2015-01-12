@@ -58,6 +58,14 @@ namespace RTT
     {
         std::string name;
         std::string mdesc;
+
+        /**
+         * Name of the owning TaskContext of the Port. 
+         * In case of a non local port, this should 
+         * contain the name of the remote task.
+         * */
+        std::string ownerName;
+        
     protected:
         DataFlowInterface* iface;
 
@@ -84,6 +92,21 @@ namespace RTT
          */
         bool setName(const std::string& name);
 
+        /**
+         * Returns the name of the owning TaskContext of this interface.
+         * In case of a non local port this returns the name of the
+         * remote task context.
+         * */
+        const std::string &getOwnerName() const;
+        
+        /**
+         * Sets the name of the owning TaskContext of this interface.
+         * */
+        void setOwnerName(const std::string &name) 
+        {
+            ownerName = name;
+        }
+        
         /**
          * Get the documentation of this port.
          * @return A description.

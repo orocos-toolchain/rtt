@@ -40,6 +40,7 @@
 #include "../Service.hpp"
 #include "../OperationCaller.hpp"
 #include "../internal/ConnFactory.hpp"
+#include "../TaskContext.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;
@@ -56,6 +57,16 @@ bool PortInterface::setName(const std::string& name)
     }
     return false;
 }
+
+const string& base::PortInterface::getOwnerName() const
+{
+    if(isLocal() && ownerName.empty() && iface)
+    {
+        return iface->getOwner()->getName();
+    }
+    return ownerName;
+}
+
 
 PortInterface& PortInterface::doc(const std::string& desc) {
     mdesc = desc;
