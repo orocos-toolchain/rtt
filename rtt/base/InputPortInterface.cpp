@@ -109,6 +109,10 @@ bool InputPortInterface::channelReady(ChannelElementBase::shared_ptr channel, RT
     // cid is deleted/owned by the ConnectionManager.
     if ( channel ) {
         internal::ConnID* cid = channel->getConnID();
+        cid->setOutputPortName(channel->getOutputPortName());
+        cid->setOutputTaskName(channel->getOutputTaskName());
+        cid->setInputPortName(channel->getInputPortName());
+        cid->setInputTaskName(channel->getInputTaskName());
         if (cid ) {
             this->addConnection(cid, channel, policy);
             if ( channel->inputReady() )

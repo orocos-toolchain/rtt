@@ -97,9 +97,21 @@ base::ChannelElementBase::shared_ptr RTT::internal::ConnFactory::createRemoteCon
     return base::ChannelElementBase::shared_ptr();
 }
 
+void ConnFactory::fillConnId(ConnID* connId, base::OutputPortInterface& output_port, base::InputPortInterface& input_port)
+{
+    connId->setInputPortName(input_port.getName());
+    connId->setInputTaskName(input_port.getOwnerName());
+    connId->setOutputPortName(output_port.getName());
+    connId->setOutputTaskName(output_port.getOwnerName());
+}
+
+
 bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy policy) {
+    ConnID *connId = input_port.getPortID();
+    fillConnId(connId, output_port, input_port);
+    
     // Register the channel's input to the output port.
-    if ( output_port.addConnection( input_port.getPortID(), channel_input, policy ) ) {
+    if ( output_port.addConnection( connId, channel_input, policy ) ) {
         // notify input that the connection is now complete.
         if ( input_port.channelReady( channel_input->getOutputEndPoint(), policy ) == false ) {
             output_port.disconnect( &input_port );
@@ -206,6 +218,7 @@ base::ChannelElementBase::shared_ptr ConnFactory::createAndCheckOutOfBandConnect
     ConnPolicy policy2 = policy;
     policy2.pull = false;
     conn_id->name_id = policy2.name_id;
+    fillConnId(conn_id, output_port, input_port);
 
     // check if marshaller supports size hints:
     types::TypeMarshaller* ttt = dynamic_cast<types::TypeMarshaller*>( type->getProtocol(policy.transport) );
