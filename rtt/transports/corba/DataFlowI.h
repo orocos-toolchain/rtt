@@ -75,6 +75,9 @@ namespace RTT {
             RTT::corba::CorbaTypeTransporter const& transport;
             PortableServer::POA_var mpoa;
             CDataFlowInterface_i* mdataflow;
+            
+            std::string remotePortName;
+            std::string remoteTaskName;
 
         public:
             // standard constructor
@@ -82,6 +85,9 @@ namespace RTT {
 			  PortableServer::POA_ptr poa);
             virtual ~CRemoteChannelElement_i();
 
+            const std::string &getRemotePortName() const;
+            const std::string &getRemoteTaskName() const;
+            
             virtual RTT::corba::CRemoteChannelElement_ptr activate_this() {
                 PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
                 _remove_ref(); // ref count=1
@@ -194,12 +200,12 @@ namespace RTT {
             	      ,::RTT::corba::CNoSuchPortException
             	    ));
 
-            CChannelElement_ptr buildChannelOutput(const char* reader_port, RTT::corba::CConnPolicy& policy) ACE_THROW_SPEC ((
+            CChannelElement_ptr buildChannelOutput(const char* input_port, const char* output_port_name, const char* output_task_name, CConnPolicy& policy) ACE_THROW_SPEC ((
             	      CORBA::SystemException
             	      ,::RTT::corba::CNoCorbaTransport
                       ,::RTT::corba::CNoSuchPortException
             	    ));
-            CChannelElement_ptr buildChannelInput(const char* writer_port, RTT::corba::CConnPolicy& policy) ACE_THROW_SPEC ((
+            CChannelElement_ptr buildChannelInput(const char* writer_port, const char* input_port_name, const char* input_task_name, RTT::corba::CConnPolicy& policy) ACE_THROW_SPEC ((
           	      CORBA::SystemException
           	      ,::RTT::corba::CNoCorbaTransport
                   ,::RTT::corba::CNoSuchPortException

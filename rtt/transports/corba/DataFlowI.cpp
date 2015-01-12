@@ -376,7 +376,7 @@ void CDataFlowInterface_i::removeStream( const char* port, const char* stream_na
 
 
 CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
-        const char* port_name, CConnPolicy & corba_policy) ACE_THROW_SPEC ((
+        const char* port_name, const char* output_port_name, const char* output_task_name, CConnPolicy & corba_policy) ACE_THROW_SPEC ((
          	      CORBA::SystemException
          	      ,::RTT::corba::CNoCorbaTransport
                   ,::RTT::corba::CNoSuchPortException
@@ -448,9 +448,16 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
 
     this_element->_remove_ref();
 
+    ChannelElementBase::shared_ptr conElement = end->getOutputEndPoint();
+    
+    conElement->setInputPortName(port->getName());
+    conElement->setInputTaskName(port->getOwnerName());
+    conElement->setOutputPortName(output_port_name);
+    conElement->setOutputTaskName(output_task_name);
+    
     // store our mapping of corba channel elements to C++ channel elements. We need this for channelReady() and removing a channel again.
     { RTT::os::MutexLock lock(channel_list_mtx);
-        channel_list.push_back( ChannelList::value_type(this_element->_this(), end->getOutputEndPoint()));
+        channel_list.push_back( ChannelList::value_type(this_element->_this(), conElement));
     }
 
     CRemoteChannelElement_var proxy = this_element->_this();
@@ -461,7 +468,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
  * This code is a major copy-past of the above. Amazing how much boiler plate we need.
  */
 CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
-        const char* port_name, CConnPolicy & corba_policy) ACE_THROW_SPEC ((
+        const char* port_name, const char* input_port_name, const char* input_task_name, CConnPolicy & corba_policy) ACE_THROW_SPEC ((
         	      CORBA::SystemException
         	      ,::RTT::corba::CNoCorbaTransport
         	      ,::RTT::corba::CNoSuchPortException
@@ -531,16 +538,29 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
         buf->setOutput( dynamic_cast<ChannelElementBase*>(this_element) );
     }
 
+    ChannelElementBase::shared_ptr conElement = start->getInputEndPoint();
+    
+    conElement->setOutputPortName(port->getName());
+    conElement->setOutputTaskName(port->getOwnerName());
+    conElement->setInputPortName(input_port_name);
+    conElement->setInputTaskName(input_task_name);
 
+    SimpleConnID *id = new SimpleConnID();
+
+    id->setInputPortName(port->getName());
+    id->setInputTaskName(port->getOwnerName());
+    id->setOutputPortName(input_port_name);
+    id->setOutputTaskName(input_task_name);
+    
     // Attach to our output port:
-    port->addConnection( new SimpleConnID(), start->getInputEndPoint(), policy2);
+    port->addConnection(id , conElement, policy2);
 
     // DO NOT DO THIS: _remove_ref() is tied to the refcount of the ChannelElementBase !
     //this_element->_remove_ref();
 
     // Finally, store our mapping of corba channel elements to C++ channel elements. We need this for channelReady() and removing a channel again.
     { RTT::os::MutexLock lock(channel_list_mtx);
-        channel_list.push_back( ChannelList::value_type(this_element->_this(), start->getInputEndPoint()));
+        channel_list.push_back( ChannelList::value_type(this_element->_this(), conElement));
     }
 
     return this_element->_this();

@@ -137,7 +137,7 @@ RTT::base::ChannelElementBase::shared_ptr RemoteInputPort::buildRemoteChannelOut
     RTT::base::ChannelElementBase::shared_ptr buf;
     try {
         CConnPolicy cpolicy = toCORBA(policy);
-        CChannelElement_var ret = dataflow->buildChannelOutput(getName().c_str(), cpolicy);
+        CChannelElement_var ret = dataflow->buildChannelOutput(getName().c_str(), output_port.getName().c_str(), output_port.getOwnerName().c_str(), cpolicy);
         if ( CORBA::is_nil(ret) ) {
             return 0;
         }
