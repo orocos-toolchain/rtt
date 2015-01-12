@@ -70,6 +70,11 @@ namespace RTT { namespace base {
         shared_ptr input;
         shared_ptr output;
 
+        std::string inputPortName;
+        std::string inputTaskName;
+        std::string outputPortName;
+        std::string outputTaskName;
+        
         RTT::os::Mutex inout_lock;
 
     protected:
@@ -88,6 +93,40 @@ namespace RTT { namespace base {
         ChannelElementBase();
         virtual ~ChannelElementBase();
 
+        void setInputPortName(const std::string &name)
+        {
+            inputPortName = name;
+        };
+        void setInputTaskName(const std::string &name)
+        {
+            inputTaskName = name;
+        };
+        void setOutputPortName(const std::string &name)
+        {
+            outputPortName = name;
+        };
+        void setOutputTaskName(const std::string &name)
+        {
+            outputTaskName = name;
+        };
+        
+        const std::string &getInputPortName() const
+        {
+            return inputPortName;
+        };
+        const std::string &getInputTaskName() const
+        {
+            return inputTaskName;
+        };
+        const std::string &getOutputPortName() const
+        {
+            return outputPortName;
+        };
+        const std::string &getOutputTaskName() const
+        {
+            return outputTaskName;
+        };
+        
         /**
          * Removes the input channel (if any).
          * This call may delete channels from memory.
