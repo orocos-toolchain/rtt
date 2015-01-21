@@ -95,6 +95,11 @@ namespace RTT
         TaskContextProxy(std::string location, bool is_ior);
 
         /**
+         * A Private constructor which does nothing       
+         * */
+        TaskContextProxy();
+        
+        /**
          * Private constructor which creates a new connection to
          * a corba object
          */
@@ -108,6 +113,11 @@ namespace RTT
          */
         std::list<base::PortInterface*> port_proxies;
 
+        /**
+         * initializes the class from a stringified ior or taskname in NameServer.
+         * */
+        void initFromURIOrTaskname(std::string location, bool is_ior);
+        
         void synchronize();
 
         mutable corba::CTaskContext_var mtask;
