@@ -156,23 +156,15 @@ macro( orocos_find_package PACKAGE )
 
     pkg_search_module(${PACKAGE}_COMP_${OROCOS_TARGET} ${MODULE_NAMES})
     if (${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND)
-      # Add DESTDIR to INCLUDE_DIRS and LIBRARY_DIRS if DESTDIR environment variable is defined
+      # Add DESTDIR to INCLUDE_DIRS and set CMAKE_FIND_ROOT_PATH if the DESTDIR environment variable is defined
       if(DEFINED ENV{DESTDIR})
-        set(${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS_WITH_DESTDIR)
-        set(${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS_WITHOUT_DESTDIR)
-        foreach(dir ${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS})
-          list(APPEND ${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS_WITH_DESTDIR "$ENV{DESTDIR}/${dir};${dir}")
-          list(APPEND ${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS_WITHOUT_DESTDIR "${dir}")
+        set(${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS_WITHOUT_DESTDIR ${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS})
+        set(${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS)
+        foreach(dir ${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS_WITHOUT_DESTDIR})
+          list(APPEND ${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS "$ENV{DESTDIR}${dir};${dir}")
         endforeach()
-        set(${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS ${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS_WITH_DESTDIR})
 
-        set(${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS_WITH_DESTDIR)
-        set(${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS_WITHOUT_DESTDIR)
-        foreach(dir ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS})
-          list(APPEND ${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS_WITH_DESTDIR "$ENV{DESTDIR}/${dir};${dir}")
-          list(APPEND ${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS_WITHOUT_DESTDIR "${dir}")
-        endforeach()
-        set(${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS_WITH_DESTDIR})
+        set(CMAKE_FIND_ROOT_PATH "$ENV{DESTDIR}")
       endif()
 
       # Use find_libraries to find each library:
@@ -209,14 +201,6 @@ macro( orocos_find_package PACKAGE )
       # The flags are space separated, so no need to quote here:
       set(${PACKAGE}_CFLAGS_OTHER ${${PACKAGE}_COMP_${OROCOS_TARGET}_CFLAGS_OTHER})
       set(${PACKAGE}_LDFLAGS_OTHER ${${PACKAGE}_COMP_${OROCOS_TARGET}_LDFLAGS_OTHER})
-
-      if(NOT DEFINED ENV{DESTDIR})
-        set(${PACKAGE}_INCLUDE_DIRS_WITHOUT_DESTDIR ${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS})
-        set(${PACKAGE}_LIBRARY_DIRS_WITHOUT_DESTDIR ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS})
-      else()
-        set(${PACKAGE}_INCLUDE_DIRS_WITHOUT_DESTDIR ${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS_WITHOUT_DESTDIR})
-        set(${PACKAGE}_LIBRARY_DIRS_WITHOUT_DESTDIR ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS_WITHOUT_DESTDIR})
-      endif()
 
     else()
       if(ORO_FIND_REQUIRED)
@@ -279,7 +263,7 @@ macro( orocos_use_package PACKAGE )
       set(ORO_${PACKAGE}_FOUND True)
       set(${PACKAGE}_FOUND True)
       set(${PACKAGE}_INCLUDE_DIRS ${${PACKAGE}_EXPORTED_OROCOS_INCLUDE_DIRS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_INCLUDE_DIRS})
-      set(${PACKAGE}_LIBRARY_DIRS "")
+      set(${PACKAGE}_LIBRARY_DIRS ${${PACKAGE}_EXPORTED_OROCOS_LIBRARY_DIRS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_LIBRARY_DIRS})
       set(${PACKAGE}_LIBRARIES ${${PACKAGE}_EXPORTED_OROCOS_LIBRARIES} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_LIBRARIES})
 
       # Use add_dependencies(target ${USE_OROCOS_EXPORTED_TARGETS}) to make sure that a target is built AFTER
@@ -317,10 +301,8 @@ macro( orocos_use_package PACKAGE )
       # Store aggregated variables
       list(APPEND USE_OROCOS_PACKAGES "${PACKAGE}")
       list(APPEND USE_OROCOS_INCLUDE_DIRS "${${PACKAGE}_INCLUDE_DIRS}")
-      list(APPEND USE_OROCOS_INCLUDE_DIRS_WITHOUT_DESTDIR ${${PACKAGE}_INCLUDE_DIRS_WITHOUT_DESTDIR})
       list(APPEND USE_OROCOS_LIBRARIES "${${PACKAGE}_LIBRARIES}")
       list(APPEND USE_OROCOS_LIBRARY_DIRS "${${PACKAGE}_LIBRARY_DIRS}")
-      list(APPEND USE_OROCOS_LIBRARY_DIRS_WITHOUT_DESTDIR ${${PACKAGE}_LIBRARY_DIRS_WITHOUT_DESTDIR})
       list(APPEND USE_OROCOS_CFLAGS_OTHER "${${PACKAGE}_CFLAGS_OTHER}")
       list(APPEND USE_OROCOS_LDFLAGS_OTHER "${${PACKAGE}_LDFLAGS_OTHER}")
 
@@ -328,17 +310,11 @@ macro( orocos_use_package PACKAGE )
       if(DEFINED USE_OROCOS_INCLUDE_DIRS)
         list(REMOVE_DUPLICATES USE_OROCOS_INCLUDE_DIRS)
       endif()
-      if(DEFINED USE_OROCOS_INCLUDE_DIRS_WITHOUT_DESTDIR)
-        list(REMOVE_DUPLICATES USE_OROCOS_INCLUDE_DIRS_WITHOUT_DESTDIR)
-      endif()
       if(DEFINED USE_OROCOS_LIBRARIES)
         list(REMOVE_DUPLICATES USE_OROCOS_LIBRARIES)
       endif()
       if(DEFINED USE_OROCOS_LIBRARY_DIRS)
         list(REMOVE_DUPLICATES USE_OROCOS_LIBRARY_DIRS)
-      endif()
-      if(DEFINED USE_OROCOS_LIBRARY_DIRS_WITHOUT_DESTDIR)
-        list(REMOVE_DUPLICATES USE_OROCOS_LIBRARY_DIRS_WITHOUT_DESTDIR)
       endif()
       if(DEFINED USE_OROCOS_CFLAGS_OTHER)
         list(REMOVE_DUPLICATES USE_OROCOS_CFLAGS_OTHER)
@@ -405,4 +381,37 @@ macro(orocos_add_link_flags target)
   set_target_properties(${target} PROPERTIES
                         LINK_FLAGS "${_flags_str}")
 endmacro(orocos_add_link_flags)
+
+macro(orocos_set_install_rpath target)
+  set(_install_rpath ${ARGN} "${OROCOS-RTT_LIBRARY_DIRS};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins;${CMAKE_INSTALL_PREFIX}/lib")
+
+  # strip DESTDIR from all RPATH entries...
+  if(DEFINED ENV{DESTDIR})
+    string(REPLACE "$ENV{DESTDIR}" "" _install_rpath "${_install_rpath}")
+  endif()
+
+  # ... and remove duplicates
+  if(DEFINED _install_rpath)
+    list(REMOVE_DUPLICATES _install_rpath)
+  endif()
+
+  set_target_properties(${target} PROPERTIES
+                        INSTALL_RPATH "${_install_rpath}")
+
+  if(APPLE)
+    if (CMAKE_VERSION VERSION_LESS "3.0.0")
+      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+        INSTALL_NAME_DIR "@rpath"
+        )
+    else()
+      # cope with CMake 3.x
+      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+        MACOSX_RPATH ON)
+    endif()
+  endif()
+
+  if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+    message(STATUS "[UseOrocos] Setting RPATH of target '${target}' to '${_install_rpath}'.")
+  endif()
+endmacro(orocos_set_install_rpath)
 
