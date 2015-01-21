@@ -68,7 +68,8 @@ namespace RTT
         bool installTypeInfoObject(TypeInfo* ti) {
             // Install the factories for primitive types
             ti->setValueFactory( this->getSharedPtr() );
-            ti->setStreamFactory( this->getSharedPtr() );
+	    if (use_ostream)
+	      ti->setStreamFactory( this->getSharedPtr() );
 
             // Install the type info object for T
             internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = ti;
