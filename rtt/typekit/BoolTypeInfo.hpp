@@ -49,10 +49,10 @@ namespace RTT
         /**
          * Write boolean as 'true' or 'false'.
          */
-        struct BoolTypeInfo: public TemplateTypeInfo<bool>
+        struct BoolTypeInfo: public TemplateTypeInfo<bool,true>
         {
             BoolTypeInfo() :
-                TemplateTypeInfo<bool> ("bool")
+                TemplateTypeInfo<bool,true> ("bool")
             {
             }
 
