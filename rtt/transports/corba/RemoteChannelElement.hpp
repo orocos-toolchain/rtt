@@ -252,10 +252,11 @@ namespace RTT {
                 {
                     if ( remote_side && (cfs = remote_side->read(remote_value, copy_old_data) ) )
                     {
-                        internal::LateReferenceDataSource<T> ref_data_source;
-                        ref_data_source.ref();
-                        ref_data_source.setPointer(&sample);
-                        transport.updateFromAny(&remote_value.in(), &ref_data_source);
+                        if (cfs == CNewData || (cfs == COldData && copy_old_data)) {
+                            internal::LateReferenceDataSource<T> ref_data_source(&sample);
+                            ref_data_source.ref();
+                            transport.updateFromAny(&remote_value.in(), &ref_data_source);
+                        }
                         return (FlowStatus)cfs;
                     }
                     else
@@ -288,8 +289,8 @@ namespace RTT {
                 FlowStatus fs;
                 typename internal::ValueDataSource<T> value_data_source;
                 value_data_source.ref();
-                if ( (fs = base::ChannelElement<T>::read(value_data_source.set(), copy_old_data)) )
-                {
+                fs = base::ChannelElement<T>::read(value_data_source.set(), copy_old_data);
+                if (fs == NewData || (fs == OldData && copy_old_data)) {
                     sample = transport.createAny(&value_data_source);
                     if ( sample != 0) {
                         return (CFlowStatus)fs;
@@ -299,7 +300,7 @@ namespace RTT {
                 }
                 // we *must* return something in sample.
                 sample = new CORBA::Any();
-                return CNoData;
+                return (CFlowStatus)fs;
             }
 
             bool write(typename base::ChannelElement<T>::param_t sample)
