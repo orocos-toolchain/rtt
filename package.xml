@@ -5,7 +5,8 @@
     Orocos/RTT component framework
   </description>
   <license>GPL v2 with linking exception</license>
-  <maintainer email="orocos-dev@lists.mech.kuleuven.be">RTT Developers</maintainer>
+  <maintainer email="orocos-dev@lists.mech.kuleuven.be">Orocos Developers</maintainer>
+
   <author>RTT Developers</author>
   <url>http://www.orocos.org/rtt</url>
   
