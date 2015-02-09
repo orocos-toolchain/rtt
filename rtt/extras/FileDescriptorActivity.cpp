@@ -82,6 +82,9 @@ FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* 
     , m_period(0)
     , m_has_error(false)
     , m_has_timeout(false)
+    , m_break_loop(false)
+    , m_trigger(false)
+    , m_update_sets(false)
 {
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
@@ -211,7 +214,8 @@ void FileDescriptorActivity::triggerUpdateSets()
     { RTT::os::MutexLock lock(m_command_mutex);
         m_update_sets = true;
     }
-    write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
+    int unused; (void)unused;
+    unused = write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
 }
 bool FileDescriptorActivity::isUpdated(int fd) const
 { return FD_ISSET(fd, &m_fd_work); }
@@ -272,7 +276,8 @@ bool FileDescriptorActivity::trigger()
         { RTT::os::MutexLock lock(m_command_mutex);
             m_trigger = true;
         }
-        write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
+        int unused; (void)unused;
+        unused = write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
         return true;
     } else
         return false;
@@ -345,7 +350,8 @@ void FileDescriptorActivity::loop()
             char dummy;
             do
             {
-                read(pipe, &dummy, 1);
+                int unused; (void)unused;
+                unused = read(pipe, &dummy, 1);
 
                 // Initialize the values for the next select() call
                 FD_ZERO(&watch_pipe);
@@ -396,7 +402,8 @@ bool FileDescriptorActivity::breakLoop()
     { RTT::os::MutexLock lock(m_command_mutex);
         m_break_loop = true;
     }
-    write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
+    int unused; (void)unused;
+    unused = write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
     return true;
 }
 
