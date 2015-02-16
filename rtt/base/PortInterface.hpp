@@ -101,6 +101,9 @@ namespace RTT
         /** Returns true if this port is connected */
         virtual bool connected() const = 0;
 
+        /** Returns true if this port is connected to the given port*/
+        virtual bool connectedTo(PortInterface* port) = 0;
+
         /** Returns the types::TypeInfo object for the port's type */
         virtual const types::TypeInfo* getTypeInfo() const = 0;
 
