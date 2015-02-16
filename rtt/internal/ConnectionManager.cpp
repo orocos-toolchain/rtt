@@ -109,6 +109,16 @@ namespace RTT
         bool ConnectionManager::connected() const
         { return !connections.empty(); }
 
+        bool ConnectionManager::connectedTo(base::PortInterface* port)
+        {
+            RTT::os::MutexLock lock(connection_lock);
+            boost::scoped_ptr<ConnID> conn_id( port->getPortID() );
+            for(Connections::const_iterator conn_it = connections.begin(); conn_it != connections.end(); ++conn_it ) {
+                if (conn_it->get<0>() && conn_id->isSameID(*conn_it->get<0>())) return true;
+            }
+            return false;
+        }
+
         bool ConnectionManager::addConnection(ConnID* conn_id, ChannelElementBase::shared_ptr channel, ConnPolicy policy)
         { RTT::os::MutexLock lock(connection_lock);
             assert(conn_id);

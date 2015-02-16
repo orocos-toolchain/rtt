@@ -64,6 +64,10 @@ PortInterface& PortInterface::doc(const std::string& desc) {
     return *this;
 }
 
+bool PortInterface::connectedTo(PortInterface* port) {
+    return cmanager.connectedTo(port);
+}
+
 bool PortInterface::isLocal() const
 { return serverProtocol() == 0; }
 int PortInterface::serverProtocol() const
