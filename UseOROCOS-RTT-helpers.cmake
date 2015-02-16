@@ -408,12 +408,12 @@ macro(orocos_set_install_rpath target)
 
   if(APPLE)
     if (CMAKE_VERSION VERSION_LESS "3.0.0")
-      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+      SET_TARGET_PROPERTIES( ${target} PROPERTIES
         INSTALL_NAME_DIR "@rpath"
         )
     else()
       # cope with CMake 3.x
-      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+      SET_TARGET_PROPERTIES( ${target} PROPERTIES
         MACOSX_RPATH ON)
     endif()
   endif()
