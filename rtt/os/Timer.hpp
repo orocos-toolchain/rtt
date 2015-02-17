@@ -81,6 +81,8 @@ namespace RTT
         struct TimerInfo
         {
             TimerInfo() : expires(0), period(0) {}
+            TimerInfo(const TimerInfo& other) { *this = other; }
+            TimerInfo& operator=(const TimerInfo& other) { this->expires = other.expires; this->period = other.period; return *this; }
             Time expires; // was .first
             Time period;  // was .second
             Condition expired;
