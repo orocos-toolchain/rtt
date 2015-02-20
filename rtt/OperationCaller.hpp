@@ -314,7 +314,7 @@ namespace RTT
         /**
          * Clean up the OperationCaller object.
          */
-        virtual ~OperationCaller()
+        ~OperationCaller()
         {
         }
 
