@@ -130,6 +130,9 @@ namespace RTT
         /** Returns true if this port is connected */
         virtual bool connected() const;
 
+        /** Returns true if this port is connected to the given port*/
+        virtual bool connectedTo(PortInterface* port);
+
         /**
          * Call this to indicate that the connection leading to this port
          * is ready to use. The input port will check its channel elements

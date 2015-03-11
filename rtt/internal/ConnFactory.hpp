@@ -278,6 +278,11 @@ namespace RTT
                 return false;
             }
 
+            if (output_port.connectedTo(&input_port)){
+                log(Info)<<"OutputPort "<< output_port.getName() <<" already connected to "<< input_port.getName() << ", ignoring new connection" <<endlog();
+                return true;
+            }
+
             InputPort<T>* input_p = dynamic_cast<InputPort<T>*>(&input_port);
 
             // This is the input channel element of the output half
