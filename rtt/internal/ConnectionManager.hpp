@@ -112,6 +112,11 @@ namespace RTT
              */
             bool connected() const;
 
+            /** Returns true if there exists a connection to the given port
+             */
+            bool connectedTo(base::PortInterface* port);
+
+
             /** Removes the channel that connects this port to \c port */
             bool disconnect(base::PortInterface* port);
 
