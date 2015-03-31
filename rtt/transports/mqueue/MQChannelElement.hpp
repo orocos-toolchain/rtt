@@ -176,11 +176,21 @@ namespace RTT
             
             virtual std::string getRemoteURI() const
             {
+                //check for output element case
+                RTT::base::ChannelElementBase *base = const_cast<MQChannelElement<T> *>(this);
+                if(base->getOutput())
+                    return RTT::base::ChannelElementBase::getRemoteURI();
+                
                 return mqname;
             }
 
             virtual std::string getLocalURI() const
             {
+                //check for input element case
+                RTT::base::ChannelElementBase *base = const_cast<MQChannelElement<T> *>(this);
+                if(base->getInput())
+                    return RTT::base::ChannelElementBase::getLocalURI();
+
                 return mqname;
             }
 
