@@ -169,6 +169,25 @@ namespace RTT
                 return mqWrite(write_sample);
             }
 
+            virtual bool isRemoteElement() const
+            {
+                return true;
+            }
+            
+            virtual std::string getRemoteURI() const
+            {
+                return mqname;
+            }
+
+            virtual std::string getLocalURI() const
+            {
+                return mqname;
+            }
+
+            virtual std::string getElementName() const
+            {
+                return "MQChannelElement";
+            }
         };
     }
 }

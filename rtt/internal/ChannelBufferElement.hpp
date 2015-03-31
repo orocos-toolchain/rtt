@@ -122,6 +122,11 @@ namespace RTT { namespace internal {
         {
             return buffer->data_sample();
         }
+        
+        virtual std::string getElementName() const 
+        {
+            return "ChannelBufferElement";
+        }
     };
 }}
 

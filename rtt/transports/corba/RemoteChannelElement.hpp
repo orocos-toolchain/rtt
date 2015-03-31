@@ -42,6 +42,7 @@
 #include "DataFlowI.h"
 #include "CorbaTypeTransporter.hpp"
 #include "CorbaDispatcher.hpp"
+#include "ApplicationServer.hpp"
 
 namespace RTT {
 
@@ -73,6 +74,7 @@ namespace RTT {
 
             PortableServer::ObjectId_var oid;
 
+            std::string localUri;
 	public:
 	    /**
 	     * Create a channel element for remote data exchange.
@@ -93,6 +95,8 @@ namespace RTT {
                 oid = mpoa->activate_object(this);
                 // Force creation of dispatcher.
                 CorbaDispatcher::Instance(msender);
+                
+                localUri = ApplicationServer::orb->object_to_string(_this());
             }
 
             ~RemoteChannelElement()
@@ -368,6 +372,27 @@ namespace RTT {
                 return true;
             }
 
+            virtual bool isRemoteElement() const
+            {
+                return true;
+            }
+            
+            
+            virtual std::string getRemoteURI() const
+            {
+                std::string uri = ApplicationServer::orb->object_to_string(remote_side);
+                return uri;
+            }
+            
+            virtual std::string getLocalURI() const
+            {
+                return localUri;
+            }
+            
+            virtual std::string getElementName() const
+            {
+                return "CorbaRemoteChannelElement";
+            }
         };
     }
 }
