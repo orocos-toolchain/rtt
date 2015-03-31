@@ -44,10 +44,17 @@
 
 namespace RTT { namespace internal {
 
+    class ChannelBufferElementBase
+    {
+    public:
+        virtual size_t getBufferSize() const = 0;
+        virtual size_t getBufferFillSize() const = 0;
+    };
+    
     /** A connection element that can store a fixed number of data samples.
      */
     template<typename T>
-    class ChannelBufferElement : public base::ChannelElement<T>
+    class ChannelBufferElement : public base::ChannelElement<T>, ChannelBufferElementBase
     {
         typename base::BufferInterface<T>::shared_ptr buffer;
         typename base::ChannelElement<T>::value_t *last_sample_p;
@@ -65,6 +72,16 @@ namespace RTT { namespace internal {
 		buffer->Release(last_sample_p);
 	}
  
+        virtual size_t getBufferSize() const
+        {
+            return buffer->capacity();
+        }
+        
+        virtual size_t getBufferFillSize() const
+        {
+            return buffer->size();
+        }
+        
         /** Appends a sample at the end of the FIFO
          *
          * @return true if there was room in the FIFO for the new sample, and false otherwise.
