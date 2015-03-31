@@ -148,8 +148,11 @@ namespace RTT {
         // The size of the tasks vector does not change during add/remove, thus
         // t_iter is never invalidated.
         for( ActivityList::iterator t_iter = tasks.begin(); t_iter != tasks.end(); ++t_iter)
-        	if ( *t_iter )
+		if ( *t_iter ) {
         		(*t_iter)->step();
+			if (*t_iter)
+			    (*t_iter)->work(RunnableInterface::TimeOut);
+		}
 
         if ( cleanup )
             this->reorderList();

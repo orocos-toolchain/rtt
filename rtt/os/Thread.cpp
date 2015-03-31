@@ -457,7 +457,7 @@ namespace RTT {
 
         bool Thread::isRunning() const
         {
-            return period == 0 ? inloop : running;
+            return running;
         }
 
         bool Thread::isActive() const

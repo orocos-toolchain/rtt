@@ -154,6 +154,8 @@ namespace RTT
         bool execute();
 
         bool trigger();
+
+        bool timeout();
     private:
         base::ActivityInterface* mmaster;
         double mperiod;

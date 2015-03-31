@@ -281,6 +281,8 @@ namespace RTT
          */
         virtual void step();
 
+        virtual void work(RunnableInterface::WorkReason reason);
+
         virtual bool breakLoop();
 
         virtual void finalize();

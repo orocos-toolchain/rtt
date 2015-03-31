@@ -66,6 +66,8 @@ namespace RTT {
         return false;
     }
 
+    void RunnableInterface::work(WorkReason reason) {}
+
     void RunnableInterface::setActivity( ActivityInterface* task ) {
         if (owner_task) {
             // notify old owner he's out.

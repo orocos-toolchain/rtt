@@ -458,6 +458,7 @@ namespace RTT
          * mTaskState to mTargetState.
          */
         TaskState mTargetState;
+
         // non copyable
         TaskCore( TaskCore& );
 
@@ -469,6 +470,12 @@ namespace RTT
          * event ports callbacks.
          */
         virtual void prepareUpdateHook();
+
+    protected:
+        /**
+         * Set to false in order to not trigger() when calling start().
+         */
+        bool mTriggerOnStart;
     };
 }}
 
