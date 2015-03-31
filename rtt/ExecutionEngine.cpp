@@ -141,8 +141,6 @@ namespace RTT
                 return false;
             f->loaded(this);
             bool result = f_queue->enqueue( f );
-            // signal work is to be done:
-            this->getActivity()->trigger();
             return result;
         }
         return false;
@@ -349,18 +347,27 @@ namespace RTT
     }
 
     void ExecutionEngine::step() {
-        processMessages();
-        processFunctions();
-        processChildren(); // aren't these ExecutableInterfaces ie functions ?
+        // we use work() now
     }
 
+    void ExecutionEngine::work(RunnableInterface::WorkReason reason) {
+        if (reason == RunnableInterface::Trigger) {
+            processMessages();
+            if (taskc && taskc->mTaskState == TaskCore::Running) {
+                taskc->prepareUpdateHook();
+            }
+        } else if (reason == RunnableInterface::TimeOut || reason == RunnableInterface::IOReady) {
+            processMessages();
+            processFunctions();
+            processChildren();
+        }
+    }
     void ExecutionEngine::processChildren() {
         // only call updateHook in the Running state.
         if ( taskc ) {
             // A trigger() in startHook() will be ignored, we trigger in TaskCore after startHook finishes.
             if ( taskc->mTaskState == TaskCore::Running && taskc->mTargetState == TaskCore::Running ) {
                 TRY (
-                    taskc->prepareUpdateHook();
                     taskc->updateHook();
                 ) CATCH(std::exception const& e,
                     log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();

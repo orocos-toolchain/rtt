@@ -188,6 +188,13 @@ namespace RTT {
         return false;
     }
 
+    bool SlaveActivity::timeout()
+    {
+        if (mmaster)
+            return mmaster->timeout();
+        return false;
+    }
+
     bool SlaveActivity::execute()
     {
         // non periodic case.
@@ -203,8 +210,14 @@ namespace RTT {
             return true;
         }
 
+        // executing a slave is semantical identical to a timeout happening:
         if ( running ) {
-            if (runner) runner->step(); else this->step();
+            if (runner) {
+                runner->step();
+                runner->work(RunnableInterface::TimeOut);
+            } else {
+                this->step();
+            }
         }
         return running;
     }

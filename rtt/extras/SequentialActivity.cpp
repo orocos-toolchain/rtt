@@ -158,7 +158,13 @@ namespace RTT {
                 os::MutexTryLock lock(execution_lock);
                 if ( lock.isSuccessful() ) {
                     running = true;
-                    if (runner) runner->step(); else this->step();
+                    if (runner) {
+                        runner->step();
+                        runner->work(RunnableInterface::Trigger); // for sequentials, every trigger is a Trigger
+                        runner->work(RunnableInterface::TimeOut); // for sequentials, every trigger is also a TimeOut...
+                    }  else {
+                        this->step();
+                    }
                     running = false;
                     did_step = true;
                 } else {
@@ -175,6 +181,11 @@ namespace RTT {
             return true;
         }
         return false;
+    }
+
+    bool SequentialActivity::timeout()
+    {
+        return trigger();
     }
 
     bool SequentialActivity::execute()

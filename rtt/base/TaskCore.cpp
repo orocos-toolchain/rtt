@@ -53,6 +53,7 @@ namespace RTT {
            ,mTaskState(initial_state)
            ,mInitialState(initial_state)
            ,mTargetState(initial_state)
+           ,mTriggerOnStart(true)
     {
     }
 
@@ -61,6 +62,7 @@ namespace RTT {
            ,mTaskState(initial_state)
            ,mInitialState(initial_state)
            ,mTargetState(initial_state)
+           ,mTriggerOnStart(true)
     {
         parent->addChild( this );
     }
@@ -98,7 +100,7 @@ namespace RTT {
     {
         if ( !this->engine()->getActivity() )
             return false;
-        return this->engine()->getActivity()->trigger();
+        return this->engine()->getActivity()->timeout();
     }
 
     bool TaskCore::configure() {
@@ -195,7 +197,8 @@ namespace RTT {
                 mTargetState = Running;
                 if ( startHook() ) {
                     mTaskState = Running;
-                    trigger(); // triggers updateHook() in case of non periodic!
+                    if ( mTriggerOnStart )
+                        trigger(); // triggers updateHook() in case of non periodic!
                     return true;
                 }
                 mTargetState = Stopped;
