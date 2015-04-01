@@ -46,9 +46,6 @@ namespace RTT {
     std::ostream& operator<<(std::ostream& os, SendStatus fs)
     {
         switch (fs) {
-        case CollectFailure:
-            os << "CollectFailure";
-            break;
         case SendFailure:
             os << "SendFailure";
             break;
@@ -74,8 +71,6 @@ namespace RTT {
             fs = SendNotReady;
         else if (s == "SendSuccess")
             fs = SendSuccess;
-        else if (s == "CollectFailure")
-            fs = CollectFailure;
 
         return is;
     }

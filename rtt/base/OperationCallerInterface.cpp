@@ -22,7 +22,10 @@ void OperationCallerInterface::setOwner(ExecutionEngine* ee) {
 }
 
 void OperationCallerInterface::setCaller(ExecutionEngine* ee) {
-    caller = ee;
+    if (ee)
+        caller = ee;
+    else
+        caller = GlobalEngine::Instance();
 }
 
 bool OperationCallerInterface::setThread(ExecutionThread et, ExecutionEngine* executor) {

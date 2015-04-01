@@ -37,7 +37,7 @@ BOOST_FIXTURE_TEST_SUITE(  ServiceTestSuite,  OperationsFixture )
 
 BOOST_AUTO_TEST_CASE(testClientThreadCall)
 {
-    // Tests using no caller with methods (collect is not used).
+    // Tests using no caller
     OperationCaller<double(void)> m0("m0");
     m0 = tc->provides("methods");
     OperationCaller<double(int)> m1("m1", tc->provides("methods"));
@@ -124,13 +124,13 @@ BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerComponentCall)
 
 BOOST_AUTO_TEST_CASE(testClientThreadOperationCallerSend)
 {
-    // test using initial caller
-    OperationCaller<double(void)> m0("m0", caller->engine() );
+    // test using no caller
+    OperationCaller<double(void)> m0("m0");
     m0 = tc->provides("methods");
-    OperationCaller<double(int)> m1("m1", tc->provides("methods"), caller->engine() );
-    OperationCaller<double(int,double)> m2( tc->provides("methods")->getOperation("m2"), caller->engine() );
-    OperationCaller<double(int,double,bool)> m3("m3", tc->provides("methods"), caller->engine() );
-    OperationCaller<double(int,double,bool,std::string)> m4("m4", tc->provides("methods"), caller->engine() );
+    OperationCaller<double(int)> m1("m1", tc->provides("methods"));
+    OperationCaller<double(int,double)> m2( tc->provides("methods")->getOperation("m2") );
+    OperationCaller<double(int,double,bool)> m3("m3", tc->provides("methods"));
+    OperationCaller<double(int,double,bool,std::string)> m4("m4", tc->provides("methods"));
 
     BOOST_REQUIRE( tc->isRunning() );
     SendHandle<double(void)> h0 = m0.send();
@@ -227,13 +227,13 @@ BOOST_AUTO_TEST_CASE(testClientThreadOperationCallerSend)
 
 BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerSend)
 {
-    // test using initial caller
-    OperationCaller<double(void)> m0("o0", caller->engine() );
+    // Tests using no caller
+    OperationCaller<double(void)> m0("o0");
     m0 = tc->provides("methods");
-    OperationCaller<double(int)> m1("o1", tc->provides("methods"), caller->engine() );
-    OperationCaller<double(int,double)> m2( tc->provides("methods")->getOperation("o2"), caller->engine() );
-    OperationCaller<double(int,double,bool)> m3("o3", tc->provides("methods"), caller->engine() );
-    OperationCaller<double(int,double,bool,std::string)> m4("o4", tc->provides("methods"), caller->engine() );
+    OperationCaller<double(int)> m1("o1", tc->provides("methods"));
+    OperationCaller<double(int,double)> m2( tc->provides("methods")->getOperation("o2") );
+    OperationCaller<double(int,double,bool)> m3("o3", tc->provides("methods"));
+    OperationCaller<double(int,double,bool,std::string)> m4("o4", tc->provides("methods"));
 
     BOOST_REQUIRE( tc->isRunning() );
     SendHandle<double(void)> h0 = m0.send();
@@ -332,7 +332,7 @@ BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerSend)
 BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerSend_ChangePolicy)
 {
     // Tests changing the policy later on
-    OperationCaller<double(void)> m0("o0", caller->engine() );
+    OperationCaller<double(void)> m0("o0");
 
     // set to ClientThread and send/collect it:
     tc->provides("methods")->setOperationThread("o0",ClientThread);

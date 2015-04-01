@@ -1416,6 +1416,7 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
     string prog = string("StateMachine Y {\n")
         + " var   int t = 0\n"
         + " var   double et = 0.0, eo = 0.0\n"
+        + " var   double et_global = 0.0, et_local = 0.0\n"
         + " var   bool eb = false\n"
         + " var   bool eflag = false\n"
         + " transition t_event(t) { do log(\"Global Transition to TESTSELF\");} select TESTSELF\n" // test self transition
