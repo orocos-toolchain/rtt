@@ -291,6 +291,8 @@ BOOST_AUTO_TEST_CASE( testSlave )
     // calls loop()
     BOOST_CHECK( mtask.execute() );
     BOOST_CHECK( r.looped == true );
+    BOOST_CHECK( r.worked == true );
+    BOOST_CHECK( r.wreason == RunnableInterface::TimeOut );
     BOOST_CHECK( mtask.execute() );
     BOOST_CHECK( r.wasrunning );
     BOOST_CHECK( r.wasactive );
@@ -327,6 +329,8 @@ BOOST_AUTO_TEST_CASE( testSlave )
     BOOST_CHECK( r.stepped == true );
     BOOST_CHECK( r.wasrunning );
     BOOST_CHECK( r.wasactive );
+    BOOST_CHECK( r.worked == true );
+    BOOST_CHECK( r.wreason == RunnableInterface::TimeOut );
     BOOST_CHECK( mslave.execute() );
     BOOST_CHECK( !mslave.start() );
 
@@ -353,6 +357,8 @@ BOOST_AUTO_TEST_CASE( testSlave )
     BOOST_CHECK( mslave_p.isRunning() );
     BOOST_CHECK( mslave_p.execute() );
     BOOST_CHECK( r.stepped == true );
+    BOOST_CHECK( r.worked == true );
+    BOOST_CHECK( r.wreason == RunnableInterface::TimeOut );
     BOOST_CHECK( r.wasrunning );
     BOOST_CHECK( r.wasactive );
     BOOST_CHECK( !mslave_p.start() );
@@ -390,6 +396,8 @@ BOOST_AUTO_TEST_CASE( testSequential )
     // calls step()
     BOOST_CHECK( mtask.trigger() );
     BOOST_CHECK( r.stepped == true );
+    BOOST_CHECK( r.worked == true );
+    BOOST_CHECK( r.wreason == RunnableInterface::TimeOut );
     BOOST_CHECK( r.wasrunning );
     BOOST_CHECK( r.wasactive );
     BOOST_CHECK( mtask.execute() == false );
