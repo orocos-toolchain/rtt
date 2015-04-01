@@ -57,7 +57,9 @@ namespace RTT {
 
     RunnableInterface::RunnableInterface() : owner_task(0) {}
 
-    void RunnableInterface::loop() { this->step(); }
+    void RunnableInterface::loop() {
+        this->step();
+    }
 
     bool RunnableInterface::breakLoop() { return false; }
 
