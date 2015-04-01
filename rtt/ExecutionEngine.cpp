@@ -353,11 +353,14 @@ namespace RTT
     void ExecutionEngine::work(RunnableInterface::WorkReason reason) {
         if (reason == RunnableInterface::Trigger) {
             processMessages();
-            if (taskc && taskc->mTaskState == TaskCore::Running) {
+            if ( taskc ) {
                 taskc->prepareUpdateHook();
             }
         } else if (reason == RunnableInterface::TimeOut || reason == RunnableInterface::IOReady) {
             processMessages();
+            if ( taskc ) {
+                taskc->prepareUpdateHook();
+            }
             processFunctions();
             processChildren();
         }

@@ -160,7 +160,6 @@ namespace RTT {
                     running = true;
                     if (runner) {
                         runner->step();
-                        runner->work(RunnableInterface::Trigger); // for sequentials, every trigger is a Trigger
                         runner->work(RunnableInterface::TimeOut); // for sequentials, every trigger is also a TimeOut...
                     }  else {
                         this->step();
