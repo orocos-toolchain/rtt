@@ -281,48 +281,65 @@ namespace RTT
                     return SendNotReady;
             }
 
+            bool checkCaller() {
+                if (!this->caller) {
+                    log(Error) << "You're using call() an OwnThread operation or collect() on a sent operation without setting a caller in the OperationCaller. This often causes deadlocks." <<endlog();
+                    log(Error) << "Use this->engine() in a component or GlobalEngine::Instance() in a non-component function. Returning a CollectFailure." <<endlog();
+                    return false;
+                }
+                return true;
+            }
+
             SendStatus collect_impl() {
+                if (!checkCaller()) return CollectFailure;
                 this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl();
             }
             template<class T1>
             SendStatus collect_impl( T1& a1 ) {
+                if (!checkCaller()) return CollectFailure;
                 this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1);
             }
 
             template<class T1, class T2>
             SendStatus collect_impl( T1& a1, T2& a2 ) {
+                if (!checkCaller()) return CollectFailure;
                 this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1,a2);
             }
 
             template<class T1, class T2, class T3>
             SendStatus collect_impl( T1& a1, T2& a2, T3& a3 ) {
+                if (!checkCaller()) return CollectFailure;
                 this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1,a2,a3);
             }
 
 	    template<class T1, class T2, class T3, class T4>
             SendStatus collect_impl( T1& a1, T2& a2, T3& a3, T4& a4) {
+                if (!checkCaller()) return CollectFailure;
                 this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1,a2,a3,a4);
             }
 
 	    template<class T1, class T2, class T3, class T4, class T5>
 	    SendStatus collect_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5) {
+                if (!checkCaller()) return CollectFailure;
                 this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1,a2,a3,a4, a5);
             }
 
 	    template<class T1, class T2, class T3, class T4, class T5, class T6>
 	    SendStatus collect_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6) {
+                if (!checkCaller()) return CollectFailure;
                 this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1,a2,a3,a4,a5,a6);
             }
 
 	    template<class T1, class T2, class T3, class T4, class T5, class T6, class T7>
 	    SendStatus collect_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6, T7& a7) {
+                if (!checkCaller()) return CollectFailure;
                 this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1,a2,a3,a4,a5,a6,a7);
             }

@@ -40,6 +40,7 @@
 #include "MutexLock.hpp"
 #include "../Activity.hpp"
 #include "../Logger.hpp"
+#include "../os/fosi.h"
 
 namespace RTT {
     using namespace base;
@@ -80,7 +81,7 @@ namespace RTT {
 
             // Wait
             int ret = 0;
-            if ( wake_up_time > mTimeserv->getNSecs() )
+            if ( wake_up_time > rtos_get_time_ns() )
                 ret = msem.waitUntil( wake_up_time ); // case of no timers or running timers
             else
                 ret = -1; // case of timer overrun.
@@ -123,7 +124,6 @@ namespace RTT {
     Timer::Timer(TimerId max_timers, int scheduler, int priority)
         : mThread(0), msem(0), mdo_quit(false)
     {
-        mTimeserv = TimeService::Instance();
         mtimers.resize(max_timers);
         if (scheduler != -1) {
             mThread = new Activity(scheduler, priority, 0.0, this, "Timer");
@@ -156,7 +156,7 @@ namespace RTT {
             return false;
         }
 
-        Time due_time = mTimeserv->getNSecs() + Seconds_to_nsecs( period );
+        Time due_time = rtos_get_time_ns() + Seconds_to_nsecs( period );
 
         {
             MutexLock locker(m);
@@ -175,7 +175,7 @@ namespace RTT {
             return false;
         }
 
-        Time now = mTimeserv->getNSecs();
+        Time now = rtos_get_time_ns();
         Time due_time = now + Seconds_to_nsecs( wait_time );
 
         {
@@ -206,7 +206,7 @@ namespace RTT {
             log(Error) << "Invalid timer id" << endlog();
             return 0.0;
         }
-        Time now = mTimeserv->getNSecs();
+        Time now = rtos_get_time_ns();
         Time result = mtimers[timer_id].first - now;
         // detect corner cases.
         if ( result < 0 )
