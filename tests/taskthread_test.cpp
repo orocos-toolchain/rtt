@@ -85,6 +85,7 @@ struct TestRunner
     bool init, stepped, fini;
     bool looped, broke;
     bool wasrunning, wasactive;
+    bool worked, wreason;
 
     TestRunner(bool fail)
     {
@@ -101,6 +102,11 @@ struct TestRunner
         stepped = true;
         wasrunning=getActivity()->isRunning();
         wasactive=getActivity()->isActive();
+    }
+
+    void work(RunnableInterface::WorkReason reason) {
+        worked = true;
+        wreason = reason;
     }
 
     void loop() {
@@ -129,6 +135,8 @@ struct TestRunner
         broke = false;
         wasrunning = false;
         wasactive = false;
+        worked = false;
+        wreason = false;
     }
 };
 

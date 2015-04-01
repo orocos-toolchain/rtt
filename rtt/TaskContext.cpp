@@ -452,6 +452,8 @@ namespace RTT
 
     void TaskContext::prepareUpdateHook()
     {
+        if ( portqueue->isEmpty() )
+            return;
         MutexLock lock(mportlock);
         PortInterface* port = 0;
         while ( portqueue->dequeue( port ) == true ) {
