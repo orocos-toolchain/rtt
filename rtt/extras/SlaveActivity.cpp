@@ -108,6 +108,10 @@ namespace RTT {
     {
     }
 
+    void SlaveActivity::work(base::RunnableInterface::WorkReason reason)
+    {
+    }
+
     void SlaveActivity::loop()
     {
         this->step();
@@ -202,10 +206,14 @@ namespace RTT {
             if ( !active || running )
                 return false;
             running = true;
-            if (runner)
+            // Since we're in execute(), this is semantically forcing a TimeOut towards the runner.
+            if (runner) {
                 runner->loop();
-            else
+                runner->work(RunnableInterface::TimeOut);
+            } else {
                 this->loop();
+                this->work(RunnableInterface::TimeOut);
+            }
             running = false;
             return true;
         }
