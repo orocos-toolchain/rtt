@@ -79,13 +79,15 @@ namespace RTT
         // is mutable because of reference counting.
         mutable internal::TsPool<Item> mpool;
         const bool mcircular;
+        size_type droppedSamples;
+        
     public:
         /**
          * Create a lock-free buffer wich can store \a bufsize elements.
          * @param bufsize the capacity of the buffer.
 '         */
         BufferLockFree( unsigned int bufsize, const T& initial_value = T(), bool circular = false)
-            : bufs( bufsize ), mpool(bufsize + 1), mcircular(circular)
+            : bufs( bufsize ), mpool(bufsize + 1), mcircular(circular), droppedSamples(0)
         {
             mpool.data_sample( initial_value );
         }
@@ -139,20 +141,31 @@ namespace RTT
                 mpool.deallocate( item );
         }
 
+        virtual size_type dropped() const
+        {
+            return droppedSamples;
+        }
+        
         bool Push( param_t item)
         {
             if ( capacity() == (size_type)bufs.size() ) {
-                if (!mcircular)
+                if (!mcircular) {
+                    droppedSamples++;
                     return false;
+                }
                 // we will recover below in case of circular
             }
             Item* mitem = mpool.allocate();
             if ( mitem == 0 ) { // queue full ( rare but possible in race with PopWithoutRelease )
-                if (!mcircular)
+                if (!mcircular) {
+                    droppedSamples++;
                     return false;
+                }
                 else {
-                    if (bufs.dequeue( mitem ) == false )
+                    if (bufs.dequeue( mitem ) == false ) {
+                        droppedSamples++;
                         return false; // assert(false) ???
+                    }
                     // we keep mitem to write item to next
                 }
             }
@@ -165,6 +178,7 @@ namespace RTT
                 //bigger than the buffer
                 if (!mcircular) {
                     mpool.deallocate( mitem );
+                    droppedSamples++;
                     return false;
                 } else {
                     // pop & deallocate until we have free space.
@@ -172,6 +186,7 @@ namespace RTT
                     do {
                         bufs.dequeue( itmp );
                         mpool.deallocate( itmp );
+                        droppedSamples++;
                     } while ( bufs.enqueue( mitem ) == false );
                 }
             }
@@ -182,12 +197,16 @@ namespace RTT
         {
             // @todo Make this function more efficient as in BufferLocked.
             int towrite  = items.size();
+            size_type written = 0;
             typename std::vector<T>::const_iterator it;
-            for(  it = items.begin(); it != items.end(); ++it)
+            for(  it = items.begin(); it != items.end(); ++it) {
                 if ( this->Push( *it ) == false ) {
                     break; // will only happen in non-circular case !
                 }
-            return towrite - (items.end() - it);
+                written++;
+            }
+            droppedSamples += towrite - written;
+            return written;
         }
 
 
