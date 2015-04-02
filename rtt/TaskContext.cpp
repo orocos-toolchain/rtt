@@ -120,6 +120,10 @@ namespace RTT
         this->addOperation("loadService", &TaskContext::loadService, this, ClientThread).doc("Loads a service known to RTT into this component.").arg("service_name","The name with which the service is registered by in the PluginLoader.");
 
         this->addAttribute("TriggerOnStart",mTriggerOnStart);
+        this->addAttribute("CycleCounter",mCycleCounter);
+        this->addAttribute("IOCounter",mIOCounter);
+        this->addAttribute("TimeOutCounter",mTimeOutCounter);
+        this->addAttribute("TriggerCounter",mTriggerCounter);
         // activity runs from the start.
         if (our_act)
             our_act->start();
