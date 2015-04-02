@@ -221,9 +221,9 @@ namespace RTT
         double update_period;
 
         /**
-         * When set to true, a next work is Triggered.
+         * When set to true, a next cycle will be a TimeOut cycle.
          */
-        bool mtrigger;
+        bool mtimeout;
         bool mstopRequested;
     };
 

@@ -55,19 +55,19 @@ namespace RTT
 
     Activity::Activity(RunnableInterface* _r, const std::string& name )
         : ActivityInterface(_r), os::Thread(ORO_SCHED_OTHER, RTT::os::LowestPriority, 0.0, 0, name ),
-          update_period(0.0), mtrigger(false)
+          update_period(0.0), mtimeout(false)
     {
     }
 
     Activity::Activity(int priority, RunnableInterface* r, const std::string& name )
         : ActivityInterface(r), os::Thread(ORO_SCHED_RT, priority, 0.0, 0, name ),
-          update_period(0.0), mtrigger(false)
+          update_period(0.0), mtimeout(false)
     {
     }
 
     Activity::Activity(int priority, Seconds period, RunnableInterface* r, const std::string& name )
         : ActivityInterface(r), os::Thread(ORO_SCHED_RT, priority, period, 0, name ),
-          update_period(period), mtrigger(false)
+          update_period(period), mtimeout(false)
     {
         // We pass the requested period to the constructor to not confuse users with log messages.
         // Then we clear it immediately again in order to force the Thread implementation to
@@ -82,7 +82,7 @@ namespace RTT
 
      Activity::Activity(int scheduler, int priority, Seconds period, RunnableInterface* r, const std::string& name )
          : ActivityInterface(r), os::Thread(scheduler, priority, period, 0, name ),
-           update_period(period), mtrigger(false)
+           update_period(period), mtimeout(false)
      {
          // We pass the requested period to the constructor to not confuse users with log messages.
          // Then we clear it immediately again in order to force the Thread implementation to
@@ -92,7 +92,7 @@ namespace RTT
 
      Activity::Activity(int scheduler, int priority, Seconds period, unsigned cpu_affinity, RunnableInterface* r, const std::string& name )
      : ActivityInterface(r), os::Thread(scheduler, priority, period, cpu_affinity, name ),
-       update_period(period), mtrigger(false)
+       update_period(period), mtimeout(false)
      {
          // We pass the requested period to the constructor to not confuse users with log messages.
          // Then we clear it immediately again in order to force the Thread implementation to
@@ -129,6 +129,8 @@ namespace RTT
         if (s < 0.0)
             return false;
         update_period = s;
+        // we need to trigger internally to get the period started
+        trigger();
         return true;
     }
 
@@ -155,7 +157,7 @@ namespace RTT
         if ( update_period > 0) {
             return false;
         }
-        mtrigger = true;
+        mtimeout = true;
         msg_cond.broadcast();
         Thread::start();
         return true;
@@ -176,21 +178,25 @@ namespace RTT
                 wakeup = 0;
             }
 
-            if ( update_period > 0 ) {
-                this->step();
-                this->work(base::RunnableInterface::Trigger);
-            } else {
-                if (runner) {
-                    runner->loop();
-                    runner->work(base::RunnableInterface::Trigger);
-                }
-            }
-
-            // periodic: we flag mtrigger below; non-periodic: we flag mtrigger in trigger()
-            if (mtrigger) {
-                mtrigger = false;
+            // periodic: we flag mtimeout below; non-periodic: we flag mtimeout in trigger()
+            if (mtimeout) {
+                // was a timeout() call, or internally generated after wakeup
+                mtimeout = false;
                 this->step();
                 this->work(base::RunnableInterface::TimeOut);
+            } else {
+                // was a trigger() call
+                if ( update_period > 0 ) {
+                    this->step();
+                    this->work(base::RunnableInterface::Trigger);
+                } else {
+                    if (runner) {
+                        runner->loop();
+                        runner->work(base::RunnableInterface::Trigger);
+                    }
+                }
+                // if a timeout() was done during work(), we will re-enter
+                // loop() due to the Thread::start().
             }
             // next, sleep/wait
             os::MutexLock lock(msg_lock);
@@ -199,14 +205,14 @@ namespace RTT
                 return;
             } else {
                 // If periodic, sleep until wakeup time or a message comes in.
-                // when wakeup time passed, wait_until will return false and we recalculate wakeup + mtrigger
+                // when wakeup time passed, wait_until will return false and we recalculate wakeup + mtimeout
                 bool time_elapsed = ! msg_cond.wait_until(msg_lock,wakeup);
 
                 if (time_elapsed) {
                     // calculate next wakeup point, overruns causes skips:
                     while ( wakeup < os::TimeService::Instance()->getNSecs() )
                         wakeup = wakeup + Seconds_to_nsecs(update_period);
-                    mtrigger = true;
+                    mtimeout = true;
                 }
             }
             if (mstopRequested) {
