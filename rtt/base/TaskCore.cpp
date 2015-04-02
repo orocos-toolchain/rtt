@@ -54,6 +54,10 @@ namespace RTT {
            ,mInitialState(initial_state)
            ,mTargetState(initial_state)
            ,mTriggerOnStart(true)
+           ,mCycleCounter(0)
+           ,mIOCounter(0)
+           ,mTimeOutCounter(0)
+           ,mTriggerCounter(0)
     {
     }
 
@@ -63,6 +67,10 @@ namespace RTT {
            ,mInitialState(initial_state)
            ,mTargetState(initial_state)
            ,mTriggerOnStart(true)
+           ,mCycleCounter(0)
+           ,mIOCounter(0)
+           ,mTimeOutCounter(0)
+           ,mTriggerCounter(0)
     {
         parent->addChild( this );
     }
