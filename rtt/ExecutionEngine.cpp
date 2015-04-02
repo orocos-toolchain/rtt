@@ -351,12 +351,31 @@ namespace RTT
     }
 
     void ExecutionEngine::work(RunnableInterface::WorkReason reason) {
+        // Interprete work before calling into user code such that we are consistent at all times.
+        if (taskc) {
+            ++taskc->mCycleCounter;
+            switch(reason) {
+            case RunnableInterface::Trigger :
+                ++taskc->mTriggerCounter;
+                break;
+            case RunnableInterface::TimeOut :
+                ++taskc->mTimeOutCounter;
+                break;
+            case RunnableInterface::IOReady :
+                ++taskc->mIOCounter;
+                break;
+            default:
+                break;
+            }
+        }
         if (reason == RunnableInterface::Trigger) {
+            /* Callback step */
             processMessages();
             if ( taskc ) {
                 taskc->prepareUpdateHook();
             }
         } else if (reason == RunnableInterface::TimeOut || reason == RunnableInterface::IOReady) {
+            /* Update step */
             processMessages();
             if ( taskc ) {
                 taskc->prepareUpdateHook();
