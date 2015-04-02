@@ -49,6 +49,7 @@ namespace RTT { namespace internal {
     public:
         virtual size_t getBufferSize() const = 0;
         virtual size_t getBufferFillSize() const = 0;
+        virtual size_t getNumDroppedSamples() const = 0;
     };
     
     /** A connection element that can store a fixed number of data samples.
@@ -80,6 +81,11 @@ namespace RTT { namespace internal {
         virtual size_t getBufferFillSize() const
         {
             return buffer->size();
+        }
+        
+        virtual size_t getNumDroppedSamples() const
+        {
+            return buffer->dropped();
         }
         
         /** Appends a sample at the end of the FIFO
