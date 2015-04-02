@@ -54,7 +54,7 @@ namespace RTT { namespace internal {
     /** A connection element that can store a fixed number of data samples.
      */
     template<typename T>
-    class ChannelBufferElement : public base::ChannelElement<T>, ChannelBufferElementBase
+    class ChannelBufferElement : public base::ChannelElement<T>, public ChannelBufferElementBase
     {
         typename base::BufferInterface<T>::shared_ptr buffer;
         typename base::ChannelElement<T>::value_t *last_sample_p;
