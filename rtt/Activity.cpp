@@ -55,19 +55,19 @@ namespace RTT
 
     Activity::Activity(RunnableInterface* _r, const std::string& name )
         : ActivityInterface(_r), os::Thread(ORO_SCHED_OTHER, RTT::os::LowestPriority, 0.0, 0, name ),
-          update_period(0.0), mtimeout(false)
+          update_period(0.0), mtimeout(false), mstopRequested(false), mabswaitpolicy(false)
     {
     }
 
     Activity::Activity(int priority, RunnableInterface* r, const std::string& name )
         : ActivityInterface(r), os::Thread(ORO_SCHED_RT, priority, 0.0, 0, name ),
-          update_period(0.0), mtimeout(false)
+          update_period(0.0), mtimeout(false), mstopRequested(false), mabswaitpolicy(false)
     {
     }
 
     Activity::Activity(int priority, Seconds period, RunnableInterface* r, const std::string& name )
         : ActivityInterface(r), os::Thread(ORO_SCHED_RT, priority, period, 0, name ),
-          update_period(period), mtimeout(false)
+          update_period(period), mtimeout(false), mstopRequested(false), mabswaitpolicy(false)
     {
         // We pass the requested period to the constructor to not confuse users with log messages.
         // Then we clear it immediately again in order to force the Thread implementation to
@@ -82,7 +82,7 @@ namespace RTT
 
      Activity::Activity(int scheduler, int priority, Seconds period, RunnableInterface* r, const std::string& name )
          : ActivityInterface(r), os::Thread(scheduler, priority, period, 0, name ),
-           update_period(period), mtimeout(false)
+           update_period(period), mtimeout(false), mstopRequested(false), mabswaitpolicy(false)
      {
          // We pass the requested period to the constructor to not confuse users with log messages.
          // Then we clear it immediately again in order to force the Thread implementation to
@@ -92,7 +92,7 @@ namespace RTT
 
      Activity::Activity(int scheduler, int priority, Seconds period, unsigned cpu_affinity, RunnableInterface* r, const std::string& name )
      : ActivityInterface(r), os::Thread(scheduler, priority, period, cpu_affinity, name ),
-       update_period(period), mtimeout(false)
+       update_period(period), mtimeout(false), mstopRequested(false), mabswaitpolicy(false)
      {
          // We pass the requested period to the constructor to not confuse users with log messages.
          // Then we clear it immediately again in order to force the Thread implementation to
@@ -165,7 +165,7 @@ namespace RTT
 
     void Activity::loop() {
         nsecs wakeup = 0;
-
+        int overruns = 0;
         while ( true ) {
             // since update_period may be changed at any time, we need to recheck it each time:
             if ( update_period > 0.0) {
@@ -209,9 +209,22 @@ namespace RTT
                 bool time_elapsed = ! msg_cond.wait_until(msg_lock,wakeup);
 
                 if (time_elapsed) {
+                    nsecs nsperiod = Seconds_to_nsecs(update_period);
+                    wakeup = wakeup + nsperiod;
                     // calculate next wakeup point, overruns causes skips:
-                    while ( wakeup < os::TimeService::Instance()->getNSecs() )
-                        wakeup = wakeup + Seconds_to_nsecs(update_period);
+                    nsecs now = os::TimeService::Instance()->getNSecs();
+                    if ( wakeup < now )
+                    {
+                        ++overruns;
+                        if (overruns == maxOverRun)
+                            break; // break while(true)
+                    }
+                    else if (overruns != 0) {
+                        --overruns;
+                    }
+                    if ( !mabswaitpolicy && wakeup < now ) {
+                        wakeup = wakeup + ((now-wakeup)/nsperiod+1)*nsperiod; // assumes that (now-wakeup)/nsperiod rounds down !
+                    }
                     mtimeout = true;
                 }
             }
@@ -219,6 +232,16 @@ namespace RTT
                 mstopRequested = false; // guarded by Mutex lock
                 return;
             }
+        }
+        if (overruns == maxOverRun)
+        {
+            this->emergencyStop();
+            log(Critical) << rtos_task_get_name(this->getTask())
+                    << " got too many periodic overruns in step() ("
+                    << overruns << " times), stopped Thread !"
+                    << endlog();
+            log(Critical) << " See Thread::setMaxOverrun() for info."
+                    << endlog();
         }
     }
 
@@ -307,6 +330,14 @@ namespace RTT
     bool Activity::setCpuAffinity(unsigned cpu)
     {
         return Thread::setCpuAffinity(cpu);
+    }
+
+    void Activity::setWaitPeriodPolicy(int p)
+    {
+        if ( p == ORO_WAIT_ABS)
+            mabswaitpolicy = true;
+        else
+            mabswaitpolicy = false;
     }
 
 }
