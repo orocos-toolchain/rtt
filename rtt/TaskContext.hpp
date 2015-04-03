@@ -109,17 +109,6 @@ namespace RTT
          */
         TaskContext( const std::string& name, TaskState initial_state = Stopped );
 
-        /**
-         * Create a TaskContext.
-         * Its commands programs and state machines are processed by \a parent.
-         * Use this constructor to share execution engines among task contexts, such that
-         * the execution of their functionality is serialised (executed in the same thread).
-         * @param name The name of this component.
-         * @param initial_state Provide the \a PreOperational parameter flag here
-         * to force users in calling configure(), before they call start().
-         */
-        TaskContext(const std::string& name, ExecutionEngine* parent, TaskState initial_state = Stopped );
-
         virtual ~TaskContext();
 
         /**

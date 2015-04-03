@@ -59,19 +59,11 @@ namespace RTT
     /**
      * An execution engine serialises (executes one after the other)
      * the execution of all commands, programs, state machines and
-     * incomming events for a task.  Any function executing in the
+     * incoming events for a task.  Any function executing in the
      * same execution engine is guaranteed to be thread-safe with
      * respect to other functions executing in the same execution
      * engine.
      *
-     * The ExecutionEngine bundles a internal::CommandProcessor, scripting::ProgramProcessor,
-     * scripting::StateMachineProcessor and MessageProcessor.
-     *
-     * @par Changing the Execution Policy
-     * One can subclass this class in order to change the run-time
-     * behaviour. Use base::TaskCore::setExecutionEngine in order to
-     * install a new ExecutionEngine in a component. All Members of
-     * this class are protected and thus accessible in a subclass.
      * @ingroup Processor
      */
     class RTT_API ExecutionEngine
@@ -90,21 +82,13 @@ namespace RTT
 
         /**
          * The base::TaskCore which created this ExecutionEngine.
+         * Identical to getTaskCore().
          */
         base::TaskCore* getParent();
 
         /**
-         * Add a base::TaskCore to execute.
-         */
-        virtual void addChild(base::TaskCore* tc);
-
-        /**
-         * Remove a base::TaskCore from execution.
-         */
-        virtual void removeChild(base::TaskCore* tc);
-
-        /**
          * Returns the owner of this execution engine.
+         * Identical to getParent().
          */
         base::TaskCore* getTaskCore() const { return taskc; }
 
@@ -253,8 +237,6 @@ namespace RTT
          */
         internal::MWSRQueue<base::DisposableInterface*>* mqueue;
 
-        std::vector<base::TaskCore*> children;
-
         /**
          * Stores all functions we're executing.
          */
@@ -271,7 +253,7 @@ namespace RTT
 
         void processMessages();
         void processFunctions();
-        void processChildren();
+        void processHooks();
 
         virtual bool initialize();
 

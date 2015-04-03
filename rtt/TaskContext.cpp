@@ -79,18 +79,6 @@ namespace RTT
         this->setup();
     }
 
-    TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent, TaskState initial_state /*= Stopped*/ )
-        :  TaskCore(parent, initial_state)
-           ,tcservice(new Service(name,this) ), tcrequests( new ServiceRequester(name,this) )
-#if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
-           ,our_act( parent ? 0 : new SequentialActivity( this->engine() ) )
-#elif defined(ORO_ACT_DEFAULT_ACTIVITY)
-           ,our_act( parent ? 0 : new Activity( this->engine(), name ) )
-#endif
-    {
-        this->setup();
-    }
-
     void TaskContext::setup()
     {
         tcservice->setOwner(this);
@@ -136,9 +124,11 @@ namespace RTT
             // here would only lead to calling invalid virtual functions.
             // [Rule no 1: Don't call virtual functions in a destructor.]
             // [Rule no 2: Don't call virtual functions in a constructor.]
-            tcservice->clear();
 
-            tcrequests->clear();
+            // these need to be freed before we cleanup the EE:
+            localservs.clear();
+            tcservice.reset();
+            tcrequests.reset();
 
             // remove from all users.
             while( !musers.empty() ) {
@@ -356,6 +346,7 @@ namespace RTT
         new_act->stop();
         if(our_act){
             our_act->stop();
+            our_act.reset();
         }
         new_act->run( this->engine() );
         our_act = ActivityInterface::shared_ptr( new_act );

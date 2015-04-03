@@ -113,17 +113,7 @@ namespace RTT
          * @param initial_state Provide the \a PreOperational parameter flag here
          * to force users in calling configure(), before they call start().
          */
-        TaskCore( TaskState initial_state = Stopped  );
-
-        /**
-         * Create a TaskCore.
-         * Its commands programs and state machines are processed by \a parent.
-         * Use this constructor to share execution engines among task contexts, such that
-         * the execution of their functionality is serialised (executed in the same thread).
-         * @param initial_state Provide the \a PreOperational parameter flag here
-         * to force users in calling configure(), before they call start().
-         */
-        TaskCore( ExecutionEngine* parent, TaskState initial_state = Stopped );
+        TaskCore( TaskState initial_state = Stopped );
 
         virtual ~TaskCore();
 
@@ -309,17 +299,6 @@ namespace RTT
         /**
          *@}
          */
-
-        /**
-         * Use this method to re-set the execution engine
-         * of this task core.
-         * @param engine The new execution engine which will execute
-         * this TaskCore or null if a new execution engine must be
-         * created (the old is deleted in that case).
-         * @post The TaskCore is being run by \a engine or a new
-         * execution engine.
-         */
-        void setExecutionEngine(ExecutionEngine* engine);
 
         /**
          * Get a const pointer to the ExecutionEngine of this Task.

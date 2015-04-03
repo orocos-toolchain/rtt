@@ -71,7 +71,7 @@ namespace RTT
         /**
          * The Activityobject which owns this RunnableInterface.
          */
-        ActivityInterface* owner_task;
+        ActivityInterface* owner_act;
     public:
         enum WorkReason { TimeOut = 0, Trigger, IOReady };
         /**
@@ -172,7 +172,7 @@ namespace RTT
     };
 
 
-    ActivityInterface* RunnableInterface::getActivity() const { return owner_task; }
+    ActivityInterface* RunnableInterface::getActivity() const { return owner_act; }
 }}
 
 #endif

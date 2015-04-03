@@ -45,17 +45,17 @@ namespace RTT {
     using namespace base;
 
     RunnableInterface::~RunnableInterface() {
-        if ( this->owner_task && this->owner_task->isRunning() ) {
+        if ( this->owner_act && this->owner_act->isRunning() ) {
             Logger::In in("~RunnableInterface()");
             log(Critical)
             <<"Activity still running, but RunnableInterface destroyed! Stop the task"
             " before deleting this object. Crash may be imminent."<<endlog();
         }
-        if ( this->owner_task )
-            this->owner_task->disableRun(this);
+        if ( this->owner_act )
+            this->owner_act->disableRun(this);
     }
 
-    RunnableInterface::RunnableInterface() : owner_task(0) {}
+    RunnableInterface::RunnableInterface() : owner_act(0) {}
 
     void RunnableInterface::loop() {
         this->step();
@@ -71,17 +71,17 @@ namespace RTT {
     void RunnableInterface::work(WorkReason reason) {}
 
     void RunnableInterface::setActivity( ActivityInterface* task ) {
-        if (owner_task) {
+        if (owner_act) {
             // notify old owner he's out.
-            owner_task->disableRun(this);
+            owner_act->disableRun(this);
         }
 
-        owner_task = task;
+        owner_act = task;
     }
 
     os::ThreadInterface* RunnableInterface::getThread() const {
-        if (owner_task)
-            return owner_task->thread();
+        if (owner_act)
+            return owner_act->thread();
         return 0;
     }
 
