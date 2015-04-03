@@ -218,6 +218,9 @@ namespace RTT
 
     void ExecutionEngine::processMessages()
     {
+        // Fast bail-out :
+        if ( mqueue->isEmpty() )
+            return;
         // execute all commands from the AtomicQueue.
         // msg_lock may not be held when entering this function !
         DisposableInterface* com(0);
