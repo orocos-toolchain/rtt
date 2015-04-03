@@ -643,13 +643,24 @@ namespace RTT
         void setup();
 
         friend class DataFlowInterface;
-        internal::MWSRQueue<base::PortInterface*>* portqueue;
-        typedef std::map<base::PortInterface*, SlotFunction > UserCallbacks;
+        /**
+         * Helper class to store port callbacks
+         */
+        struct PortCallback : public base::DisposableInterface {
+            boost::function<void(void)> msf;
+            virtual void executeAndDispose() {
+                msf();
+            }
+            virtual void dispose() {}
+            virtual bool isError() const { return false;}
+        };
+        typedef std::map<base::PortInterface*, PortCallback > UserCallbacks;
         UserCallbacks user_callbacks;
 
         /**
          * This callback is called each time data arrived on an
          * event port.
+         * @param port The port for which data arrived
          */
         void dataOnPort(base::PortInterface* port);
         /**
@@ -666,12 +677,6 @@ namespace RTT
          * Inform that a given port will no longer raise dataOnPort() events.
          */
         void dataOnPortRemoved(base::PortInterface* port);
-
-        /**
-         * Function that is called before updateHook, where the TC implementation
-         * can do bookkeeping with regard to event ports.
-         */
-        void prepareUpdateHook();
 
         /**
          * Check if this component could provide a given service,

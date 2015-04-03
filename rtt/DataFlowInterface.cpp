@@ -167,6 +167,7 @@ namespace RTT
               it != mports.end();
               ++it)
             if ( (*it)->getName() == name ) {
+                (*it)->disconnect(); // remove all connections and callbacks.
                 Service::shared_ptr mservice_ref;
                 if (mservice && mservice->hasService(name) ) {
                     // Since there is at least one child service, mservice is ref counted. The danger here is that mservice is destructed during removeService()
@@ -176,7 +177,6 @@ namespace RTT
                     if (mservice->getOwner())
                         mservice->getOwner()->dataOnPortRemoved( *it );
                 }
-                (*it)->disconnect(); // remove all connections and callbacks.
                 (*it)->setInterface(0);
                 mports.erase(it);
                 return;

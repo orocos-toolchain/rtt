@@ -374,15 +374,9 @@ namespace RTT
         if (reason == RunnableInterface::Trigger) {
             /* Callback step */
             processMessages();
-            if ( taskc ) {
-                taskc->prepareUpdateHook();
-            }
         } else if (reason == RunnableInterface::TimeOut || reason == RunnableInterface::IOReady) {
             /* Update step */
             processMessages();
-            if ( taskc ) {
-                taskc->prepareUpdateHook();
-            }
             processFunctions();
             processChildren();
         }
@@ -423,7 +417,6 @@ namespace RTT
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
             if ( (*it)->mTaskState == TaskCore::Running  && (*it)->mTargetState == TaskCore::Running  ){
                 TRY (
-                    (*it)->prepareUpdateHook();
                     (*it)->updateHook();
                 ) CATCH(std::exception const& e,
                     log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();

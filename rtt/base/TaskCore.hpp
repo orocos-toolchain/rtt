@@ -482,14 +482,6 @@ namespace RTT
         TaskCore( TaskCore& );
 
         friend class TaskContext;
-        /**
-         * This is how the EE informs the TaskContext that it is about
-         * to run updateHook. This function might be replaced by another
-         * mechanism in the future and currently serves to handle
-         * event ports callbacks.
-         */
-        virtual void prepareUpdateHook();
-
     protected:
         /**
          * Set to false in order to not trigger() when calling start().
