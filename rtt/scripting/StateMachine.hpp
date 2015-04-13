@@ -687,8 +687,6 @@ namespace RTT
         int evaluating;
 
         os::MutexRecursive execlock;
-
-        unsigned int ee_cycle;
     };
 }}
 

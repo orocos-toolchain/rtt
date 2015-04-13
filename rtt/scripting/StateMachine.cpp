@@ -38,7 +38,6 @@
 #include "../ExecutionEngine.hpp"
 #include "../internal/DataSource.hpp"
 #include "../Service.hpp"
-#include "../base/TaskCore.hpp"
 #include "CommandFunctors.hpp"
 #include <Logger.hpp>
 #include <functional>
@@ -64,7 +63,7 @@ namespace RTT {
         : smpStatus(nill), _parent (parent) , _name(name), smStatus(Status::unloaded),
           initstate(0), finistate(0), current( 0 ), next(0), initc(0),
           currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0), currentTrans(0),
-          checking_precond(false), mstep(false), mtrace(false), evaluating(0), ee_cycle(0)
+          checking_precond(false), mstep(false), mtrace(false), evaluating(0)
     {
         this->addState(0); // allows global state transitions
     }
@@ -271,13 +270,6 @@ namespace RTT {
             smpStatus = nill;
             return true;
         }
-
-        // we're loaded. Do some sanity checking.
-        if ( ee_cycle != 0 && ee_cycle == this->engine->getParent()->getCycleCounter() ) {
-            log(Error) << "StateMachine executed twice in one cycle. Consider filing a bug report !" <<endlog();
-            assert( false && "StateMachine executed twice in one cycle. Consider filing a bug report !" );
-        }
-        ee_cycle = this->engine->getParent()->getCycleCounter();
 
         // internal transitional issues.
         switch (smpStatus) {
@@ -1132,9 +1124,6 @@ namespace RTT {
         TRACE_INIT();
         if ( cp == 0)
             return false;
-
-        assert( ee_cycle == this->engine->getParent()->getCycleCounter() && "Program executed in previous or next ee_cycle. Consider filing a bug report !" );
-
         // execute this stateprogram and cleanup if needed.
         currentProg = cp;
         if ( stepping )
