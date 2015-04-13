@@ -626,6 +626,7 @@ namespace RTT {
             rtos_sem_signal(&sem);
 
             rtos_task_delete(&rtos_task); // this must join the thread.
+            active = false;
         }
 
         const char* Thread::getName() const
