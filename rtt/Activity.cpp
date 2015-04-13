@@ -103,6 +103,10 @@ namespace RTT
     Activity::~Activity()
     {
         stop();
+
+        // We need to join the activity's thread before destruction as the thread function might still
+        // access member variables. Activity::stop() does not guarantuee to stop the underlying thread.
+        terminate();
     }
 
     os::ThreadInterface* Activity::thread() {
@@ -142,7 +146,10 @@ namespace RTT
         if ( ! Thread::isActive() )
             return false;
         //a trigger is always allowed when active
-        msg_cond.broadcast();
+        {
+            os::MutexLock lock(msg_lock);
+            msg_cond.broadcast();
+        }
         Thread::start();
         return true;
     }
@@ -158,7 +165,6 @@ namespace RTT
             return false;
         }
         mtimeout = true;
-        msg_cond.broadcast();
         Thread::start();
         return true;
     }
