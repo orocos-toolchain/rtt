@@ -171,6 +171,7 @@ namespace RTT
                     else
                     {
                         log(Warning) << err << endlog();
+#ifndef ORO_NO_EMIT_CORBA_IOR
                         log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<endlog();
 
                         // this part only publishes the IOR to a file.
@@ -183,6 +184,7 @@ namespace RTT
                             std::ofstream file_ior( iorname.c_str() );
                             file_ior << ior.in() <<std::endl;
                         }
+#endif
                         return;
                     }
                 }
@@ -220,9 +222,9 @@ namespace RTT
             } // use_naming
             else {
                 log(Info) <<"CTaskContext '"<< taskc->getName() << "' is not using the CORBA Naming Service."<<endlog();
+#ifndef ORO_NO_EMIT_CORBA_IOR
                 log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<endlog();
 
-#ifndef ORO_NO_EMIT_CORBA_IOR
                 // this part only publishes the IOR to a file.
                 CORBA::String_var ior = orb->object_to_string( mtask.in() );
                 std::cerr << ior.in() <<std::endl;
