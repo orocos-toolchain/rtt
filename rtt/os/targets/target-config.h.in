@@ -64,6 +64,8 @@
 
 #cmakedefine ORO_REMOTING
 
+#cmakedefine ORO_NO_EMIT_CORBA_IOR
+
 #cmakedefine OROBLD_DISABLE_LOGGING
 #cmakedefine OROSEM_PRINTF_LOGGING
 #cmakedefine OROSEM_FILE_LOGGING
