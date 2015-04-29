@@ -31,6 +31,11 @@ bool OperationCallerInterface::setThread(ExecutionThread et, ExecutionEngine* ex
     return true;
 }
 
+bool OperationCallerInterface::isSend()
+{
+	 return met == OwnThread && myengine->getActivity()->thread() != caller->getActivity()->thread();
+}
+
 ExecutionEngine* OperationCallerInterface::getMessageProcessor() const 
 { 
     ExecutionEngine* ret = (met == OwnThread ? myengine : GlobalEngine::Instance()); 
