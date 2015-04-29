@@ -33,7 +33,11 @@ bool OperationCallerInterface::setThread(ExecutionThread et, ExecutionEngine* ex
 
 bool OperationCallerInterface::isSend()
 {
-	 return met == OwnThread && myengine->getActivity()->thread() != caller->getActivity()->thread();
+	if ( met == ClientThread ) return false;
+	// OwnThread case:
+	if ( caller == 0) return true; // send in case of unknown caller + OwnThread
+	if ( myengine->getActivity()->thread() == caller->getActivity()->thread() ) return false;
+	return true; // all other OwnThread cases
 }
 
 ExecutionEngine* OperationCallerInterface::getMessageProcessor() const 
