@@ -1119,8 +1119,8 @@ namespace RTT {
             runState(next);
             enableEvents(next);
         } else {
-            // schedule a new run of the current state
-            if (current)
+            // schedule a new run of the current state, only if previous run finished.
+            if (current && currentRun == 0)
                 runState(current);
         }
 
