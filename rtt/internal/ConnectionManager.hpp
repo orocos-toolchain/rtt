@@ -200,6 +200,19 @@ namespace RTT
              */
             void clear();
 
+            /**
+             * Locks the mutex protecting the channel element list.
+             * */
+            void lock() {
+                connection_lock.lock();
+            };
+
+            /**
+             * Unlocks the mutex protecting the channel element list.
+             * */
+            void unlock() {
+                connection_lock.unlock();
+            }
         protected:
 
             void updateCurrentChannel(bool reset_current);
