@@ -607,7 +607,7 @@ namespace RTT {
                 // stepping == false ! This executes the whole state transition
                 changeState( to, p, false );              //  valid transition to 'to'. Q: should stepping be on or off ?
                 // trigger EE in order to force execution of the remainder of the state transition:
-                this->getEngine()->getActivity()->trigger();
+                this->getEngine()->getActivity()->timeout();
             }
             else {
                 if ( c->evaluate() == false ) 
