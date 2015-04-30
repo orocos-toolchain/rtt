@@ -239,7 +239,7 @@ namespace RTT
     
     bool TaskContext::loadPlugin(const string& pluginPath)
     {
-        return PluginLoader::Instance()->loadLibrary(pluginPath);
+        return PluginLoader::Instance()->loadPlugin(pluginPath, "");
     }
 
 
