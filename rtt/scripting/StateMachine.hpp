@@ -380,19 +380,28 @@ namespace RTT
         bool requestStateChange( StateInterface * s_n );
 
         /**
-         * Execute any pending State (exit, entry, handle) programs.
-         * You must executePending, before calling requestState() or
-         * requestNextState(). You should only call requestState() or requestNextState()
-         * if executePending returns true.
-         *
-         * Due to the pending requests, the currentState() may have changed.
+         * Returns executePreCheck() && executePostCheck()
+         */
+        bool executePending(bool stepping = false);
+
+        /**
+         * Execute only 'yielded entry' and run state programs before any state transitions are checked.
          *
          * @param stepping provide true if the pending programs should
          * be executed one step at a time.
-         * @retval true if nothing was pending @retval false if there was
-         * some program executing.
+         * @retval true if run was running or pending.
+         * @retval false only if the entry program is yielding.
          */
-        bool executePending( bool stepping = false );
+        bool executePreCheck( bool stepping = false );
+        /**
+         * Execute only transition, handle or exit/entry state programs after any state transitions are checked.
+         *
+         * @param stepping provide true if the pending programs should
+         * be executed one step at a time.
+         * @retval true if nothing was pending
+         * @retval false if there was some program executing.
+         */
+        bool executePostCheck( bool stepping = false );
 
         /**
          * Express a precondition for entering a state.  The
