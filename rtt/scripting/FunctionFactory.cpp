@@ -62,49 +62,6 @@
 namespace RTT {
     using namespace detail;
 
-        class CmdFunctionWrapper
-            : public DataSource<SendStatus>
-        {
-            DataSource<SendStatus>::shared_ptr alias;
-        public:
-            typedef boost::intrusive_ptr<CmdFunctionWrapper> shared_ptr;
-
-            CmdFunctionWrapper(DataSource<SendStatus>* ds)
-            : alias(ds)
-              {}
-
-            ~CmdFunctionWrapper() { }
-
-            bool evaluate() const {
-                return alias->evaluate();
-            }
-
-            DataSource<SendStatus>::result_t get() const
-            {
-                return alias->get();
-            }
-
-            DataSource<SendStatus>::result_t value() const
-            {
-                return alias->value();
-            }
-
-            DataSource<SendStatus>::const_reference_t rvalue() const
-            {
-                return alias->rvalue();
-            }
-
-            virtual void reset() { /* nop, don't reset ! */ }
-
-            virtual CmdFunctionWrapper* clone() const {
-                return new CmdFunctionWrapper(alias.get());
-            }
-            virtual CmdFunctionWrapper* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
-                return new CmdFunctionWrapper(alias->copy(alreadyCloned) );
-            }
-        };
-
-
         FunctionFactory::FunctionFactory(ProgramInterfacePtr pi, ExecutionEngine* procs)
             : func(pi), proc(procs) {}
 
@@ -245,12 +202,7 @@ namespace RTT {
 
             if (args.size() >= 1) {
                 if ( dynamic_cast<CmdFunction* > (args[0].get()) != 0 ) {
-                    // The CmdFunction : wrap it and return it
-                    // wrapping is necessary because we don't want to propagate reset()
-                    return new CmdFunctionWrapper( dynamic_cast<CmdFunction*>(args[0].get()) );
-                } else if ( dynamic_cast<CmdFunctionWrapper* > (args[0].get()) != 0 ) {
-                    // Return argument.
-                    return args[0];
+                    return dynamic_cast<CmdFunction*>(args[0].get());
                 } else {
                     log(Error) <<"FunctionFactory: Please define your SendHandle with 'var SendHandle' for script functions." <<endlog();
                     return 0;
