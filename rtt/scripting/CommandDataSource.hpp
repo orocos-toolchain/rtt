@@ -57,10 +57,10 @@ namespace RTT
 
         void readArguments()
         {
-            _dsb->evaluate();
         }
 
         bool execute() {
+            _dsb->evaluate();
             return true;
         }
 
@@ -90,10 +90,10 @@ namespace RTT
 
         void readArguments()
         {
-            _dsb->evaluate();
         }
 
         bool execute() {
+            _dsb->evaluate();
             return _dsb->value();
         }
         void reset() {

@@ -136,11 +136,11 @@ namespace RTT
         }
 
     void EvalCommand::readArguments() {
-        _ds->evaluate();
     }
 
         bool EvalCommand::execute() {
-            _cache->set( _ds->value() );
+            _ds->evaluate();
+            _cache->set( _ds->rvalue() );
             return true;
         }
 

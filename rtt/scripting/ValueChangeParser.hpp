@@ -62,6 +62,7 @@ namespace RTT { namespace scripting
       // all the AssignVariableCommand we've built..
       // This list is cleared in cleanup().
       std::vector<base::ActionInterface*> assigncommands;
+      std::vector<scripting::ConditionInterface*> conditions;
 
       // the defined values...
       // This list is cleared in cleanup().
@@ -164,6 +165,11 @@ namespace RTT { namespace scripting
     std::vector<base::ActionInterface*> assignCommands()
       {
           return assigncommands;
+      }
+
+    std::vector<scripting::ConditionInterface*> assignConditions()
+      {
+          return conditions;
       }
 
     base::AttributeBase* lastDefinedValue()

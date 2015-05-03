@@ -62,32 +62,33 @@ namespace RTT
         {
         public:
             typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
-            typedef typename DataSource<S>::const_ptr RHSSource;
+            typedef typename DataSource<S>::shared_ptr RHSSource;
         private:
             LHSSource lhs;
             RHSSource rhs;
-            bool news;
         public:
             /**
              * Assign \a r (rvalue) to \a l (lvalue);
              */
             AssignCommand( LHSSource l, RHSSource r )
-                : lhs( l ), rhs( r ), news(false)
+                : lhs( l ), rhs( r )
             {
             }
 
             void readArguments() {
-                news = rhs->evaluate();
             }
 
             bool execute()
             {
-                if (news) {
-                    lhs->set( rhs->rvalue() );
-                    news=false;
-                    return true;
-                }
-                return false;
+                // we ignore evaluate, which return value is legacy
+                // we always assign the current state of rhs
+                rhs->evaluate();
+                lhs->set( rhs->rvalue() );
+                return true;
+            }
+
+            void reset() {
+                rhs->reset();
             }
 
             virtual base::ActionInterface* clone() const

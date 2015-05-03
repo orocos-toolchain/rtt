@@ -121,7 +121,7 @@ namespace RTT
         /**
          * Collect this operator if the method has no arguments.
          */
-        SendStatus collect()
+        SendStatus collect() const
         {
             if (this->impl)
                 return this->impl->collect();
