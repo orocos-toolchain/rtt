@@ -88,7 +88,8 @@ class  RTT_corba_CServiceRequester_i
 {
 protected:
     RTT::ServiceRequester::shared_ptr mservice;
-    std::map<std::string, std::pair<RTT::corba::CServiceRequester_var, PortableServer::ServantBase_var> > mrequests;
+    typedef std::map<std::string, std::pair<RTT::corba::CServiceRequester_var, PortableServer::ServantBase_var> > RequestersMap;
+    RequestersMap mrequests;
     PortableServer::POA_var mpoa;
 public:
   // Constructor 
@@ -107,6 +108,14 @@ public:
   char * getRequestName (
       void);
   
+  virtual
+  ::RTT::corba::CServiceRequesterDescription * getCServiceRequesterDescription (
+      void);
+
+  static
+  ::RTT::corba::CServiceRequesterDescription * getCServiceRequesterDescription (
+      const RTT::ServiceRequester::shared_ptr &);
+
   virtual
   ::RTT::corba::CRequestNames * getRequestNames (
       void);

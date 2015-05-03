@@ -41,7 +41,7 @@ module RTT
          * Writes into this Channel Element.
          * @return false if the channel became invalid
          */
-        boolean write(in any sample);
+        oneway void write(in any sample);
         /**
          * Disconnect and dispose this object.
          * You may no longer use this object after calling this method.
@@ -79,7 +79,7 @@ module RTT
          * is available for reading.
          * @return false if this channel became invalidated.
          */
-        boolean remoteSignal();
+        oneway void remoteSignal();
 
         /**
          * Used by the 'remote' side to inform this channel element
@@ -106,6 +106,7 @@ module RTT
     {
         CPortType type;
         string   name;
+        string   description;
         string   type_name;
     };
 
