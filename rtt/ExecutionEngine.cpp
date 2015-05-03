@@ -124,6 +124,7 @@ namespace RTT
             assert(foo);
             if ( foo->execute() == false ){
                 foo->unloaded();
+                os::MutexLock lock(msg_lock);
                 msg_cond.broadcast(); // required for waitForFunctions() (3rd party thread)
             } else {
                 f_queue->enqueue( foo );
@@ -226,16 +227,16 @@ namespace RTT
                 assert( com );
                 com->executeAndDispose();
             }
-            // there's no need to hold the lock during
-            // emptying the queue. But we must hold the
-            // lock once between excuteAndDispose and the
-            // broadcast to avoid the race condition in
-            // waitForMessages().
-            // This allows us to recurse into processMessages.
-            MutexLock locker( msg_lock );
         }
-        if ( com )
-            msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
+
+        // there's no need to hold the lock during
+        // emptying the queue. But we must hold the
+        // lock once between excuteAndDispose and the
+        // broadcast to avoid the race condition in
+        // waitForMessages().
+        // This allows us to recurse into processMessages.
+        MutexLock locker( msg_lock );
+        msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
     }
 
     bool ExecutionEngine::process( DisposableInterface* c )
@@ -252,7 +253,10 @@ namespace RTT
 
             bool result = mqueue->enqueue( c );
             this->getActivity()->trigger();
-            msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
+            {
+                os::MutexLock lock(msg_lock);
+                msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
+            }
             return result;
         }
         return false;

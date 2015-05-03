@@ -527,16 +527,18 @@ BOOST_AUTO_TEST_CASE(testProgramCmdFoo)
         + "do test.assert( tvar_i == -1 ) \n"
         + "do test.assert( tvar_i == tconst_i ) \n"
         + "set tvar_i = +2\n" // 10
-        + "do test.assert( tvar_i == +2 )\n"
-        + "do foo.cmd(tvar_i)\n"
-        + "do test.assert( tvar_i == +4 )\n"
-        + "tss = foo.cmd(tvar_i)\n"
+        + "while (tvar_i != +6) {\n"
+        + "   tss = foo.cmd(tvar_i)\n"
+        + "   do test.assert( tss == SendSuccess )\n"
+        + "}\n"
         + "do test.assert( tvar_i == +6 )\n"
+        + "tss = foo.cmd(tvar_i)\n"
+        + "do test.assert( tvar_i == +8 )\n"
         + "do test.assert( tss == SendSuccess )\n"
         + "}";
     this->doProgram( prog, tc );
     Attribute<int> i = tc->provides()->getAttribute("tvar_i");
-    BOOST_REQUIRE_EQUAL( 6, i.get() );
+    BOOST_REQUIRE_EQUAL( 8, i.get() );
     this->finishProgram( tc, "x");
 }
 
