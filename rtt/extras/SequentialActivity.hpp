@@ -112,6 +112,8 @@ namespace RTT
         bool execute();
 
         bool trigger();
+
+        bool timeout();
     private:
         bool running;
         bool active;

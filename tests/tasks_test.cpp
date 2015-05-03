@@ -507,6 +507,7 @@ BOOST_AUTO_TEST_CASE( testActivityPSelfRemove )
     BOOST_CHECK( t_task_per->run( t_run_int_per.get() ) );
     BOOST_CHECK( t_task_per->start() );
     testPause();
+    testPause();
     BOOST_CHECK( !t_task_per->isRunning() );
     BOOST_CHECK( t_run_int_per->fini );
 }

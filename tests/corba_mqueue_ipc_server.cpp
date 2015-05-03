@@ -51,6 +51,7 @@ public:
     }
 
     void updateHook(){
+        log(Info) << "Received data on port" <<endlog();
         double d = 123456.789;
         mi1.read(d);
         mo1.write(d);

@@ -337,6 +337,25 @@ namespace RTT
             return ee;
         }
 
+        /**
+         * For each update cycle, this counter increments by one.
+         * You can use this to check across (callback) functions if
+         * we're still in the same cycle or in a new one.
+         */
+        unsigned int getCycleCounter() const { return mCycleCounter; }
+        /**
+         * Number of cycles that were caused by Trigger triggers.
+         */
+        unsigned int getTriggerCounter() const { return mTriggerCounter; }
+        /**
+         * Number of cycles that were caused by IOReady triggers.
+         */
+        unsigned int getIOCounter() const { return mIOCounter; }
+        /**
+         * Number of cycles that were caused by TimeOut triggers.
+         */
+        unsigned int getTimeOutCounter() const { return mTimeOutCounter; }
+
     protected:
         /**
          * Implement this method such that it contains the code which
@@ -458,6 +477,7 @@ namespace RTT
          * mTaskState to mTargetState.
          */
         TaskState mTargetState;
+
         // non copyable
         TaskCore( TaskCore& );
 
@@ -469,6 +489,31 @@ namespace RTT
          * event ports callbacks.
          */
         virtual void prepareUpdateHook();
+
+    protected:
+        /**
+         * Set to false in order to not trigger() when calling start().
+         */
+        bool mTriggerOnStart;
+
+        /**
+         * For each update cycle, this counter increments by one.
+         * You can use this to check across (callback) functions if
+         * we're still in the same cycle or in a new one.
+         */
+        unsigned int mCycleCounter;
+        /**
+         * Number of cycles that were caused by IOReady triggers.
+         */
+        unsigned int mIOCounter;
+        /**
+         * Number of cycles that were caused by TimeOut triggers.
+         */
+        unsigned int mTimeOutCounter;
+        /**
+         * Number of cycles that were caused by Trigger triggers.
+         */
+        unsigned int mTriggerCounter;
     };
 }}
 

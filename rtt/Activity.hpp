@@ -43,6 +43,8 @@
 #include "base/RunnableInterface.hpp"
 #include "base/ActivityInterface.hpp"
 #include "os/Thread.hpp"
+#include "os/Mutex.hpp"
+#include "os/Condition.hpp"
 
 namespace RTT
 {
@@ -149,6 +151,8 @@ namespace RTT
 
         virtual bool trigger();
 
+        virtual bool timeout();
+
         virtual bool stop();
 
         virtual bool isRunning() const;
@@ -182,6 +186,8 @@ namespace RTT
          */
         virtual void loop();
 
+        virtual void work(base::RunnableInterface::WorkReason reason);
+
         /**
          * @see base::RunnableInterface::breakLoop()
          */
@@ -191,7 +197,19 @@ namespace RTT
          * @see base::RunnableInterface::finalize()
          */
         virtual void finalize();
+    protected:
+        os::Mutex msg_lock;
+        os::Condition msg_cond;
+        /**
+         * The period at which the Activity steps().
+         */
+        double update_period;
 
+        /**
+         * When set to true, a next cycle will be a TimeOut cycle.
+         */
+        bool mtimeout;
+        bool mstopRequested;
     };
 
 }
