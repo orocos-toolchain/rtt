@@ -95,7 +95,7 @@ protected:
     PortableServer::POA_var mpoa;
     RTT::Service::shared_ptr mservice;
     // child services
-    typedef std::vector<std::pair<RTT::corba::CService_var,PortableServer::ServantBase_var> > Servants;
+    typedef std::map<std::string, std::pair<RTT::corba::CService_var,PortableServer::ServantBase_var> > Servants;
     Servants mservs;
 public:
   // Constructor 
@@ -119,6 +119,14 @@ public:
   virtual
   char * getServiceDescription (
       void);
+
+  virtual
+  ::RTT::corba::CServiceDescription * getCServiceDescription (
+      void);
+
+  static
+  ::RTT::corba::CServiceDescription * getCServiceDescription (
+      const RTT::Service::shared_ptr &);
   
   virtual
   ::RTT::corba::CService::CProviderNames * getProviderNames (

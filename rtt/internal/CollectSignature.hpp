@@ -121,14 +121,14 @@ namespace RTT
             CollectSignature(ToCollect implementation) : cimpl(implementation) {}
             ~CollectSignature() {}
 
-            SendStatus collect()
+            SendStatus collect() const
             {
                 if (this->cimpl)
                     return this->cimpl->collect();
                 return SendFailure;
             }
 
-            SendStatus collectIfDone()
+            SendStatus collectIfDone() const
             {
                 if (this->cimpl)
                     return this->cimpl->collectIfDone();
@@ -154,14 +154,14 @@ namespace RTT
             /**
              * Collect this operator if the method has one argument.
              */
-            SendStatus collect(arg1_type a1)
+            SendStatus collect(arg1_type a1) const
             {
                 if (cimpl)
                     return cimpl->collect( a1 );
                 return SendFailure;
             }
 
-            SendStatus collectIfDone(arg1_type a1)
+            SendStatus collectIfDone(arg1_type a1) const
             {
                 if (cimpl)
                     return cimpl->collectIfDone( a1 );
@@ -184,14 +184,14 @@ namespace RTT
             /**
              * Collect this operator if the method has two arguments.
              */
-            SendStatus collect(arg1_type t1, arg2_type t2)
+            SendStatus collect(arg1_type t1, arg2_type t2) const
             {
                 if (cimpl)
                     return cimpl->collect(t1, t2);
                 return SendFailure;
             }
 
-            SendStatus collectIfDone(arg1_type t1, arg2_type t2)
+            SendStatus collectIfDone(arg1_type t1, arg2_type t2) const
             {
                 if (cimpl)
                     return cimpl->collectIfDone(t1, t2);
@@ -215,14 +215,14 @@ namespace RTT
             /**
              * Collect this operator if the method has three arguments.
              */
-            SendStatus collect(arg1_type t1, arg2_type t2, arg3_type t3)
+            SendStatus collect(arg1_type t1, arg2_type t2, arg3_type t3) const
             {
                 if (cimpl)
                     return cimpl->collect(t1, t2, t3);
                 return SendFailure;
             }
 
-            SendStatus collectIfDone(arg1_type t1, arg2_type t2, arg3_type t3)
+            SendStatus collectIfDone(arg1_type t1, arg2_type t2, arg3_type t3) const
             {
                 if (cimpl)
                     return cimpl->collectIfDone(t1, t2, t3);
@@ -247,14 +247,14 @@ namespace RTT
             /**
              * Collect this operator if the method has four arguments.
              */
-            SendStatus collect(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4)
+            SendStatus collect(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4) const
             {
                 if (cimpl)
                     return cimpl->collect(t1, t2, t3, t4);
                 return SendFailure;
             }
 
-            SendStatus collectIfDone(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4)
+            SendStatus collectIfDone(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4) const
             {
                 if (cimpl)
                     return cimpl->collect(t1, t2, t3, t4);
@@ -280,14 +280,14 @@ namespace RTT
             /**
              * Collect this operator if the method has four arguments.
              */
-            SendStatus collect(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5)
+            SendStatus collect(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5) const
             {
                 if (cimpl)
                     return cimpl->collect(t1, t2, t3, t4, t5);
                 return SendFailure;
             }
 
-            SendStatus collectIfDone(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5)
+            SendStatus collectIfDone(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5) const
             {
                 if (cimpl)
                     return cimpl->collect(t1, t2, t3, t4, t5);
@@ -314,14 +314,14 @@ namespace RTT
             /**
              * Collect this operator if the method has four arguments.
              */
-            SendStatus collect(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5, arg6_type t6)
+            SendStatus collect(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5, arg6_type t6) const
             {
                 if (cimpl)
                     return cimpl->collect(t1, t2, t3, t4, t5, t6);
                 return SendFailure;
             }
 
-            SendStatus collectIfDone(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5, arg6_type t6)
+            SendStatus collectIfDone(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5, arg6_type t6) const
             {
                 if (cimpl)
                     return cimpl->collect(t1, t2, t3, t4, t5, t6);

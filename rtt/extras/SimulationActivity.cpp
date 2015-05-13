@@ -66,6 +66,7 @@ namespace RTT {
     {
         if ( this->isRunning() ) {
             this->step();
+            this->work(RunnableInterface::TimeOut);
             return true;
         }
         return false;

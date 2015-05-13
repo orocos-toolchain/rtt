@@ -74,6 +74,7 @@
 #include "../../internal/OperationCallerC.hpp"
 #include "../../internal/SendHandleC.hpp"
 #include "../../Logger.hpp"
+#include "../../internal/GlobalEngine.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;
@@ -132,7 +133,7 @@ bool sourcevector_to_anysequence( vector<DataSourceBase::shared_ptr> const& sour
         if (ss == SendSuccess) {
            sourcevector_to_anysequence( cargs, *args.ptr() );
         }
-        return CSendStatus(static_cast<int>(ss) + 1);
+        return CSendStatus(static_cast<int>(ss) + 2);
     } catch(std::runtime_error& e) {
         throw ::RTT::corba::CCallError(e.what());
     }
@@ -147,7 +148,7 @@ bool sourcevector_to_anysequence( vector<DataSourceBase::shared_ptr> const& sour
         if (ss == SendSuccess) {
             sourcevector_to_anysequence( cargs, *args.ptr() );
         }
-        return CSendStatus(static_cast<int>(ss) + 1);
+        return CSendStatus(static_cast<int>(ss) + 2);
     } catch(std::runtime_error& e) {
         throw ::RTT::corba::CCallError(e.what());
     }
@@ -156,7 +157,7 @@ bool sourcevector_to_anysequence( vector<DataSourceBase::shared_ptr> const& sour
 ::RTT::corba::CSendStatus RTT_corba_CSendHandle_i::checkStatus (
     void)
 {
-    return CSendStatus( static_cast<int>(mhandle.collectIfDone()) + 1 );
+    return CSendStatus( static_cast<int>(mhandle.collectIfDone()) + 2 );
 }
 
 ::CORBA::Any * RTT_corba_CSendHandle_i::ret (
@@ -228,17 +229,26 @@ RTT_corba_COperationInterface_i::~RTT_corba_COperationInterface_i (void)
 {
 }
 
-::RTT::corba::COperationInterface::COperationList * RTT_corba_COperationInterface_i::getOperations (
+::RTT::corba::COperationInterface::COperationDescriptions * RTT_corba_COperationInterface_i::getOperations (
     void)
 {
-    RTT::corba::COperationInterface::COperationList_var rlist = new RTT::corba::COperationInterface::COperationList();
+    RTT::corba::COperationInterface::COperationDescriptions_var rlist = new RTT::corba::COperationInterface::COperationDescriptions();
 
     vector<string> flist = mfact->getNames();
     rlist->length( flist.size() );
     size_t drops=0;
     for (size_t i=0; i != flist.size(); ++i)
         if ( !mfact->isSynchronous(flist[i]) ) {
-            rlist[i - drops] = CORBA::string_dup( flist[i].c_str() );
+            RTT::OperationInterfacePart *op = mfact->getPart(flist[i]);
+            rlist[i - drops].name = CORBA::string_dup( flist[i].c_str() );
+            rlist[i - drops].description = CORBA::string_dup( op->description().c_str() );
+            ::RTT::corba::CArgumentDescriptions_var arguments = getArguments( flist[i].c_str() );
+            rlist[i - drops].arguments = arguments;
+            ::RTT::corba::CTypeList_var collect_types = getCollectTypes( flist[i].c_str() );
+            rlist[i - drops].collect_types = collect_types;
+            rlist[i - drops].result_type = CORBA::string_dup( mfact->getResultType(flist[i]).c_str() );
+            rlist[i - drops].send_oneway = (op->collectArity() == 0);
+
         } else {
             ++drops;
         }
@@ -246,10 +256,10 @@ RTT_corba_COperationInterface_i::~RTT_corba_COperationInterface_i (void)
     return rlist._retn();
 }
 
-::RTT::corba::CDescriptions * RTT_corba_COperationInterface_i::getArguments (
+::RTT::corba::CArgumentDescriptions * RTT_corba_COperationInterface_i::getArguments (
     const char * operation)
 {
-    CDescriptions_var ret = new CDescriptions();
+    CArgumentDescriptions_var ret = new CArgumentDescriptions();
     if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)))
         throw ::RTT::corba::CNoSuchNameException( operation );
     // operation found, convert args:
@@ -259,6 +269,22 @@ RTT_corba_COperationInterface_i::~RTT_corba_COperationInterface_i (void)
         ret[i].name = CORBA::string_dup( args[i].name.c_str() );
         ret[i].description = CORBA::string_dup( args[i].description.c_str() );
         ret[i].type = CORBA::string_dup( args[i].type.c_str() );
+    }
+    return ret._retn();
+}
+
+::RTT::corba::CTypeList * RTT_corba_COperationInterface_i::getCollectTypes (
+    const char * operation)
+{
+    ::RTT::corba::CTypeList_var ret = new ::RTT::corba::CTypeList();
+    OperationInterfacePart *part = mfact->getPart( string(operation) );
+    if ( !part || mfact->isSynchronous(string(operation)))
+        throw ::RTT::corba::CNoSuchNameException( operation );
+
+    // operation found, convert args:
+    ret->length( part->collectArity() );
+    for (size_t i = 0; i != part->collectArity(); ++i) {
+        ret[i] = CORBA::string_dup( part->getCollectType(i+1)->getTypeName().c_str() );
     }
     return ret._retn();
 }
@@ -326,7 +352,7 @@ void RTT_corba_COperationInterface_i::checkOperation (
         throw ::RTT::corba::CNoSuchNameException( operation );
     try {
         OperationInterfacePart* mofp = mfact->getPart(operation);
-        OperationCallerC mc(mofp, operation, 0);
+        OperationCallerC mc(mofp, operation, internal::GlobalEngine::Instance());
         for (unsigned int i = 0; i < mofp->arity() && i < args.length(); ++i) {
             const TypeInfo* ti = mofp->getArgumentType(i+1);
             assert(ti);
@@ -364,7 +390,7 @@ void RTT_corba_COperationInterface_i::checkOperation (
         throw ::RTT::corba::CNoSuchNameException( operation );
     // convert Corba args to C++ args.
     try {
-        OperationCallerC orig(mfact->getPart(operation), operation, 0);
+        OperationCallerC orig(mfact->getPart(operation), operation, internal::GlobalEngine::Instance());
         vector<DataSourceBase::shared_ptr> results;
         for (size_t i =0; i != args.length(); ++i) {
             const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
@@ -412,7 +438,7 @@ void RTT_corba_COperationInterface_i::checkOperation (
     return new ::CORBA::Any();
 }
 
-::RTT::corba::CSendHandle_ptr RTT_corba_COperationInterface_i::sendOperation (
+RTT_corba_CSendHandle_i* RTT_corba_COperationInterface_i::sendOperationInternal (
     const char * operation,
     const ::RTT::corba::CAnyArguments & args)
 {
@@ -421,7 +447,7 @@ void RTT_corba_COperationInterface_i::checkOperation (
         throw ::RTT::corba::CNoSuchNameException( operation );
     // convert Corba args to C++ args.
     try {
-        OperationCallerC orig(mfact->getPart(operation), operation, 0);
+        OperationCallerC orig(mfact->getPart(operation), operation, internal::GlobalEngine::Instance());
         for (size_t i =0; i != args.length(); ++i) {
             const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
             CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
@@ -431,11 +457,8 @@ void RTT_corba_COperationInterface_i::checkOperation (
             SendHandleC resulthandle = orig.send();
             // we may not destroy the SendHandle, before the operation completes:
             resulthandle.setAutoCollect(true);
-            // our resulthandle copy makes sure that the resulthandle can return.
             RTT_corba_CSendHandle_i* ret_i = new RTT_corba_CSendHandle_i( resulthandle, mfact->getPart(operation) );
-            CSendHandle_var ret = ret_i->_this();
-            ret_i->_remove_ref(); // if POA drops this, it gets cleaned up.
-            return ret._retn();
+            return ret_i;
         } else {
             orig.check(); // will throw
         }
@@ -448,5 +471,39 @@ void RTT_corba_COperationInterface_i::checkOperation (
     } catch (wrong_types_of_args_exception& wta ) {
         throw ::RTT::corba::CWrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
     }
-    return CSendHandle::_nil();
+    return 0;
+}
+
+::RTT::corba::CSendHandle_ptr RTT_corba_COperationInterface_i::sendOperation (
+    const char * operation,
+    const ::RTT::corba::CAnyArguments & args)
+{
+    RTT_corba_CSendHandle_i* ret_i = sendOperationInternal(operation, args);
+    if (ret_i) {
+        // our resulthandle copy makes sure that the resulthandle can return.
+        CSendHandle_var ret = ret_i->_this();
+        ret_i->_remove_ref(); // if POA drops this, it gets cleaned up.
+        return ret._retn();
+    } else {
+        return CSendHandle::_nil();
+    }
+}
+
+void RTT_corba_COperationInterface_i::sendOperationOneway (
+    const char * operation,
+    const ::RTT::corba::CAnyArguments & args)
+{
+    RTT_corba_CSendHandle_i* ret_i = 0;
+
+    try {
+        ret_i = sendOperationInternal(operation, args);
+
+        if (!ret_i || ret_i->checkStatus() == CSendFailure) {
+            log(Error) << "Sending the '" << operation << "'' operation failed (SendFailure)." << endlog();
+        }
+    } catch(std::exception &e) {
+        log(Error) << "Sending the '" << operation << "'' operation failed:" << e.what() << endlog();
+    }
+
+    if (ret_i) ret_i->_remove_ref(); // Drop the CSendHandle
 }

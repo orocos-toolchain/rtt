@@ -453,8 +453,8 @@ namespace RTT {
 
         addOperation("execute", &ScriptingService::execute, this).doc("Execute a line of code (DEPRECATED).").arg("Code", "A single statement.");
         // OperationCallers for loading programs
-        addOperation("loadPrograms", &ScriptingService::doLoadPrograms, this).doc("Load a program from a given file (DEPRECATED).").arg("Filename", "The filename of the script.");
-        addOperation("loadProgramText", &ScriptingService::doLoadProgramText, this).doc("Load a program from a string (DEPRECATED).").arg("Code", "A string containing one or more program scripts.");
+        addOperation("loadPrograms", &ScriptingService::doLoadPrograms, this).doc("Load a program from a given file.").arg("Filename", "The filename of the script.");
+        addOperation("loadProgramText", &ScriptingService::doLoadProgramText, this).doc("Load a program from a string.").arg("Code", "A string containing one or more program scripts.");
         addOperation("unloadProgram", &ScriptingService::doUnloadProgram, this).doc("Remove a loaded program.").arg("Name", "The name of the loaded Program");
 
         // Query OperationCallers for programs
@@ -465,8 +465,8 @@ namespace RTT {
         addOperation("getProgramText", &ScriptingService::getProgramText, this).doc("Get the script of a program.").arg("Name", "The Name of the loaded Program");
 
         // OperationCallers for loading state machines
-        addOperation("loadStateMachines", &ScriptingService::doLoadStateMachines, this).doc("Load a state machine from a given file (DEPRECATED).").arg("Filename", "The filename of the script.");
-        addOperation("loadStateMachineText", &ScriptingService::doLoadStateMachineText, this).doc("Load a state machine from a string (DEPRECATED).").arg("Code", "A string containing one or more state machine scripts.");
+        addOperation("loadStateMachines", &ScriptingService::doLoadStateMachines, this).doc("Load a state machine from a given file.").arg("Filename", "The filename of the script.");
+        addOperation("loadStateMachineText", &ScriptingService::doLoadStateMachineText, this).doc("Load a state machine from a string.").arg("Code", "A string containing one or more state machine scripts.");
         addOperation("unloadStateMachine", &ScriptingService::doUnloadStateMachine, this).doc("Remove a loaded state machine.").arg("Name", "The name of the loaded State Machine");
 
         // Query OperationCallers for state machines

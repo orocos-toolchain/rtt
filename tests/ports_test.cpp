@@ -60,8 +60,10 @@ public:
     TaskContext* tc;
     EventPortsTC* tce;
     EventPortsTC* tc2;
+    EventPortsTC* tc3;
     ActivityInterface* tsim;
     ActivityInterface* stsim;
+    ActivityInterface* slsim;
 
     PortInterface* signalled_port;
     void new_data_listener(PortInterface* port)
@@ -75,11 +77,14 @@ public:
         tc =  new TaskContext( "root", TaskContext::Stopped );
         tce = new EventPortsTC();
         tc2 = new EventPortsTC();
+        tc3 = new EventPortsTC();
         tce->setActivity( new SequentialActivity() );
         tc2->setActivity( new SequentialActivity() );
         tc->setActivity( new SimulationActivity(0.001) );
+        tc3->setActivity( new SlaveActivity() );
         tsim = tc->getActivity();
-        stsim = tc->getActivity();
+        stsim = tc2->getActivity();
+        slsim = tc3->getActivity();
         SimulationThread::Instance()->stop();
     }
 
@@ -587,12 +592,18 @@ BOOST_AUTO_TEST_CASE(testEventPortSignalling)
     OutputPort<double> wp1("Write");
     InputPort<double>  rp1("Read");
 
+    BOOST_ASSERT(tce->configure());
+    BOOST_ASSERT(tce->isConfigured());
+
+    BOOST_ASSERT(slsim->isActive());
+
+
     tce->start();
     tce->resetStats();
 
     tce->addEventPort(rp1,boost::bind(&PortsTestFixture::new_data_listener, this, _1) );
 
-
+    BOOST_CHECK( slsim->execute() );
 
     wp1.createConnection(rp1, ConnPolicy::data());
     signalled_port = 0;
@@ -617,12 +628,69 @@ BOOST_AUTO_TEST_CASE(testEventPortSignalling)
     signalled_port = 0;
     // test buffer full:
     wp1.write(0.1);
+
+    BOOST_CHECK( slsim->execute() );
     BOOST_CHECK(0 == signalled_port);
     BOOST_CHECK( !tce->had_event);
     tce->resetStats();
 
     // mandatory
     tce->ports()->removePort( rp1.getName() );
+}
+
+
+BOOST_AUTO_TEST_CASE(testEventPortSignallingFromSlave)
+{
+    OutputPort<double> wp1("Write");
+    InputPort<double>  rp1("Read");
+
+    tc3->start();
+    tc3->resetStats();
+
+    tc3->addEventPort(rp1,boost::bind(&PortsTestFixture::new_data_listener, this, _1) );
+
+    wp1.createConnection(rp1, ConnPolicy::data());
+    signalled_port = 0;
+    wp1.write(0.1);
+
+    BOOST_CHECK( slsim->execute() );
+    BOOST_CHECK(&rp1 == signalled_port);
+    BOOST_CHECK(tc3->had_event);
+    tc3->resetStats();
+
+    wp1.disconnect();
+    wp1.createConnection(rp1, ConnPolicy::buffer(2));
+    // send two items into the buffer
+    signalled_port = 0;
+    wp1.write(0.1);
+
+    BOOST_CHECK( slsim->execute() );
+    BOOST_CHECK(&rp1 == signalled_port);
+    BOOST_CHECK(tc3->had_event);
+    tc3->resetStats();
+    signalled_port = 0;
+    wp1.write(0.1);
+
+    BOOST_CHECK( slsim->execute() );
+    BOOST_CHECK(&rp1 == signalled_port);
+    BOOST_CHECK(tc3->had_event);
+    tc3->resetStats();
+    signalled_port = 0;
+    // test buffer full (updateHook called due to execute, but no callback executed):
+    wp1.write(0.1);
+    BOOST_CHECK( slsim->execute() );
+    BOOST_CHECK(0 == signalled_port);
+    BOOST_CHECK( tc3->had_event);
+    // empty one element and try again:
+    double d;
+    rp1.read(d);
+    wp1.write(0.1);
+    BOOST_CHECK( slsim->execute() );
+    BOOST_CHECK(&rp1 == signalled_port);
+    tc3->resetStats();
+
+    // mandatory
+    tc3->ports()->removePort( rp1.getName() );
 }
 
 BOOST_AUTO_TEST_CASE(testPlainPortNotSignalling)

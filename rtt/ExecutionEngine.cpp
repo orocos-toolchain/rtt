@@ -124,6 +124,7 @@ namespace RTT
             assert(foo);
             if ( foo->execute() == false ){
                 foo->unloaded();
+                os::MutexLock lock(msg_lock);
                 msg_cond.broadcast(); // required for waitForFunctions() (3rd party thread)
             } else {
                 f_queue->enqueue( foo );
@@ -141,8 +142,6 @@ namespace RTT
                 return false;
             f->loaded(this);
             bool result = f_queue->enqueue( f );
-            // signal work is to be done:
-            this->getActivity()->trigger();
             return result;
         }
         return false;
@@ -228,16 +227,16 @@ namespace RTT
                 assert( com );
                 com->executeAndDispose();
             }
-            // there's no need to hold the lock during
-            // emptying the queue. But we must hold the
-            // lock once between excuteAndDispose and the
-            // broadcast to avoid the race condition in
-            // waitForMessages().
-            // This allows us to recurse into processMessages.
-            MutexLock locker( msg_lock );
         }
-        if ( com )
-            msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
+
+        // there's no need to hold the lock during
+        // emptying the queue. But we must hold the
+        // lock once between excuteAndDispose and the
+        // broadcast to avoid the race condition in
+        // waitForMessages().
+        // This allows us to recurse into processMessages.
+        MutexLock locker( msg_lock );
+        msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
     }
 
     bool ExecutionEngine::process( DisposableInterface* c )
@@ -254,7 +253,10 @@ namespace RTT
 
             bool result = mqueue->enqueue( c );
             this->getActivity()->trigger();
-            msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
+            {
+                os::MutexLock lock(msg_lock);
+                msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
+            }
             return result;
         }
         return false;
@@ -349,18 +351,49 @@ namespace RTT
     }
 
     void ExecutionEngine::step() {
-        processMessages();
-        processFunctions();
-        processChildren(); // aren't these ExecutableInterfaces ie functions ?
+        // we use work() now
     }
 
+    void ExecutionEngine::work(RunnableInterface::WorkReason reason) {
+        // Interprete work before calling into user code such that we are consistent at all times.
+        if (taskc) {
+            ++taskc->mCycleCounter;
+            switch(reason) {
+            case RunnableInterface::Trigger :
+                ++taskc->mTriggerCounter;
+                break;
+            case RunnableInterface::TimeOut :
+                ++taskc->mTimeOutCounter;
+                break;
+            case RunnableInterface::IOReady :
+                ++taskc->mIOCounter;
+                break;
+            default:
+                break;
+            }
+        }
+        if (reason == RunnableInterface::Trigger) {
+            /* Callback step */
+            processMessages();
+            if ( taskc ) {
+                taskc->prepareUpdateHook();
+            }
+        } else if (reason == RunnableInterface::TimeOut || reason == RunnableInterface::IOReady) {
+            /* Update step */
+            processMessages();
+            if ( taskc ) {
+                taskc->prepareUpdateHook();
+            }
+            processFunctions();
+            processChildren();
+        }
+    }
     void ExecutionEngine::processChildren() {
         // only call updateHook in the Running state.
         if ( taskc ) {
             // A trigger() in startHook() will be ignored, we trigger in TaskCore after startHook finishes.
             if ( taskc->mTaskState == TaskCore::Running && taskc->mTargetState == TaskCore::Running ) {
                 TRY (
-                    taskc->prepareUpdateHook();
                     taskc->updateHook();
                 ) CATCH(std::exception const& e,
                     log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
