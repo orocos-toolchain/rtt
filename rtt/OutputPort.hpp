@@ -233,9 +233,15 @@ namespace RTT
             has_initial_sample = true;
             has_last_written_value = false;
 
+#ifdef USE_CPP11
+            cmanager.delete_if( bind(
+                        &OutputPort<T>::do_init, this, boost::ref(sample), _1)
+                    );
+#else
             cmanager.delete_if( boost::bind(
                         &OutputPort<T>::do_init, this, boost::ref(sample), _1)
                     );
+#endif
         }
 
         /**
@@ -252,9 +258,15 @@ namespace RTT
             }
             has_last_written_value = keeps_last_written_value;
 
+#ifdef USE_CPP11
+            cmanager.delete_if( bind(
+                        &OutputPort<T>::do_write, this, boost::ref(sample), _1)
+                    );
+#else
             cmanager.delete_if( boost::bind(
                         &OutputPort<T>::do_write, this, boost::ref(sample), boost::lambda::_1)
                     );
+#endif
         }
 
         void write(base::DataSourceBase::shared_ptr source)
