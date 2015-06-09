@@ -190,6 +190,7 @@ macro( orocos_find_package PACKAGE )
       # The flags are space separated, so no need to quote here:
       set(${PACKAGE}_CFLAGS_OTHER ${${PACKAGE}_COMP_${OROCOS_TARGET}_CFLAGS_OTHER})
       set(${PACKAGE}_LDFLAGS_OTHER ${${PACKAGE}_COMP_${OROCOS_TARGET}_LDFLAGS_OTHER})
+      set(${PACKAGE}_PREFIX ${${PACKAGE}_COMP_${OROCOS_TARGET}_PREFIX})
 
     else()
       if(ORO_FIND_REQUIRED)
