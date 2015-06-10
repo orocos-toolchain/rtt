@@ -130,11 +130,12 @@ namespace RTT
 
         base::ActivityInterface *getMaster() const;
 
-        bool initialize();
-        void step();
-        void loop();
-        bool breakLoop();
-        void finalize();
+        virtual bool initialize();
+        virtual void step();
+        virtual void work(base::RunnableInterface::WorkReason reason);
+        virtual void loop();
+        virtual bool breakLoop();
+        virtual void finalize();
 
         /**
          * Start this slave. Only allowed if the master activity is already running.
@@ -154,6 +155,8 @@ namespace RTT
         bool execute();
 
         bool trigger();
+
+        bool timeout();
     private:
         base::ActivityInterface* mmaster;
         double mperiod;

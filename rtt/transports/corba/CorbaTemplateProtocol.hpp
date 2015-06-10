@@ -142,8 +142,8 @@ namespace RTT
               return base::DataSourceBase::shared_ptr( new ValueDataSourceProxy<PropertyType>( serv, vname, true) );
           }
 
-          virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CService_ptr serv, const std::string& vname) {
-              if ( serv->isAttributeAssignable( vname.c_str() ) ) {
+          virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CService_ptr serv, const std::string& vname, bool is_assignable) {
+              if ( is_assignable ) {
                   return base::DataSourceBase::shared_ptr( new ValueDataSourceProxy<PropertyType>( serv, vname, false) );
               }
               else {

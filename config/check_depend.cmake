@@ -44,6 +44,8 @@ endif()
 OPTION(PLUGINS_ENABLE "Enable plugins" ON)
 OPTION(PLUGINS_STD_TYPES_SUPPORT "Enable support for the std::string and std::vector<double> types in the RTT typekit & transports." ON)
     
+OPTION(ORO_NO_EMIT_CORBA_IOR "Do not emit CORBA IORs if name service not used" OFF)
+
 ###########################################################
 #                                                         #
 # Look for dependencies required by individual components #

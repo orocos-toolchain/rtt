@@ -57,7 +57,9 @@ namespace RTT {
 
     RunnableInterface::RunnableInterface() : owner_task(0) {}
 
-    void RunnableInterface::loop() { this->step(); }
+    void RunnableInterface::loop() {
+        this->step();
+    }
 
     bool RunnableInterface::breakLoop() { return false; }
 
@@ -65,6 +67,8 @@ namespace RTT {
     bool RunnableInterface::hasWork() {
         return false;
     }
+
+    void RunnableInterface::work(WorkReason reason) {}
 
     void RunnableInterface::setActivity( ActivityInterface* task ) {
         if (owner_task) {

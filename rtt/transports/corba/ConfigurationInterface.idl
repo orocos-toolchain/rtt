@@ -22,10 +22,17 @@ module RTT
 	    struct CProperty {
 		  string name;
 		  string description;
+          string type_name;
 	    };
 
+        struct CAttribute {
+          string name;
+          string type_name;
+          boolean assignable;
+        };
+
 	    typedef sequence<CProperty> CPropertyNames;
-	    typedef sequence<string> CAttributeNames;
+        typedef sequence<CAttribute> CAttributeNames;
 
 	    CAttributeNames getAttributeList();
 

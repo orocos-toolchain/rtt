@@ -97,7 +97,7 @@ namespace RTT {
          * can be changed, a normal data source otherwise.
          */
         virtual base::DataSourceBase::shared_ptr createPropertyDataSource(CService_ptr serv, const std::string& vname) = 0;
-        virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CService_ptr serv, const std::string& vname) = 0;
+        virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CService_ptr serv, const std::string& vname, bool is_assignable) = 0;
 	};
     }
 }

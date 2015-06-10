@@ -38,6 +38,7 @@
 #include "../ExecutionEngine.hpp"
 #include "../internal/DataSource.hpp"
 #include "../Service.hpp"
+#include "../base/TaskCore.hpp"
 #include "CommandFunctors.hpp"
 #include <Logger.hpp>
 #include <functional>
@@ -63,7 +64,7 @@ namespace RTT {
         : smpStatus(nill), _parent (parent) , _name(name), smStatus(Status::unloaded),
           initstate(0), finistate(0), current( 0 ), next(0), initc(0),
           currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0), currentTrans(0),
-          checking_precond(false), mstep(false), mtrace(false), evaluating(0)
+          checking_precond(false), mstep(false), mtrace(false), evaluating(0), ee_cycle(0)
     {
         this->addState(0); // allows global state transitions
     }
@@ -209,14 +210,13 @@ namespace RTT {
     bool StateMachine::automatic()
     {
         TRACE_INIT();
-        // if you go from reactive to automatic,
-        // first execute the run program, before
-        // evaluating transitions.
+        //
         if ( smStatus != Status::inactive && smStatus != Status::unloaded && smStatus != Status::error) {
             TRACE( "Will start." );
             smStatus = Status::running;
             os::MutexLock lock(execlock);
             runState( current );
+
             return true;
         }
         TRACE( "Won't start." );
@@ -271,6 +271,13 @@ namespace RTT {
             return true;
         }
 
+        // we're loaded. Do some sanity checking.
+        if ( ee_cycle != 0 && ee_cycle == this->engine->getParent()->getCycleCounter() ) {
+            log(Error) << "StateMachine executed twice in one cycle. Consider filing a bug report !" <<endlog();
+            assert( false && "StateMachine executed twice in one cycle. Consider filing a bug report !" );
+        }
+        ee_cycle = this->engine->getParent()->getCycleCounter();
+
         // internal transitional issues.
         switch (smpStatus) {
         case pausing:
@@ -316,28 +323,51 @@ namespace RTT {
             return true;
             break;
         case Status::requesting:
-            if ( this->executePending() ) {   // if all steps done,
-                this->requestNextState();
-                this->executePending();       // execute steps of next state
-                TRACE("Is active now.");
-                smStatus = Status::active;
+            // finish entry and if finished, run the run program:
+            if ( this->executePreCheck() == false)  {
+                TRACE("Yielding Entry program...");
+                break;
+            }
+            TRACE("Is active now.");
+            smStatus = Status::active;
+            // check transitions:
+            this->requestNextState();
+            // post-check transitioning:
+            if ( this->executePostCheck() == false) {
+                TRACE("Yielding ...");
+                break;
             }
             break;
         case Status::active:
-            this->executePending();
+            this->executePreCheck();
             break;
         case Status::running:
-            if ( this->executePending() == false)
+            // finish entry and if finished, run the run program:
+            if ( this->executePreCheck() == false)  {
+                TRACE("Yielding Entry program...");
                 break;
-            // if all pending done:
-            this->requestNextState();     // one state at a time
-            this->executePending();       // execute steps of next state
+            }
+            // check transitions:
+            this->requestNextState();
+            // post-check transitioning:
+            if ( this->executePostCheck() == false) {
+                TRACE("Yielding ...");
+                break;
+            }
             break;
         case Status::paused:
             if (mstep) {
-                if ( this->executePending(true) ) {    // if all steps done,
-                    this->requestNextState(true); // one state at a time
-                    this->executePending(true);       // execute steps of next state
+                // finish entry and if finished, run the run program:
+                if ( this->executePreCheck(true) == false)  {
+                    TRACE("Yielding Entry program...");
+                    break;
+                }
+                // check transitions:
+                this->requestNextState(true);
+                // post-check transitioning:
+                if ( this->executePostCheck(true) == false) {
+                    TRACE("Yielding ...");
+                    break;
                 }
                 TRACE("Did a step.");
                 mstep = false;
@@ -443,7 +473,7 @@ namespace RTT {
                 TRACE("Transition triggered from '"+ (current ? current->getName() : "null") +"' to '"+(newState ? newState->getName() : "null")+"'.");
                 // reset handle and run, in case it is still set ( during error
                 // or when an event arrived ).
-                currentRun = 0;
+                //currentRun = 0;
                 currentHandle = 0;
                 if ( transProg ) {
                     transProg->reset();
@@ -453,16 +483,13 @@ namespace RTT {
                 }
                 next = newState;
                 currentTrans = transProg;
-                // if error in current Exit, skip it.
-                if ( currentExit && currentExit->inError() )
-                    currentExit = 0;
+
+                next = newState;
+
+                disableEvents(current);
                 leaveState(current);
+                assert( currentEntry == 0); // we assume that in executePending, trans and exit get executed first and entry is stil null.
             }
-        // schedule a run for the next 'step'.
-        // if handle above finished, run will be called directly
-        // in executePending. if handle was not finished
-        // or stepping, it will be called after handle.
-        runState( newState );
     }
 
     void StateMachine::enableGlobalEvents( )
@@ -592,15 +619,20 @@ namespace RTT {
             if ( c->evaluate() && checkConditions(to, false) == 1 ) {
                 TRACE( "Valid transition from " + from->getName() +
                        +" to "+to->getName()+".");
-                // stepping == true ! We don't want to execute the whole state transition
-                changeState( to, p, true );              //  valid transition to 'to'.
+                // stepping == false ! This executes the whole state transition
+                changeState( to, p, false );              //  valid transition to 'to'. Q: should stepping be on or off ?
                 // trigger EE in order to force execution of the remainder of the state transition:
-                this->getEngine()->getActivity()->trigger();
+                this->getEngine()->getActivity()->timeout();
             }
             else {
+                if ( c->evaluate() == false ) 
                 TRACE( "Rejected transition from " + from->getName() +
                         " to " + to->getName() +
                         " within state " + current->getName() + ": guards failed.");
+                if ( checkConditions(to,false) != 1 ) 
+                TRACE( "Rejected transition from " + from->getName() +
+                        " to " + to->getName() +
+                        " within state " + current->getName() + ": preconditions failed.");
             }
         }
 #if 1
@@ -625,7 +657,7 @@ namespace RTT {
         if( current == 0 )
             return 0;
         // only a run program may be interrupted...
-        if ( !interruptible() || currentTrans ) {
+        if ( !interruptible() || currentTrans || current != next) {
             return current; // can not accept request, still in transition.
         }
 
@@ -987,20 +1019,18 @@ namespace RTT {
 
     bool StateMachine::executePending( bool stepping )
     {
+            return executePreCheck(stepping) && executePostCheck(stepping);
+    }
+
+    bool StateMachine::executePreCheck( bool stepping )
+    {
         TRACE_INIT();
-        // This function has great resposibility, since it acts like
-        // a scheduler for pending requests. It tries to devise what to
-        // do on basis of the contents of variables (like current*, next,...).
-        // This is a somewhat
-        // fragile implementation but requires very little bookkeeping.
-        // if returns true : a transition (exit/entry) is done
-        // and a new state may be requested.
 
         if ( inError() )
             return false;
 
-        TRACE("executePending..." );
-
+        TRACE("executePreCheck..." );
+        // first try to finish the current entry program (this only happens if entry was not atomically implemented, ie yielding):
         if ( currentEntry ) {
             TRACE("Executing entry program of '"+ current->getName() +"'" );
             if ( this->executeProgram(currentEntry, stepping) == false )
@@ -1013,9 +1043,27 @@ namespace RTT {
                 return false;
             }
         }
-        // from this point on, events must be enabled.
 
-        // first try to execute transition program on behalf of current state.
+        // Run is executed before the transitions.
+        if ( currentRun ) {
+            TRACE("Executing run program of '"+ current->getName() +"'" );
+            if ( this->executeProgram(currentRun, stepping) == false )
+                return true;
+            // done.
+            TRACE("Finished  run program of '"+ (current ? current->getName() : "(null)") +"'" );
+        }
+        return true;
+    }
+
+    bool StateMachine::executePostCheck( bool stepping )
+    {
+        TRACE_INIT();
+
+        if ( inError() )
+            return false;
+
+        TRACE("executePostCheck..." );
+        // if a transition has been scheduled, proceed directly instead of doing a run:
         if ( currentTrans ) {
             TRACE("Executing transition program from '"+ (current ? current->getName() : "(null)") + "' to '"+ ( next ? next->getName() : "(null)")+"'" );
             // exception : transition during handle, first finish handle !
@@ -1048,9 +1096,6 @@ namespace RTT {
             }
         }
 
-        // we only get here if all entry/transition/exit programs have been executed.
-        // so now we schedule a new entry program for the next state.
-
         // only reset the reqstep if we changed state.
         // if we did not change state, it will be reset in requestNextState().
         if ( current != next ) {
@@ -1069,14 +1114,17 @@ namespace RTT {
             // make change transition after exit of previous state:
             TRACE("Formally  transitioning from      '"+ (current ? current->getName() : "(null)") + "' to '"+ (next ? next->getName() : "(null)") +"'" );
 
-            disableEvents(current);
             current = next;
-            enableEvents(current);
-            enterState(current);
-
+            enterState(next);
+            runState(next);
+            enableEvents(next);
+        } else {
+            // schedule a new run of the current state, only if previous run finished.
+            if (current && currentRun == 0)
+                runState(current);
         }
 
-        // give new current a chance to execute the entry program and run program :
+        // finally, execute the current Entry of the new state:
         if ( currentEntry ) {
             TRACE("Executing entry program of '"+ current->getName() +"'" );
             if ( this->executeProgram(currentEntry, stepping) == false )
@@ -1088,6 +1136,10 @@ namespace RTT {
                 currentProg = currentRun;
                 return false;
             }
+            // Either way, if currentEntry was set here, we get out by returning true or false.
+            // currentHandle is unlikely to be set, but currentRun is set by 'changeState' and
+            // should only be executed the next execution cycle (if no transition is scheduled by then).
+            return true;
         }
 
         // Handle is executed after the transitions failed.
@@ -1104,18 +1156,6 @@ namespace RTT {
             }
         }
 
-        // Run is executed before the transitions.
-        if ( currentRun ) {
-            TRACE("Executing run program of '"+ current->getName() +"'" );
-            if ( this->executeProgram(currentRun, stepping) == false )
-                return false;
-            // done.
-            TRACE("Finished  run program of '"+ (current ? current->getName() : "(null)") +"'" );
-            // in stepping mode, delay 'true' one executePending().
-            if ( stepping )
-                return false;
-        }
-
         return true; // all pending is done
     }
 
@@ -1124,6 +1164,9 @@ namespace RTT {
         TRACE_INIT();
         if ( cp == 0)
             return false;
+
+        assert( ee_cycle == this->engine->getParent()->getCycleCounter() && "Program executed in previous or next ee_cycle. Consider filing a bug report !" );
+
         // execute this stateprogram and cleanup if needed.
         currentProg = cp;
         if ( stepping )
@@ -1197,7 +1240,7 @@ namespace RTT {
         }
 
         current = getInitialState();
-        next    = getInitialState();
+        next = current;
         enterState( getInitialState() );
         reqstep = stateMap.find( next )->second.begin();
         reqend = stateMap.find( next )->second.end();
@@ -1208,7 +1251,9 @@ namespace RTT {
 
         // execute the entry program of the initial state.
         if ( !inError() ) {
-            if ( this->executePending() ) {
+            enableEvents(current);
+
+            if ( this->executePreCheck() ) {
                 smStatus = Status::active;
                 TRACE("Activated.");
             } else {

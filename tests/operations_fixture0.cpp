@@ -46,5 +46,6 @@ void OperationsFixture::createOperationCallerFactories0(TaskContext* target)
     to->addOperation("o0r", &OperationsFixture::m0r, this, OwnThread).doc("M0r");
     to->addOperation("o0cr", &OperationsFixture::m0cr, this, OwnThread).doc("M0cr");
     to->addOperation("o0", &OperationsFixture::m0, this, OwnThread).doc("M0");
+    to->addOperation("vo0", &OperationsFixture::vm0, this).doc("VoidM0");
     to->addOperation("o0except", &OperationsFixture::m0except, this, OwnThread).doc("M0Except");
 }

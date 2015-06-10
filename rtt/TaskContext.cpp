@@ -118,6 +118,12 @@ namespace RTT
 
         this->addOperation("trigger", &TaskContext::trigger, this, ClientThread).doc("Trigger the update method for execution in the thread of this task.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task.");
         this->addOperation("loadService", &TaskContext::loadService, this, ClientThread).doc("Loads a service known to RTT into this component.").arg("service_name","The name with which the service is registered by in the PluginLoader.");
+
+        this->addAttribute("TriggerOnStart",mTriggerOnStart);
+        this->addAttribute("CycleCounter",mCycleCounter);
+        this->addAttribute("IOCounter",mIOCounter);
+        this->addAttribute("TimeOutCounter",mTimeOutCounter);
+        this->addAttribute("TriggerCounter",mTriggerCounter);
         // activity runs from the start.
         if (our_act)
             our_act->start();
@@ -424,8 +430,14 @@ namespace RTT
 
     void TaskContext::dataOnPort(PortInterface* port)
     {
-        portqueue->enqueue( port );
-        this->getActivity()->trigger();
+        if ( this->dataOnPortHook(port) ) {
+            portqueue->enqueue( port );
+            this->getActivity()->trigger();
+        }
+    }
+
+    bool TaskContext::dataOnPortHook( base::PortInterface* ) {
+        return this->isRunning();
     }
 
     void TaskContext::dataOnPortCallback(InputPortInterface* port, TaskContext::SlotFunction callback) {
@@ -444,6 +456,8 @@ namespace RTT
 
     void TaskContext::prepareUpdateHook()
     {
+        if ( portqueue->isEmpty() )
+            return;
         MutexLock lock(mportlock);
         PortInterface* port = 0;
         while ( portqueue->dequeue( port ) == true ) {
