@@ -263,7 +263,7 @@ if(OROCOS_TARGET STREQUAL "win32")
         set(NUM_PARALLEL_BUILD 4 CACHE STRING "Number of parallel builds")
         set(PARALLEL_FLAG "/MP${NUM_PARALLEL_BUILD}")
     endif()
-    set(CMAKE_CXX_FLAGS_ADD "/wd4355 /wd4251 /wd4180 /wd4996 /wd4250 /wd4748 /bigobj /Oi ${PARALLEL_FLAG}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4355 /wd4251 /wd4180 /wd4996 /wd4250 /wd4748 /bigobj /Oi ${PARALLEL_FLAG}")
     list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib Ws2_32.lib winmm.lib)
   endif()
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
@@ -284,7 +284,7 @@ INCLUDE_DIRECTORIES( ${OROCOS-RTT_INCLUDE_DIRS} )
 # Disable line wrapping for g++ such that eclipse can parse the errors.
 #
 IF(CMAKE_COMPILER_IS_GNUCXX)
-  SET(CMAKE_CXX_FLAGS_ADD "${CMAKE_CXX_FLAGS_ADD} -fmessage-length=0")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
 ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 IF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
@@ -336,9 +336,9 @@ IF (BUILD_ENABLE_COVERAGE)
   # http://www.cmake.org/Wiki/CTest:Coverage
   # man gcov
 
-  SET(CMAKE_CXX_FLAGS_ADD "${CMAKE_CXX_FLAGS_ADD} -g -O0 -fprofile-arcs -ftest-coverage")
-  SET(CMAKE_C_FLAGS_ADD "${CMAKE_C_FLAGS_ADD} -g -O0 -fprofile-arcs -ftest-coverage")
-  SET(CMAKE_LD_FLAGS_ADD "${CMAKE_LD_FLAGS_ADD} -fprofile-arcs -ftest-coverage")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
+  SET(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -fprofile-arcs -ftest-coverage")
 
   # coverage
   ADD_CUSTOM_TARGET(coverage)
