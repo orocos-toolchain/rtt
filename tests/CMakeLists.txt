@@ -15,7 +15,7 @@ IF (BUILD_TESTING)
    IF (OROCOS_TARGET STREQUAL win32)
       #SET(TEST_LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
       LIST(APPEND OROCOS-RTT_DEFINITIONS BOOST_TEST_NO_LIB)
-      set( CMAKE_CXX_FLAGS_ADD "${CMAKE_CXX_FLAGS_ADD} /EHa") # required for boost.test's use of _set_se_translator()
+      set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHa") # required for boost.test's use of _set_se_translator()
    ENDIF()
 
    if (PLUGINS_ENABLE_MARSHALLING)
@@ -42,12 +42,9 @@ IF (BUILD_TESTING)
     TARGET_LINK_LIBRARIES( fixtures orocos-rtt-${OROCOS_TARGET}_dynamic ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} rtt-typekit-${OROCOS_TARGET}_plugin )
     LIST(APPEND TEST_LIBRARIES fixtures rtt-typekit-${OROCOS_TARGET}_plugin ${OROCOS-RTT_USER_LINK_LIBS} )
     SET_TARGET_PROPERTIES( fixtures PROPERTIES
-      COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
       DEFINE_SYMBOL "RTT_UNIT_DLL_EXPORT"
       SOVERSION "${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}"
       VERSION "${RTT_VERSION}"
-      LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-      # Set accumulated compilation flags: (.so and .a)
       COMPILE_DEFINITIONS OROCOS_TARGET=${OROCOS_TARGET}
       )
     IF (UNIX AND NOT APPLE)
@@ -84,8 +81,6 @@ IF (BUILD_TESTING)
     ADD_EXECUTABLE( main-test test-main.cpp )
     TARGET_LINK_LIBRARIES( main-test orocos-rtt-${OROCOS_TARGET}_dynamic ${OROCOS-RTT_USER_LINK_LIBS})
     SET_TARGET_PROPERTIES( main-test PROPERTIES
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-    LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
     COMPILE_DEFINITIONS "${COMPILE_DEFS}")
     ADD_TEST( main-test ${RUNTIME_OUTPUT_DIRECTORY}/main-test )
 
@@ -93,9 +88,6 @@ IF (BUILD_TESTING)
       ADD_EXECUTABLE( list-test test-runner.cpp  listlocked_test.cpp )
       TARGET_LINK_LIBRARIES( list-test orocos-rtt-${OROCOS_TARGET}_dynamic ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( list-test PROPERTIES
-        COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-	COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-	LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
 	COMPILE_DEFINITIONS "${COMPILE_DEFS}")
       ADD_TEST( list-test ${RUNTIME_OUTPUT_DIRECTORY}/list-test )
       list(APPEND ORO_EXTRA_TESTS "list-test")
@@ -105,34 +97,20 @@ IF (BUILD_TESTING)
     ADD_EXECUTABLE( core-test test-runner.cpp logger_test.cpp time_test.cpp ptr_test.cpp )
     TARGET_LINK_LIBRARIES( core-test orocos-rtt-${OROCOS_TARGET}_dynamic ${TEST_LIBRARIES})
     SET_TARGET_PROPERTIES( core-test PROPERTIES
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-    LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
     COMPILE_DEFINITIONS "${COMPILE_DEFS}")
     ADD_TEST( core-test ${RUNTIME_OUTPUT_DIRECTORY}/core-test )
 
     ADD_EXECUTABLE( task-test test-runner.cpp tasks_test.cpp taskthread_test.cpp taskthread_fd_test.cpp tasks_multiple_test.cpp )
     TARGET_LINK_LIBRARIES( task-test orocos-rtt-${OROCOS_TARGET}_dynamic ${TEST_LIBRARIES})
     SET_TARGET_PROPERTIES( task-test PROPERTIES
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-    LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
     COMPILE_DEFINITIONS "${COMPILE_DEFS}")
     ADD_TEST( task-test ${RUNTIME_OUTPUT_DIRECTORY}/task-test )
-
-    #ADD_EXECUTABLE( taskcontext-test test-runner.cpp generictask_test.cpp generictask_test_3.cpp) # generictask_test_2.cpp
-    #TARGET_LINK_LIBRARIES( taskcontext-test orocos-rtt-${OROCOS_TARGET}_dynamic ${TEST_LIBRARIES})
-    #SET_TARGET_PROPERTIES( taskcontext-test PROPERTIES
-    #COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-    #LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-    #COMPILE_DEFINITIONS "${COMPILE_DEFS}")
-    #ADD_TEST( taskcontext-test ${RUNTIME_OUTPUT_DIRECTORY}/taskcontext-test )
 
     IF(UNIX AND NOT OROCOS_TARGET STREQUAL "xenomai" )
       ADD_EXECUTABLE( specactivities-test test-runner.cpp
 	specialized_activities.cpp)
       TARGET_LINK_LIBRARIES( specactivities-test orocos-rtt-${OROCOS_TARGET}_dynamic ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( specactivities-test PROPERTIES
-        COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-	LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
         COMPILE_DEFINITIONS "${COMPILE_DEFS}")
       ADD_TEST( specactivities-test ${RUNTIME_OUTPUT_DIRECTORY}/specactivities-test )
           list(APPEND ORO_EXTRA_TESTS "specactivities-test")
@@ -145,8 +123,6 @@ IF (BUILD_TESTING)
             orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
             ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( corba-test PROPERTIES
-	   COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-	   LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
 	   COMPILE_DEFINITIONS "${COMPILE_DEFS}"
 	   )
       ADD_TEST( corba-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-test )
@@ -169,8 +145,6 @@ IF (BUILD_TESTING)
                 orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
                 ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
           SET_TARGET_PROPERTIES( corba-ipc-test PROPERTIES
-            COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-            LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
             COMPILE_DEFINITIONS "${COMPILE_DEFS}"
             )
           ADD_TEST( corba-ipc-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-ipc-test )
@@ -183,8 +157,6 @@ IF (BUILD_TESTING)
                 orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
                 ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
           SET_TARGET_PROPERTIES( corba-ipc-server PROPERTIES
-            COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-            LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
             COMPILE_DEFINITIONS "${COMPILE_DEFS}"
             )
           ADD_SIMPLE_TEST(test-corba-main ORO_EXTRA_TESTS "orocos-rtt-corba-${OROCOS_TARGET}_dynamic" ) 
@@ -195,8 +167,6 @@ IF (BUILD_TESTING)
       TARGET_LINK_LIBRARIES( mqueue-test orocos-rtt-${OROCOS_TARGET}_dynamic
         orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( mqueue-test PROPERTIES
-        COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-        LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
         COMPILE_DEFINITIONS "${COMPILE_DEFS}")
       ADD_TEST( mqueue-test ${RUNTIME_OUTPUT_DIRECTORY}/mqueue-test )
       list(APPEND ORO_EXTRA_TESTS "mqueue-test")
@@ -211,8 +181,6 @@ IF (BUILD_TESTING)
         orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic orocos-rtt-corba-${OROCOS_TARGET}_dynamic
         ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( corba-mqueue-test PROPERTIES
-        COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-        LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
         COMPILE_DEFINITIONS "${COMPILE_DEFS}")
       ADD_TEST( corba-mqueue-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-mqueue-test )
       list(APPEND ORO_EXTRA_TESTS "corba-mqueue-test")
@@ -226,8 +194,6 @@ IF (BUILD_TESTING)
                 orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
                 ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
           SET_TARGET_PROPERTIES( corba-mqueue-ipc-test PROPERTIES
-            COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-            LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
             COMPILE_DEFINITIONS "${COMPILE_DEFS}"
             )
           ADD_TEST( corba-mqueue-ipc-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-mqueue-ipc-test )
@@ -241,8 +207,6 @@ IF (BUILD_TESTING)
                 orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
                 ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
           SET_TARGET_PROPERTIES( corba-mqueue-ipc-server PROPERTIES
-            COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-            LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
             COMPILE_DEFINITIONS "${COMPILE_DEFS}"
             )
      ENDIF()

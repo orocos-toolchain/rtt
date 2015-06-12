@@ -21,6 +21,7 @@ endif()
 
 PROJECT(orocos-rtt)
 
+
 SET( RTT_VERSION 2.8.0 )
 STRING( REGEX MATCHALL "[0-9]+" RTT_VERSIONS ${RTT_VERSION} )
 LIST( GET RTT_VERSIONS 0 RTT_VERSION_MAJOR)
@@ -42,6 +43,11 @@ if (NOT EXISTS ${PROJ_SOURCE_DIR}/orocos-rtt.cmake)
   INCLUDE(${PROJ_SOURCE_DIR}/orocos-rtt.default.cmake)
 endif ()
 
+OPTION(USE_CPP11 "Turn on to replace boost::bind with cpp11 bind." OFF)
+if(USE_CPP11)
+  ADD_DEFINITIONS(-DUSE_CPP11)
+endif(USE_CPP11)
+
 # On Windows, the default CMAKE_INSTALL_PREFIX is either:
 # C:\Program Files\orocos-rtt or C:\Program Files (x86)\orocos-rtt
 # However, we want it to be either:
@@ -58,14 +64,6 @@ ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 # Tell deployer to use ROSlib support.
 set(ROSLIB_SUPPORT TRUE)
 include(config/FindRoslib.cmake)
-
-#Use these variables to store build-local flags.
-#They are used when the targets are configured.
-IF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
-  SET ( CMAKE_CXX_FLAGS_ADD "${CMAKE_CXX_FLAGS}" CACHE STRING "Specify here your additional C++ flags.")
-  SET ( CMAKE_C_FLAGS_ADD "${CMAKE_C_FLAGS}"  CACHE STRING "Specify here your additional C flags.")
-  SET ( CMAKE_LD_FLAGS_ADD "${CMAKE_LD_FLAGS}"  CACHE STRING "Specify here your additional link flags.")
-ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
 
 # Export file name
 set(LIBRARY_EXPORT_FILE "orocos-rtt-${OROCOS_TARGET}-libraries")
