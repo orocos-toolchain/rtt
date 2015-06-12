@@ -37,7 +37,7 @@
 
 
 #include "../types/Types.hpp"
-#include "../types/TemplateTypeInfo.hpp"
+#include "StdTypeInfo.hpp"
 #include <ostream>
 #include <istream>
 
@@ -49,10 +49,10 @@ namespace RTT
         /**
          * Write boolean as 'true' or 'false'.
          */
-        struct BoolTypeInfo: public TemplateTypeInfo<bool,true>
+        struct BoolTypeInfo: public StdTypeInfo<bool>
         {
             BoolTypeInfo() :
-                TemplateTypeInfo<bool,true> ("bool")
+                StdTypeInfo<bool> ("bool")
             {
             }
 
