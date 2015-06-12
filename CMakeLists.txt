@@ -59,14 +59,6 @@ ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 set(ROSLIB_SUPPORT TRUE)
 include(config/FindRoslib.cmake)
 
-#Use these variables to store build-local flags.
-#They are used when the targets are configured.
-IF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
-  SET ( CMAKE_CXX_FLAGS_ADD "${CMAKE_CXX_FLAGS}" CACHE STRING "Specify here your additional C++ flags.")
-  SET ( CMAKE_C_FLAGS_ADD "${CMAKE_C_FLAGS}"  CACHE STRING "Specify here your additional C flags.")
-  SET ( CMAKE_LD_FLAGS_ADD "${CMAKE_LD_FLAGS}"  CACHE STRING "Specify here your additional link flags.")
-ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
-
 # Export file name
 set(LIBRARY_EXPORT_FILE "orocos-rtt-${OROCOS_TARGET}-libraries")
 
