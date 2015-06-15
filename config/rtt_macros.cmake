@@ -41,8 +41,13 @@ ENDMACRO( GLOBAL_ADD_SRC )
 #
 macro(ADD_RTT_TYPEKIT name version)
   ADD_LIBRARY(${name}-${OROCOS_TARGET}_plugin SHARED ${ARGN})
+  STRING( REGEX MATCHALL "[0-9]+" versions ${version} )
+  LIST( GET versions 0 version_major)
+  LIST( GET versions 1 version_minor)
+  LIST( GET versions 2 version_patch)
   SET_TARGET_PROPERTIES( ${name}-${OROCOS_TARGET}_plugin PROPERTIES
     VERSION "${version}"
+    SOVERSION "${version_major}.${version_minor}"
     OUTPUT_NAME ${name}-${OROCOS_TARGET}
     COMPILE_DEFINITIONS "${RTT_DEFINITIONS}"
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
@@ -110,8 +115,13 @@ endmacro(ADD_RTT_TYPEKIT name)
 #
 macro(ADD_RTT_PLUGIN name version)
   ADD_LIBRARY(${name}-${OROCOS_TARGET}_plugin SHARED ${ARGN})
+  STRING( REGEX MATCHALL "[0-9]+" versions ${version} )
+  LIST( GET versions 0 version_major)
+  LIST( GET versions 1 version_minor)
+  LIST( GET versions 2 version_patch)
   SET_TARGET_PROPERTIES( ${name}-${OROCOS_TARGET}_plugin PROPERTIES
     VERSION "${version}"
+    SOVERSION "${version_major}.${version_minor}"
     OUTPUT_NAME ${name}-${OROCOS_TARGET}
     COMPILE_DEFINITIONS "${RTT_DEFINITIONS}"
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
