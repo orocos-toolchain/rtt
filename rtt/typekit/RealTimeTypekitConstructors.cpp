@@ -148,59 +148,43 @@ namespace RTT
         int bool_to_int(bool b) { return int(b); }
 
         struct string_ctor
-            : public std::unary_function<int, const std::string&>
+            : public std::unary_function<int, std::string>
         {
-            mutable boost::shared_ptr< std::string > ptr;
-            typedef const std::string& (Signature)( int );
-            string_ctor()
-                : ptr( new std::string() ) {}
-            const std::string& operator()( int size ) const
+            typedef std::string (Signature)( int );
+            std::string operator()( int size ) const
             {
-                ptr->resize( size );
-                return *(ptr);
+                return std::string( size, std::string::value_type() );
             }
         };
 
 #ifdef OS_RT_MALLOC
         struct rt_string_ctor_int
-            : public std::unary_function<int, const RTT::rt_string&>
+            : public std::unary_function<int, RTT::rt_string>
         {
-            mutable boost::shared_ptr< rt_string > ptr;
-            typedef const rt_string& (Signature)( int );
-            rt_string_ctor_int()
-                : ptr( new rt_string() ) {}
-            const rt_string& operator()( int size ) const
+            typedef rt_string (Signature)( int );
+            rt_string operator()( int size ) const
             {
-                ptr->resize( size );
-                return *(ptr);
+                return rt_string( size, rt_string::value_type() );
             }
         };
 
-            struct rt_string_ctor_string
-                : public std::unary_function<const std::string&, const RTT::rt_string&>
+        struct rt_string_ctor_string
+            : public std::unary_function<const std::string&, RTT::rt_string>
+        {
+            typedef rt_string (Signature)( std::string const& );
+            rt_string operator()( std::string const& arg ) const
             {
-                mutable boost::shared_ptr< rt_string > ptr;
-                typedef const rt_string& (Signature)( std::string const& );
-                rt_string_ctor_string()
-                    : ptr( new rt_string() ) {}
-                const rt_string& operator()( std::string const& arg ) const
-                {
-                    *ptr = arg.c_str();
-                    return *(ptr);
-                }
-            };
+                return rt_string( arg.c_str() );
+            }
+        };
 
         struct string_ctor_rt_string
-            : public std::unary_function<const rt_string&, const string&>
+            : public std::unary_function<const rt_string&, std::string>
         {
-            mutable boost::shared_ptr< string > ptr;
-            typedef const string& (Signature)( rt_string const& );
-            string_ctor_rt_string()
-            : ptr( new string() ) {}
-            const string& operator()( rt_string const& arg ) const
+            typedef std::string (Signature)( rt_string const& );
+            std::string operator()( rt_string const& arg ) const
             {
-                *ptr = arg.c_str();
-                return *(ptr);
+                return std::string( arg.c_str() );
             }
         };
 
