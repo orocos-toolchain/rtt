@@ -39,6 +39,7 @@
 #ifndef FILEDESCRIPTOR_ACTIVITY_HPP
 #define FILEDESCRIPTOR_ACTIVITY_HPP
 
+#include "FileDescriptorActivityInterface.hpp"
 #include "../Activity.hpp"
 #include <set>
 
@@ -100,7 +101,8 @@ namespace RTT { namespace extras {
      * }
      * </code>
      */
-    class RTT_API FileDescriptorActivity : public Activity
+    class RTT_API FileDescriptorActivity : public extras::FileDescriptorActivityInterface,
+                                           public Activity
     {
         std::set<int> m_watched_fds;
         bool m_running;
