@@ -97,11 +97,11 @@ base::ChannelElementBase::shared_ptr RTT::internal::ConnFactory::createRemoteCon
     return base::ChannelElementBase::shared_ptr();
 }
 
-bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy policy) {
+bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, base::ChannelElementBase::shared_ptr channel_input, base::ChannelElementBase::shared_ptr channel_output, ConnPolicy policy) {
     // Register the channel's input to the output port.
     if ( output_port.addConnection( input_port.getPortID(), channel_input, policy ) ) {
         // notify input that the connection is now complete.
-        if ( input_port.channelReady( channel_input->getOutputEndPoint(), policy ) == false ) {
+        if ( input_port.channelReady( channel_output, policy ) == false ) {
             output_port.disconnect( &input_port );
             log(Error) << "The input port "<< input_port.getName()
                        << " could not successfully read from the connection from output port " << output_port.getName() <<endlog();

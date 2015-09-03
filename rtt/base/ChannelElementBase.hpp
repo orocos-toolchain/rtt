@@ -63,6 +63,7 @@ namespace RTT { namespace base {
     {
     public:
         typedef boost::intrusive_ptr<ChannelElementBase> shared_ptr;
+        typedef std::pair<shared_ptr, shared_ptr> pair_t;
 
     private:
         oro_atomic_t refcount;
@@ -239,10 +240,10 @@ namespace RTT { namespace base {
         virtual bool inputReady();
 
         /**
-         * Remove an input from the inputs list.
-         * @param input the element to be removed
+         * Overwritten implementation of \ref ChannelElementBase::clear().
+         * Forwards the clear() call to all inputs.
          */
-        virtual void removeInput(ChannelElementBase *input);
+        virtual void clear();
 
         using ChannelElementBase::disconnect;
 
@@ -252,6 +253,13 @@ namespace RTT { namespace base {
          * only forwarded to the output after the last input has been removed.
          */
         virtual void disconnect(bool forward, ChannelElementBase *caller);
+
+    protected:
+        /**
+         * Remove an input from the inputs list.
+         * @param input the element to be removed
+         */
+        virtual void removeInput(ChannelElementBase *input);
     };
 
     /**
@@ -288,12 +296,6 @@ namespace RTT { namespace base {
          */
         virtual bool signal();
 
-        /**
-         * Remove an output from the outputs list.
-         * @param output the element to be removed
-         */
-        virtual void removeOutput(ChannelElementBase *output);
-
         using ChannelElementBase::disconnect;
 
         /**
@@ -302,6 +304,13 @@ namespace RTT { namespace base {
          * only forwarded to the input after the last output has been removed.
          */
         virtual void disconnect(bool forward, ChannelElementBase *caller);
+
+    protected:
+        /**
+         * Remove an output from the outputs list.
+         * @param output the element to be removed
+         */
+        virtual void removeOutput(ChannelElementBase *output);
     };
 
     /**

@@ -45,6 +45,8 @@
 #include "../FlowStatus.hpp"
 #include "../os/MutexLock.hpp"
 
+#include <boost/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 
 namespace RTT { namespace base {
 
@@ -63,12 +65,12 @@ namespace RTT { namespace base {
 
         shared_ptr getOutput()
         {
-             return ChannelElementBase::getOutput()->narrow<T>();
+             return ChannelElementBase::narrow<T>(ChannelElementBase::getOutput().get());
         }
 
         shared_ptr getInput()
         {
-            return ChannelElementBase::getInput()->narrow<T>();
+            return ChannelElementBase::narrow<T>(ChannelElementBase::getInput().get());
         }
 
         /**
@@ -134,6 +136,17 @@ namespace RTT { namespace base {
         using typename ChannelElement<T>::param_t;
         using typename ChannelElement<T>::reference_t;
 
+        /**
+         * Overwritten implementation of MultipleInputsChannelElementBase::removeInput() that resets the current channel on removal.
+         */
+        virtual void removeInput(ChannelElementBase *input)
+        {
+            if (input == cur_input) {
+                cur_input.reset();
+            }
+            MultipleInputsChannelElementBase::removeInput(input);
+        }
+
 //        virtual value_t data_sample()
 //        {
 //            typename ChannelElement<T>::shared_ptr input = boost::static_pointer_cast< ChannelElement<T> >(getInput());
@@ -147,14 +160,77 @@ namespace RTT { namespace base {
          * if a sample was available, and false otherwise. If false is returned,
          * then \a sample is not modified by the method
          */
-//        virtual FlowStatus read(reference_t sample, bool copy_old_data)
-//        {
-//            typename ChannelElement<T>::shared_ptr input = this->getInput();
-//            if (input)
-//                return input->read(sample, copy_old_data);
-//            else
-//                return NoData;
-//        }
+        virtual FlowStatus read(reference_t sample, bool copy_old_data)
+        {
+            FlowStatus result = NoData;
+            // read and iterate if necessary.
+            select_reader_channel( boost::bind( &MultipleInputsChannelElement<T>::do_read, this, boost::ref(sample), boost::ref(result), boost::lambda::_1, boost::lambda::_2), copy_old_data );
+            return result;
+        }
+
+    private:
+        bool do_read(reference_t sample, FlowStatus& result, bool copy_old_data, typename ChannelElement<T>::shared_ptr& input)
+        {
+            assert( result != NewData );
+            if ( input ) {
+                FlowStatus tresult = input->read(sample, copy_old_data);
+                // the result trickery is for not overwriting OldData with NoData.
+                if (tresult == NewData) {
+                    result = tresult;
+                    return true;
+                }
+                // stores OldData result
+                if (tresult > result)
+                    result = tresult;
+            }
+            return false;
+        }
+
+        /**
+         * Selects a connection as the current channel
+         * if pred(connection) is true. It will first check
+         * the current channel ( getCurrentChannel() ), if that
+         * does not satisfy pred, iterate over \b all connections.
+         * If none satisfy pred, the current channel remains unchanged.
+         * @param pred
+         */
+        template<typename Pred>
+        void select_reader_channel(Pred pred, bool copy_old_data) {
+            RTT::os::SharedMutexLock lock(inputs_lock);
+            typename ChannelElement<T>::shared_ptr new_input =
+                find_if(pred, copy_old_data);
+
+            if (new_input)
+            {
+                // We don't clear the current channel (to get it to NoData state), because there is a race
+                // between find_if and this line. We have to accept (in other parts of the code) that eventually,
+                // all channels return 'OldData'.
+                cur_input = new_input;
+            }
+        }
+
+        template<typename Pred>
+        typename ChannelElement<T>::shared_ptr find_if(Pred pred, bool copy_old_data) {
+            // We only copy OldData in the initial read of the current channel.
+            // if it has no new data, the search over the other channels starts,
+            // but no old data is needed.
+            if ( cur_input )
+                if ( pred( copy_old_data, cur_input ) )
+                    return cur_input;
+
+            Inputs::iterator result;
+            for (result = inputs.begin(); result != inputs.end(); ++result) {
+                if (*result == cur_input) continue;
+                typename ChannelElement<T>::shared_ptr input = (*result)->narrow<T>();
+                assert(input);
+                if ( pred(false, input) == true)
+                    return input;
+            }
+            return typename ChannelElement<T>::shared_ptr();
+        }
+
+    private:
+        typename ChannelElement<T>::shared_ptr cur_input;
     };
 
     /** A typed version of MultipleOutputsChannelElementBase.

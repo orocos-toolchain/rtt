@@ -99,10 +99,10 @@ namespace RTT
         virtual bool write(typename Base::param_t sample)
         { return false; }
 
-        virtual void disconnect(bool forward)
+        virtual void disconnect(bool forward, base::ChannelElementBase *caller)
         {
             // Call the base class: it does the common cleanup
-            Base::disconnect(forward);
+            Base::disconnect(forward, caller);
 
             InputPort<T>* port = this->port;
             if (port && forward)

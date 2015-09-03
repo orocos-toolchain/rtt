@@ -79,10 +79,10 @@ namespace RTT
             return true;
         }
 
-        virtual void disconnect(bool forward)
+        virtual void disconnect(bool forward, base::ChannelElementBase *caller)
         {
             // Call the base class first
-            Base::disconnect(forward);
+            Base::disconnect(forward, caller);
 
             OutputPort<T>* port = this->port;
             if (port && !forward)

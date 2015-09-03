@@ -149,12 +149,13 @@ internal::ConnID* ChannelElementBase::getConnID() const {
 void MultipleInputsChannelElementBase::addInput(shared_ptr input)
 {
     RTT::os::MutexLock lock(inputs_lock);
-    assert(std::find(inputs.begin(); inputs.end(); input) == inputs.end());
+    assert(std::find(inputs.begin(), inputs.end(), input) == inputs.end());
     inputs.push_back(input);
 }
 
 void MultipleInputsChannelElementBase::setInput(shared_ptr input)
 {
+    if (!input) return;
     addInput(input);
 }
 
@@ -162,6 +163,14 @@ bool MultipleInputsChannelElementBase::inputReady()
 {
     RTT::os::SharedMutexLock lock(inputs_lock);
     return !inputs.empty();
+}
+
+void MultipleInputsChannelElementBase::clear()
+{
+    RTT::os::SharedMutexLock lock(inputs_lock);
+    for (Inputs::const_iterator it = inputs.begin(); it != inputs.end(); ++it) {
+        (*it)->clear();
+    }
 }
 
 void MultipleInputsChannelElementBase::removeInput(ChannelElementBase *input)
@@ -200,14 +209,16 @@ void MultipleInputsChannelElementBase::disconnect(bool forward, ChannelElementBa
 void MultipleOutputsChannelElementBase::addOutput(shared_ptr output)
 {
     RTT::os::MutexLock lock(outputs_lock);
-    assert(std::find(outputs.begin(); outputs.end(); output) == outputs.end());
+    assert(std::find(outputs.begin(), outputs.end(), output) == outputs.end());
     outputs.push_back(output);
 }
 
 
 void MultipleOutputsChannelElementBase::setOutput(shared_ptr output)
 {
+    if (!output) return;
     addOutput(output);
+    output->setInput(this);
 }
 
 bool MultipleOutputsChannelElementBase::signal()
@@ -239,7 +250,6 @@ void MultipleOutputsChannelElementBase::disconnect(bool forward, ChannelElementB
         if (outputs.empty()) {
             ChannelElementBase::disconnect(false, caller);
         }
-        return;
 
     } else {
         // Disconnect and remove all outputs
@@ -255,10 +265,25 @@ void MultipleOutputsChannelElementBase::disconnect(bool forward, ChannelElementB
 
 void MultipleInputsMultipleOutputsChannelElementBase::disconnect(bool forward, ChannelElementBase *caller)
 {
-    if (forward) {
+   if (forward) {
         MultipleInputsChannelElementBase::disconnect(forward, caller);
+
+        // Also disconnect all outputs if no inputs are left:
+        RTT::os::SharedMutexLock lock(inputs_lock);
+        if (inputs.empty())
+        {
+            MultipleOutputsChannelElementBase::disconnect(forward, caller);
+        }
+
     } else {
         MultipleOutputsChannelElementBase::disconnect(forward, caller);
+
+        // Also disconnect all inputs if no outputs are left:
+        RTT::os::SharedMutexLock lock(outputs_lock);
+        if (outputs.empty())
+        {
+            MultipleInputsChannelElementBase::disconnect(forward, caller);
+        }
     }
 }
 
