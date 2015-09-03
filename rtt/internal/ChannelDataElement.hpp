@@ -47,12 +47,13 @@ namespace RTT { namespace internal {
     /** A connection element that stores a single data sample
      */
     template<typename T>
-    class ChannelDataElement : public base::ChannelElement<T>
+    class ChannelDataElement : public base::MultipleInputsMultipleOutputsChannelElement<T>
     {
         bool written, mread;
         typename base::DataObjectInterface<T>::shared_ptr data;
 
     public:
+        typedef base::MultipleInputsMultipleOutputsChannelElement<T> Base;
         typedef typename base::ChannelElement<T>::param_t param_t;
         typedef typename base::ChannelElement<T>::reference_t reference_t;
 
@@ -98,13 +99,13 @@ namespace RTT { namespace internal {
         {
             written = false;
             mread = false;
-            base::ChannelElement<T>::clear();
+            Base::clear();
         }
 
         virtual bool data_sample(param_t sample)
         {
             data->data_sample(sample);
-            return base::ChannelElement<T>::data_sample(sample);
+            return Base::data_sample(sample);
         }
 
         virtual T data_sample()

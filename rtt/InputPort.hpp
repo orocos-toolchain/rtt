@@ -68,7 +68,7 @@ namespace RTT
 
         bool do_read(typename base::ChannelElement<T>::reference_t sample, FlowStatus& result, bool copy_old_data, const internal::ConnectionManager::ChannelDescriptor& descriptor)
         {
-            typename base::ChannelElement<T>::shared_ptr input = static_cast< base::ChannelElement<T>* >( descriptor.get<1>().get() );
+            typename base::ChannelElement<T>::shared_ptr input = descriptor.get<1>()->narrow<T>();
             assert( result != NewData );
             if ( input ) {
                 FlowStatus tresult = input->read(sample, copy_old_data);
@@ -187,7 +187,7 @@ namespace RTT
          */
         void getDataSample(T& sample)
         {
-            typename base::ChannelElement<T>::shared_ptr input = static_cast< base::ChannelElement<T>* >( cmanager.getCurrentChannel() );
+            typename base::ChannelElement<T>::shared_ptr input = cmanager.getCurrentChannel()->narrow<T>();
             if ( input ) {
                 sample = input->data_sample();
             }

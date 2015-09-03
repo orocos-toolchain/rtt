@@ -54,11 +54,13 @@ namespace RTT
      * moving along to the other side of the wall.
      */
     template<typename T>
-    class ConnOutputEndpoint : public base::ChannelElement<T>
+    class ConnOutputEndpoint : public base::MultipleInputsChannelElement<T>
     {
         InputPort<T>* port;
         ConnID* cid;
     public:
+        typedef base::MultipleInputsChannelElement<T> Base;
+
         /**
          * Creates the connection end that represents the output and attach
          * it to the input.
@@ -86,21 +88,21 @@ namespace RTT
          */
         bool inputReady()
         {
-            return base::ChannelElement<T>::inputReady();
+            return Base::inputReady();
         }
 
-        using base::ChannelElement<T>::write;
+        using Base::write;
 
         /** Writes a new sample on this connection
          * This should never be called, as all connections are supposed to have
          * a data storage element */
-        virtual bool write(typename base::ChannelElement<T>::param_t sample)
+        virtual bool write(typename Base::param_t sample)
         { return false; }
 
         virtual void disconnect(bool forward)
         {
             // Call the base class: it does the common cleanup
-            base::ChannelElement<T>::disconnect(forward);
+            Base::disconnect(forward);
 
             InputPort<T>* port = this->port;
             if (port && forward)
@@ -123,7 +125,7 @@ namespace RTT
             return true;
         }
 
-        virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
+        virtual bool data_sample(typename Base::param_t sample)
         {
             return true;
         }

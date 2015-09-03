@@ -47,23 +47,24 @@ namespace RTT { namespace internal {
     /** A connection element that can store a fixed number of data samples.
      */
     template<typename T>
-    class ChannelBufferElement : public base::ChannelElement<T>
+    class ChannelBufferElement : public base::MultipleInputsMultipleOutputsChannelElement<T>
     {
         typename base::BufferInterface<T>::shared_ptr buffer;
         typename base::ChannelElement<T>::value_t *last_sample_p;
     public:
+        typedef base::MultipleInputsMultipleOutputsChannelElement<T> Base;
         typedef typename base::ChannelElement<T>::param_t param_t;
         typedef typename base::ChannelElement<T>::reference_t reference_t;
-	typedef typename base::ChannelElement<T>::value_t value_t;
+        typedef typename base::ChannelElement<T>::value_t value_t;
 
         ChannelBufferElement(typename base::BufferInterface<T>::shared_ptr buffer)
             : buffer(buffer), last_sample_p(0) {}
             
-	virtual ~ChannelBufferElement()
-	{
-	    if(last_sample_p)
-		buffer->Release(last_sample_p);
-	}
+        virtual ~ChannelBufferElement()
+        {
+            if(last_sample_p)
+            buffer->Release(last_sample_p);
+        }
  
         /** Appends a sample at the end of the FIFO
          *
@@ -109,13 +110,13 @@ namespace RTT { namespace internal {
 		buffer->Release(last_sample_p);
 	    last_sample_p = 0;
             buffer->clear();
-            base::ChannelElement<T>::clear();
+            Base::clear();
         }
 
         virtual bool data_sample(param_t sample)
         {
             buffer->data_sample(sample);
-            return base::ChannelElement<T>::data_sample(sample);
+            return Base::data_sample(sample);
         }
 
         virtual T data_sample()

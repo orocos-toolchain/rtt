@@ -73,8 +73,7 @@ namespace RTT
 
         bool do_write(typename base::ChannelElement<T>::param_t sample, const internal::ConnectionManager::ChannelDescriptor& descriptor)
         {
-            typename base::ChannelElement<T>::shared_ptr output
-                = boost::static_pointer_cast< base::ChannelElement<T> >(descriptor.get<1>());
+            typename base::ChannelElement<T>::shared_ptr output = descriptor.get<1>()->narrow<T>();
             if (output->write(sample))
                 return false;
             else
@@ -86,8 +85,7 @@ namespace RTT
 
         bool do_init(typename base::ChannelElement<T>::param_t sample, const internal::ConnectionManager::ChannelDescriptor& descriptor)
         {
-            typename base::ChannelElement<T>::shared_ptr output
-                = boost::static_pointer_cast< base::ChannelElement<T> >(descriptor.get<1>());
+            typename base::ChannelElement<T>::shared_ptr output = descriptor.get<1>()->narrow<T>();
             if (output->data_sample(sample))
                 return false;
             else
@@ -102,8 +100,7 @@ namespace RTT
             // (and available)
 
             // This this the input channel element of the whole connection
-            typename base::ChannelElement<T>::shared_ptr channel_el_input =
-                static_cast< base::ChannelElement<T>* >(channel_input.get());
+            typename base::ChannelElement<T>::shared_ptr channel_el_input = channel_input.get()->narrow<T>();
 
             if (has_initial_sample)
             {
@@ -173,6 +170,8 @@ namespace RTT
             if (keep_last_written_value)
                 keepLastWrittenValue(true);
         }
+
+        virtual ~OutputPort() { disconnect(); }
 
         void keepNextWrittenValue(bool keep)
         {

@@ -8,6 +8,9 @@ namespace RTT {
         class AttributeBase;
         class BufferBase;
         class ChannelElementBase;
+        class MultipleInputsChannelElementBase;
+        class MultipleOutputsChannelElementBase;
+        class MultipleInputsMultipleOutputsChannelElementBase;
         class DataSourceBase;
         class DisposableInterface;
         class ExecutableInterface;
@@ -46,6 +49,12 @@ namespace RTT {
         class DataObjectUnSync;
         template<typename T>
         class ChannelElement;
+        template<typename T>
+        class MultipleInputsChannelElement;
+        template<typename T>
+        class MultipleOutputsChannelElement;
+        template<typename T>
+        class MultipleInputsMultipleOutputsChannelElement;
     }
     namespace detail {
         using namespace base;

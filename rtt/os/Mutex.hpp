@@ -56,7 +56,7 @@ namespace RTT
     /**
      * @brief An interface to a Mutex.
      *
-     * @see MutexLock, MutexTryLock, MutexRecursive
+     * @see MutexLock, MutexTryLock, MutexRecursive, SharedMutexLock
      */
 	class RTT_API MutexInterface
 	{
@@ -66,6 +66,10 @@ namespace RTT
 		virtual void unlock() =0;
 		virtual bool trylock() = 0;
 		virtual bool timedlock(Seconds s) = 0;
+        virtual void lock_shared() {}
+        virtual void unlock_shared() {}
+        virtual bool trylock_shared() { return false; }
+        virtual bool timedlock_shared(Seconds s) { return false; }
 	};
 
 
@@ -317,6 +321,266 @@ namespace RTT
         virtual bool timedlock(Seconds s)
         {
             return recm.timed_lock( boost::posix_time::microseconds( Seconds_to_nsecs(s)/1000 ) );
+        }
+#endif
+    };
+
+    /**
+     * @brief An object oriented wrapper around a shared mutex (multiple readers allowed).
+     *
+     * A mutex can only be  unlock()'ed, by the thread which lock()'ed
+     * it. A trylock is a non blocking lock action which fails or succeeds.
+     *
+     * @see MutexLock, MutexTryLock, SharedMutexLock, SharedMutexTryLock, Mutex
+     */
+    class RTT_API SharedMutex : public MutexInterface
+    {
+#ifndef ORO_OS_USE_BOOST_THREAD
+    protected:
+        rt_mutex_t m;
+        rt_cond_t shared_cond;
+        rt_cond_t exclusive_cond;
+        unsigned shared_count;
+        bool exclusive;
+    public:
+        /**
+        * Initialize a shared Mutex.
+        */
+        SharedMutex()
+            : shared_count(0)
+            , exclusive(false)
+        {
+            rtos_mutex_init( &m );
+            rtos_cond_init( &shared_cond );
+            rtos_cond_init( &exclusive_cond );
+        }
+
+        /**
+        * Destroy a shared Mutex.
+        * If the Mutex is still locked, the RTOS
+        * will not be asked to clean up its resources.
+        */
+        virtual ~SharedMutex()
+        {
+            if ( trylock() ) {
+                unlock();
+                rtos_mutex_destroy( &m );
+                rtos_cond_destroy( &shared_cond );
+                rtos_cond_destroy( &exclusive_cond );
+            }
+        }
+
+        virtual void lock ()
+        {
+            rtos_mutex_lock( &m );
+            while (shared_count || exclusive) {
+                rtos_cond_wait(&exclusive_cond, &m);
+            }
+            exclusive = true;
+            rtos_mutex_unlock( &m );
+        }
+
+        virtual void unlock()
+        {
+            rtos_mutex_lock( &m );
+            assert(exclusive);
+            exclusive = false;
+            rtos_cond_broadcast( &exclusive_cond );
+            rtos_cond_broadcast( &shared_cond );
+            rtos_mutex_unlock( &m );
+        }
+
+        /**
+        * Try to lock this mutex exclusively
+        *
+        * @return true when the locking succeeded, false otherwise
+        */
+        virtual bool trylock()
+        {
+            rtos_mutex_lock( &m );
+            if (shared_count || exclusive) {
+                rtos_mutex_unlock( &m );
+                return false;
+            }
+            exclusive = true;
+            rtos_mutex_unlock( &m );
+            return true;
+        }
+
+        /**
+        * Lock this mutex exclusively, but don't wait longer for the lock
+        * than the specified timeout.
+        *
+        * @param  s The maximum time to wait before aqcuiring the lock.
+        * @return true when the locking succeeded, false otherwise
+        */
+        virtual bool timedlock(Seconds s)
+        {
+            RTT::nsecs abs_time = rtos_get_time_ns() + Seconds_to_nsecs(s);
+            rtos_mutex_lock( &m );
+            while (shared_count || exclusive) {
+                if ( rtos_cond_timedwait( &exclusive_cond, &m, abs_time ) != 0 ) {
+                    rtos_mutex_unlock( &m );
+                    return false;
+                }
+            }
+            exclusive = true;
+            rtos_mutex_unlock( &m );
+            return true;
+        }
+
+        /**
+         * Obtain shared ownership of this mutex.
+         */
+        void lock_shared ()
+        {
+            rtos_mutex_lock( &m );
+            while (exclusive) {
+                rtos_cond_wait(&shared_cond, &m);
+            }
+            shared_count++;
+            rtos_mutex_unlock( &m );
+        }
+
+        /**
+         * Release shared ownership of this mutex.
+         */
+        virtual void unlock_shared()
+        {
+            rtos_mutex_lock( &m );
+            assert(shared_count > 0);
+            if (shared_count > 0) shared_count--;
+            rtos_cond_broadcast( &exclusive_cond );
+            rtos_mutex_unlock( &m );
+        }
+
+        /**
+        * Attempt to obtain shared ownership of this mutex
+        *
+        * @return true when the locking succeeded, false otherwise
+        */
+        virtual bool trylock_shared()
+        {
+            rtos_mutex_lock( &m );
+            if (exclusive) {
+                rtos_mutex_unlock( &m );
+                return false;
+            }
+            shared_count++;
+            rtos_mutex_unlock( &m );
+            return true;
+        }
+
+        /**
+        * Attempt to obtain shared ownership of this mutex, but don't wait longer for the lock
+        * than the specified timeout.
+        *
+        * @param  s The maximum time to wait before aqcuiring the lock.
+        * @return true when the locking succeeded, false otherwise
+        */
+        virtual bool timedlock_shared(Seconds s)
+        {
+            RTT::nsecs abs_time = rtos_get_time_ns() + Seconds_to_nsecs(s);
+            rtos_mutex_lock( &m );
+            while (exclusive) {
+                if ( rtos_cond_timedwait( &shared_cond, &m, abs_time ) != 0 ) {
+                    rtos_mutex_unlock( &m );
+                    return false;
+                }
+            }
+            shared_count++;
+            rtos_mutex_unlock( &m );
+            return true;
+        }
+
+#else
+    protected:
+        boost::shared_mutex sharedm;
+    public:
+        /**
+         * Initialize a shared Mutex.
+         */
+        SharedMutex()
+        {
+        }
+
+        /**
+        * Destroy a SharedMutex.
+        * If the SharedMutex is still locked, the RTOS
+        * will not be asked to clean up its resources.
+        */
+        virtual ~SharedMutex()
+        {
+        }
+
+        void lock ()
+        {
+            sharedm.lock();
+        }
+
+        virtual void unlock()
+        {
+            sharedm.unlock();
+        }
+
+        /**
+        * Try to lock this mutex
+        *
+        * @return true when the locking succeeded, false otherwise
+        */
+        virtual bool trylock()
+        {
+            return sharedm.try_lock();
+        }
+
+        /**
+        * Lock this mutex, but don't wait longer for the lock
+        * than the specified timeout.
+        *
+        * @param  s The maximum time to wait before aqcuiring the lock.
+        * @return true when the locking succeeded, false otherwise
+        */
+        virtual bool timedlock(Seconds s)
+        {
+            return recm.timed_lock( boost::posix_time::microseconds( Seconds_to_nsecs(s)/1000 ) );
+        }
+
+        /**
+         * Obtain shared ownership of this mutex.
+         */
+        void lock_shared ()
+        {
+            sharedm.lock_shared();
+        }
+
+        /**
+         * Release shared ownership of this mutex.
+         */
+        virtual void unlock_shared()
+        {
+            sharedm.unlock_shared();
+        }
+
+        /**
+        * Attempt to obtain shared ownership of this mutex
+        *
+        * @return true when the locking succeeded, false otherwise
+        */
+        virtual bool trylock_shared()
+        {
+            return sharedm.try_lock_shared();
+        }
+
+        /**
+        * Attempt to obtain shared ownership of this mutex, but don't wait longer for the lock
+        * than the specified timeout.
+        *
+        * @param  s The maximum time to wait before aqcuiring the lock.
+        * @return true when the locking succeeded, false otherwise
+        */
+        virtual bool timedlock_shared(Seconds s)
+        {
+            return recm.timed_lock_shared( boost::posix_time::microseconds( Seconds_to_nsecs(s)/1000 ) );
         }
 #endif
     };

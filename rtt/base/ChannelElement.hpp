@@ -43,6 +43,8 @@
 #include <boost/call_traits.hpp>
 #include "ChannelElementBase.hpp"
 #include "../FlowStatus.hpp"
+#include "../os/MutexLock.hpp"
+
 
 namespace RTT { namespace base {
 
@@ -51,7 +53,7 @@ namespace RTT { namespace base {
      * type-specific (like write and read)
      */
     template<typename T>
-    class ChannelElement : public ChannelElementBase
+    class ChannelElement : virtual public ChannelElementBase
     {
     public:
         typedef T value_t;
@@ -61,14 +63,12 @@ namespace RTT { namespace base {
 
         shared_ptr getOutput()
         {
-             return boost::static_pointer_cast< base::ChannelElement<T> >(
-                    ChannelElementBase::getOutput());
+             return ChannelElementBase::getOutput()->narrow<T>();
         }
 
         shared_ptr getInput()
         {
-            return boost::static_pointer_cast< base::ChannelElement<T> >(
-                    ChannelElementBase::getInput());
+            return ChannelElementBase::getInput()->narrow<T>();
         }
 
         /**
@@ -102,7 +102,7 @@ namespace RTT { namespace base {
          */
         virtual bool write(param_t sample)
         {
-            typename ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< ChannelElement<T> >(getOutput());
+            typename ChannelElement<T>::shared_ptr output = getOutput();
             if (output)
                 return output->write(sample);
             return false;
@@ -121,6 +121,95 @@ namespace RTT { namespace base {
             else
                 return NoData;
         }
+    };
+
+    /** A typed version of MultipleInputsChannelElementBase.
+     */
+    template<typename T>
+    class MultipleInputsChannelElement : virtual public MultipleInputsChannelElementBase, virtual public ChannelElement<T>
+    {
+    public:
+        using typename ChannelElement<T>::value_t;
+        typedef boost::intrusive_ptr< MultipleInputsChannelElement<T> > shared_ptr;
+        using typename ChannelElement<T>::param_t;
+        using typename ChannelElement<T>::reference_t;
+
+//        virtual value_t data_sample()
+//        {
+//            typename ChannelElement<T>::shared_ptr input = boost::static_pointer_cast< ChannelElement<T> >(getInput());
+//            if (input)
+//                return input->data_sample();
+//            return value_t();
+//        }
+
+        /** Reads a sample from the connection. \a sample is a reference which
+         * will get updated if a sample is available. The method returns true
+         * if a sample was available, and false otherwise. If false is returned,
+         * then \a sample is not modified by the method
+         */
+//        virtual FlowStatus read(reference_t sample, bool copy_old_data)
+//        {
+//            typename ChannelElement<T>::shared_ptr input = this->getInput();
+//            if (input)
+//                return input->read(sample, copy_old_data);
+//            else
+//                return NoData;
+//        }
+    };
+
+    /** A typed version of MultipleOutputsChannelElementBase.
+     */
+    template<typename T>
+    class MultipleOutputsChannelElement : virtual public MultipleOutputsChannelElementBase, virtual public ChannelElement<T>
+    {
+    public:
+        using typename ChannelElement<T>::value_t;
+        typedef boost::intrusive_ptr< MultipleInputsChannelElement<T> > shared_ptr;
+        using typename ChannelElement<T>::param_t;
+        using typename ChannelElement<T>::reference_t;
+
+        virtual bool data_sample(param_t sample)
+        {
+            RTT::os::SharedMutexLock lock(outputs_lock);
+            if (outputs.empty()) return false;
+            for(Outputs::const_iterator it = outputs.begin(); it != outputs.end(); ++it)
+            {
+                typename ChannelElement<T>::shared_ptr output = (*it)->narrow<T>();
+                output->data_sample(sample);
+            }
+            return true;
+        }
+
+        /** Writes a new sample on this connection. \a sample is the sample to
+         * write. Writes the sample to all connected channels
+         *
+         * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
+         */
+        virtual bool write(param_t sample)
+        {
+            RTT::os::SharedMutexLock lock(outputs_lock);
+            if (outputs.empty()) return false;
+            for(Outputs::const_iterator it = outputs.begin(); it != outputs.end(); ++it)
+            {
+                typename ChannelElement<T>::shared_ptr output = (*it)->narrow<T>();
+                output->write(sample);
+            }
+            return true;
+        }
+    };
+
+    /** A typed version of MultipleInputsMultipleOutputsChannelElementBase.
+     */
+    template<typename T>
+    class MultipleInputsMultipleOutputsChannelElement : public MultipleInputsMultipleOutputsChannelElementBase, public MultipleInputsChannelElement<T>, public MultipleOutputsChannelElement<T>
+    {
+    public:
+        using typename ChannelElement<T>::value_t;
+        typedef boost::intrusive_ptr< MultipleInputsChannelElement<T> > shared_ptr;
+        using typename ChannelElement<T>::param_t;
+        using typename ChannelElement<T>::reference_t;
+
+        using MultipleInputsMultipleOutputsChannelElementBase::disconnect;
     };
 }}
 
