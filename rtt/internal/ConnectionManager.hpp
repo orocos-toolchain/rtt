@@ -167,9 +167,11 @@ namespace RTT
                         return std::make_pair(true, channel);
 
                 std::list<ChannelDescriptor>::iterator result;
-                for (result = connections.begin(); result != connections.end(); ++result)
+                for (result = connections.begin(); result != connections.end(); ++result) {
+                    if (result->get<1>() == cur_channel.get<1>()) continue;
                     if ( pred(false, *result) == true)
                         return std::make_pair(true, *result);
+                }
                 return std::make_pair(false, ChannelDescriptor());
             }
 
