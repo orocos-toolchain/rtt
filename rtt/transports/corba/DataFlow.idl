@@ -19,6 +19,7 @@ module RTT
         boolean init;
         CLockPolicy lock_policy;
         boolean pull;
+        boolean shared;
         long size;
         long transport;
         long data_size;

@@ -519,7 +519,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
 
 
     // Attach to our output port:
-    port->addConnection( new SimpleConnID(), start->getInputEndPoint(), policy2);
+    port->addConnection( new SimpleConnID(), start->getInputEndPoint(), policy2, boost::bind(&RTT::base::ChannelElementBase::disconnect, start->getOutputEndPoint(), true, dynamic_cast<ChannelElementBase*>(this_element)) );
 
     // DO NOT DO THIS: _remove_ref() is tied to the refcount of the ChannelElementBase !
     //this_element->_remove_ref();

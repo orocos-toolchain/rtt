@@ -46,7 +46,9 @@
 #include "../os/MutexLock.hpp"
 
 #include <boost/bind.hpp>
+#ifndef USE_CPP11
 #include <boost/lambda/lambda.hpp>
+#endif
 
 namespace RTT { namespace base {
 
@@ -147,13 +149,17 @@ namespace RTT { namespace base {
             MultipleInputsChannelElementBase::removeInput(input);
         }
 
-//        virtual value_t data_sample()
-//        {
-//            typename ChannelElement<T>::shared_ptr input = boost::static_pointer_cast< ChannelElement<T> >(getInput());
-//            if (input)
-//                return input->data_sample();
-//            return value_t();
-//        }
+        /**
+         * Overwritten implementation of MultipleInputsChannelElementBase::data_sample() that gets a sample from the currently selected input.
+         */
+        virtual value_t data_sample()
+        {
+            typename ChannelElement<T>::shared_ptr input = cur_input;
+            if (input) {
+                return input->data_sample();
+            }
+            return value_t();
+        }
 
         /** Reads a sample from the connection. \a sample is a reference which
          * will get updated if a sample is available. The method returns true
@@ -164,7 +170,11 @@ namespace RTT { namespace base {
         {
             FlowStatus result = NoData;
             // read and iterate if necessary.
+#ifdef USE_CPP11
+            select_reader_channel( bind( &MultipleInputsChannelElement<T>::do_read, this, boost::ref(sample), boost::ref(result), _1, _2), copy_old_data );
+#else
             select_reader_channel( boost::bind( &MultipleInputsChannelElement<T>::do_read, this, boost::ref(sample), boost::ref(result), boost::lambda::_1, boost::lambda::_2), copy_old_data );
+#endif
             return result;
         }
 
@@ -248,12 +258,16 @@ namespace RTT { namespace base {
         {
             RTT::os::SharedMutexLock lock(outputs_lock);
             if (outputs.empty()) return false;
+            bool result = true;
             for(Outputs::const_iterator it = outputs.begin(); it != outputs.end(); ++it)
             {
                 typename ChannelElement<T>::shared_ptr output = (*it)->narrow<T>();
-                output->data_sample(sample);
+                if (!output->data_sample(sample)) {
+                    result = false;
+                    // TODO: disconnect channel
+                }
             }
-            return true;
+            return result;
         }
 
         /** Writes a new sample on this connection. \a sample is the sample to
@@ -265,12 +279,16 @@ namespace RTT { namespace base {
         {
             RTT::os::SharedMutexLock lock(outputs_lock);
             if (outputs.empty()) return false;
+            bool result = true;
             for(Outputs::const_iterator it = outputs.begin(); it != outputs.end(); ++it)
             {
                 typename ChannelElement<T>::shared_ptr output = (*it)->narrow<T>();
-                output->write(sample);
+                if (!output->write(sample)) {
+                    result = false;
+                    // TODO: disconnect channel
+                }
             }
-            return true;
+            return result;
         }
     };
 
@@ -284,6 +302,9 @@ namespace RTT { namespace base {
         typedef boost::intrusive_ptr< MultipleInputsChannelElement<T> > shared_ptr;
         using typename ChannelElement<T>::param_t;
         using typename ChannelElement<T>::reference_t;
+
+        using MultipleInputsChannelElement<T>::data_sample;
+        using MultipleOutputsChannelElement<T>::data_sample;
 
         using MultipleInputsMultipleOutputsChannelElementBase::disconnect;
     };

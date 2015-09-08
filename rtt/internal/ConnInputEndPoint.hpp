@@ -50,22 +50,18 @@ namespace RTT
     template<typename T>
     class ConnInputEndpoint : public base::MultipleOutputsChannelElement<T>
     {
+    private:
         OutputPort<T>* port;
-        ConnID* cid;
 
     public:
         typedef base::MultipleOutputsChannelElement<T> Base;
+        typedef boost::intrusive_ptr<ConnInputEndpoint> shared_ptr;
 
-        ConnInputEndpoint(OutputPort<T>* port, ConnID* id)
-            : port(port), cid(id) { }
+        ConnInputEndpoint(OutputPort<T>* port)
+            : port(port) { }
 
         ~ConnInputEndpoint()
-        {
-            //this->disconnect(false); // inform port (if any) we're gone.
-
-            // cid is deleted/owned by the port's ConnectionManager.
-            delete cid;
-        }
+        {}
 
         using Base::read;
 
@@ -79,25 +75,22 @@ namespace RTT
             return true;
         }
 
-        virtual void disconnect(bool forward, base::ChannelElementBase *caller)
+        virtual bool disconnect(bool forward, const base::ChannelElementBase::shared_ptr& channel)
         {
-            // Call the base class first
-            Base::disconnect(forward, caller);
-
-            OutputPort<T>* port = this->port;
-            if (port && !forward)
-            {
-                this->port   = 0;
-                port->removeConnection( cid );
+            // Call the base class: it does the common cleanup
+            if (Base::disconnect(forward, channel)) {
+                OutputPort<T>* port = this->port;
+                if (port && !forward)
+                {
+                    port->removeConnection(channel.get());
+                }
+                return true;
             }
+            return false;
         }
 
         virtual base::PortInterface* getPort() const {
             return this->port;
-        }
-
-        virtual ConnID* getConnID() const { 
-            return this->cid; 
         }
 
     };

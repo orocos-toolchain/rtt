@@ -107,6 +107,11 @@ bool RemotePort<BaseClass>::addConnection(RTT::internal::ConnID* port_id, Channe
     return false;
 }
 
+template<typename BaseClass>
+RTT::base::ChannelElementBase* RemotePort<BaseClass>::getEndpoint()
+{
+    return 0;
+}
 
 RemoteInputPort::RemoteInputPort(RTT::types::TypeInfo const* type_info,
         CDataFlowInterface_ptr dataflow, std::string const& reader_port,

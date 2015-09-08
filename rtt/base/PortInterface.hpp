@@ -42,6 +42,7 @@
 #include <string>
 #include "../internal/rtt-internal-fwd.hpp"
 #include "../ConnPolicy.hpp"
+#include "../internal/ConnectionManager.hpp"
 #include "../internal/ConnID.hpp"
 #include "ChannelElementBase.hpp"
 #include "../types/rtt-types-fwd.hpp"
@@ -60,6 +61,7 @@ namespace RTT
         std::string mdesc;
     protected:
         DataFlowInterface* iface;
+        internal::ConnectionManager cmanager;
 
         PortInterface(const std::string& name);
 
@@ -176,14 +178,23 @@ namespace RTT
          * Adds a user created connection to this port.
          * This is an advanced method, prefer to use connectTo and createStream.
          */
-        virtual bool addConnection(internal::ConnID* cid, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy = ConnPolicy() ) = 0;
+        virtual bool addConnection(internal::ConnID* cid, ChannelElementBase::shared_ptr channel,
+                                   ConnPolicy const& policy = ConnPolicy(),
+                                   const internal::ConnectionManager::DisconnectFunction& disconnect_fcn = internal::ConnectionManager::DisconnectFunction()) = 0;
 
         /**
          * Removes a user created connection from this port.
          * This is an advanced method, prefer to use disconnect()
          * or a method from a subclass of PortInterface.
          */
-        virtual bool removeConnection(internal::ConnID* cid) = 0;
+        virtual bool removeConnection(internal::ConnID* cid);
+
+        /**
+         * Removes all connections from this port which write to or read from the given channel element.
+         * This is an advanced method, prefer to use disconnect()
+         * or a method from a subclass of PortInterface.
+         */
+        virtual bool removeConnection(ChannelElementBase* channel);
 
         /**
          * Once a port is added to a DataFlowInterface, it gets
@@ -192,6 +203,7 @@ namespace RTT
          * they belong.
          */
         void setInterface(DataFlowInterface* iface);
+
         /**
          * Returns the DataFlowInterface this port belongs to or null if it was not added
          * to such an interface.
@@ -207,8 +219,15 @@ namespace RTT
          * @see ConnectionManager::getChannels() for a list of all
          * connections of this port.
          */
-        virtual const internal::ConnectionManager* getManager() const = 0;
-};
+        virtual const internal::ConnectionManager* getManager() const { return &cmanager; }
+
+        /**
+         * Returns the input or output endpoint of this port (if any).
+         * This method provides access to the internals of this port
+         * in order to access connected channel objects directly.
+         */
+        virtual ChannelElementBase* getEndpoint() = 0;
+    };
 
 }}
 

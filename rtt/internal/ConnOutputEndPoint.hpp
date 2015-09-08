@@ -56,10 +56,12 @@ namespace RTT
     template<typename T>
     class ConnOutputEndpoint : public base::MultipleInputsChannelElement<T>
     {
+    private:
         InputPort<T>* port;
-        ConnID* cid;
+
     public:
         typedef base::MultipleInputsChannelElement<T> Base;
+        typedef boost::intrusive_ptr<ConnOutputEndpoint> shared_ptr;
 
         /**
          * Creates the connection end that represents the output and attach
@@ -69,10 +71,9 @@ namespace RTT
          * represents the other end. This id is passed to the input port \a port.
          * @return
          */
-        ConnOutputEndpoint(InputPort<T>* port, ConnID* output_id )
-            : port(port), cid(output_id)
+        ConnOutputEndpoint(InputPort<T>* port)
+            : port(port)
         {
-            // cid is deleted/owned by the port's ConnectionManager.
         }
 
         ~ConnOutputEndpoint()
@@ -99,17 +100,18 @@ namespace RTT
         virtual bool write(typename Base::param_t sample)
         { return false; }
 
-        virtual void disconnect(bool forward, base::ChannelElementBase *caller)
+        virtual bool disconnect(bool forward, const base::ChannelElementBase::shared_ptr& channel)
         {
             // Call the base class: it does the common cleanup
-            Base::disconnect(forward, caller);
-
-            InputPort<T>* port = this->port;
-            if (port && forward)
-            {
-                this->port = 0;
-                port->removeConnection(cid);
+            if (Base::disconnect(forward, channel)) {
+                InputPort<T>* port = this->port;
+                if (port && forward)
+                {
+                    port->removeConnection(channel.get());
+                }
+                return true;
             }
+            return false;
         }
 
         virtual bool signal()
@@ -125,6 +127,7 @@ namespace RTT
             return true;
         }
 
+        using Base::data_sample;
         virtual bool data_sample(typename Base::param_t sample)
         {
             return true;
@@ -132,10 +135,6 @@ namespace RTT
 
         virtual base::PortInterface* getPort() const {
             return this->port;
-        }
-
-        virtual ConnID* getConnID() const { 
-            return this->cid; 
         }
     };
 

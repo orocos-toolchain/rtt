@@ -51,34 +51,37 @@ using namespace std;
 
 namespace RTT
 {
-    ConnPolicy ConnPolicy::buffer(int size, int lock_policy /*= LOCK_FREE*/, bool init_connection /*= false*/, bool pull /*= false*/)
+    ConnPolicy ConnPolicy::buffer(int size, int lock_policy /*= LOCK_FREE*/, bool init_connection /*= false*/, bool pull /*= false*/, bool shared /*= false*/)
     {
         ConnPolicy result(BUFFER, lock_policy);
         result.init = init_connection;
         result.pull = pull;
         result.size = size;
+        result.shared = shared;
         return result;
     }
 
-    ConnPolicy ConnPolicy::circularBuffer(int size, int lock_policy /*= LOCK_FREE*/, bool init_connection /*= false*/, bool pull /*= false*/)
+    ConnPolicy ConnPolicy::circularBuffer(int size, int lock_policy /*= LOCK_FREE*/, bool init_connection /*= false*/, bool pull /*= false*/, bool shared /*= false*/)
     {
         ConnPolicy result(CIRCULAR_BUFFER, lock_policy);
         result.init = init_connection;
         result.pull = pull;
         result.size = size;
+        result.shared = shared;
         return result;
     }
 
-    ConnPolicy ConnPolicy::data(int lock_policy /*= LOCK_FREE*/, bool init_connection /*= true*/, bool pull /*= false*/)
+    ConnPolicy ConnPolicy::data(int lock_policy /*= LOCK_FREE*/, bool init_connection /*= true*/, bool pull /*= false*/, bool shared /*= false*/)
     {
         ConnPolicy result(DATA, lock_policy);
         result.init = init_connection;
         result.pull = pull;
+        result.shared = shared;
         return result;
     }
 
     ConnPolicy::ConnPolicy(int type /* = DATA*/, int lock_policy /*= LOCK_FREE*/)
-        : type(type), init(false), lock_policy(lock_policy), pull(false), size(0), transport(0), data_size(0) {}
+        : type(type), init(false), lock_policy(lock_policy), pull(false), shared(false), size(0), transport(0), data_size(0) {}
 
     /** @cond */
     /** This is dead code. We use the boost::serialization now.
@@ -141,6 +144,13 @@ namespace RTT
             log(Error) <<"ConnPolicy: wrong property type of 'pull'."<<endlog();
             return false;
         }
+        b = bag.getProperty("shared");
+        if ( b.ready() )
+            result.shared = b.get();
+        else if ( bag.find("shared") ){
+            log(Error) <<"ConnPolicy: wrong property type of 'shared'."<<endlog();
+            return false;
+        }
 
         s = bag.getProperty("name_id");
         if ( s.ready() )
@@ -164,6 +174,7 @@ namespace RTT
         targetbag.ownProperty( new Property<bool>("init","Initialize flag", cp.init));
         targetbag.ownProperty( new Property<int>("lock_policy","Locking Policy", cp.lock_policy));
         targetbag.ownProperty( new Property<bool>("pull","Fetch data over network", cp.pull));
+        targetbag.ownProperty( new Property<bool>("shared","Share data or buffer", cp.shared));
         targetbag.ownProperty( new Property<int>("size","The size of a buffered connection", cp.size));
         targetbag.ownProperty( new Property<int>("transport","The prefered transport. Set to zero if unsure.", cp.transport));
         targetbag.ownProperty( new Property<int>("data_size","A hint about the data size of a single data sample. Set to zero if unsure.", cp.transport));

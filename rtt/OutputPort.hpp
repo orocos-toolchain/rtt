@@ -69,31 +69,9 @@ namespace RTT
     template<typename T>
     class OutputPort : public base::OutputPortInterface
     {
+    private:
         friend class internal::ConnInputEndpoint<T>;
-
-        bool do_write(typename base::ChannelElement<T>::param_t sample, const internal::ConnectionManager::ChannelDescriptor& descriptor)
-        {
-            typename base::ChannelElement<T>::shared_ptr output = descriptor.get<1>()->narrow<T>();
-            if (output->write(sample))
-                return false;
-            else
-            {
-                log(Error) << "A channel of port " << getName() << " has been invalidated during write(), it will be removed" << endlog();
-                return true;
-            }
-        }
-
-        bool do_init(typename base::ChannelElement<T>::param_t sample, const internal::ConnectionManager::ChannelDescriptor& descriptor)
-        {
-            typename base::ChannelElement<T>::shared_ptr output = descriptor.get<1>()->narrow<T>();
-            if (output->data_sample(sample))
-                return false;
-            else
-            {
-                log(Error) << "A channel of port " << getName() << " has been invalidated during setDataSample(), it will be removed" << endlog();
-                return true;
-            }
-        }
+        typename internal::ConnInputEndpoint<T>::shared_ptr endpoint;
 
         virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy ) {
             // Initialize the new channel with last written data if requested
@@ -232,15 +210,9 @@ namespace RTT
             has_initial_sample = true;
             has_last_written_value = false;
 
-#ifdef USE_CPP11
-            cmanager.delete_if( bind(
-                        &OutputPort<T>::do_init, this, boost::ref(sample), _1)
-                    );
-#else
-            cmanager.delete_if( boost::bind(
-                        &OutputPort<T>::do_init, this, boost::ref(sample), _1)
-                    );
-#endif
+            if (!getEndpoint()->data_sample(sample)) {
+                log(Error) << "A channel of port " << getName() << " has been invalidated during setDataSample(), it will be removed" << endlog();
+            }
         }
 
         /**
@@ -257,15 +229,9 @@ namespace RTT
             }
             has_last_written_value = keeps_last_written_value;
 
-#ifdef USE_CPP11
-            cmanager.delete_if( bind(
-                        &OutputPort<T>::do_write, this, boost::ref(sample), _1)
-                    );
-#else
-            cmanager.delete_if( boost::bind(
-                        &OutputPort<T>::do_write, this, boost::ref(sample), boost::lambda::_1)
-                    );
-#endif
+            if (!getEndpoint()->write(sample)) {
+                log(Error) << "A channel of port " << getName() << " has been invalidated during write(), it will be removed" << endlog();
+            }
         }
 
         void write(base::DataSourceBase::shared_ptr source)
@@ -335,6 +301,12 @@ namespace RTT
             return object;
         }
 #endif
+
+        internal::ConnInputEndpoint<T>* getEndpoint()
+        {
+            if (!endpoint) endpoint.reset(new internal::ConnInputEndpoint<T>(this));
+            return endpoint.get();
+        }
     };
 
 }

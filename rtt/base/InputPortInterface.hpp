@@ -66,7 +66,6 @@ namespace RTT
 #endif
 
     protected:
-        internal::ConnectionManager cmanager;
         ConnPolicy        default_policy;
 #ifdef ORO_SIGNALLING_PORTS
         NewDataOnPortEvent* new_data_on_port_event;
@@ -92,17 +91,7 @@ namespace RTT
 
         ConnPolicy getDefaultPolicy() const;
 
-        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
-
-        /** Removes the input channel
-         *
-         * Returns true if the provided channel was actually a channel of this
-         * port, and false otherwise.
-         *
-         * You should usually not use this directly. Use disconnect()
-         * instead.
-         */
-        virtual bool removeConnection(internal::ConnID* cid);
+        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel, ConnPolicy const& policy, const internal::ConnectionManager::DisconnectFunction& disconnect_fcn);
 
         /** Returns a DataSourceBase interface to read this port. The returned
          * data source is always a new object.

@@ -52,6 +52,7 @@ RTT::corba::CConnPolicy toCORBA(RTT::ConnPolicy const& policy)
     corba_policy.init        = policy.init;
     corba_policy.lock_policy = RTT::corba::CLockPolicy(policy.lock_policy);
     corba_policy.pull        = policy.pull;
+    corba_policy.shared      = policy.shared;
     corba_policy.size        = policy.size;
     corba_policy.data_size   = policy.data_size;
     corba_policy.transport   = policy.transport;
@@ -66,6 +67,7 @@ RTT::ConnPolicy toRTT(RTT::corba::CConnPolicy const& corba_policy)
     policy.init        = corba_policy.init;
     policy.lock_policy = corba_policy.lock_policy;
     policy.pull        = corba_policy.pull;
+    policy.shared      = corba_policy.shared;
     policy.size        = corba_policy.size;
     policy.data_size   = corba_policy.data_size;
     policy.transport   = corba_policy.transport;

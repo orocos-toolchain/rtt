@@ -48,7 +48,7 @@ using namespace std;
 
 
 OutputPortInterface::OutputPortInterface(std::string const& name)
-    : PortInterface(name), cmanager(this) { }
+    : PortInterface(name) { }
 
 OutputPortInterface::~OutputPortInterface()
 {
@@ -69,21 +69,14 @@ void OutputPortInterface::disconnect()
     cmanager.disconnect();
 }
 
-bool OutputPortInterface::addConnection(ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy)
+bool OutputPortInterface::addConnection(ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy, const internal::ConnectionManager::DisconnectFunction& disconnect_fcn)
 {
     if ( this->connectionAdded(channel_input, policy) ) {
-        cmanager.addConnection(port_id, channel_input, policy);
+        cmanager.addConnection(port_id, channel_input, policy, disconnect_fcn);
         return true;
     }
     return false;
 }
-
-// This is called by our input endpoint.
-bool OutputPortInterface::removeConnection(ConnID* conn)
-{
-    return cmanager.removeConnection(conn);
-}
-
 
 void OutputPortInterface::write(DataSourceBase::shared_ptr source)
 { throw std::runtime_error("calling default OutputPortInterface::write(datasource) implementation"); }

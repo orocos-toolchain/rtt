@@ -54,6 +54,7 @@
 #include "../base/rtt-base-fwd.hpp"
 #include "../base/ChannelElementBase.hpp"
 #include <boost/tuple/tuple.hpp>
+#include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #ifndef USE_CPP11
@@ -73,19 +74,24 @@ namespace RTT
         /**
          * Manages connections between ports.
          * This class is used for input and output ports
-         * in order to manage their channels.
+         * in order to manage their connections.
          * TODO: use the mutex lock !!!
          */
         class RTT_API ConnectionManager
         {
         public:
             /**
-             * A Channel (= connection) is described by an opaque ConnID object,
-             * the first element of the channel and the policy of the channel.
+             * A function which handles the disconnection of two ports, usually called from /ref ConnectionManager::removeConnection()
+             */
+            typedef boost::function<void()> DisconnectFunction;
+
+            /**
+             * A connection is described by an opaque ConnID object,
+             * the first element of the connection and the policy of the connection.
              * The policy is only given for read-only access, modifying it will
              * not have any effect on the connection.
              */
-            typedef boost::tuple<boost::shared_ptr<ConnID>, base::ChannelElementBase::shared_ptr, ConnPolicy> ChannelDescriptor;
+            typedef boost::tuple<boost::shared_ptr<ConnID>, base::ChannelElementBase::shared_ptr, ConnPolicy, DisconnectFunction> ChannelDescriptor;
 
             /**
              * Creates a connection manager to manage the connections of \a port.
@@ -100,78 +106,23 @@ namespace RTT
              * also validates if the connection is sound.
              * @return false if the connection failed to work, true otherwise.
              */
-            void addConnection(ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy policy);
+            void addConnection(ConnID* port_id, base::ChannelElementBase::shared_ptr channel, ConnPolicy policy, const DisconnectFunction& disconnect_fcn);
 
             bool removeConnection(ConnID* port_id);
+            bool removeConnection(base::ChannelElementBase* channel);
 
             /**
              * Disconnect all connections.
              */
             void disconnect();
 
-            /** Returns true if there is at least one channel registered in this
+            /** Returns true if there is at least one connection registered in this
              * port's list of outputs
              */
             bool connected() const;
 
-            /** Removes the channel that connects this port to \c port */
+            /** Removes the connection that connects this port to \c port */
             bool disconnect(base::PortInterface* port);
-
-            template<typename Pred>
-            bool delete_if(Pred pred) {
-                RTT::os::MutexLock lock(connection_lock);
-                bool result = false;
-                std::list<ChannelDescriptor>::iterator it = connections.begin();
-                while (it != connections.end())
-                {
-                    if (pred(*it))
-                    {
-                        result = true;
-                        it = connections.erase(it);
-                    }
-                    else ++it;
-                }
-                return result;
-            }
-
-            /**
-             * Selects a connection as the current channel
-             * if pred(connection) is true. It will first check
-             * the current channel ( getCurrentChannel() ), if that
-             * does not satisfy pred, iterate over \b all connections.
-             * If none satisfy pred, the current channel remains unchanged.
-             * @param pred
-             */
-            template<typename Pred>
-            void select_reader_channel(Pred pred, bool copy_old_data) {
-                RTT::os::MutexLock lock(connection_lock);
-                std::pair<bool, ChannelDescriptor> new_channel =
-                    find_if(pred, copy_old_data);
-                if (new_channel.first)
-                {
-                    // We don't clear the current channel (to get it to NoData state), because there is a race
-                    // between find_if and this line. We have to accept (in other parts of the code) that eventually,
-                    // all channels return 'OldData'.
-                    cur_channel = new_channel.second;
-                }
-            }
-
-            template<typename Pred>
-            std::pair<bool, ChannelDescriptor> find_if(Pred pred, bool copy_old_data) {
-                // We only copy OldData in the initial read of the current channel.
-                // if it has no new data, the search over the other channels starts,
-                // but no old data is needed.
-                ChannelDescriptor channel = cur_channel;
-                if ( channel.get<1>() )
-                    if ( pred( copy_old_data, channel ) )
-                        return std::make_pair(true, channel);
-
-                std::list<ChannelDescriptor>::iterator result;
-                for (result = connections.begin(); result != connections.end(); ++result)
-                    if ( pred(false, *result) == true)
-                        return std::make_pair(true, *result);
-                return std::make_pair(false, ChannelDescriptor());
-            }
 
             /**
              * Returns true if this manager manages only one connection.
@@ -180,50 +131,38 @@ namespace RTT
             bool isSingleConnection() const { return connections.size() == 1; }
 
             /**
-             * Returns the first added channel or if select_if was called, the selected channel.
-             * @see select_if to change the current channel.
-             * @return
+             * Returns a list of all connections managed by this object.
              */
-            base::ChannelElementBase* getCurrentChannel() const {
-                return cur_channel.get<1>().get();
-            }
-
-            /**
-             * Returns a list of all channels managed by this object.
-             */
-            std::list<ChannelDescriptor> getChannels() const {
+            std::list<ChannelDescriptor> getConnections() const {
                 return connections;
             }
 
-            /**
-             * Clears (removes) all data in the manager's connections.
-             * After this call, all channels will return NoData, until new
-             * data is written.
-             */
-            void clear();
-
         protected:
-
-            void updateCurrentChannel(bool reset_current);
 
             /** Helper method for disconnect(PortInterface*)
              *
-             * This method removes the channel listed in \c descriptor from the list
-             * of output channels if \c port has the same id that the one listed in
+             * This method removes the connection listed in \c descriptor from the list
+             * of connections if \c port has the same id that the one listed in
              * \c descriptor.
              *
              * @returns true if the descriptor matches, false otherwise
              */
-            bool findMatchingPort(ConnID const* conn_id, ChannelDescriptor const& descriptor);
+            bool findMatchingConnectionByConnID(ConnID const* conn_id, ChannelDescriptor const& descriptor);
+
+            /** Helper method for disconnect(ChannelElementBase*)
+             *
+             * This method removes the connection listed in \c descriptor from the list
+             * of connections if channel is the input or output endpoint.
+             *
+             * @returns true if the channel matches, false otherwise
+             */
+            bool findMatchingConnectionByChannel(base::ChannelElementBase* channel, ChannelDescriptor const& descriptor);
 
             /** Helper method for disconnect()
              *
              * Unconditionally removes the given connection and return true
              */
-            bool eraseConnection(ChannelDescriptor& descriptor);
-
-            /** os::Mutex for when it is needed to resize the connections list */
-            os::Mutex connection_resize_mtx;
+            bool eraseConnection(const ChannelDescriptor& descriptor);
 
             /**
              * The port for which we manage connections.
@@ -235,11 +174,6 @@ namespace RTT
              * were added.
              */
             std::list< ChannelDescriptor > connections;
-
-            /**
-             * Optimisation in case only one channel is to be managed.
-             */
-            ChannelDescriptor cur_channel;
 
             /**
              * Lock that should be taken before the list of connections is

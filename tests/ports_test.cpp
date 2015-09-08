@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE( testPortTaskInterface )
     BOOST_CHECK( wp2.connected() );
 
     // mandatory
-    tc->ports()->removePort( wp1.getName() );
+    tc->ports()->removePort( wp1.getName() ); // wp1 is not a port of tc, because it has been removed when another port with the same name was added
     tc->ports()->removePort( rp2.getName() );
 }
 
@@ -445,6 +445,106 @@ BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReader)
     BOOST_CHECK( !wp2.connected() );
     BOOST_CHECK( !wp3.connected() );
     BOOST_CHECK_EQUAL( rp.read(value), NoData );
+}
+
+BOOST_AUTO_TEST_CASE(testSharedBufferConnection)
+{
+    OutputPort<int> wp1("W1");
+    OutputPort<int> wp2("W1");
+    InputPort<int> rp1("R1", ConnPolicy::buffer(10, ConnPolicy::LOCK_FREE, false, false, true));
+    InputPort<int> rp2("R2", ConnPolicy::buffer(10, ConnPolicy::LOCK_FREE, false, false, true));
+    int value = 0;
+
+    BOOST_CHECK( wp1.createConnection(rp1) );
+    BOOST_CHECK( wp1.createConnection(rp2) );
+    BOOST_CHECK( wp2.createConnection(rp1) );
+    BOOST_CHECK( wp2.createConnection(rp2) );
+
+    wp1.write(11);
+    BOOST_CHECK_EQUAL( rp1.read(value), NewData );
+    BOOST_CHECK_EQUAL(11, value);
+    BOOST_CHECK_EQUAL( rp2.read(value), OldData );
+    BOOST_CHECK_EQUAL(11, value);
+
+    wp1.write(12);
+    BOOST_CHECK_EQUAL( rp2.read(value), NewData );
+    BOOST_CHECK_EQUAL(12, value);
+    BOOST_CHECK_EQUAL( rp1.read(value), OldData );
+    BOOST_CHECK_EQUAL(12, value);
+
+    wp2.write(21);
+    BOOST_CHECK_EQUAL( rp1.read(value), NewData );
+    BOOST_CHECK_EQUAL(21, value);
+    BOOST_CHECK_EQUAL( rp2.read(value), OldData );
+    BOOST_CHECK_EQUAL(21, value);
+
+    wp2.write(22);
+    BOOST_CHECK_EQUAL( rp2.read(value), NewData );
+    BOOST_CHECK_EQUAL(22, value);
+    BOOST_CHECK_EQUAL( rp1.read(value), OldData );
+    BOOST_CHECK_EQUAL(22, value);
+
+    wp1.write(31);
+    wp2.write(32);
+    wp1.write(33);
+    wp2.write(34);
+    BOOST_CHECK_EQUAL( rp1.read(value), NewData );
+    BOOST_CHECK_EQUAL(31, value);
+    BOOST_CHECK_EQUAL( rp2.read(value), NewData );
+    BOOST_CHECK_EQUAL(32, value);
+    BOOST_CHECK_EQUAL( rp2.read(value), NewData );
+    BOOST_CHECK_EQUAL(33, value);
+    BOOST_CHECK_EQUAL( rp1.read(value), NewData );
+    BOOST_CHECK_EQUAL(34, value);
+    BOOST_CHECK_EQUAL( rp1.read(value), OldData );
+    BOOST_CHECK_EQUAL(34, value);
+    BOOST_CHECK_EQUAL( rp2.read(value), OldData );
+    BOOST_CHECK_EQUAL(34, value);
+}
+
+BOOST_AUTO_TEST_CASE(testSharedDataConnection)
+{
+    OutputPort<int> wp1("W1");
+    OutputPort<int> wp2("W1");
+    InputPort<int> rp1("R1", ConnPolicy::data(ConnPolicy::LOCK_FREE, false, false, true));
+    InputPort<int> rp2("R2", ConnPolicy::data(ConnPolicy::LOCK_FREE, false, false, true));
+    int value = 0;
+
+    BOOST_CHECK( wp1.createConnection(rp1) );
+    BOOST_CHECK( wp1.createConnection(rp2) );
+    BOOST_CHECK( wp2.createConnection(rp1) );
+    BOOST_CHECK( wp2.createConnection(rp2) );
+
+    // same as in testSharedBufferConnection, but different expectations
+    wp1.write(31);
+    wp2.write(32);
+    wp1.write(33);
+    wp2.write(34);
+    BOOST_CHECK_EQUAL( rp1.read(value), NewData );
+    BOOST_CHECK_EQUAL(34, value);
+    BOOST_CHECK_EQUAL( rp2.read(value), OldData );
+    BOOST_CHECK_EQUAL(34, value);
+    BOOST_CHECK_EQUAL( rp2.read(value), OldData );
+    BOOST_CHECK_EQUAL(34, value);
+    BOOST_CHECK_EQUAL( rp1.read(value), OldData );
+    BOOST_CHECK_EQUAL(34, value);
+    BOOST_CHECK_EQUAL( rp1.read(value), OldData );
+    BOOST_CHECK_EQUAL(34, value);
+    BOOST_CHECK_EQUAL( rp2.read(value), OldData );
+    BOOST_CHECK_EQUAL(34, value);
+}
+
+BOOST_AUTO_TEST_CASE(testInvalidSharedConnection)
+{
+    OutputPort<int> wp1("W1");
+    OutputPort<int> wp2("W1");
+    InputPort<int> rp1("R1", ConnPolicy::data(ConnPolicy::LOCK_FREE, false, false, true));
+    InputPort<int> rp2("R2", ConnPolicy::data(ConnPolicy::LOCK_FREE, false, false, true));
+
+    BOOST_CHECK( wp1.createConnection(rp1) );           // new shared connection
+    BOOST_CHECK( wp2.createConnection(rp2) );           // new shared connection
+    BOOST_CHECK( !wp1.createConnection(rp2) );          // different connection => failure
+    BOOST_CHECK( !wp2.createConnection(rp1) );          // different connection => failure
 }
 
 BOOST_AUTO_TEST_CASE( testPortObjects)

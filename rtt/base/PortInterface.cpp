@@ -46,7 +46,7 @@ using namespace RTT::detail;
 using namespace std;
 
 PortInterface::PortInterface(const std::string& name)
-    : name(name), iface(0) {}
+    : name(name), iface(0), cmanager(this) {}
 
 bool PortInterface::setName(const std::string& name)
 {
@@ -86,6 +86,16 @@ Service* PortInterface::createPortObject()
 #else
     return 0;
 #endif
+}
+
+bool PortInterface::removeConnection(ConnID* conn)
+{
+    return cmanager.removeConnection(conn);
+}
+
+bool PortInterface::removeConnection(ChannelElementBase* channel)
+{
+    return cmanager.removeConnection(channel);
 }
 
 void PortInterface::setInterface(DataFlowInterface* dfi) {

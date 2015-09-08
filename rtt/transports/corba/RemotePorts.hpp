@@ -86,6 +86,7 @@ namespace RTT {
             virtual bool addConnection(internal::ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
             void disconnect();
             bool disconnect(base::PortInterface* p);
+            base::ChannelElementBase* getEndpoint();
         };
 
         /**
@@ -123,8 +124,10 @@ namespace RTT {
         class RemoteInputPort
             : public RemotePort<base::InputPortInterface>
         {
+        private:
             typedef std::map<base::ChannelElementBase*,RTT::corba::CChannelElement_var> ChannelMap;
             ChannelMap channel_map;
+
         protected:
             /**
              * The ConnectionFactory calls this. Overload to do nothing when dealing with remote ports.
@@ -133,7 +136,8 @@ namespace RTT {
              * @param policy
              * @return
              */
-            virtual bool addConnection(internal::ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy) { return true; }
+            virtual bool addConnection(internal::ConnID*, base::ChannelElementBase::shared_ptr, ConnPolicy const&, const internal::ConnectionManager::DisconnectFunction&) { return true; }
+
         public:
             RemoteInputPort(types::TypeInfo const* type_info,
                     CDataFlowInterface_ptr dataflow,

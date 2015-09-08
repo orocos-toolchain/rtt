@@ -182,13 +182,14 @@ namespace RTT { namespace base {
          */
         virtual void disconnect(bool forward);
 
-        /** Performs a disconnection of this channel's endpoints. If
+        /** Performs a disconnection of a single input or output endpoint. If
          * \a forward is true, then the disconnection is initiated by the input
-         * endpoint. Otherwise, it has been initiated by the output endpoint.
-         * This variant allows to pass the caller ChannelElementBase when propagating
-         * through the connection.
+         * endpoint and channel must be a connected input. Otherwise, it has been
+         * initiated by the output endpoint and channel must be a connected output.
+         * The disconnect call is only forwarded to the opposite side of the channel
+         * element after the last input/output element on either side has been removed.
          */
-        virtual void disconnect(bool forward, ChannelElementBase *caller);
+        virtual bool disconnect(bool forward, const ChannelElementBase::shared_ptr& channel);
 
         /**
          * Gets the port this channel element is connected to.
@@ -196,13 +197,6 @@ namespace RTT { namespace base {
          * port (or a proxy representing the port) otherwise.
          */
         virtual PortInterface* getPort() const;
-
-        /**
-         * Gets the Connection ID of this channel. This is only
-         * stored in connection endpoints.
-         * @return null if no ConnID is associated with this element.
-         */
-        virtual internal::ConnID* getConnID() const;
     };
 
     /**
@@ -211,8 +205,8 @@ namespace RTT { namespace base {
     class RTT_API MultipleInputsChannelElementBase : virtual public ChannelElementBase
     {
     public:
-        using ChannelElementBase::shared_ptr;
-        typedef std::list<shared_ptr> Inputs;
+        typedef boost::intrusive_ptr<MultipleInputsChannelElementBase> shared_ptr;
+        typedef std::list<ChannelElementBase::shared_ptr> Inputs;
 
     protected:
         Inputs inputs;
@@ -224,14 +218,14 @@ namespace RTT { namespace base {
          * for a MultipleInputsChannelElementBase which can have multiple inputs.
          * @param input the previous element in chain.
          */
-        virtual void addInput(shared_ptr input);
+        virtual void addInput(ChannelElementBase::shared_ptr input);
 
         /**
          * Overwritten implementation of \ref ChannelElementBase::setInput() which forwards to \ref addInput()
          * for instances of MultipleInputsChannelElementBase.
          * @param input the previous element in chain.
          */
-        virtual void setInput(shared_ptr input);
+        virtual void setInput(ChannelElementBase::shared_ptr input);
 
         /**
          * Overwritten implementation of \ref ChannelElementBase::inputReady().
@@ -248,11 +242,9 @@ namespace RTT { namespace base {
         using ChannelElementBase::disconnect;
 
         /**
-         * Overwritten implementation of \ref ChannelElementBase::disconnect() which removes only the caller
-         * if forward == true or all inputs if forward = false from the input list. The disconnect() call is
-         * only forwarded to the output after the last input has been removed.
+         * Overwritten implementation of \ref ChannelElementBase::disconnect(forward, channel).
          */
-        virtual void disconnect(bool forward, ChannelElementBase *caller);
+        virtual bool disconnect(bool forward, const ChannelElementBase::shared_ptr& channel);
 
     protected:
         /**
@@ -268,8 +260,8 @@ namespace RTT { namespace base {
     class RTT_API MultipleOutputsChannelElementBase : virtual public ChannelElementBase
     {
     public:
-        using ChannelElementBase::shared_ptr;
-        typedef std::list<shared_ptr> Outputs;
+        typedef boost::intrusive_ptr<MultipleOutputsChannelElementBase> shared_ptr;
+        typedef std::list<ChannelElementBase::shared_ptr> Outputs;
 
     protected:
         Outputs outputs;
@@ -281,14 +273,14 @@ namespace RTT { namespace base {
          * for a MultipleOutputsChannelElementBase which can have multiple outputs.
          * @param input the previous element in chain.
          */
-        virtual void addOutput(shared_ptr output);
+        virtual void addOutput(ChannelElementBase::shared_ptr output);
 
         /**
          * Overwritten implementation of \ref ChannelElementBase::setOutput() which forwards to \ref addOutput()
          * for instances of MultipleOutputsChannelElementBase.
          * @param output the next element in chain.
          */
-        virtual void setOutput(shared_ptr output);
+        virtual void setOutput(ChannelElementBase::shared_ptr output);
 
         /**
          * Overwritten implementation of \ref ChannelElementBase::signal() which forwards the signal to all
@@ -299,11 +291,9 @@ namespace RTT { namespace base {
         using ChannelElementBase::disconnect;
 
         /**
-         * Overwritten implementation of \ref ChannelElementBase::disconnect() which removes only the caller
-         * if forward == false or all outputs if forward = true from the output list. The disconnect() call is
-         * only forwarded to the input after the last output has been removed.
+         * Overwritten implementation of \ref ChannelElementBase::disconnect(forward, channel).
          */
-        virtual void disconnect(bool forward, ChannelElementBase *caller);
+        virtual bool disconnect(bool forward, const ChannelElementBase::shared_ptr& channel);
 
     protected:
         /**
@@ -319,13 +309,12 @@ namespace RTT { namespace base {
     class RTT_API MultipleInputsMultipleOutputsChannelElementBase : virtual public MultipleInputsChannelElementBase, virtual public MultipleOutputsChannelElementBase
     {
     public:
-        using ChannelElementBase::shared_ptr;
-        using ChannelElementBase::disconnect;
+        typedef boost::intrusive_ptr<MultipleInputsMultipleOutputsChannelElementBase> shared_ptr;
 
-        /** Overwritten implementation of \ref ChannelElementBase::disconnect() which removes
-         *  the caller from the output set if forward == false or from the input set if forward == true.
+        /**
+         * Overwritten implementation of \ref ChannelElementBase::disconnect(forward, channel).
          */
-        virtual void disconnect(bool forward, ChannelElementBase *caller);
+        virtual bool disconnect(bool forward, const ChannelElementBase::shared_ptr& channel);
     };
 
     void RTT_API intrusive_ptr_add_ref( ChannelElementBase* e );

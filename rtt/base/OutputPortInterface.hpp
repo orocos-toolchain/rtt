@@ -40,7 +40,6 @@
 #define ORO_OUTPUT_PORT_INTERFACE_HPP
 
 #include "PortInterface.hpp"
-#include "../internal/ConnectionManager.hpp"
 #include "DataSourceBase.hpp"
 
 namespace RTT
@@ -53,8 +52,6 @@ namespace RTT
     class RTT_API OutputPortInterface : public PortInterface
     {
     protected:
-        internal::ConnectionManager cmanager;
-
         /**
          * Upcall to OutputPort.
          */
@@ -67,7 +64,7 @@ namespace RTT
          * Use with care. Allows you to add any arbitrary connection to this output port. It is your responsibility
          * to do any further bookkeeping, such as informing the input that a new output has been added.
          */
-        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
+        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy, const internal::ConnectionManager::DisconnectFunction& disconnect_fcn);
 
         OutputPortInterface(std::string const& name);
 
@@ -129,11 +126,6 @@ namespace RTT
 
         /** Removes the channel that connects this port to \c port */
         virtual bool disconnect(PortInterface* port);
-
-        /** Removes the connection associated with this channel, and the channel
-         * as well
-         */
-        virtual bool removeConnection(internal::ConnID* cid);
 
         virtual bool connectTo(PortInterface* other, ConnPolicy const& policy);
 

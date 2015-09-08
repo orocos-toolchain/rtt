@@ -99,9 +99,10 @@ base::ChannelElementBase::shared_ptr RTT::internal::ConnFactory::createRemoteCon
 
 bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, base::ChannelElementBase::shared_ptr channel_input, base::ChannelElementBase::shared_ptr channel_output, ConnPolicy policy) {
     // Register the channel's input to the output port.
-    if ( output_port.addConnection( input_port.getPortID(), channel_input, policy ) ) {
+    if ( output_port.addConnection( input_port.getPortID(), channel_output, policy, boost::bind(&base::ChannelElementBase::disconnect, channel_input, true, channel_output) ) ) {
         // notify input that the connection is now complete.
-        if ( input_port.channelReady( channel_output, policy ) == false ) {
+        if ( (input_port.addConnection( output_port.getPortID(), channel_input, policy, boost::bind(&base::ChannelElementBase::disconnect, channel_output, false, channel_input) ) == false) ||
+             (input_port.channelReady( channel_output, policy ) == false) ) {
             output_port.disconnect( &input_port );
             log(Error) << "The input port "<< input_port.getName()
                        << " could not successfully read from the connection from output port " << output_port.getName() <<endlog();
@@ -112,14 +113,15 @@ bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_por
                   << " successfully to " << input_port.getName() <<endlog();
         return true;
     }
+
     // setup failed.
-    channel_input->disconnect(true);
+    channel_output->disconnect(true, channel_input.get());
     log(Error) << "The output port "<< output_port.getName()
                << " could not successfully use the connection to input port " << input_port.getName() <<endlog();
     return false;
 }
 
-bool ConnFactory::createAndCheckStream(base::OutputPortInterface& output_port, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr chan, StreamConnID* conn_id) {
+bool ConnFactory::createAndCheckStream(base::OutputPortInterface& output_port, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr channel_input, StreamConnID* conn_id) {
     if (policy.transport == 0 ) {
         log(Error) << "Need a transport for creating streams." <<endlog();
         return false;
@@ -143,9 +145,9 @@ bool ConnFactory::createAndCheckStream(base::OutputPortInterface& output_port, C
         log(Error) << "Transport failed to create remote channel for output stream of port "<<output_port.getName() << endlog();
         return false;
     }
-    chan->setOutput( chan_stream );
+    channel_input->setOutput( chan_stream );
 
-    if ( output_port.addConnection( new StreamConnID(policy.name_id), chan, policy) ) {
+    if ( output_port.addConnection( new StreamConnID(policy.name_id), channel_input, policy, boost::bind(&base::ChannelElementBase::disconnect, channel_input, true, chan_stream) ) ) {
         log(Info) << "Created output stream for output port "<< output_port.getName() <<endlog();
         return true;
     }
@@ -168,23 +170,25 @@ bool ConnFactory::createAndCheckStream(base::InputPortInterface& input_port, Con
 
     // note: don't refcount this final input chan, because no one will
     // take a reference to it. It would be destroyed upon return of this function.
-    RTT::base::ChannelElementBase::shared_ptr chan = type->getProtocol(policy.transport)->createStream(&input_port,policy, false);
+    RTT::base::ChannelElementBase::shared_ptr chan = type->getProtocol(policy.transport)->createStream(&input_port, policy, false);
 
     if ( !chan ) {
-        log(Error) << "Transport failed to create remote channel for input stream of port "<<input_port.getName() << endlog();
+        log(Error) << "Transport failed to create remote channel for input stream of port " << input_port.getName() << endlog();
         return false;
     }
 
     conn_id->name_id = policy.name_id;
 
     chan->getOutputEndPoint()->setOutput( outhalf );
-    if ( input_port.channelReady( chan->getOutputEndPoint(), policy ) == true ) {
-        log(Info) << "Created input stream for input port "<< input_port.getName() <<endlog();
+    if ( input_port.addConnection(conn_id, chan->getOutputEndPoint(), policy, boost::bind(&base::ChannelElementBase::disconnect, chan, true) ) == true &&
+         input_port.channelReady( chan->getOutputEndPoint(), policy ) == true ) {
+        log(Info) << "Created input stream for input port " << input_port.getName() <<endlog();
         return true;
     }
+
     // setup failed: manual cleanup.
-    chan = 0; // deleted by channelReady() above !
-    log(Error) << "Failed to create input stream for input port "<< input_port.getName() <<endlog();
+    chan->disconnect(true);
+    log(Error) << "Failed to create input stream for input port " << input_port.getName() <<endlog();
     return false;
 }
 
