@@ -226,7 +226,14 @@ namespace RTT
          * This method provides access to the internals of this port
          * in order to access connected channel objects directly.
          */
-        virtual ChannelElementBase* getEndpoint() = 0;
+        virtual ChannelElementBase* getConnEndpoint() const = 0;
+
+        /**
+         * Returns the input or output endpoint of this port (if any).
+         * This method provides access to the internals of this port
+         * in order to access connected channel objects directly.
+         */
+        virtual ChannelElementBase* getBuffer() const = 0;
     };
 
 }}

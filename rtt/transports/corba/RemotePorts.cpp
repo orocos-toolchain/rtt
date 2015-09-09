@@ -108,7 +108,13 @@ bool RemotePort<BaseClass>::addConnection(RTT::internal::ConnID* port_id, Channe
 }
 
 template<typename BaseClass>
-RTT::base::ChannelElementBase* RemotePort<BaseClass>::getEndpoint()
+RTT::base::ChannelElementBase* RemotePort<BaseClass>::getConnEndpoint() const
+{
+    return 0;
+}
+
+template<typename BaseClass>
+RTT::base::ChannelElementBase* RemotePort<BaseClass>::getBuffer() const
 {
     return 0;
 }
@@ -117,6 +123,9 @@ RemoteInputPort::RemoteInputPort(RTT::types::TypeInfo const* type_info,
         CDataFlowInterface_ptr dataflow, std::string const& reader_port,
         PortableServer::POA_ptr poa)
     : RemotePort< RTT::base::InputPortInterface >(type_info, dataflow, reader_port, poa)
+{}
+
+void RemoteInputPort::clear()
 {}
 
 RTT::base::DataSourceBase* RemoteInputPort::getDataSource()

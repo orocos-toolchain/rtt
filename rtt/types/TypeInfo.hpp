@@ -438,8 +438,8 @@ namespace RTT
          * @return a storage element.
          */
         base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const;
-        base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const;
-        base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const;
+        base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port, ConnPolicy const& policy) const;
+        base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port, ConnPolicy const& policy) const;
 
 #endif // NO_TYPE_INFO_FACTORY_FUNCTIONS
 

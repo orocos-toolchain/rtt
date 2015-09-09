@@ -47,6 +47,8 @@
 #include "Property.hpp"
 #include "PropertyBag.hpp"
 
+#include <boost/lexical_cast.hpp>
+
 using namespace std;
 
 namespace RTT
@@ -181,5 +183,52 @@ namespace RTT
         targetbag.ownProperty( new Property<string>("name_id","The name of the connection to be formed.",cp.name_id));
     }
     /** @endcond */
+
+    std::string ConnPolicy::typeToString(int type, int size) {
+        std::string s;
+        switch(type) {
+            case UNBUFFERED:      s = "UNBUFFERED"; break;
+            case DATA:            s = "DATA"; break;
+            case BUFFER:          s = "BUFFER"; break;
+            case CIRCULAR_BUFFER: s = "CIRCULAR_BUFFER"; break;
+            default:              s = "(unknown)"; break;
+        }
+        if (size > 0) {
+            s += "[" + boost::lexical_cast<std::string>(size) + "]";
+        }
+        return s;
+    }
+
+    std::string ConnPolicy::lock_policyToString(int lock_policy) {
+        switch(lock_policy) {
+            case UNSYNC:    return "UNSYNC";
+            case LOCKED:    return "LOCKED";
+            case LOCK_FREE: return "LOCK_FREE";
+            default:        return "(unknown)";
+        }
+    }
+
+    std::string ConnPolicy::pullToString(bool pull) {
+        switch(pull) {
+            case PUSH: return "PUSH";
+            case PULL: return "PULL";
+        }
+    }
+
+    std::string ConnPolicy::sharedToString(bool shared) {
+        switch(shared) {
+            case PRIVATE: return "PRIVATE";
+            case SHARED:  return "SHARED";
+        }
+    }
+
+    std::string ConnPolicy::toString() const {
+        std::string s;
+        if (shared) s += sharedToString(shared) + " ";
+        if (pull)   s += pullToString(shared) + " ";
+        s += lock_policyToString(lock_policy) + " ";
+        s += typeToString(type, size);
+        return s;
+    }
 
 }

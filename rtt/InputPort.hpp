@@ -80,9 +80,18 @@ namespace RTT
     public:
         InputPort(std::string const& name = "unnamed", ConnPolicy const& default_policy = ConnPolicy())
             : base::InputPortInterface(name, default_policy)
+            , endpoint(new internal::ConnOutputEndpoint<T>(this))
         {}
 
         virtual ~InputPort() { disconnect(); }
+
+        /** Clears the connection. After call to read() will return false after
+         * clear() has been called
+         */
+        void clear()
+        {
+            getInputEndpoint()->clear();
+        }
 
         /** \overload */
         FlowStatus read(base::DataSourceBase::shared_ptr source)
@@ -135,8 +144,7 @@ namespace RTT
          */
         FlowStatus read(typename base::ChannelElement<T>::reference_t sample, bool copy_old_data)
         {
-            if (!endpoint) return NoData;
-            return endpoint->read(sample, copy_old_data);
+            return getInputEndpoint()->read(sample, copy_old_data);
         }
 
         /** Read all new samples that are available on this port, and returns
@@ -147,7 +155,6 @@ namespace RTT
          */
         FlowStatus readNewest(typename base::ChannelElement<T>::reference_t sample, bool copy_old_data = true)
         {
-            if (!endpoint) return NoData;
             FlowStatus result = read(sample, copy_old_data);
             if (result != RTT::NewData)
                 return result;
@@ -166,8 +173,7 @@ namespace RTT
          */
         void getDataSample(T& sample)
         {
-            if (!endpoint) return;
-            sample = endpoint->data_sample();
+            sample = getInputEndpoint()->data_sample();
         }
 
         /** Returns the types::TypeInfo object for the port's type */
@@ -218,10 +224,26 @@ namespace RTT
         }
 #endif
 
-        internal::ConnOutputEndpoint<T>* getEndpoint()
+        internal::ConnOutputEndpoint<T>* getConnEndpoint() const
         {
-            if (!endpoint) endpoint.reset(new internal::ConnOutputEndpoint<T>(this));
+            assert(endpoint);
             return endpoint.get();
+        }
+
+        base::ChannelElement<T>* getBuffer() const
+        {
+            assert(endpoint);
+            return endpoint->getOutput().get();
+        }
+
+        typename base::ChannelElement<T>::shared_ptr getInputEndpoint() const
+        {
+            typename base::ChannelElement<T>::shared_ptr buffer = getBuffer();
+            if (buffer) {
+                return buffer;
+            } else {
+                return getConnEndpoint();
+            }
         }
     };
 }

@@ -139,6 +139,7 @@ namespace RTT
          */
         OutputPort(std::string const& name = "unnamed", bool keep_last_written_value = true)
             : base::OutputPortInterface(name)
+            , endpoint(new internal::ConnInputEndpoint<T>(this))
             , has_last_written_value(false)
             , has_initial_sample(false)
             , keeps_next_written_value(false)
@@ -210,7 +211,7 @@ namespace RTT
             has_initial_sample = true;
             has_last_written_value = false;
 
-            if (!getEndpoint()->data_sample(sample)) {
+            if (getOutputEndpoint()->data_sample(sample)) {
                 log(Error) << "A channel of port " << getName() << " has been invalidated during setDataSample(), it will be removed" << endlog();
             }
         }
@@ -229,7 +230,7 @@ namespace RTT
             }
             has_last_written_value = keeps_last_written_value;
 
-            if (!getEndpoint()->write(sample)) {
+            if (getOutputEndpoint()->write(sample)) {
                 log(Error) << "A channel of port " << getName() << " has been invalidated during write(), it will be removed" << endlog();
             }
         }
@@ -302,10 +303,26 @@ namespace RTT
         }
 #endif
 
-        internal::ConnInputEndpoint<T>* getEndpoint()
+        internal::ConnInputEndpoint<T>* getConnEndpoint() const
         {
-            if (!endpoint) endpoint.reset(new internal::ConnInputEndpoint<T>(this));
+            assert(endpoint);
             return endpoint.get();
+        }
+
+        base::ChannelElement<T>* getBuffer() const
+        {
+            assert(endpoint);
+            return endpoint->getInput().get();
+        }
+
+        typename base::ChannelElement<T>::shared_ptr getOutputEndpoint() const
+        {
+            typename base::ChannelElement<T>::shared_ptr buffer = getBuffer();
+            if (buffer) {
+                return buffer;
+            } else {
+                return getConnEndpoint();
+            }
         }
     };
 

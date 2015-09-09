@@ -86,7 +86,8 @@ namespace RTT {
             virtual bool addConnection(internal::ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
             void disconnect();
             bool disconnect(base::PortInterface* p);
-            base::ChannelElementBase* getEndpoint();
+            base::ChannelElementBase* getConnEndpoint() const;
+            base::ChannelElementBase* getBuffer() const;
         };
 
         /**
@@ -143,6 +144,8 @@ namespace RTT {
                     CDataFlowInterface_ptr dataflow,
                     std::string const& name,
                     PortableServer::POA_ptr poa);
+
+            void clear();
 
             /**
              * This method will do more than just building the output half, it

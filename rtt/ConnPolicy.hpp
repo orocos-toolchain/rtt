@@ -200,6 +200,12 @@ namespace RTT {
          * work around name clashes or if the transport protocol documents to do so.
          */
         mutable std::string name_id;
+
+        static std::string typeToString(int type, int size);
+        static std::string lock_policyToString(int lock_policy);
+        static std::string pullToString(bool pull);
+        static std::string sharedToString(bool shared);
+        std::string toString() const;
     };
 }
 

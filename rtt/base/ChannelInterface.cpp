@@ -56,12 +56,12 @@ ChannelElementBase::~ChannelElementBase()
 }
 
 ChannelElementBase::shared_ptr ChannelElementBase::getInput()
-{ RTT::os::MutexLock lock(inout_lock);
+{ RTT::os::SharedMutexLock lock(inout_lock);
     return ChannelElementBase::shared_ptr(input);
 }
 
 ChannelElementBase::shared_ptr ChannelElementBase::getOutput()
-{ RTT::os::MutexLock lock(inout_lock);
+{ RTT::os::SharedMutexLock lock(inout_lock);
     return ChannelElementBase::shared_ptr(output);
 }
 
@@ -75,6 +75,11 @@ void ChannelElementBase::setOutput(shared_ptr output)
 void ChannelElementBase::setInput(shared_ptr input)
 { RTT::os::MutexLock lock(inout_lock);
     this->input = input;
+}
+
+bool ChannelElementBase::connected()
+{ RTT::os::SharedMutexLock lock(inout_lock);
+    return (this->input || this->output);
 }
 
 void ChannelElementBase::disconnect(bool forward)
@@ -146,6 +151,10 @@ PortInterface* ChannelElementBase::getPort() const {
     return 0;
 }
 
+const ConnPolicy* ChannelElementBase::getConnPolicy() const {
+    return 0;
+}
+
 void MultipleInputsChannelElementBase::addInput(ChannelElementBase::shared_ptr input)
 {
     RTT::os::MutexLock lock(inputs_lock);
@@ -157,6 +166,12 @@ void MultipleInputsChannelElementBase::setInput(ChannelElementBase::shared_ptr i
 {
     if (!input) return;
     addInput(input);
+}
+
+bool MultipleInputsChannelElementBase::connected()
+{
+    RTT::os::SharedMutexLock lock(inputs_lock);
+    return inputs.size() > 0;
 }
 
 bool MultipleInputsChannelElementBase::inputReady()
@@ -218,6 +233,12 @@ bool MultipleInputsChannelElementBase::disconnect(bool forward, const ChannelEle
     }
 
     return ChannelElementBase::disconnect(forward, channel);
+}
+
+bool MultipleOutputsChannelElementBase::connected()
+{
+    RTT::os::SharedMutexLock lock(outputs_lock);
+    return outputs.size() > 0;
 }
 
 void MultipleOutputsChannelElementBase::addOutput(ChannelElementBase::shared_ptr output)
@@ -287,6 +308,11 @@ bool MultipleOutputsChannelElementBase::disconnect(bool forward, const ChannelEl
     }
 
     return ChannelElementBase::disconnect(forward, channel);
+}
+
+bool MultipleInputsMultipleOutputsChannelElementBase::connected()
+{
+    return (MultipleInputsChannelElementBase::connected() && MultipleOutputsChannelElementBase::connected());
 }
 
 bool MultipleInputsMultipleOutputsChannelElementBase::disconnect(bool forward, const ChannelElementBase::shared_ptr& channel)

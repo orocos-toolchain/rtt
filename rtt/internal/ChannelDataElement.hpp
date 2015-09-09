@@ -41,24 +41,26 @@
 
 #include "../base/ChannelElement.hpp"
 #include "../base/DataObjectInterface.hpp"
+#include "../ConnPolicy.hpp"
 
 namespace RTT { namespace internal {
 
     /** A connection element that stores a single data sample
      */
-    template<typename T>
-    class ChannelDataElement : public base::MultipleInputsMultipleOutputsChannelElement<T>
+    template<typename T, typename BaseClass = base::ChannelElement<T> >
+    class ChannelDataElement : public BaseClass
     {
         bool written, mread;
         typename base::DataObjectInterface<T>::shared_ptr data;
+        const ConnPolicy policy;
 
     public:
-        typedef base::MultipleInputsMultipleOutputsChannelElement<T> Base;
+        typedef BaseClass Base;
         typedef typename base::ChannelElement<T>::param_t param_t;
         typedef typename base::ChannelElement<T>::reference_t reference_t;
 
-        ChannelDataElement(typename base::DataObjectInterface<T>::shared_ptr sample)
-            : written(false), mread(false), data(sample) {}
+        ChannelDataElement(typename base::DataObjectInterface<T>::shared_ptr sample, const ConnPolicy& policy = ConnPolicy())
+            : written(false), mread(false), data(sample), policy(policy) {}
 
         /** Update the data sample stored in this element.
          * It always returns true. */
@@ -79,13 +81,13 @@ namespace RTT { namespace internal {
             if (written)
             {
                 if ( !mread ) {
-		    data->Get(sample);
+                    data->Get(sample);
                     mread = true;
                     return NewData;
                 }
 
-		if(copy_old_data)
-		    data->Get(sample);
+                if(copy_old_data)
+                    data->Get(sample);
 
                 return OldData;
             }
@@ -113,6 +115,10 @@ namespace RTT { namespace internal {
             return data->Get();
         }
 
+        virtual const ConnPolicy* getConnPolicy() const
+        {
+            return &policy;
+        }
     };
 }}
 

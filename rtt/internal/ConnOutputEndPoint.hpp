@@ -61,7 +61,7 @@ namespace RTT
 
     public:
         typedef base::MultipleInputsChannelElement<T> Base;
-        typedef boost::intrusive_ptr<ConnOutputEndpoint> shared_ptr;
+        typedef boost::intrusive_ptr<ConnOutputEndpoint<T> > shared_ptr;
 
         /**
          * Creates the connection end that represents the output and attach
@@ -92,18 +92,24 @@ namespace RTT
             return Base::inputReady();
         }
 
-        using Base::write;
-
         /** Writes a new sample on this connection
-         * This should never be called, as all connections are supposed to have
-         * a data storage element */
+         * This should only be called if this endpoint has a buffer output,
+         * in which case the base class's write implementation will return true
+         * and the port is signalled. Otherwise, return false, as other type of
+         * connections are supposed to have a data storage element. */
         virtual bool write(typename Base::param_t sample)
-        { return false; }
+        {
+            if (Base::write(sample)) {
+                return signal();
+            }
+            return false;
+        }
 
         virtual bool disconnect(bool forward, const base::ChannelElementBase::shared_ptr& channel)
         {
             // Call the base class: it does the common cleanup
             if (Base::disconnect(forward, channel)) {
+                // Our buffer output may be gone now...
                 InputPort<T>* port = this->port;
                 if (port && forward)
                 {
@@ -128,8 +134,12 @@ namespace RTT
         }
 
         using Base::data_sample;
-        virtual bool data_sample(typename Base::param_t sample)
+        virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
         {
+            typename base::ChannelElement<T>::shared_ptr output = this->getOutput();
+            if (output) {
+                output->data_sample(sample);
+            }
             return true;
         }
 

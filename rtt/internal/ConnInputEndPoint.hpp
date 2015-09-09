@@ -55,21 +55,13 @@ namespace RTT
 
     public:
         typedef base::MultipleOutputsChannelElement<T> Base;
-        typedef boost::intrusive_ptr<ConnInputEndpoint> shared_ptr;
+        typedef boost::intrusive_ptr<ConnInputEndpoint<T> > shared_ptr;
 
         ConnInputEndpoint(OutputPort<T>* port)
             : port(port) { }
 
         ~ConnInputEndpoint()
         {}
-
-        using Base::read;
-
-        /** Reads a new sample from this connection
-         * This should never be called, as all connections are supposed to have
-         * a data storage element */
-        virtual FlowStatus read(typename Base::reference_t sample)
-        { return NoData; }
 
         virtual bool inputReady() {
             return true;

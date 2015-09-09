@@ -87,7 +87,7 @@ namespace RTT
         /** Clears the connection. After call to read() will return false after
          * clear() has been called
          */
-        void clear();
+        virtual void clear() = 0;
 
         ConnPolicy getDefaultPolicy() const;
 
@@ -144,8 +144,6 @@ namespace RTT
         virtual bool connectTo(PortInterface* other, ConnPolicy const& policy);
 
         virtual bool connectTo(PortInterface* other);
-
-        virtual const internal::ConnectionManager* getManager() const { return &cmanager; }
 
         /** This method is analoguous to the static ConnFactory::buildChannelOutput.
          * It is provided for remote connection building: for these connections,

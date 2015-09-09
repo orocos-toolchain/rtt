@@ -45,6 +45,7 @@
 #include <boost/call_traits.hpp>
 
 #include <rtt/os/Mutex.hpp>
+#include "rtt-fwd.hpp"
 #include "rtt-base-fwd.hpp"
 #include "../internal/rtt-internal-fwd.hpp"
 
@@ -63,7 +64,6 @@ namespace RTT { namespace base {
     {
     public:
         typedef boost::intrusive_ptr<ChannelElementBase> shared_ptr;
-        typedef std::pair<shared_ptr, shared_ptr> pair_t;
 
     private:
         oro_atomic_t refcount;
@@ -74,7 +74,7 @@ namespace RTT { namespace base {
         shared_ptr input;
         shared_ptr output;
 
-        RTT::os::Mutex inout_lock;
+        RTT::os::SharedMutex inout_lock;
 
     protected:
         /** Increases the reference count */
@@ -152,6 +152,11 @@ namespace RTT { namespace base {
          */
         virtual void setInput(shared_ptr input);
 
+        /**
+         * Returns true, if this channel element is connected on the input or output side.
+         */
+        virtual bool connected();
+
         /** Signals that there is new data available on this channel
          * By default, the channel element forwards the call to its output
          *
@@ -197,6 +202,14 @@ namespace RTT { namespace base {
          * port (or a proxy representing the port) otherwise.
          */
         virtual PortInterface* getPort() const;
+
+        /**
+         * Get a pointer to the connection policy used to build this channel element, if available.
+         * This method will be overwritten for data and buffer elements.
+         * @return null if there is no ConnPolicy associated with this element, a pointer to an
+         * instance of ConnPolicy otherwise.
+         */
+        virtual const ConnPolicy* getConnPolicy() const;
     };
 
     /**
@@ -226,6 +239,12 @@ namespace RTT { namespace base {
          * @param input the previous element in chain.
          */
         virtual void setInput(ChannelElementBase::shared_ptr input);
+
+        /**
+         * Returns true, if this channel element has at least one input, independent of whether is has an
+         * output connection or not.
+         */
+        virtual bool connected();
 
         /**
          * Overwritten implementation of \ref ChannelElementBase::inputReady().
@@ -283,6 +302,12 @@ namespace RTT { namespace base {
         virtual void setOutput(ChannelElementBase::shared_ptr output);
 
         /**
+         * Returns true, if this channel element has at least one output, independent of whether is has an
+         * input connection or not.
+         */
+        virtual bool connected();
+
+        /**
          * Overwritten implementation of \ref ChannelElementBase::signal() which forwards the signal to all
          * outputs.
          */
@@ -310,6 +335,11 @@ namespace RTT { namespace base {
     {
     public:
         typedef boost::intrusive_ptr<MultipleInputsMultipleOutputsChannelElementBase> shared_ptr;
+
+        /**
+         * Returns true, if this channel element has at least one input AND at least one output.
+         */
+        virtual bool connected();
 
         /**
          * Overwritten implementation of \ref ChannelElementBase::disconnect(forward, channel).
