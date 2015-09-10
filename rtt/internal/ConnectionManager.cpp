@@ -86,9 +86,12 @@ namespace RTT
 
         bool ConnectionManager::eraseConnection(const ConnectionManager::ChannelDescriptor& descriptor)
         {
-            const DisconnectFunction &disconnect = descriptor.get<3>();
-            if (!disconnect.empty()) disconnect();
-            return true;
+            // disconnect needs to know if we're from Out->In (forward) or from In->Out
+            bool is_forward = true;
+            if ( dynamic_cast<InputPortInterface*>(mport) )
+                is_forward = false; // disconnect on input port = backward.
+
+            return mport->getConnEndpoint()->disconnect(is_forward, descriptor.get<1>());
         }
 
         void ConnectionManager::disconnect()
@@ -104,10 +107,10 @@ namespace RTT
         bool ConnectionManager::connected() const
         { return !connections.empty(); }
 
-        void ConnectionManager::addConnection(ConnID* conn_id, ChannelElementBase::shared_ptr channel, ConnPolicy policy, const internal::ConnectionManager::DisconnectFunction& disconnect_fcn)
+        void ConnectionManager::addConnection(ConnID* conn_id, ChannelElementBase::shared_ptr channel, ConnPolicy policy)
         { RTT::os::MutexLock lock(connection_lock);
             assert(conn_id);
-            ChannelDescriptor descriptor = boost::make_tuple(conn_id, channel, policy, disconnect_fcn);
+            ChannelDescriptor descriptor = boost::make_tuple(conn_id, channel, policy);
             connections.push_back(descriptor);
         }
 

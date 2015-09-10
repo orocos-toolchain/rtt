@@ -93,6 +93,7 @@ namespace RTT
                     return false;
                 }
             }
+
             // even if we're not written, test the connection with a default sample.
             return channel_el_input->data_sample( T() );
         }

@@ -91,7 +91,7 @@ namespace RTT
 
         ConnPolicy getDefaultPolicy() const;
 
-        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel, ConnPolicy const& policy, const internal::ConnectionManager::DisconnectFunction& disconnect_fcn);
+        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel, ConnPolicy const& policy);
 
         /** Returns a DataSourceBase interface to read this port. The returned
          * data source is always a new object.

@@ -64,7 +64,7 @@ namespace RTT
          * Use with care. Allows you to add any arbitrary connection to this output port. It is your responsibility
          * to do any further bookkeeping, such as informing the input that a new output has been added.
          */
-        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy, const internal::ConnectionManager::DisconnectFunction& disconnect_fcn);
+        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
 
         OutputPortInterface(std::string const& name);
 

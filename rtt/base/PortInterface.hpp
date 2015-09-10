@@ -179,8 +179,7 @@ namespace RTT
          * This is an advanced method, prefer to use connectTo and createStream.
          */
         virtual bool addConnection(internal::ConnID* cid, ChannelElementBase::shared_ptr channel,
-                                   ConnPolicy const& policy = ConnPolicy(),
-                                   const internal::ConnectionManager::DisconnectFunction& disconnect_fcn = internal::ConnectionManager::DisconnectFunction()) = 0;
+                                   ConnPolicy const& policy = ConnPolicy()) = 0;
 
         /**
          * Removes a user created connection from this port.

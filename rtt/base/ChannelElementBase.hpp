@@ -123,7 +123,7 @@ namespace RTT { namespace base {
          * or \a this if none.
          * @return getInput() ? getInput()->getInputEndPoint() : this
          */
-        shared_ptr getInputEndPoint();
+        virtual shared_ptr getInputEndPoint();
 
 
         /** Returns the next channel element in the channel's propagation
@@ -137,7 +137,7 @@ namespace RTT { namespace base {
          * or \a this if none.
          * @return getOutput() ? getOutput()->getInputEndPoint() : this
          */
-        shared_ptr getOutputEndPoint();
+        virtual shared_ptr getOutputEndPoint();
 
         /**
          * Sets the output of this channel element to \a output and sets the input of \a output to this.
@@ -193,6 +193,9 @@ namespace RTT { namespace base {
          * initiated by the output endpoint and channel must be a connected output.
          * The disconnect call is only forwarded to the opposite side of the channel
          * element after the last input/output element on either side has been removed.
+         *
+         * The ChannelElementBase implementation ignores the given channel and disconnects
+         * unconditinally.
          */
         virtual bool disconnect(bool forward, const ChannelElementBase::shared_ptr& channel);
 
@@ -248,7 +251,7 @@ namespace RTT { namespace base {
 
         /**
          * Overwritten implementation of \ref ChannelElementBase::inputReady().
-         * Simply returns true if there is at least one input, without forwarding to call.
+         * Forwards the inputReady() call to all inputs and only returns true if all inputs returned true.
          */
         virtual bool inputReady();
 

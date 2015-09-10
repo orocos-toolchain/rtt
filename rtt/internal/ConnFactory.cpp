@@ -98,8 +98,19 @@ base::ChannelElementBase::shared_ptr RTT::internal::ConnFactory::createRemoteCon
 }
 
 bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, base::ChannelElementBase::shared_ptr channel_input, base::ChannelElementBase::shared_ptr channel_output, ConnPolicy const& policy) {
+    // connect channel input to channel output
+    channel_input->setOutput(channel_output);
+
     // Register the channel's input to the output port.
-    if ( !output_port.addConnection( input_port.getPortID(), channel_output, policy, boost::bind(&base::ChannelElementBase::disconnect, channel_input, true, channel_output) ) ) {
+    // This is a bit hacky. We have to find the next channel element in the pipeline as seen from the ConnOutputEndpoint:
+    base::ChannelElementBase::shared_ptr next_hop = channel_output;
+    if (channel_input != output_port.getConnEndpoint()) {
+        next_hop = channel_input;
+        while(next_hop->getInput() && next_hop->getInput() != output_port.getConnEndpoint()) {
+            next_hop = next_hop->getInput();
+        }
+    }
+    if ( !output_port.addConnection( input_port.getPortID(), next_hop, policy ) ) {
         // setup failed.
         channel_output->disconnect(true, channel_input.get());
         log(Error) << "The output port "<< output_port.getName()
@@ -108,16 +119,13 @@ bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_por
     }
 
     // notify input that the connection is now complete.
-    if ( !input_port.addConnection( output_port.getPortID(), channel_input, policy, boost::bind(&base::ChannelElementBase::disconnect, channel_output, false, channel_input) ) ) {
+    if ( !input_port.addConnection( output_port.getPortID(), channel_input, policy ) ) {
         log(Error) << "The input port "<< input_port.getName()
                    << " could not successfully use the connection to output port " << output_port.getName() <<endlog();
         output_port.disconnect( &input_port );
         assert(!input_port.connectedTo(&output_port));
         return false;
     }
-
-    // connect channel input to channel output
-    channel_input->setOutput(channel_output);
 
     // test connection
     if ( !input_port.channelReady( channel_input, policy ) ) {
@@ -158,7 +166,7 @@ bool ConnFactory::createAndCheckStream(base::OutputPortInterface& output_port, C
     }
     channel_input->setOutput( chan_stream );
 
-    if ( output_port.addConnection( new StreamConnID(policy.name_id), channel_input, policy, boost::bind(&base::ChannelElementBase::disconnect, channel_input, true, chan_stream) ) ) {
+    if ( output_port.addConnection( new StreamConnID(policy.name_id), channel_input, policy ) ) {
         log(Info) << "Created output stream for output port "<< output_port.getName() <<endlog();
         return true;
     }
@@ -191,7 +199,7 @@ bool ConnFactory::createAndCheckStream(base::InputPortInterface& input_port, Con
     conn_id->name_id = policy.name_id;
 
     chan->getOutputEndPoint()->setOutput( outhalf );
-    if ( input_port.addConnection(conn_id, chan->getOutputEndPoint(), policy, boost::bind(&base::ChannelElementBase::disconnect, chan, true) ) == true &&
+    if ( input_port.addConnection(conn_id, chan->getOutputEndPoint(), policy) == true &&
          input_port.channelReady( chan->getOutputEndPoint(), policy ) == true ) {
         log(Info) << "Created input stream for input port " << input_port.getName() <<endlog();
         return true;

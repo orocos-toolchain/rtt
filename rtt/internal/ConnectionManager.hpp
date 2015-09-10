@@ -81,17 +81,12 @@ namespace RTT
         {
         public:
             /**
-             * A function which handles the disconnection of two ports, usually called from /ref ConnectionManager::removeConnection()
-             */
-            typedef boost::function<void()> DisconnectFunction;
-
-            /**
              * A connection is described by an opaque ConnID object,
              * the first element of the connection and the policy of the connection.
              * The policy is only given for read-only access, modifying it will
              * not have any effect on the connection.
              */
-            typedef boost::tuple<boost::shared_ptr<ConnID>, base::ChannelElementBase::shared_ptr, ConnPolicy, DisconnectFunction> ChannelDescriptor;
+            typedef boost::tuple<boost::shared_ptr<ConnID>, base::ChannelElementBase::shared_ptr, ConnPolicy> ChannelDescriptor;
 
             /**
              * Creates a connection manager to manage the connections of \a port.
@@ -106,7 +101,7 @@ namespace RTT
              * also validates if the connection is sound.
              * @return false if the connection failed to work, true otherwise.
              */
-            void addConnection(ConnID* port_id, base::ChannelElementBase::shared_ptr channel, ConnPolicy policy, const DisconnectFunction& disconnect_fcn);
+            void addConnection(ConnID* port_id, base::ChannelElementBase::shared_ptr channel, ConnPolicy policy);
 
             bool removeConnection(ConnID* port_id);
             bool removeConnection(base::ChannelElementBase* channel);

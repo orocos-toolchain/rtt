@@ -96,36 +96,16 @@ bool InputPortInterface::connectTo(PortInterface* other)
     return connectTo(other, default_policy);
 }
 
-bool InputPortInterface::addConnection(ConnID* port_id, ChannelElementBase::shared_ptr channel_output, const ConnPolicy& policy, const internal::ConnectionManager::DisconnectFunction& disconnect_fcn)
+bool InputPortInterface::addConnection(ConnID* port_id, ChannelElementBase::shared_ptr channel_output, const ConnPolicy& policy)
 {
     // input ports don't check the connection policy.
-    cmanager.addConnection( port_id, channel_output, policy, disconnect_fcn);
+    cmanager.addConnection( port_id, channel_output, policy);
     return true;
 }
 
-bool InputPortInterface::channelReady(ChannelElementBase::shared_ptr channel, RTT::ConnPolicy const& policy)
+bool InputPortInterface::channelReady(ChannelElementBase::shared_ptr channel, RTT::ConnPolicy const&)
 {
-    if ( channel ) {
-//        if (cid ) {
-//            this->addConnection(cid, channel, policy);
-            if ( channel->inputReady() )
-                return true;
-//        } else {
-//            log(Error) << "Can't add ChannelElement which is not a ConnInputEndPoint to Port "<< this->getName() <<endlog();
-//        }
-    }
-
-//    if (channel) {
-//        // in-the-middle disconnection, we need to inform both ends of
-//        // the channel that it's going to be disposed. Both endpoints
-//        // will inform their ports with a removal request.
-//        // From a design perspective, this removal must be initiated
-//        // by our connection manager and not by us.
-//        channel->disconnect(false);
-//        channel->disconnect(true);
-//    }
-
-    return false;
+    return (channel && channel->inputReady());
 }
 
 #ifndef ORO_SIGNALLING_PORTS

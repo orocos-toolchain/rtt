@@ -146,6 +146,11 @@ namespace RTT
         virtual base::PortInterface* getPort() const {
             return this->port;
         }
+
+        virtual base::ChannelElementBase::shared_ptr getOutputEndPoint()
+        {
+            return this;
+        }
     };
 
 }}

@@ -85,6 +85,10 @@ namespace RTT
             return this->port;
         }
 
+        virtual base::ChannelElementBase::shared_ptr getInputEndPoint()
+        {
+            return this;
+        }
     };
 
 }}

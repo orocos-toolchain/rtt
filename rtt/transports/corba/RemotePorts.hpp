@@ -137,7 +137,7 @@ namespace RTT {
              * @param policy
              * @return
              */
-            virtual bool addConnection(internal::ConnID*, base::ChannelElementBase::shared_ptr, ConnPolicy const&, const internal::ConnectionManager::DisconnectFunction&) { return true; }
+            virtual bool addConnection(internal::ConnID*, base::ChannelElementBase::shared_ptr, ConnPolicy const&) { return true; }
 
         public:
             RemoteInputPort(types::TypeInfo const* type_info,
