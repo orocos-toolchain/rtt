@@ -66,15 +66,37 @@ ChannelElementBase::shared_ptr ChannelElementBase::getOutput()
 }
 
 void ChannelElementBase::setOutput(shared_ptr output)
-{ RTT::os::MutexLock lock(inout_lock);
-    this->output = output;
+{
+    {
+        RTT::os::MutexLock lock(inout_lock);
+        if (this->output == output) return;
+        this->output = output;
+    }
+
     if (output)
         output->setInput(this);
 }
 
+bool ChannelElementBase::addOutput(shared_ptr output)
+{
+    return false;
+}
+
 void ChannelElementBase::setInput(shared_ptr input)
-{ RTT::os::MutexLock lock(inout_lock);
-    this->input = input;
+{
+    {
+        RTT::os::MutexLock lock(inout_lock);
+        if (this->input == input) return;
+        this->input = input;
+    }
+
+    if (input)
+        input->setOutput(this);
+}
+
+bool ChannelElementBase::addInput(shared_ptr output)
+{
+    return false;
 }
 
 bool ChannelElementBase::connected()
@@ -84,23 +106,23 @@ bool ChannelElementBase::connected()
 
 void ChannelElementBase::disconnect(bool forward)
 {
-    disconnect(forward, 0);
+    disconnect(0, forward);
 }
 
-bool ChannelElementBase::disconnect(bool forward, const ChannelElementBase::shared_ptr& )
+bool ChannelElementBase::disconnect(const ChannelElementBase::shared_ptr&, bool forward)
 {
     if (forward)
     {
         shared_ptr output = getOutput();
         if (output)
-            if (!output->disconnect(true, this))
+            if (!output->disconnect(this, true))
                 return false;
     }
     else
     {
         shared_ptr input = getInput();
         if (input)
-            if (!input->disconnect(false, this))
+            if (!input->disconnect(this, false))
                 return false;
     }
 
@@ -155,17 +177,23 @@ const ConnPolicy* ChannelElementBase::getConnPolicy() const {
     return 0;
 }
 
-void MultipleInputsChannelElementBase::addInput(ChannelElementBase::shared_ptr input)
+bool MultipleInputsChannelElementBase::addInput(ChannelElementBase::shared_ptr input)
 {
-    RTT::os::MutexLock lock(inputs_lock);
-    assert(std::find(inputs.begin(), inputs.end(), input) == inputs.end());
-    inputs.push_back(input);
+    if (!input) return false;
+    {
+        RTT::os::MutexLock lock(inputs_lock);
+        if (std::find(inputs.begin(), inputs.end(), input) != inputs.end()) return false;
+        assert(std::find(inputs.begin(), inputs.end(), input) == inputs.end());
+        inputs.push_back(input);
+    }
+
+    input->setOutput(this);
+    return true;
 }
 
 void MultipleInputsChannelElementBase::setInput(ChannelElementBase::shared_ptr input)
 {
-    if (!input) return;
-    addInput(input);
+    (void) addInput(input);
 }
 
 bool MultipleInputsChannelElementBase::connected()
@@ -196,28 +224,33 @@ void MultipleInputsChannelElementBase::removeInput(ChannelElementBase *input)
     inputs.remove(input);
 }
 
-bool MultipleInputsChannelElementBase::disconnect(bool forward, const ChannelElementBase::shared_ptr& channel)
+bool MultipleInputsChannelElementBase::disconnect(const ChannelElementBase::shared_ptr& channel, bool forward)
 {
     if (channel) {
-        // Remove the channel from the inputs list
-        RTT::os::MutexLock lock(inputs_lock);
-        Inputs::iterator found = std::find(inputs.begin(), inputs.end(), channel);
-        if (found == inputs.end()) {
-            return false;
-        }
-        ChannelElementBase::shared_ptr input = *found;
-
-        if (!forward) {
-            if (!input->disconnect(forward, this)) {
+        bool was_last = false;
+        {
+            // Remove the channel from the inputs list
+            RTT::os::MutexLock lock(inputs_lock);
+            Inputs::iterator found = std::find(inputs.begin(), inputs.end(), channel);
+            if (found == inputs.end()) {
                 return false;
             }
+            ChannelElementBase::shared_ptr input = *found;
+
+            if (!forward) {
+                if (!input->disconnect(this, forward)) {
+                    return false;
+                }
+            }
+
+            removeInput(input.get()); // invalidates input
+            was_last = inputs.empty();
         }
 
-        removeInput(input.get()); // invalidates input
-
-        // If the removed input was the last channel, disconnect output side, too.
-        // Warning: This may invert the propagation direction!
-        if (inputs.empty()) disconnect(true);
+        // If the removed input was the last channel and forward is true, disconnect output side, too.
+        if (was_last && forward) {
+            disconnect(true);
+        }
 
         return true;
 
@@ -226,13 +259,13 @@ bool MultipleInputsChannelElementBase::disconnect(bool forward, const ChannelEle
         RTT::os::MutexLock lock(inputs_lock);
         for (Inputs::iterator it = inputs.begin(); it != inputs.end(); ) {
             const ChannelElementBase::shared_ptr &input = *it++;
-            input->disconnect(false, this);
+            input->disconnect(this, false);
             removeInput(input.get()); // invalidates input
         }
         assert(inputs.empty());
     }
 
-    return ChannelElementBase::disconnect(forward, channel);
+    return ChannelElementBase::disconnect(channel, forward);
 }
 
 bool MultipleOutputsChannelElementBase::connected()
@@ -241,19 +274,23 @@ bool MultipleOutputsChannelElementBase::connected()
     return outputs.size() > 0;
 }
 
-void MultipleOutputsChannelElementBase::addOutput(ChannelElementBase::shared_ptr output)
+bool MultipleOutputsChannelElementBase::addOutput(ChannelElementBase::shared_ptr output)
 {
-    if (!output) return;
-    RTT::os::MutexLock lock(outputs_lock);
-    assert(std::find(outputs.begin(), outputs.end(), output) == outputs.end());
-    outputs.push_back(output);
-    output->setInput(this);
-}
+    if (!output) return false;
+    {
+        RTT::os::MutexLock lock(outputs_lock);
+        if (std::find(outputs.begin(), outputs.end(), output) != outputs.end()) return false;
+        assert(std::find(outputs.begin(), outputs.end(), output) == outputs.end());
+        outputs.push_back(output);
+    }
 
+    output->setInput(this);
+    return true;
+}
 
 void MultipleOutputsChannelElementBase::setOutput(ChannelElementBase::shared_ptr output)
 {
-    addOutput(output);
+    (void) addOutput(output);
 }
 
 bool MultipleOutputsChannelElementBase::signal()
@@ -270,28 +307,33 @@ void MultipleOutputsChannelElementBase::removeOutput(ChannelElementBase *output)
     outputs.remove(output);
 }
 
-bool MultipleOutputsChannelElementBase::disconnect(bool forward, const ChannelElementBase::shared_ptr& channel)
+bool MultipleOutputsChannelElementBase::disconnect(const ChannelElementBase::shared_ptr& channel, bool forward)
 {
     if (channel) {
         // Remove the channel from the outputs list
-        RTT::os::MutexLock lock(outputs_lock);
-        Outputs::iterator found = std::find(outputs.begin(), outputs.end(), channel);
-        if (found == outputs.end()) {
-            return false;
-        }
-        ChannelElementBase::shared_ptr output = *found;
-
-        if (forward) {
-            if (!output->disconnect(forward, this)) {
+        bool was_last = false;
+        {
+            RTT::os::MutexLock lock(outputs_lock);
+            Outputs::iterator found = std::find(outputs.begin(), outputs.end(), channel);
+            if (found == outputs.end()) {
                 return false;
             }
+            ChannelElementBase::shared_ptr output = *found;
+
+            if (forward) {
+                if (!output->disconnect(this, forward)) {
+                    return false;
+                }
+            }
+
+            removeOutput(output.get()); // invalidates output
+            was_last = outputs.empty();
         }
 
-        removeOutput(output.get()); // invalidates output
-
         // If the removed output was the last channel, disconnect input side, too.
-        // Warning: This may invert the propagation direction!
-        if (outputs.empty()) disconnect(false);
+        if (was_last && !forward) {
+            disconnect(false);
+        }
 
         return true;
     }
@@ -301,13 +343,13 @@ bool MultipleOutputsChannelElementBase::disconnect(bool forward, const ChannelEl
         RTT::os::MutexLock lock(outputs_lock);
         for (Outputs::iterator it = outputs.begin(); it != outputs.end(); ) {
             const ChannelElementBase::shared_ptr &output = *it++;
-            output->disconnect(true, this);
+            output->disconnect(this, true);
             removeOutput(output.get()); // invalidates output
         }
         assert(outputs.empty());
     }
 
-    return ChannelElementBase::disconnect(forward, channel);
+    return ChannelElementBase::disconnect(channel, forward);
 }
 
 bool MultipleInputsMultipleOutputsChannelElementBase::connected()
@@ -315,15 +357,15 @@ bool MultipleInputsMultipleOutputsChannelElementBase::connected()
     return (MultipleInputsChannelElementBase::connected() && MultipleOutputsChannelElementBase::connected());
 }
 
-bool MultipleInputsMultipleOutputsChannelElementBase::disconnect(bool forward, const ChannelElementBase::shared_ptr& channel)
+bool MultipleInputsMultipleOutputsChannelElementBase::disconnect(const ChannelElementBase::shared_ptr& channel, bool forward)
 {
     if (channel) {
-        if (MultipleInputsChannelElementBase::disconnect(forward, channel)) {
+        if (MultipleInputsChannelElementBase::disconnect(channel, forward)) {
             // channel was found in the inputs list
             return true;
         }
 
-        if (MultipleOutputsChannelElementBase::disconnect(forward, channel)) {
+        if (MultipleOutputsChannelElementBase::disconnect(channel, forward)) {
             // channel was found in the outputs list
             return true;
         }
@@ -333,11 +375,11 @@ bool MultipleInputsMultipleOutputsChannelElementBase::disconnect(bool forward, c
 
     } else if (forward) {
         // disconnect all outputs
-        return MultipleOutputsChannelElementBase::disconnect(forward, 0);
+        return MultipleOutputsChannelElementBase::disconnect(0, forward);
 
     } else {
         // disconnect all inputs
-        return MultipleInputsChannelElementBase::disconnect(forward, 0);
+        return MultipleInputsChannelElementBase::disconnect(0, forward);
     }
 }
 
@@ -352,8 +394,8 @@ void ChannelElementBase::deref()
 }
 
 void RTT::base::intrusive_ptr_add_ref( ChannelElementBase* p )
-{ p->ref(); }
+{ oro_atomic_inc(&p->refcount); }
 
 void RTT::base::intrusive_ptr_release( ChannelElementBase* p )
-{ p->deref(); }
+{ if ( oro_atomic_dec_and_test(&p->refcount) ) delete p; }
 

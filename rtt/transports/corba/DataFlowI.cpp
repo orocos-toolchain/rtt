@@ -391,6 +391,8 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
     ConnPolicy policy2 = toRTT(corba_policy);
 
     ChannelElementBase::shared_ptr end = type_info->buildChannelOutput(*port, policy2);
+    if (!end) return CChannelElement_ptr();
+
     CRemoteChannelElement_i* this_element =
         transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull);
     this_element->setCDataFlowInterface(this);
@@ -424,14 +426,8 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
         }
         //
     } else {
-        // No OOB. omit buffer if in pull
-        if ( !corba_policy.pull ) {
-            ChannelElementBase::shared_ptr buf = type_info->buildDataStorage(toRTT(corba_policy));
-            dynamic_cast<ChannelElementBase*>(this_element)->setOutput(buf);
-            buf->setOutput(end);
-        } else {
-            dynamic_cast<ChannelElementBase*>(this_element)->setOutput(end);
-        }
+        // No OOB.
+        dynamic_cast<ChannelElementBase*>(this_element)->setOutput(end);
     }
 
     this_element->_remove_ref();

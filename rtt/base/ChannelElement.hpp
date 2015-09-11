@@ -299,7 +299,7 @@ namespace RTT { namespace base {
     {
     public:
         using typename ChannelElement<T>::value_t;
-        typedef boost::intrusive_ptr< MultipleInputsChannelElement<T> > shared_ptr;
+        typedef boost::intrusive_ptr< MultipleInputsMultipleOutputsChannelElement<T> > shared_ptr;
         using typename ChannelElement<T>::param_t;
         using typename ChannelElement<T>::reference_t;
 

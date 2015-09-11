@@ -49,6 +49,7 @@
 
 #include "ConnID.hpp"
 #include "List.hpp"
+#include "SharedConnection.hpp"
 #include "../ConnPolicy.hpp"
 #include "../os/Mutex.hpp"
 #include "../base/rtt-base-fwd.hpp"
@@ -132,6 +133,13 @@ namespace RTT
                 return connections;
             }
 
+            /**
+             * Returns a pointer to the shared connection element this port may be connected to.
+             */
+            internal::SharedConnectionBase::shared_ptr getSharedConnection() const {
+                return shared_connection;
+            }
+
         protected:
 
             /** Helper method for disconnect(PortInterface*)
@@ -169,6 +177,11 @@ namespace RTT
              * were added.
              */
             std::list< ChannelDescriptor > connections;
+
+            /**
+             * A pointer to the shared connection this port may be connected to.
+             */
+            internal::SharedConnectionBase::shared_ptr shared_connection;
 
             /**
              * Lock that should be taken before the list of connections is

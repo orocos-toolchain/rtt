@@ -147,10 +147,26 @@ namespace RTT { namespace base {
         virtual void setOutput(shared_ptr output);
 
         /**
+         * Adds a new output to this element. This method replaces setOutput(),
+         * for a MultipleOutputsChannelElementBase which can have multiple outputs.
+         * Returns false if the channel does not support multiple outputs.
+         * @param output the next element in chain.
+         */
+        virtual bool addOutput(ChannelElementBase::shared_ptr output);
+
+        /**
          * Sets the input of this channel element to \a input.
          * @param input the previous element in chain.
          */
         virtual void setInput(shared_ptr input);
+
+        /**
+         * Adds a new input to this element. This method replaces setInput(),
+         * for a MultipleInputsChannelElementBase which can have multiple inputs.
+         * Returns false if the channel does not support multiple inputs.
+         * @param input the previous element in chain.
+         */
+        virtual bool addInput(ChannelElementBase::shared_ptr input);
 
         /**
          * Returns true, if this channel element is connected on the input or output side.
@@ -197,7 +213,7 @@ namespace RTT { namespace base {
          * The ChannelElementBase implementation ignores the given channel and disconnects
          * unconditinally.
          */
-        virtual bool disconnect(bool forward, const ChannelElementBase::shared_ptr& channel);
+        virtual bool disconnect(const ChannelElementBase::shared_ptr& channel, bool forward);
 
         /**
          * Gets the port this channel element is connected to.
@@ -234,7 +250,7 @@ namespace RTT { namespace base {
          * for a MultipleInputsChannelElementBase which can have multiple inputs.
          * @param input the previous element in chain.
          */
-        virtual void addInput(ChannelElementBase::shared_ptr input);
+        virtual bool addInput(ChannelElementBase::shared_ptr input);
 
         /**
          * Overwritten implementation of \ref ChannelElementBase::setInput() which forwards to \ref addInput()
@@ -266,7 +282,7 @@ namespace RTT { namespace base {
         /**
          * Overwritten implementation of \ref ChannelElementBase::disconnect(forward, channel).
          */
-        virtual bool disconnect(bool forward, const ChannelElementBase::shared_ptr& channel);
+        virtual bool disconnect(const ChannelElementBase::shared_ptr& channel, bool forward = true);
 
     protected:
         /**
@@ -291,11 +307,11 @@ namespace RTT { namespace base {
 
     public:
         /**
-         * Adds a new input to this element. This method replaces ChannelElementBase::setOutput(),
+         * Adds a new output to this element. This method replaces ChannelElementBase::setOutput(),
          * for a MultipleOutputsChannelElementBase which can have multiple outputs.
-         * @param input the previous element in chain.
+         * @param output the next element in chain.
          */
-        virtual void addOutput(ChannelElementBase::shared_ptr output);
+        virtual bool addOutput(ChannelElementBase::shared_ptr output);
 
         /**
          * Overwritten implementation of \ref ChannelElementBase::setOutput() which forwards to \ref addOutput()
@@ -321,7 +337,7 @@ namespace RTT { namespace base {
         /**
          * Overwritten implementation of \ref ChannelElementBase::disconnect(forward, channel).
          */
-        virtual bool disconnect(bool forward, const ChannelElementBase::shared_ptr& channel);
+        virtual bool disconnect(const ChannelElementBase::shared_ptr& channel, bool forward = false);
 
     protected:
         /**
@@ -344,10 +360,12 @@ namespace RTT { namespace base {
          */
         virtual bool connected();
 
+        using ChannelElementBase::disconnect;
+
         /**
          * Overwritten implementation of \ref ChannelElementBase::disconnect(forward, channel).
          */
-        virtual bool disconnect(bool forward, const ChannelElementBase::shared_ptr& channel);
+        virtual bool disconnect(const ChannelElementBase::shared_ptr& channel, bool forward);
     };
 
     void RTT_API intrusive_ptr_add_ref( ChannelElementBase* e );

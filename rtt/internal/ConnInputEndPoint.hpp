@@ -67,18 +67,27 @@ namespace RTT
             return true;
         }
 
-        virtual bool disconnect(bool forward, const base::ChannelElementBase::shared_ptr& channel)
+        using Base::disconnect;
+
+        virtual bool disconnect(const base::ChannelElementBase::shared_ptr& channel, bool forward)
         {
             // Call the base class: it does the common cleanup
-            if (Base::disconnect(forward, channel)) {
-                OutputPort<T>* port = this->port;
-                if (port && !forward)
-                {
-                    port->removeConnection(channel.get());
-                }
-                return true;
+            if (!Base::disconnect(channel, forward)) {
+                return false;
             }
-            return false;
+
+            OutputPort<T>* port = this->port;
+            if (port && channel && !forward)
+            {
+                port->removeConnection(channel.get());
+            }
+
+            // If this was the last connection, remove the buffer.
+            if (!this->connected()) { // connected() only checks for outputs
+                Base::disconnect(0, false);
+            }
+
+            return true;
         }
 
         virtual base::PortInterface* getPort() const {

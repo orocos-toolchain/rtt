@@ -19,6 +19,10 @@ namespace RTT {
         struct IntrusiveStorage;
         struct LocalConnID;
         struct StreamConnID;
+        struct SharedConnID;
+        struct SharedConnectionBase;
+        template <class T>
+        struct SharedConnection;
         struct UnknownType;
         template <typename function>
         class UnaryDataSource;

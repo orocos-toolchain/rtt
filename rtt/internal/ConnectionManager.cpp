@@ -49,6 +49,7 @@
 #include "../base/PortInterface.hpp"
 #include "../os/MutexLock.hpp"
 #include "../base/InputPortInterface.hpp"
+#include "../Logger.hpp"
 #include <cassert>
 
 namespace RTT
@@ -91,7 +92,13 @@ namespace RTT
             if ( dynamic_cast<InputPortInterface*>(mport) )
                 is_forward = false; // disconnect on input port = backward.
 
-            return mport->getConnEndpoint()->disconnect(is_forward, descriptor.get<1>());
+            // disconnect from a shared connection
+            if (descriptor.get<1>() == shared_connection) {
+                RTT::log(Debug) << "Port " << mport->getName() << " disconnected from shared connection " << shared_connection->getName() << RTT::endlog();
+                shared_connection.reset();
+            }
+
+            return mport->getConnEndpoint()->disconnect(descriptor.get<1>(), is_forward);
         }
 
         void ConnectionManager::disconnect()
@@ -110,6 +117,14 @@ namespace RTT
         void ConnectionManager::addConnection(ConnID* conn_id, ChannelElementBase::shared_ptr channel, ConnPolicy policy)
         { RTT::os::MutexLock lock(connection_lock);
             assert(conn_id);
+
+            // check if the new connection is a shared connection
+            {
+                SharedConnectionBase::shared_ptr is_shared_connection = boost::dynamic_pointer_cast<SharedConnectionBase>(channel);
+                if (is_shared_connection) shared_connection.swap(is_shared_connection);
+            }
+
+            // add ChannelDescriptor to the connections list
             ChannelDescriptor descriptor = boost::make_tuple(conn_id, channel, policy);
             connections.push_back(descriptor);
         }

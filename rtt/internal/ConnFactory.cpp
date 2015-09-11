@@ -112,7 +112,7 @@ bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_por
     }
     if ( !output_port.addConnection( input_port.getPortID(), next_hop, policy ) ) {
         // setup failed.
-        channel_output->disconnect(true, channel_input.get());
+        channel_output->disconnect(channel_input.get(), true);
         log(Error) << "The output port "<< output_port.getName()
                    << " could not successfully use the connection to input port " << input_port.getName() <<endlog();
         return false;
@@ -210,6 +210,39 @@ bool ConnFactory::createAndCheckStream(base::InputPortInterface& input_port, Con
     log(Error) << "Failed to create input stream for input port " << input_port.getName() <<endlog();
     return false;
 }
+
+bool ConnFactory::createAndCheckSharedConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy)
+{
+    if (!shared_connection) return false;
+
+    // connect the output port...
+    if (output_port.getManager()->getSharedConnection() != shared_connection) {
+        if ( !output_port.addConnection( shared_connection->getConnID(), shared_connection, policy ) ) {
+            // setup failed.
+            log(Error) << "The output port "<< output_port.getName()
+                       << " could not successfully connect to shared connection '" << shared_connection->getName() << "'." << endlog();
+            return false;
+        }
+
+        output_port.getConnEndpoint()->addOutput(shared_connection);
+    }
+
+    // ... and the input port
+    if (input_port.getManager()->getSharedConnection() != shared_connection) {
+        if ( !input_port.addConnection( shared_connection->getConnID(), shared_connection, policy ) ) {
+            // setup failed.
+            log(Error) << "The input port "<< input_port.getName()
+                       << " could not successfully connect to shared connection '" << shared_connection->getName() << "'." << endlog();
+            return false;
+        }
+
+        shared_connection->addOutput(input_port.getConnEndpoint()); // actually adds the output
+    }
+
+    return true;
+}
+
+
 
 base::ChannelElementBase::shared_ptr ConnFactory::createAndCheckOutOfBandConnection( base::OutputPortInterface& output_port, 
                                                                                      base::InputPortInterface& input_port, 

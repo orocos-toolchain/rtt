@@ -212,7 +212,7 @@ namespace RTT
             has_initial_sample = true;
             has_last_written_value = false;
 
-            if (getOutputEndpoint()->data_sample(sample)) {
+            if (getInputEndpoint()->data_sample(sample)) {
                 log(Error) << "A channel of port " << getName() << " has been invalidated during setDataSample(), it will be removed" << endlog();
             }
         }
@@ -231,7 +231,7 @@ namespace RTT
             }
             has_last_written_value = keeps_last_written_value;
 
-            if (getOutputEndpoint()->write(sample)) {
+            if (getInputEndpoint()->write(sample)) {
                 log(Error) << "A channel of port " << getName() << " has been invalidated during write(), it will be removed" << endlog();
             }
         }
@@ -316,7 +316,7 @@ namespace RTT
             return endpoint->getInput().get();
         }
 
-        typename base::ChannelElement<T>::shared_ptr getOutputEndpoint() const
+        typename base::ChannelElement<T>::shared_ptr getInputEndpoint() const
         {
             typename base::ChannelElement<T>::shared_ptr buffer = getBuffer();
             if (buffer) {
