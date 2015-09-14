@@ -49,11 +49,6 @@ public:
         opc3 = tc->provides("methods")->getOperation("m3");
         opc3.setCaller( this->engine() );
 
-        BOOST_REQUIRE( opc0.ready() );
-        BOOST_REQUIRE( opc1.ready() );
-        BOOST_REQUIRE( opc2.ready() );
-        BOOST_REQUIRE( opc3.ready() );
-
         // four combinations are possible:
         this->addOperation("o0", &OperationCallerComponent::m0, this, OwnThread);
         this->addOperation("o1", &OperationCallerComponent::m1, this, ClientThread);
@@ -69,6 +64,17 @@ public:
         // m1 and m3 are executed in ClientThread (so in GlobalEE when being sent),
         // where m1 calls an OwnThread op of 'tc' and m3 calls a ClientThread op of 'tc'.
         // but do set the caller to this component.
+    }
+
+    bool ready() {
+        BOOST_REQUIRE( opc0.ready() );
+        BOOST_REQUIRE( opc1.ready() );
+        BOOST_REQUIRE( opc2.ready() );
+        BOOST_REQUIRE( opc3.ready() );
+        return opc0.ready() &&
+               opc1.ready() &&
+               opc2.ready() &&
+               opc3.ready();
     }
 
     // plain argument tests:
