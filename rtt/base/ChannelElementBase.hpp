@@ -181,13 +181,26 @@ namespace RTT { namespace base {
         virtual bool signal();
 
         /**
+         * This is called on the output half of a new connection by the connection
+         * factory in order to notify the output side of the new connection and check if
+         * it is ready to receive data.
+         * Each channel element has the responsibility to pass this notification
+         * on to the next, in the direction of the input. The ConnOutputEndPoint then calls
+         * back the \ref inputReady() method in reverse direction to notify the output that
+         * the connection was successfully established.
+         * @return false if a fatal connection failure was encountered and
+         * the channel needs to be destroyed.
+         */
+        virtual bool channelReady(ChannelElementBase::shared_ptr const& caller, ConnPolicy const& policy, internal::ConnID *conn_id = 0);
+
+        /**
          * This is called by an input port when it is ready to receive data.
          * Each channel element has the responsibility to pass this notification
          * on to the next, in the direction of the output.
          * @return false if a fatal connection failure was encountered and
          * the channel needs to be destroyed.
          */
-        virtual bool inputReady();
+        virtual bool inputReady(ChannelElementBase::shared_ptr const& caller);
 
         /** Clears any data stored by the channel. It means that
          * ChannelElement::read() will return false afterwards (provided that no
@@ -269,7 +282,7 @@ namespace RTT { namespace base {
          * Overwritten implementation of \ref ChannelElementBase::inputReady().
          * Forwards the inputReady() call to all inputs and only returns true if all inputs returned true.
          */
-        virtual bool inputReady();
+        virtual bool inputReady(ChannelElementBase::shared_ptr const& caller);
 
         /**
          * Overwritten implementation of \ref ChannelElementBase::clear().
@@ -331,6 +344,12 @@ namespace RTT { namespace base {
          * outputs.
          */
         virtual bool signal();
+
+        /**
+         * Overwritten implementation of \ref ChannelElementBase::channelReady() which forwards the signal to all
+         * outputs.
+         */
+        virtual bool channelReady(ChannelElementBase::shared_ptr const& caller, ConnPolicy const& policy, internal::ConnID *conn_id = 0);
 
         using ChannelElementBase::disconnect;
 

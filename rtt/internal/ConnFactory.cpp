@@ -118,17 +118,8 @@ bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_por
         return false;
     }
 
-    // notify input that the connection is now complete.
-    if ( !input_port.addConnection( output_port.getPortID(), channel_input, policy ) ) {
-        log(Error) << "The input port "<< input_port.getName()
-                   << " could not successfully use the connection to output port " << output_port.getName() <<endlog();
-        output_port.disconnect( &input_port );
-        assert(!input_port.connectedTo(&output_port));
-        return false;
-    }
-
-    // test connection
-    if ( !input_port.channelReady( channel_input, policy ) ) {
+    // Notify input that the connection is now complete and test the connection
+    if ( !channel_output->channelReady( channel_input, policy, output_port.getPortID() ) ) {
         log(Error) << "The input port "<< input_port.getName()
                    << " could not successfully read from the connection from output port " << output_port.getName() <<endlog();
         output_port.disconnect( &input_port );
@@ -166,7 +157,7 @@ bool ConnFactory::createAndCheckStream(base::OutputPortInterface& output_port, C
     }
     channel_input->setOutput( chan_stream );
 
-    if ( output_port.addConnection( new StreamConnID(policy.name_id), channel_input, policy ) ) {
+    if ( output_port.addConnection( new StreamConnID(policy.name_id), chan_stream, policy ) ) {
         log(Info) << "Created output stream for output port "<< output_port.getName() <<endlog();
         return true;
     }
@@ -196,19 +187,19 @@ bool ConnFactory::createAndCheckStream(base::InputPortInterface& input_port, Con
         return false;
     }
 
+    chan = chan->getOutputEndPoint();
     conn_id->name_id = policy.name_id;
 
-    chan->getOutputEndPoint()->setOutput( outhalf );
-    if ( input_port.addConnection(conn_id, chan->getOutputEndPoint(), policy) == true &&
-         input_port.channelReady( chan->getOutputEndPoint(), policy ) == true ) {
-        log(Info) << "Created input stream for input port " << input_port.getName() <<endlog();
-        return true;
+    chan->setOutput( outhalf );
+    if ( !outhalf->channelReady(chan, policy, conn_id) == true ) {
+        // setup failed: manual cleanup.
+        chan->disconnect(true);
+        log(Error) << "Failed to create input stream for input port " << input_port.getName() <<endlog();
+        return false;
     }
 
-    // setup failed: manual cleanup.
-    chan->disconnect(true);
-    log(Error) << "Failed to create input stream for input port " << input_port.getName() <<endlog();
-    return false;
+    log(Info) << "Created input stream for input port " << input_port.getName() <<endlog();
+    return true;
 }
 
 bool ConnFactory::createAndCheckSharedConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy)

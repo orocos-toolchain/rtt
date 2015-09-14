@@ -194,16 +194,16 @@ RTT::base::ChannelElementBase::shared_ptr RemoteInputPort::buildRemoteChannelOut
             log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a dual channel for port " << name<<endlog();
         }
     } else {
-        // if no oob present, create a buffer at output port to guarantee RT delivery of data. (is always present in push&pull).
-        buf = type->buildDataStorage(policy);
-        assert(buf);
-        buf->setOutput( corba_ceb );
-        corba_ceb = buf;
+        // if no oob present, create a buffer at output port to guarantee RT delivery of data
+        // This is only needed for push connections. For pull, the buffer has already been created by ConnFactory<T>::buildChannelInput().
+        if (policy.pull == ConnPolicy::PUSH) {
+            buf = type->buildDataStorage(policy);
+            assert(buf);
+            buf->setOutput( corba_ceb );
+            corba_ceb = buf;
+        }
     }
-    // store the object reference in a map, for future lookup in channelReady().
-    // this is coupled with the use of channelReady(). We assume the caller will always pass
-    // chan->getOutputEndPoint() in that function.
-    channel_map[ corba_ceb->getOutputEndPoint().get() ] = CChannelElement::_duplicate( remote );
+
     // The ChannelElementBase object that represents reader_half on this side
     return corba_ceb;
 }
@@ -214,25 +214,6 @@ RTT::base::PortInterface* RemoteInputPort::clone() const
 RTT::base::PortInterface* RemoteInputPort::antiClone() const
 { return type_info->outputPort(getName()); }
 
-
-bool RemoteInputPort::channelReady(RTT::base::ChannelElementBase::shared_ptr channel, RTT::ConnPolicy const& policy) {
-    if (! channel_map.count( channel.get() ) ) {
-        log(Error) <<"No such channel found in "<< getName() <<".channelReady( channel ): aborting connection."<<endlog();
-        return false;
-    }
-    try {
-        CChannelElement_ptr cce = channel_map[ channel.get() ];
-        assert( cce );
-        CConnPolicy cpolicy = toCORBA(policy);
-        return dataflow->channelReady( this->getName().c_str(),  cce, cpolicy );
-    }
-    catch(CORBA::Exception& e)
-    {
-        log(Error) <<"Remote call to "<< getName() <<".channelReady( channel ) failed with a CORBA exception: aborting connection."<<endlog();
-        log(Error) << CORBA_EXCEPTION_INFO( e ) <<endlog();
-        return false;
-    }
-}
 
 RemoteOutputPort::RemoteOutputPort(RTT::types::TypeInfo const* type_info,
         CDataFlowInterface_ptr dataflow, std::string const& reader_port,

@@ -96,16 +96,11 @@ bool InputPortInterface::connectTo(PortInterface* other)
     return connectTo(other, default_policy);
 }
 
-bool InputPortInterface::addConnection(ConnID* port_id, ChannelElementBase::shared_ptr channel_output, const ConnPolicy& policy)
+bool InputPortInterface::addConnection(ConnID* cid, ChannelElementBase::shared_ptr channel, const ConnPolicy& policy)
 {
     // input ports don't check the connection policy.
-    cmanager.addConnection( port_id, channel_output, policy);
+    cmanager.addConnection( cid, channel, policy);
     return true;
-}
-
-bool InputPortInterface::channelReady(ChannelElementBase::shared_ptr channel, RTT::ConnPolicy const&)
-{
-    return (channel && channel->inputReady());
 }
 
 #ifndef ORO_SIGNALLING_PORTS

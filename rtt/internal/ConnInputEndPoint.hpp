@@ -63,7 +63,7 @@ namespace RTT
         ~ConnInputEndpoint()
         {}
 
-        virtual bool inputReady() {
+        virtual bool inputReady(base::ChannelElementBase::shared_ptr const&) {
             return true;
         }
 

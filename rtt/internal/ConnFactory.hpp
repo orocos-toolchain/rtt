@@ -316,7 +316,7 @@ namespace RTT
         }
 
         template <typename T>
-        static SharedConnectionBase::shared_ptr buildOrCheckSharedConnection(OutputPort<T>& output_port, base::InputPortInterface& input_port, ConnPolicy& policy)
+        static SharedConnectionBase::shared_ptr buildOrCheckSharedConnection(OutputPort<T>& output_port, base::InputPortInterface& input_port, ConnPolicy const& policy)
         {
             // try to find an existing shared connection first
             SharedConnectionBase::shared_ptr shared_connection;
@@ -379,10 +379,8 @@ namespace RTT
          *
          */
         template<typename T>
-        static bool createConnection(OutputPort<T>& output_port, base::InputPortInterface& input_port, ConnPolicy const& orig_policy)
+        static bool createConnection(OutputPort<T>& output_port, base::InputPortInterface& input_port, ConnPolicy const& policy)
         {
-            ConnPolicy policy = orig_policy; // copy the given ConnPolicy so that we can modify it if necessary
-
             if ( !output_port.isLocal() ) {
                 log(Error) << "Need a local OutputPort to create connections." <<endlog();
                 return false;

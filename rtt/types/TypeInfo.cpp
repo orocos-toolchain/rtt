@@ -207,10 +207,12 @@ namespace RTT
     {
         return mconnf ? mconnf->buildDataStorage(policy) : base::ChannelElementBase::shared_ptr();
     }
+
     base::ChannelElementBase::shared_ptr TypeInfo::buildChannelOutput(base::InputPortInterface& port, ConnPolicy const& policy) const
     {
         return mconnf ? mconnf->buildChannelOutput(port, policy) : base::ChannelElementBase::shared_ptr();
     }
+
     base::ChannelElementBase::shared_ptr TypeInfo::buildChannelInput(base::OutputPortInterface& port, ConnPolicy const& policy) const
     {
         return mconnf ? mconnf->buildChannelInput(port, policy) : base::ChannelElementBase::shared_ptr();

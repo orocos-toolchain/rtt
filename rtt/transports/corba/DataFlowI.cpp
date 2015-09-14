@@ -239,43 +239,6 @@ void CDataFlowInterface_i::deregisterChannel(CChannelElement_ptr channel)
     }
 }
 
-CORBA::Boolean CDataFlowInterface_i::channelReady(const char * reader_port_name, CChannelElement_ptr channel, CConnPolicy const& policy ) ACE_THROW_SPEC ((
-	      CORBA::SystemException
-	      ,::RTT::corba::CNoSuchPortException
-	    ))
-{
-    PortInterface* p = mdf->getPort(reader_port_name);
-    if (p == 0)
-        throw corba::CNoSuchPortException();
-
-    InputPortInterface* ip = dynamic_cast<InputPortInterface*>(p);
-    if (ip == 0)
-        throw corba::CNoSuchPortException();
-
-    CORBA_CHECK_THREAD();
-    // lookup the C++ channel that matches the corba channel and
-    // inform our local port that that C++ channel is ready.
-    { RTT::os::MutexLock lock(channel_list_mtx);
-        ChannelList::iterator it=channel_list.begin();
-        for (; it != channel_list.end(); ++it) {
-            if (it->first->_is_equivalent (channel) ) {
-                try {
-                    ConnPolicy cp;
-                    cp=toRTT(policy);
-                    return ip->channelReady( it->second, cp );
-                }
-                catch(std::exception const& e)
-                {
-                    log(Error) << "call to channelReady threw " << e.what() << endlog();
-                    throw;
-                }
-            }
-        }
-    }
-    log(Error) << "Invalid CORBA channel given for port " << reader_port_name << ": could not match it to a local C++ channel." <<endlog();
-    return false;
-}
-
 void CDataFlowInterface_i::disconnectPort(const char * port_name) ACE_THROW_SPEC ((
 	      CORBA::SystemException
 	      ,::RTT::corba::CNoSuchPortException
@@ -434,7 +397,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
 
     // store our mapping of corba channel elements to C++ channel elements. We need this for channelReady() and removing a channel again.
     { RTT::os::MutexLock lock(channel_list_mtx);
-        channel_list.push_back( ChannelList::value_type(this_element->_this(), end->getOutputEndPoint()));
+        channel_list.push_back( ChannelList::value_type(this_element->_this(), end) );
     }
 
     CRemoteChannelElement_var proxy = this_element->_this();
@@ -477,10 +440,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
     CRemoteChannelElement_i* this_element;
     PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull);
     this_element->setCDataFlowInterface(this);
-
-    // Attach the corba channel element first (so OOB is after corba).
     assert( dynamic_cast<ChannelElementBase*>(this_element) );
-    start->getOutputEndPoint()->setOutput( dynamic_cast<ChannelElementBase*>(this_element));
 
     /*
      * This part if for out-of band. (needs to be factored out).
@@ -500,12 +460,14 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
 
         if (ceb) {
             // OOB is added to end of chain.
-            start->getOutputEndPoint()->setOutput( ceb );
+            start->setOutput( dynamic_cast<ChannelElementBase*>(this_element) );
+            dynamic_cast<ChannelElementBase*>(this_element)->setOutput( ceb );
             log(Info) <<"Sending data from port "<< policy2.name_id << " to out-of-band protocol "<< corba_policy.transport <<endlog();
         } else {
             log(Error) << "The type transporter for type "<<type_info->getTypeName()<< " failed to create an out-of-band endpoint for port " << port_name<<endlog();
             throw CNoCorbaTransport();
         }
+
     } else {
         // No OOB. Always add output buffer.
         ChannelElementBase::shared_ptr buf = type_info->buildDataStorage(toRTT(corba_policy));
@@ -597,4 +559,3 @@ void CRemoteChannelElement_i::setRemoteSide(CRemoteChannelElement_ptr remote) AC
 	      CORBA::SystemException
 	    ))
 { this->remote_side = RTT::corba::CRemoteChannelElement::_duplicate(remote); }
-

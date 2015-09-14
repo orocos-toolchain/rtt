@@ -145,13 +145,18 @@ ChannelElementBase::shared_ptr ChannelElementBase::getOutputEndPoint()
     return output ? output->getOutputEndPoint() : this;
 }
 
-bool ChannelElementBase::inputReady()
+bool ChannelElementBase::channelReady(ChannelElementBase::shared_ptr const&, ConnPolicy const& policy, ConnID *conn_id)
+{
+    // we go in the direction of the data stream
+    shared_ptr output = getOutput();
+    return output ? output->channelReady(this, policy, conn_id) : false;
+}
+
+bool ChannelElementBase::inputReady(ChannelElementBase::shared_ptr const&)
 {
     // we go against the data stream
     shared_ptr input = getInput();
-    if (input)
-        return input->inputReady();
-    return false;
+    return input ? input->inputReady(this) : false;
 }
 
 void ChannelElementBase::clear()
@@ -202,11 +207,11 @@ bool MultipleInputsChannelElementBase::connected()
     return inputs.size() > 0;
 }
 
-bool MultipleInputsChannelElementBase::inputReady()
+bool MultipleInputsChannelElementBase::inputReady(ChannelElementBase::shared_ptr const&)
 {
     RTT::os::SharedMutexLock lock(inputs_lock);
     for (Inputs::const_iterator it = inputs.begin(); it != inputs.end(); ++it) {
-        if (!(*it)->inputReady()) return false;
+        if (!(*it)->inputReady(this)) return false;
     }
     return !inputs.empty();
 }
@@ -300,6 +305,15 @@ bool MultipleOutputsChannelElementBase::signal()
         (*output)->signal();
     }
     return ChannelElementBase::signal();
+}
+
+bool MultipleOutputsChannelElementBase::channelReady(ChannelElementBase::shared_ptr const&, ConnPolicy const& policy, internal::ConnID *conn_id)
+{
+    RTT::os::SharedMutexLock lock(outputs_lock);
+    for (Outputs::const_iterator it = outputs.begin(); it != outputs.end(); ++it) {
+        if (!(*it)->channelReady(this, policy, conn_id)) return false;
+    }
+    return !outputs.empty();
 }
 
 void MultipleOutputsChannelElementBase::removeOutput(ChannelElementBase *output)

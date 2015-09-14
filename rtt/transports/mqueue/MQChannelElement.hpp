@@ -86,10 +86,9 @@ namespace RTT
                 cleanupStream();
             }
 
-            virtual bool inputReady() {
+            virtual bool inputReady(base::ChannelElementBase::shared_ptr const& caller) {
                 if ( mqReady(read_sample, this) ) {
-                    typename base::ChannelElement<T>::shared_ptr output =
-                        this->getOutput();
+                    typename base::ChannelElement<T>::shared_ptr output = caller->narrow<T>();
                     assert(output);
                     output->data_sample(read_sample->rvalue());
                     return true;

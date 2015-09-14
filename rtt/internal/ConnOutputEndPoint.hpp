@@ -80,16 +80,26 @@ namespace RTT
         {
         }
 
-        /** Called by the connection factory to check that the connection is
-         * properly set up. It is called when the channel is complete, so we can
-         * register ourselves on the port side now
-         *
-         * Before that, the channel might not be complete and therefore having
-         * the input port read on it would lead to crashes
+        /**
+         * Call this to indicate that a connection leading to this port
+         * is ready to use. The input port will check its channel elements
+         * by sending an inputReady() message. If this succeeds, this
+         * function returns true and the input port is ready to use (this->connected() == true).
+         * If sending inputReady() returns failure, this method returns
+         * false and the connection is aborted (this->connected() == false).
          */
-        bool inputReady()
+        bool channelReady(base::ChannelElementBase::shared_ptr const& channel, ConnPolicy const& policy, ConnID *conn_id)
         {
-            return Base::inputReady();
+            // cid is deleted/owned by the ConnectionManager.
+            if ( channel ) {
+                if (!conn_id) conn_id = new internal::SimpleConnID();
+                if ( channel->inputReady(this) ) {
+                    port->addConnection(conn_id, channel, policy);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /** Writes a new sample on this connection

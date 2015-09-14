@@ -119,16 +119,6 @@ namespace RTT
         /** Returns true if this port is connected */
         virtual bool connected() const;
 
-        /**
-         * Call this to indicate that the connection leading to this port
-         * is ready to use. The input port will check its channel elements
-         * by sending an inputReady() message. If this succeeds, this
-         * function returns true and the input port is ready to use (this->connected() == true).
-         * If sending inputReady() returns failure, this method returns
-         * false and the connection is aborted (this->connected() == false).
-         */
-        virtual bool channelReady(base::ChannelElementBase::shared_ptr channel, ConnPolicy const& policy);
-
 #ifdef ORO_SIGNALLING_PORTS
         /** Returns the event object that gets emitted when new data is
          * available for this port. It gets deleted when the port is deleted.

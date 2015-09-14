@@ -592,7 +592,7 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
 
     // test unbuffered Corba write --> C++ read
     cce = ports->buildChannelOutput("mi", policy);
-    ports->channelReady("mi", cce, policy);
+    cce->channelReady(policy);
 
     mi->connectTo( tp->ports()->getPort("mo"), toRTT(policy) );
     sample = new CORBA::Any();
@@ -667,7 +667,7 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     // test buffered Corba write --> C++ read
     mi->connectTo( tp->ports()->getPort("mo"), toRTT(policy)  );
     cce = ports->buildChannelOutput("mi", policy);
-    ports->channelReady("mi", cce, policy);
+    cce->channelReady(policy);
     sample = new CORBA::Any();
     BOOST_REQUIRE( cce.in() );
 

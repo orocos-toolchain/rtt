@@ -182,10 +182,6 @@ namespace RTT {
             	      CORBA::SystemException
             	      ,::RTT::corba::CNoSuchPortException
             	    ));
-            ::CORBA::Boolean channelReady(const char* port_name, RTT::corba::CChannelElement_ptr channel, RTT::corba::CConnPolicy const& policy) ACE_THROW_SPEC ((
-            	      CORBA::SystemException
-            	      ,::RTT::corba::CNoSuchPortException
-            	    ));
             void disconnectPort(const char* port_name) ACE_THROW_SPEC ((
             	      CORBA::SystemException
             	      ,::RTT::corba::CNoSuchPortException

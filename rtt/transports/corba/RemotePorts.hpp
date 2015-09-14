@@ -125,10 +125,6 @@ namespace RTT {
         class RemoteInputPort
             : public RemotePort<base::InputPortInterface>
         {
-        private:
-            typedef std::map<base::ChannelElementBase*,RTT::corba::CChannelElement_var> ChannelMap;
-            ChannelMap channel_map;
-
         protected:
             /**
              * The ConnectionFactory calls this. Overload to do nothing when dealing with remote ports.
@@ -169,15 +165,6 @@ namespace RTT {
             base::PortInterface* antiClone() const;
 
             base::DataSourceBase* getDataSource();
-
-            /**
-             * For remote input port objects, this is forwarded to the other end
-             * over the Data Flow Interface. The given channel must be the
-             * output endpoint of a connection, which was built using buildRemoteChannelOutput.
-             * So channel->getOutputEndpoint() == channel
-             * @return
-             */
-            virtual bool channelReady(base::ChannelElementBase::shared_ptr channel, ConnPolicy const& policy);
         };
     }
 }
