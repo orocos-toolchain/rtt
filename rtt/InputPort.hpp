@@ -85,8 +85,8 @@ namespace RTT
 
         virtual ~InputPort() { disconnect(); }
 
-        /** Clears the connection. After call to read() will return false after
-         * clear() has been called
+        /**
+         * Clears the input buffer (or all input buffers), so that read() will return NoData before a new sample has been written.
          */
         void clear()
         {

@@ -218,6 +218,22 @@ namespace RTT
         }
 
         /**
+         * Clears the last written value and all data stored in shared connection buffers.
+         * The clear() call on an OutputPort has no effect on private connections.
+         */
+        void clear()
+        {
+            has_last_written_value = false;
+            getInputEndpoint()->clear(); // only affects shared pull connections, where getInputEndpoint() would return the port's buffer object
+
+            // eventually clear shared connection
+            internal::SharedConnectionBase::shared_ptr shared_connection = cmanager.getSharedConnection();
+            if (shared_connection) {
+                shared_connection->clear();
+            }
+        }
+
+        /**
          * Writes a new sample to all receivers (if any).
          * @param sample The new sample to send out.
          */

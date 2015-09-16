@@ -45,7 +45,7 @@
 #include <boost/call_traits.hpp>
 
 #include <rtt/os/Mutex.hpp>
-#include "rtt-fwd.hpp"
+#include "../rtt-fwd.hpp"
 #include "rtt-base-fwd.hpp"
 #include "../internal/rtt-internal-fwd.hpp"
 

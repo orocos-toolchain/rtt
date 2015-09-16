@@ -50,7 +50,6 @@
 
 namespace RTT
 {
-
     class Activity;
     class Alias;
     class CleanupHandle;
