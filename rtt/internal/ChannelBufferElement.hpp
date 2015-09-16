@@ -73,11 +73,11 @@ namespace RTT { namespace internal {
          *
          * @return true if there was room in the FIFO for the new sample, and false otherwise.
          */
-        virtual bool write(param_t sample)
+        virtual FlowStatus write(param_t sample)
         {
             if (buffer->Push(sample))
-                return this->signal();
-            return true;
+                return this->signal() ? WriteSuccess : WriteFailure;
+            return WriteFailure;
         }
 
         /** Pops and returns the first element of the FIFO

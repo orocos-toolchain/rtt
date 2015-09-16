@@ -78,6 +78,10 @@ namespace RTT {
      *       connection type is private, in which case every reader will receive written
      *       values independently.
      *
+     *  <li> if the connection is mandatory. Mandatory connections will let the write()
+     *       call fail if the new sample cannot be successfully written. Default connections
+     *       are not mandatory.
+     *
      *  <li> the transport type. Can be used to force a certain kind of transports.
      *       The number is a RTT transport id. When the transport type is zero,
      *       local in-process communication is used, unless one of the ports is
@@ -163,20 +167,31 @@ namespace RTT {
          * what was the last written value).
          */
         bool   init;
+
         /** This is the locking policy on the connection */
         int    lock_policy;
+
         /** If true, then the sink will have to pull data. Otherwise, it is pushed
          * from the source. In both cases, the reader side is notified that new
          * data is available by base::ChannelElementBase::signal()
          */
         bool   pull;
+
         /** If true, the connection is shared and all readers read from the same
          * data or buffer. Otherwise, every reader will have its own data or buffer
          * element.
          */
         bool   shared;
+
+        /**
+         * Whether the connection described by this connection policy is mandatory, which
+         * means that write operations fail if
+         */
+        bool mandatory;
+
         /** If the connection is a buffered connection, the size of the buffer */
         int    size;
+
         /**
          * The prefered transport used. 0 is local (in process), a higher number
          * is used for inter-process or networked communication transports.

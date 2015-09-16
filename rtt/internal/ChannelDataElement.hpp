@@ -64,12 +64,12 @@ namespace RTT { namespace internal {
 
         /** Update the data sample stored in this element.
          * It always returns true. */
-        virtual bool write(param_t sample)
+        virtual FlowStatus write(param_t sample)
         {
             data->Set(sample);
             written = true;
             mread = false;
-            return this->signal();
+            return this->signal() ? WriteSuccess : WriteFailure;
         }
 
         /** Reads the last sample given to write()

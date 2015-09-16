@@ -162,10 +162,13 @@ namespace RTT
              * @param sample the data sample to write
              * @return true if it could be sent.
              */
-            bool write(typename base::ChannelElement<T>::param_t sample)
+            FlowStatus write(typename base::ChannelElement<T>::param_t sample)
             {
                 write_sample->setPointer(&sample);
-                return mqWrite(write_sample);
+                if (!mqWrite(write_sample)) {
+                    return WriteFailure;
+                }
+                return WriteSuccess;
             }
 
         };

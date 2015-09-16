@@ -237,7 +237,7 @@ namespace RTT
          * Writes a new sample to all receivers (if any).
          * @param sample The new sample to send out.
          */
-        void write(const T& sample)
+        FlowStatus write(const T& sample)
         {
             if (keeps_last_written_value || keeps_next_written_value)
             {
@@ -247,26 +247,30 @@ namespace RTT
             }
             has_last_written_value = keeps_last_written_value;
 
-            if (getInputEndpoint()->write(sample)) {
+            FlowStatus result = getInputEndpoint()->write(sample);
+            if (result == NotConnected) {
                 log(Error) << "A channel of port " << getName() << " has been invalidated during write(), it will be removed" << endlog();
             }
+
+            return result;
         }
 
-        void write(base::DataSourceBase::shared_ptr source)
+        FlowStatus write(base::DataSourceBase::shared_ptr source)
         {
             typename internal::AssignableDataSource<T>::shared_ptr ds =
                 boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >(source);
             if (ds)
-                write(ds->rvalue());
+                return write(ds->rvalue());
             else
             {
                 typename internal::DataSource<T>::shared_ptr ds =
                     boost::dynamic_pointer_cast< internal::DataSource<T> >(source);
                 if (ds)
-                    write(ds->get());
+                    return write(ds->get());
                 else
                     log(Error) << "trying to write from an incompatible data source" << endlog();
             }
+            return WriteFailure;
         }
 
         /** Returns the types::TypeInfo object for the port's type */
@@ -310,7 +314,7 @@ namespace RTT
         {
             Service* object = base::OutputPortInterface::createPortObject();
             // Force resolution on the overloaded write method
-            typedef void (OutputPort<T>::*WriteSample)(T const&);
+            typedef FlowStatus (OutputPort<T>::*WriteSample)(T const&);
             WriteSample write_m = &OutputPort::write;
             typedef T (OutputPort<T>::*LastSample)() const;
             LastSample last_m = &OutputPort::getLastWrittenValue;

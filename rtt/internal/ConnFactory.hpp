@@ -118,6 +118,7 @@ namespace RTT
          * Creates the output endpoint of a communication channel and adds it to an InputPort.
          *
          * @param port The input port to connect the channel's output end to.
+         * @param policy Describes the kind of connection requested by the user
          * @return The created endpoint.
          */
         virtual base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port, ConnPolicy const& policy) const = 0;
@@ -125,6 +126,7 @@ namespace RTT
          * Creates the input endpoint (starting point) of a communication channel and adds it to an OutputPort.
          *
          * @param port The output port to connect the channel's input end to.
+         * @param policy Describes the kind of connection requested by the user
          * @return The created endpoint.
          */
         virtual base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port, ConnPolicy const& policy) const = 0;
@@ -195,7 +197,6 @@ namespace RTT
          * @param port The output port to which the connection is added.
          * @param policy The policy dictating which kind of buffer must be installed.
          * The transport and other parameters are ignored.
-         * @param initial_value The value to use to initialize the connection's storage buffer.
          *
          * @see buildChannelOutput
          */
@@ -210,7 +211,7 @@ namespace RTT
                 if (!buffer) {
                     return typename internal::ConnOutputEndpoint<T>::shared_ptr();
                 }
-                endpoint->addOutput(buffer);
+                endpoint->addOutput(buffer, policy.mandatory);
                 return buffer;
 
             } else if (policy.pull == ConnPolicy::PULL && policy.shared == ConnPolicy::SHARED) {

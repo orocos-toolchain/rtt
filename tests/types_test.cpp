@@ -533,6 +533,9 @@ BOOST_AUTO_TEST_CASE( testFlowStatus )
     BOOST_CHECK (GlobalsRepository::Instance()->getValue("NewData") );
     BOOST_CHECK (GlobalsRepository::Instance()->getValue("OldData") );
     BOOST_CHECK (GlobalsRepository::Instance()->getValue("NoData") );
+    BOOST_CHECK (GlobalsRepository::Instance()->getValue("WriteSuccess") );
+    BOOST_CHECK (GlobalsRepository::Instance()->getValue("WriteFailure") );
+    BOOST_CHECK (GlobalsRepository::Instance()->getValue("NotConnected") );
     string prog = string("program x {\n") +
         "do test.assert( NewData )\n" +
         "do test.assert( OldData )\n" +

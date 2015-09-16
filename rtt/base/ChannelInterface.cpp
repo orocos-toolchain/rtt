@@ -77,8 +77,12 @@ void ChannelElementBase::setOutput(shared_ptr output)
         output->setInput(this);
 }
 
-bool ChannelElementBase::addOutput(shared_ptr output)
+bool ChannelElementBase::addOutput(shared_ptr output, bool)
 {
+    if (!getOutput()) {
+        setOutput(output);
+        return true;
+    }
     return false;
 }
 
@@ -96,6 +100,10 @@ void ChannelElementBase::setInput(shared_ptr input)
 
 bool ChannelElementBase::addInput(shared_ptr output)
 {
+    if (!getInput()) {
+        setInput(output);
+        return true;
+    }
     return false;
 }
 
@@ -279,7 +287,7 @@ bool MultipleOutputsChannelElementBase::connected()
     return outputs.size() > 0;
 }
 
-bool MultipleOutputsChannelElementBase::addOutput(ChannelElementBase::shared_ptr output)
+bool MultipleOutputsChannelElementBase::addOutput(ChannelElementBase::shared_ptr output, bool mandatory)
 {
     if (!output) return false;
     {
@@ -287,6 +295,7 @@ bool MultipleOutputsChannelElementBase::addOutput(ChannelElementBase::shared_ptr
         if (std::find(outputs.begin(), outputs.end(), output) != outputs.end()) return false;
         assert(std::find(outputs.begin(), outputs.end(), output) == outputs.end());
         outputs.push_back(output);
+        outputs_mandatory[output.get()] = true;
     }
 
     output->setInput(this);
@@ -296,6 +305,12 @@ bool MultipleOutputsChannelElementBase::addOutput(ChannelElementBase::shared_ptr
 void MultipleOutputsChannelElementBase::setOutput(ChannelElementBase::shared_ptr output)
 {
     (void) addOutput(output);
+}
+
+bool MultipleOutputsChannelElementBase::isMandatory(const ChannelElementBase *output)
+{
+    RTT::os::SharedMutexLock lock(outputs_lock);
+    return outputs_mandatory.count(output) && outputs_mandatory.at(output);
 }
 
 bool MultipleOutputsChannelElementBase::signal()
@@ -319,6 +334,7 @@ bool MultipleOutputsChannelElementBase::channelReady(ChannelElementBase::shared_
 void MultipleOutputsChannelElementBase::removeOutput(ChannelElementBase *output)
 {
     outputs.remove(output);
+    outputs_mandatory.erase(output);
 }
 
 bool MultipleOutputsChannelElementBase::disconnect(const ChannelElementBase::shared_ptr& channel, bool forward)

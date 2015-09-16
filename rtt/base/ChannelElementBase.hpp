@@ -50,6 +50,7 @@
 #include "../internal/rtt-internal-fwd.hpp"
 
 #include <list>
+#include <map>
 
 namespace RTT { namespace base {
 
@@ -151,8 +152,9 @@ namespace RTT { namespace base {
          * for a MultipleOutputsChannelElementBase which can have multiple outputs.
          * Returns false if the channel does not support multiple outputs.
          * @param output the next element in chain.
+         * @param mandatory whether the added output is mandatory for a write to succeed
          */
-        virtual bool addOutput(ChannelElementBase::shared_ptr output);
+        virtual bool addOutput(ChannelElementBase::shared_ptr output, bool mandatory = false);
 
         /**
          * Sets the input of this channel element to \a input.
@@ -316,6 +318,7 @@ namespace RTT { namespace base {
 
     protected:
         Outputs outputs;
+        std::map<const ChannelElementBase *, bool> outputs_mandatory;
         RTT::os::SharedMutex outputs_lock;
 
     public:
@@ -323,8 +326,9 @@ namespace RTT { namespace base {
          * Adds a new output to this element. This method replaces ChannelElementBase::setOutput(),
          * for a MultipleOutputsChannelElementBase which can have multiple outputs.
          * @param output the next element in chain.
+         * @param mandatory whether the added output is mandatory for a write to succeed
          */
-        virtual bool addOutput(ChannelElementBase::shared_ptr output);
+        virtual bool addOutput(ChannelElementBase::shared_ptr output, bool mandatory = false);
 
         /**
          * Overwritten implementation of \ref ChannelElementBase::setOutput() which forwards to \ref addOutput()
@@ -338,6 +342,11 @@ namespace RTT { namespace base {
          * input connection or not.
          */
         virtual bool connected();
+
+        /**
+         * Returns true, if the given output channel is mandatory for a successful write to this channel element.
+         */
+        virtual bool isMandatory(const ChannelElementBase *output);
 
         /**
          * Overwritten implementation of \ref ChannelElementBase::signal() which forwards the signal to all

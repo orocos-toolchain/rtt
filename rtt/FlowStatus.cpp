@@ -54,6 +54,15 @@ namespace RTT {
         case NewData:
             os << "NewData";
             break;
+        case WriteSuccess:
+            os << "WriteSuccess";
+            break;
+        case WriteFailure:
+            os << "WriteFailure";
+            break;
+        case NotConnected:
+            os << "NotConnected";
+            break;
         }
         return os;
     }
@@ -68,6 +77,12 @@ namespace RTT {
             fs = OldData;
         else if (s == "NewData")
             fs = NewData;
+        else if (s == "WriteSuccess")
+            fs = WriteSuccess;
+        else if (s == "WriteFailure")
+            fs = WriteFailure;
+        else if (s == "NotConnected")
+            fs = NotConnected;
 
         return is;
     }

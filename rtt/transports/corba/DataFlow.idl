@@ -10,7 +10,7 @@ module RTT
 {
   module corba
   {
-    enum CFlowStatus { CNoData, COldData, CNewData };
+    enum CFlowStatus { CNoData, COldData, CNewData, CWriteSuccess, CWriteFailure, CNotConnected };
     enum CConnectionModel { CData, CBuffer };
     enum CLockPolicy { CUnsync, CLocked, CLockFree };
     struct CConnPolicy
@@ -20,6 +20,7 @@ module RTT
         CLockPolicy lock_policy;
         boolean pull;
         boolean shared;
+        boolean mandatory;
         long size;
         long transport;
         long data_size;
@@ -70,9 +71,9 @@ module RTT
 
         /**
          * Writes into this Channel Element.
-         * @return false if the channel became invalid
+         * @return NotConnected if the channel became invalid
          */
-        boolean write(in any sample);
+        CFlowStatus write(in any sample);
 
         /**
          * Disconnect and dispose this object.

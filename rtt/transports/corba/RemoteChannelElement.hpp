@@ -69,21 +69,25 @@ namespace RTT {
 	     * In pull mode, we don't send data, just signal it and remote must read it back.
 	     */
 	    bool pull;
+        /**
+         * In mandatory mode, we wait for a return value in write(). Otherwise, write one-way.
+         */
+        bool mandatory;
 
 	    DataFlowInterface* msender;
 
-            PortableServer::ObjectId_var oid;
+        PortableServer::ObjectId_var oid;
 
-	public:
-	    /**
-	     * Create a channel element for remote data exchange.
-	     * @param transport The type specific object that will be used to marshal the data.
-	     * @param poa The POA that manages the underlying CRemoteChannelElement_i.
-	     */
-	    RemoteChannelElement(CorbaTypeTransporter const& transport, DataFlowInterface* sender, PortableServer::POA_ptr poa, bool is_pull)
-        : CRemoteChannelElement_i(transport, poa)
-        , valid(true), pull(is_pull)
-        , msender(sender)
+        public:
+            /**
+             * Create a channel element for remote data exchange.
+             * @param transport The type specific object that will be used to marshal the data.
+             * @param poa The POA that manages the underlying CRemoteChannelElement_i.
+             */
+            RemoteChannelElement(CorbaTypeTransporter const& transport, DataFlowInterface* sender, PortableServer::POA_ptr poa, bool is_pull, bool is_mandatory)
+            : CRemoteChannelElement_i(transport, poa),
+              valid(true), pull(is_pull), mandatory(is_mandatory),
+              msender(sender)
             {
                 // Big note about cleanup: The RTT will dispose this object through
 	            // the ChannelElement<T> refcounting. So we only need to inform the
@@ -304,15 +308,18 @@ namespace RTT {
                 return (CFlowStatus)fs;
             }
 
-            bool write(typename base::ChannelElement<T>::param_t sample)
+            FlowStatus write(typename base::ChannelElement<T>::param_t sample)
             {
+                FlowStatus result;
+
                 // try to write locally first
-                if (base::ChannelElement<T>::write(sample))
-                    return true;
+                result = base::ChannelElement<T>::write(sample);
+                if (result != NotConnected)
+                    return result;
 
                 // can only write through corba if remote_side is known
                 if ( CORBA::is_nil(remote_side.in()) ) {
-                    return false;
+                    return NotConnected;
                 }
 
                 // go through corba
@@ -330,34 +337,41 @@ namespace RTT {
                     // provide shared pointers. Manually increment refence count
                     // (the stack "owns" the object)
                     transport.updateAny(&const_ref_data_source, write_any);
-                    remote_side->write(write_any); 
-                    return true;
+
+                    if (mandatory) {
+                        CFlowStatus cfs = remote_side->write(write_any);
+                        return (FlowStatus)cfs;
+                    } else {
+                        remote_side->write(write_any);
+                        return WriteSuccess;
+                    }
                 }
 #ifdef CORBA_IS_OMNIORB
                 catch(CORBA::SystemException& e)
                 {
                     log(Error) << "caught CORBA exception while marshalling: " << e._name() << " " << e.NP_minorString() << endlog();
-                    return false;
+                    return WriteFailure;
                 }
 #endif
                 catch(CORBA::Exception& e)
                 {
                     log(Error) << "caught CORBA exception while marshalling: " << e._name() << endlog();
-                    return false;
+                    return WriteFailure;
                 }
             }
 
             /**
              * CORBA IDL function.
              */
-            bool write(const ::CORBA::Any& sample) ACE_THROW_SPEC ((
-          	      CORBA::SystemException
-          	    ))
+            CFlowStatus write(const ::CORBA::Any& sample) ACE_THROW_SPEC ((
+                    CORBA::SystemException
+                  ))
             {
                 typename internal::ValueDataSource<T> value_data_source;
                 value_data_source.ref();
                 transport.updateFromAny(&sample, &value_data_source);
-                return base::ChannelElement<T>::write(value_data_source.rvalue());
+                FlowStatus fs = base::ChannelElement<T>::write(value_data_source.rvalue());
+                return (CFlowStatus)fs;
             }
 
             virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)

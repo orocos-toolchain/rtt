@@ -107,12 +107,15 @@ namespace RTT
          * in which case the base class's write implementation will return true
          * and the port is signalled. Otherwise, return false, as other type of
          * connections are supposed to have a data storage element. */
-        virtual bool write(typename Base::param_t sample)
+        virtual FlowStatus write(typename Base::param_t sample)
         {
-            if (Base::write(sample)) {
-                return signal();
+            FlowStatus result = Base::write(sample);
+            if (result == WriteSuccess) {
+                if (!signal()) {
+                    return WriteFailure;
+                }
             }
-            return false;
+            return result;
         }
 
         using Base::disconnect;

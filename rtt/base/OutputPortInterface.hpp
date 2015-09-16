@@ -101,7 +101,7 @@ namespace RTT
         /**
          * Write this port using the value stored in source.
          */
-        virtual void write(DataSourceBase::shared_ptr source);
+        virtual FlowStatus write(DataSourceBase::shared_ptr source);
 
         /** Connects this write port to the given read port, using a single-data
          * policy with the given locking mechanism

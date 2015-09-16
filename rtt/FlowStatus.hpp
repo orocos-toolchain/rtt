@@ -46,12 +46,18 @@
 
 namespace RTT {
     /**
-     * Returns the status of a data flow read.
+     * Returns the status of a data flow read or write operation.
      * NoData means that the channel is disconnected or never written to.
      * NewData means that the returned data is new data.
      * OldData means that the returned data was already read.
+     * WriteSuccess means that the sample could be successfully written into the connection buffer of all (mandatory) channels.
+     * WriteFailure means that at least one (mandatory) connection reported an error, e.g. a full buffer.
+     * NotConnected means that at least one (mandatory) channel is not connected or the channel is not connected to any output.
+     *
+     * @note The CORBA transport enforces that FlowStatus values are in-order (no double assignments or negative values).
      */
-    enum FlowStatus { NoData = 0, OldData = 1, NewData = 2};
+    enum FlowStatus { NoData = 0, OldData = 1, NewData = 2,
+                      WriteSuccess = 3, WriteFailure = 4, NotConnected = 5 };
 
     RTT_API std::ostream& operator<<(std::ostream& os, FlowStatus fs);
     RTT_API std::istream& operator>>(std::istream& os, FlowStatus& fs);

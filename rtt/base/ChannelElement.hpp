@@ -104,12 +104,12 @@ namespace RTT { namespace base {
          *
          * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
          */
-        virtual bool write(param_t sample)
+        virtual FlowStatus write(param_t sample)
         {
             typename ChannelElement<T>::shared_ptr output = getOutput();
             if (output)
                 return output->write(sample);
-            return false;
+            return NotConnected;
         }
 
         /** Reads a sample from the connection. \a sample is a reference which
@@ -275,17 +275,24 @@ namespace RTT { namespace base {
          *
          * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
          */
-        virtual bool write(param_t sample)
+        virtual FlowStatus write(param_t sample)
         {
             RTT::os::SharedMutexLock lock(outputs_lock);
-            if (outputs.empty()) return false;
-            bool result = true;
+            if (outputs.empty()) return NotConnected;
+            FlowStatus result = WriteSuccess;
             for(Outputs::const_iterator it = outputs.begin(); it != outputs.end(); ++it)
             {
                 typename ChannelElement<T>::shared_ptr output = (*it)->narrow<T>();
-                if (!output->write(sample)) {
-                    result = false;
-                    // TODO: disconnect channel
+                FlowStatus fs = output->write(sample);
+                if (fs != WriteSuccess) {
+                    if (isMandatory(output.get())) {
+                        if (fs == NotConnected)
+                            result = NotConnected;
+                        else if (fs == WriteFailure && result == WriteSuccess)
+                            result = WriteFailure;
+                    }
+
+                    // TODO: disconnect channel if fs == NotConnected
                 }
             }
             return result;
