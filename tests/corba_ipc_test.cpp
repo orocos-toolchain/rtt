@@ -405,11 +405,8 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     s2 = ts2->server();
 
     // Create a default CORBA policy specification
-    RTT::corba::CConnPolicy policy;
-    policy.type = RTT::corba::CData;
+    RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::data());
     policy.init = false;
-    policy.lock_policy = RTT::corba::CLockFree;
-    policy.size = 0;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = s->ports();
@@ -558,11 +555,8 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
     s = tp->server();
 
     // Create a default CORBA policy specification
-    RTT::corba::CConnPolicy policy;
-    policy.type = RTT::corba::CData;
+    RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::data());
     policy.init = false;
-    policy.lock_policy = RTT::corba::CLockFree;
-    policy.size = 0;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = s->ports();
@@ -628,11 +622,8 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     s = tp->server();
 
     // Create a default CORBA policy specification
-    RTT::corba::CConnPolicy policy;
-    policy.type = RTT::corba::CBuffer;
+    RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::buffer(10));
     policy.init = false;
-    policy.lock_policy = RTT::corba::CLockFree;
-    policy.size = 10;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = s->ports();
