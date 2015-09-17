@@ -1002,11 +1002,11 @@ namespace RTT {
         TRACE("executePending..." );
 
         if ( currentEntry ) {
-            TRACE("Executing entry program of '"+ current->getName() +"'" );
+            TRACE("Executing entry program of '"+ (current ? current->getName() : "(null)") +"'" );
             if ( this->executeProgram(currentEntry, stepping) == false )
                 return false;
             // done.
-            TRACE("Finished  entry program of '"+ current->getName() +"'" );
+            TRACE("Finished  entry program of '"+ (current ? current->getName() : "(null)") +"'" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
                 currentProg = currentRun;
@@ -1036,7 +1036,7 @@ namespace RTT {
 
         // last is exit
         if ( currentExit ) {
-            TRACE("Executing exit program from '"+ current->getName() + "' (going to '"+ (next ? next->getName() : "(null)") +"')" );
+            TRACE("Executing exit program from '"+ (current ? current->getName() : "(null)") + "' (going to '"+ (next ? next->getName() : "(null)") +"')" );
             if ( this->executeProgram(currentExit, stepping) == false )
                 return false;
             // done.
@@ -1078,7 +1078,7 @@ namespace RTT {
 
         // give new current a chance to execute the entry program and run program :
         if ( currentEntry ) {
-            TRACE("Executing entry program of '"+ current->getName() +"'" );
+            TRACE("Executing entry program of '"+ (current ? current->getName() : "(null)") +"'" );
             if ( this->executeProgram(currentEntry, stepping) == false )
                 return false;
             // done.
@@ -1092,7 +1092,7 @@ namespace RTT {
 
         // Handle is executed after the transitions failed.
         if ( currentHandle ) {
-            TRACE("Executing handle program of '"+ current->getName() +"'" );
+            TRACE("Executing handle program of '"+ (current ? current->getName() : "(null)") +"'" );
             if ( this->executeProgram(currentHandle, stepping) == false )
                 return false;
             // done.
@@ -1106,7 +1106,7 @@ namespace RTT {
 
         // Run is executed before the transitions.
         if ( currentRun ) {
-            TRACE("Executing run program of '"+ current->getName() +"'" );
+            TRACE("Executing run program of '"+ (current ? current->getName() : "(null)") +"'" );
             if ( this->executeProgram(currentRun, stepping) == false )
                 return false;
             // done.
