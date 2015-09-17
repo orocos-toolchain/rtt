@@ -62,7 +62,7 @@ public:
 
 int ORO_main(int argc, char** argv)
 {
-#ifdef OR_RT_MALLOC
+#ifdef OS_RT_MALLOC
 	void*   rtMem=0;
 	size_t  freeMem=0;
 
