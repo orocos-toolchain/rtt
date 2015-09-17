@@ -1,11 +1,4 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 22 11:59:08 CEST 2009  FileDescriptorActivity.hpp
-
-                        FileDescriptorActivity.hpp -  description
-                           -------------------
-    begin                : Thu October 22 2009
-    copyright            : (C) 2009 Peter Soetens
-    email                : peter@thesourcworks.com
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -35,11 +28,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef FILEDESCRIPTOR_ACTIVITY_INTERFACE_HPP
+#define FILEDESCRIPTOR_ACTIVITY_INTERFACE_HPP
 
-#ifndef FILEDESCRIPTOR_ACTIVITY_HPP
-#define FILEDESCRIPTOR_ACTIVITY_HPP
-
-#include "FileDescriptorActivityInterface.hpp"
 #include "../Activity.hpp"
 #include <set>
 
@@ -101,93 +92,10 @@ namespace RTT { namespace extras {
      * }
      * </code>
      */
-    class RTT_API FileDescriptorActivity : public extras::FileDescriptorActivityInterface,
-                                           public Activity
+    class RTT_API FileDescriptorActivityInterface
     {
-        std::set<int> m_watched_fds;
-        bool m_running;
-        int  m_interrupt_pipe[2];
-        int  m_timeout_us;		//! timeout in microseconds
-        Seconds m_period;		//! intended period
-        /** Lock that protects the access to m_fd_set and m_watched_fds */
-        mutable RTT::os::Mutex m_lock;
-        fd_set m_fd_set;
-        fd_set m_fd_work;
-        bool m_has_error;
-        bool m_has_timeout;
-
-        static const char CMD_ANY_COMMAND = 0;
-        RTT::os::Mutex m_command_mutex;
-        bool m_break_loop;
-        bool m_trigger;
-        bool m_update_sets;
-
-        /** Internal method that makes sure loop() takes into account
-         * modifications in the set of watched FDs
-         */
-        void triggerUpdateSets();
-
     public:
-        /**
-         * Create a FileDescriptorActivity with a given priority and base::RunnableInterface
-         * instance. The default scheduler for NonPeriodicActivity
-         * objects is ORO_SCHED_RT.
-         *
-         * @param priority The priority of the underlying thread.
-         * @param _r The optional runner, if none, this->loop() is called.
-         * @param name The name of the underlying thread.
-         */
-        FileDescriptorActivity(int priority, base::RunnableInterface* _r = 0, const std::string& name ="FileDescriptorActivity" );
-
-        /**
-         * Create a FileDescriptorActivity with a given scheduler type, priority and
-         * base::RunnableInterface instance.
-         * @param scheduler
-         *        The scheduler in which the activitie's thread must run. Use ORO_SCHED_OTHER or
-         *        ORO_SCHED_RT.
-         * @param priority The priority of the underlying thread.
-         * @param _r The optional runner, if none, this->loop() is called.
-         * @param name The name of the underlying thread.
-         */
-        FileDescriptorActivity(int scheduler, int priority, base::RunnableInterface* _r = 0, const std::string& name ="FileDescriptorActivity" );
-
-        /**
-         * Create a FileDescriptorActivity with a given scheduler type, priority, _intended_ period, and
-         * RunnableInterface instance.
-         * @param scheduler
-         *        The scheduler in which the activitie's thread must run. Use ORO_SCHED_OTHER or
-         *        ORO_SCHED_RT.
-         * @param priority The priority of the underlying thread.
-         * @param period The _intended_ periodicity of the activity
-         * @param _r The optional runner, if none, this->loop() is called.
-         * @param name The name of the underlying thread.
-         */
-        FileDescriptorActivity(int scheduler, int priority, Seconds period, base::RunnableInterface* _r = 0, const std::string& name ="FileDescriptorActivity" );
-
-        /**
-         * Create a FileDescriptorActivity with a given scheduler type, priority, _intended_ period,
-         * CPU affinity, and RunnableInterface instance.
-         * @param scheduler
-         *        The scheduler in which the activitie's thread must run. Use ORO_SCHED_OTHER or
-         *        ORO_SCHED_RT.
-         * @param priority The priority of the underlying thread.
-         * @param period The _intended_ periodicity of the activity
-         * @param cpu_affinity The prefered cpu to run on (a mask)
-         * @param _r The optional runner, if none, this->loop() is called.
-         * @param name The name of the underlying thread.
-         */
-        FileDescriptorActivity(int scheduler, int priority, Seconds period, unsigned cpu_affinity,
-							   base::RunnableInterface* _r = 0, const std::string& name ="FileDescriptorActivity" );
-
-        virtual ~FileDescriptorActivity();
-
-        bool isRunning() const;
-
-		/// Get the _intended_ period (not the actual running period)
-        virtual Seconds getPeriod() const;
-
-		/// Set the _intended_ period (not the actual running period)
-        virtual bool setPeriod(Seconds period);
+        virtual ~FileDescriptorActivityInterface() {};
 
         /** Sets the file descriptor the activity should be listening to.
          *
@@ -195,7 +103,7 @@ namespace RTT { namespace extras {
          *
          * @param fd the file descriptor
          */
-        void watch(int fd);
+        virtual void watch(int fd) = 0;
 
         /** Removes a file descriptor from the set of watched FDs
          *
@@ -203,16 +111,16 @@ namespace RTT { namespace extras {
          *
          * @param fd the file descriptor
          */
-        void unwatch(int fd);
+        virtual void unwatch(int fd) = 0;
 
         /** Remove all FDs that are currently being watched */
-        void clearAllWatches();
+        virtual void clearAllWatches() = 0;
 
         /** True if this specific FD is being watched by the activity
          *
          * @param fd the file descriptor
          */
-        bool isWatched(int fd) const;
+        virtual bool isWatched(int fd) const = 0;
 
         /** True if this specific FD has new data.
          *
@@ -222,7 +130,7 @@ namespace RTT { namespace extras {
          *
          * @param fd the file descriptor
          */
-        bool isUpdated(int fd) const;
+        virtual bool isUpdated(int fd) const = 0;
 
         /** True if the base::RunnableInterface has been triggered because of a
          * timeout, instead of because of new data is available.
@@ -231,7 +139,7 @@ namespace RTT { namespace extras {
          * activity is driving, i.e. in TaskContext::updateHook() or
          * TaskContext::errorHook().
          */
-        bool hasTimeout() const;
+        virtual bool hasTimeout() const = 0;
 
         /** True if one of the file descriptors has a problem (for instance it
          * has been closed)
@@ -240,7 +148,7 @@ namespace RTT { namespace extras {
          * activity is driving, i.e. in TaskContext::updateHook() or
          * TaskContext::errorHook().
          */
-        bool hasError() const;
+        virtual bool hasError() const = 0;
 
         /** Sets the timeout, in milliseconds, for waiting on the IO. Set to 0
          * for blocking behaviour (no timeout).
@@ -249,7 +157,7 @@ namespace RTT { namespace extras {
          *
          * @param timeout The timeout (milliseconds)
          */
-        void setTimeout(int timeout);
+        virtual void setTimeout(int timeout) = 0;
 
         /** Sets the timeout, in microseconds, for waiting on the IO. Set to 0
          * for blocking behaviour (no timeout).
@@ -258,46 +166,21 @@ namespace RTT { namespace extras {
          *
          * @param timeout The timeout (microseconds)
          */
-        void setTimeout_us(int timeout_us);
+        virtual void setTimeout_us(int timeout_us) = 0;
 
         /** Get the timeout, in milliseconds, for waiting on the IO. Set to 0
          * for blocking behaviour (no timeout).
          *
          * @return The timeout (milliseconds)
          */
-        int getTimeout() const;
+        virtual int getTimeout() const = 0;
 
         /** Get the timeout, in microseconds, for waiting on the IO. Set to 0
          * for blocking behaviour (no timeout).
          *
          * @return The timeout (microseconds)
          */
-        int getTimeout_us() const;
-
-        virtual bool start();
-        virtual void loop();
-        virtual bool breakLoop();
-        virtual bool stop();
-    
-        /** Called by loop() when data is available on the file descriptor. By
-         * default, it calls step() on the associated runner interface (if any)
-         */
-        virtual void step();
-
-        /** Called by loop() when data is available on the file descriptor. By
-         * default, it calls step() on the associated runner interface (if any)
-         */
-        virtual void work(base::RunnableInterface::WorkReason reason);
-
-        /** Force calling step() even if no data is available on the file
-         * descriptor, and returns true if the signalling was successful
-         */
-        virtual bool trigger();
-
-        /**
-         * Always returns false.
-         */
-        virtual bool timeout();
+        virtual int getTimeout_us() const = 0;
     };
 }}
 
