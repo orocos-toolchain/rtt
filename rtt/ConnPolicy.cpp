@@ -83,7 +83,7 @@ namespace RTT
     }
 
     ConnPolicy::ConnPolicy(int type /* = DATA*/, int lock_policy /*= LOCK_FREE*/)
-        : type(type), init(false), lock_policy(lock_policy), pull(false), shared(false), mandatory(false), size(0), transport(0), data_size(0) {}
+        : type(type), init(false), lock_policy(lock_policy), pull(false), shared(false), mandatory(true), size(0), transport(0), data_size(0) {}
 
     /** @cond */
     /** This is dead code. We use the boost::serialization now.

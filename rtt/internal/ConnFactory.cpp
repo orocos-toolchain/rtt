@@ -99,7 +99,7 @@ base::ChannelElementBase::shared_ptr RTT::internal::ConnFactory::createRemoteCon
 
 bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, base::ChannelElementBase::shared_ptr channel_input, base::ChannelElementBase::shared_ptr channel_output, ConnPolicy const& policy) {
     // connect channel input to channel output
-    channel_input->setOutput(channel_output);
+    channel_input->addOutput(channel_output, policy.mandatory);
 
     // Register the channel's input to the output port.
     // This is a bit hacky. We have to find the next channel element in the pipeline as seen from the ConnOutputEndpoint:
@@ -155,7 +155,7 @@ bool ConnFactory::createAndCheckStream(base::OutputPortInterface& output_port, C
         log(Error) << "Transport failed to create remote channel for output stream of port "<<output_port.getName() << endlog();
         return false;
     }
-    channel_input->setOutput( chan_stream );
+    channel_input->addOutput( chan_stream, policy.mandatory );
 
     if ( output_port.addConnection( new StreamConnID(policy.name_id), chan_stream, policy ) ) {
         log(Info) << "Created output stream for output port "<< output_port.getName() <<endlog();
@@ -270,7 +270,7 @@ base::ChannelElementBase::shared_ptr ConnFactory::createAndCheckOutOfBandConnect
             log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a remote channel for port " << input_port.getName()<<endlog();
             return 0;
         }
-        ceb_input->getOutputEndPoint()->setOutput(output_half);
+        ceb_input->getOutputEndPoint()->addOutput(output_half, policy2.mandatory);
         output_half = ceb_input;
     }
 
@@ -286,7 +286,7 @@ base::ChannelElementBase::shared_ptr ConnFactory::createAndCheckOutOfBandConnect
         }
         // this mediates the 'channel ready leads to initial data sample'.
         // it is probably not necessary, since streams don't assume this relation.
-        ceb_output->getOutputEndPoint()->setOutput(output_half);
+        ceb_output->getOutputEndPoint()->addOutput(output_half, policy2.mandatory);
         output_half = ceb_output;
     }
     // Important ! since we made a copy above, we need to set the original to the changed name_id.

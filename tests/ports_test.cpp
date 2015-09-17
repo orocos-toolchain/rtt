@@ -133,14 +133,14 @@ BOOST_AUTO_TEST_CASE( testPortTaskInterface )
         BOOST_CHECK( tc1->connectPorts(tc2.get()) );
         BOOST_CHECK( wp1.connected() );
         BOOST_CHECK( rp1.connected() );
-        wp1.write(2);
+        BOOST_CHECK_EQUAL( wp1.write(2), WriteSuccess );
         int value = 0;
         BOOST_CHECK( rp1.read(value) );
         BOOST_CHECK_EQUAL(2, value);
 
         BOOST_CHECK( wp2.connected() );
         BOOST_CHECK( rp2.connected() );
-        wp2.write(3);
+        BOOST_CHECK_EQUAL( wp2.write(3), WriteSuccess );
         value = 0;
         BOOST_CHECK( rp2.read(value) );
         BOOST_CHECK_EQUAL(3, value);
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(testPortConnectionInitialization)
     int value = 0;
     BOOST_CHECK( !rp.read(value) );
     BOOST_CHECK( !wp.getLastWrittenValue(value) );
-    wp.write(10);
+    BOOST_CHECK_EQUAL( wp.write(10), WriteSuccess );
     BOOST_CHECK( rp.read(value) );
     BOOST_CHECK_EQUAL( 10, value );
 
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(testPortSimpleConnections)
     {
         int value;
         BOOST_CHECK( !rp.read(value) );
-        wp.write(value); // just checking if is works or if it crashes
+        BOOST_CHECK_EQUAL( wp.write(value), NotConnected ); // just checking if is works or if it crashes
     }
 
     BOOST_REQUIRE( wp.createConnection(rp) );
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE(testPortSimpleConnections)
     {
         int value = 0;
         BOOST_CHECK( !rp.read(value) );
-        wp.write(1);
+        BOOST_CHECK_EQUAL( wp.write(1), WriteSuccess );
         BOOST_CHECK( rp.read(value) );
         BOOST_CHECK( 1 == value );
     }
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE(testPortSimpleConnections)
     {
         int value = 0;
         BOOST_CHECK( !rp.read(value) );
-        wp.write(1);
+        BOOST_CHECK_EQUAL( wp.write(1), WriteSuccess );
         BOOST_CHECK( rp.read(value) );
         BOOST_CHECK( 1 == value );
     }
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE(testPortSimpleConnections)
     BOOST_CHECK( !rp.connected() );
     {
         int value;
-        wp.write(value);
+        BOOST_CHECK_EQUAL( wp.write(value), NotConnected );
         BOOST_CHECK( !rp.read(value) );
     }
     wp.disconnect(); // calling it when not connected should be fine as well
@@ -238,11 +238,11 @@ BOOST_AUTO_TEST_CASE(testPortSimpleConnections)
         BOOST_CHECK( !rp.read(value) );
         wp.createBufferConnection(rp, 4);
         BOOST_CHECK( !rp.read(value) );
-        wp.write(1);
-        wp.write(2);
-        wp.write(3);
-        wp.write(4);
-        wp.write(5);
+        BOOST_CHECK_EQUAL( wp.write(1), WriteSuccess );
+        BOOST_CHECK_EQUAL( wp.write(2), WriteSuccess );
+        BOOST_CHECK_EQUAL( wp.write(3), WriteSuccess );
+        BOOST_CHECK_EQUAL( wp.write(4), WriteSuccess );
+        BOOST_CHECK_EQUAL( wp.write(5), WriteFailure ); // buffer full
         BOOST_CHECK_EQUAL(0, value);
         BOOST_CHECK( rp.read(value) );
         BOOST_CHECK_EQUAL(1, value);
@@ -251,8 +251,8 @@ BOOST_AUTO_TEST_CASE(testPortSimpleConnections)
 
         rp.clear();
         BOOST_CHECK_EQUAL( rp.read(value), NoData );
-        wp.write(10);
-        wp.write(20);
+        BOOST_CHECK_EQUAL( wp.write(10), WriteSuccess );
+        BOOST_CHECK_EQUAL( wp.write(20), WriteSuccess );
         BOOST_CHECK( rp.read(value) );
         BOOST_CHECK_EQUAL(10, value);
         BOOST_CHECK( rp.read(value) );
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE(testPortSimpleConnections)
     BOOST_CHECK( !rp.connected() );
     {
         int value;
-        wp.write(value);
+        BOOST_CHECK_EQUAL( wp.write(value), NotConnected );
         BOOST_CHECK( !rp.read(value) );
     }
     rp.disconnect(); // calling it when not connected should be fine as well
@@ -304,11 +304,11 @@ BOOST_AUTO_TEST_CASE(testPortOneWriterThreeReaders)
     BOOST_CHECK( rp2.connected() );
     BOOST_CHECK( rp3.connected() );
 
-    wp.write(10);
-    wp.write(15);
-    wp.write(20);
-    wp.write(25);
-    wp.write(30);
+    BOOST_CHECK_EQUAL( wp.write(10), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp.write(15), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp.write(20), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp.write(25), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp.write(30), WriteFailure ); // buffer full
 
     int value = 0;
     BOOST_CHECK( rp1.read(value));
@@ -335,7 +335,7 @@ BOOST_AUTO_TEST_CASE(testPortOneWriterThreeReaders)
     BOOST_CHECK( !rp2.connected() );
     BOOST_CHECK( rp3.connected() );
 
-    wp.write(10);
+    BOOST_CHECK_EQUAL( wp.write(10), WriteSuccess );
     BOOST_CHECK( rp1.read(value));
     BOOST_CHECK_EQUAL(10, value);
     BOOST_CHECK( rp3.read(value));
@@ -377,23 +377,23 @@ BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithPushConnection)
     BOOST_CHECK( wp3.connected() );
     BOOST_CHECK( rp.getBuffer() );
 
-    wp1.write(10);
-    wp1.write(20);
-    wp1.write(30);
-    wp1.write(40);
-    wp1.write(50);
+    BOOST_CHECK_EQUAL( wp1.write(10), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp1.write(20), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp1.write(30), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp1.write(40), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp1.write(50), WriteFailure ); // buffer full
 
-    wp2.write(12);
-    wp2.write(22);
-    wp2.write(32);
-    wp2.write(42);
-    wp2.write(52);
+    BOOST_CHECK_EQUAL( wp2.write(12), WriteFailure ); // buffer full
+    BOOST_CHECK_EQUAL( wp2.write(22), WriteFailure ); // buffer full
+    BOOST_CHECK_EQUAL( wp2.write(32), WriteFailure ); // buffer full
+    BOOST_CHECK_EQUAL( wp2.write(42), WriteFailure ); // buffer full
+    BOOST_CHECK_EQUAL( wp2.write(52), WriteFailure ); // buffer full
 
-    wp3.write(13);
-    wp3.write(23);
-    wp3.write(33);
-    wp3.write(43);
-    wp3.write(53);
+    BOOST_CHECK_EQUAL( wp3.write(13), WriteFailure ); // buffer full
+    BOOST_CHECK_EQUAL( wp3.write(23), WriteFailure ); // buffer full
+    BOOST_CHECK_EQUAL( wp3.write(33), WriteFailure ); // buffer full
+    BOOST_CHECK_EQUAL( wp3.write(43), WriteFailure ); // buffer full
+    BOOST_CHECK_EQUAL( wp3.write(53), WriteFailure ); // buffer full
 
     int value = 0;
     BOOST_CHECK( rp.read(value));
@@ -414,7 +414,7 @@ BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithPushConnection)
     BOOST_CHECK( wp3.connected() );
 
     // write one more sample
-    wp1.write(60);
+    BOOST_CHECK_EQUAL( wp1.write(60), WriteSuccess );
     BOOST_CHECK_EQUAL( rp.read(value), NewData );
     BOOST_CHECK_EQUAL(60, value);
     // rp's input buffer is empty now.
@@ -459,23 +459,23 @@ BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithPullConnection)
     BOOST_CHECK( wp3.connected() );
     BOOST_CHECK( !rp.getBuffer() );
 
-    wp1.write(10);
-    wp1.write(20);
-    wp1.write(30);
-    wp1.write(40);
-    wp1.write(50);
+    BOOST_CHECK_EQUAL( wp1.write(10), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp1.write(20), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp1.write(30), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp1.write(40), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp1.write(50), WriteFailure ); // buffer full
 
-    wp2.write(12);
-    wp2.write(22);
-    wp2.write(32);
-    wp2.write(42);
-    wp2.write(52);
+    BOOST_CHECK_EQUAL( wp2.write(12), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp2.write(22), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp2.write(32), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp2.write(42), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp2.write(52), WriteFailure ); // buffer full
 
-    wp3.write(13);
-    wp3.write(23);
-    wp3.write(33);
-    wp3.write(43);
-    wp3.write(53);
+    BOOST_CHECK_EQUAL( wp3.write(13), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp3.write(23), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp3.write(33), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp3.write(43), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp3.write(53), WriteFailure ); // buffer full
 
     int value = 0;
     BOOST_CHECK( rp.read(value));
@@ -495,7 +495,7 @@ BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithPullConnection)
     BOOST_CHECK( wp3.connected() );
 
     // write one more sample
-    wp1.write(60);
+    BOOST_CHECK_EQUAL( wp1.write(60), WriteSuccess );
     BOOST_CHECK( rp.read(value));
     BOOST_CHECK_EQUAL(60, value);
 
@@ -506,7 +506,7 @@ BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithPullConnection)
     BOOST_CHECK_EQUAL(23, value);
 
     // in the middle adding a sample
-    wp1.write(70);
+    BOOST_CHECK_EQUAL( wp1.write(70), WriteSuccess );
 
     BOOST_CHECK( rp.read(value));
     BOOST_CHECK_EQUAL(33, value);
@@ -543,34 +543,34 @@ BOOST_AUTO_TEST_CASE(testSharedBufferConnection)
     BOOST_CHECK( wp2.createConnection(rp1) );
     BOOST_CHECK( wp2.createConnection(rp2) );
 
-    wp1.write(11);
+    BOOST_CHECK_EQUAL( wp1.write(11), WriteSuccess );;
     BOOST_CHECK_EQUAL( rp1.read(value), NewData );
     BOOST_CHECK_EQUAL(11, value);
     BOOST_CHECK_EQUAL( rp2.read(value), OldData );
     BOOST_CHECK_EQUAL(11, value);
 
-    wp1.write(12);
+    BOOST_CHECK_EQUAL( wp1.write(12), WriteSuccess );;
     BOOST_CHECK_EQUAL( rp2.read(value), NewData );
     BOOST_CHECK_EQUAL(12, value);
     BOOST_CHECK_EQUAL( rp1.read(value), OldData );
     BOOST_CHECK_EQUAL(12, value);
 
-    wp2.write(21);
+    BOOST_CHECK_EQUAL( wp2.write(21), WriteSuccess );;
     BOOST_CHECK_EQUAL( rp1.read(value), NewData );
     BOOST_CHECK_EQUAL(21, value);
     BOOST_CHECK_EQUAL( rp2.read(value), OldData );
     BOOST_CHECK_EQUAL(21, value);
 
-    wp2.write(22);
+    BOOST_CHECK_EQUAL( wp2.write(22), WriteSuccess );;
     BOOST_CHECK_EQUAL( rp2.read(value), NewData );
     BOOST_CHECK_EQUAL(22, value);
     BOOST_CHECK_EQUAL( rp1.read(value), OldData );
     BOOST_CHECK_EQUAL(22, value);
 
-    wp1.write(31);
-    wp2.write(32);
-    wp1.write(33);
-    wp2.write(34);
+    BOOST_CHECK_EQUAL( wp1.write(31), WriteSuccess );;
+    BOOST_CHECK_EQUAL( wp2.write(32), WriteSuccess );;
+    BOOST_CHECK_EQUAL( wp1.write(33), WriteSuccess );;
+    BOOST_CHECK_EQUAL( wp2.write(34), WriteSuccess );;
     BOOST_CHECK_EQUAL( rp1.read(value), NewData );
     BOOST_CHECK_EQUAL(31, value);
     BOOST_CHECK_EQUAL( rp2.read(value), NewData );
@@ -599,10 +599,10 @@ BOOST_AUTO_TEST_CASE(testSharedDataConnection)
     BOOST_CHECK( wp2.createConnection(rp2) );
 
     // same as in testSharedBufferConnection, but different expectations
-    wp1.write(31);
-    wp2.write(32);
-    wp1.write(33);
-    wp2.write(34);
+    BOOST_CHECK_EQUAL( wp1.write(31), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp2.write(32), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp1.write(33), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp2.write(34), WriteSuccess );
     BOOST_CHECK_EQUAL( rp1.read(value), NewData );
     BOOST_CHECK_EQUAL(34, value);
     BOOST_CHECK_EQUAL( rp2.read(value), OldData );
@@ -643,13 +643,13 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
     BOOST_CHECK( tc->provides("Read") != 0 );
 
     // Set initial value
-    wp1.write( 1.0 );
+    BOOST_CHECK_EQUAL( wp1.write( 1.0 ), NotConnected );
 
     // Connect ports.
     wp1.createConnection( rp1 );
 
     // Test OperationCallers set/get
-    OperationCaller<void(double const&)> mset;
+    OperationCaller<FlowStatus(double const&)> mset;
     OperationCaller<FlowStatus(double&)> mget;
 
     mset = tc->provides("Write")->getOperation("write");
@@ -658,7 +658,7 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
     mget = tc->provides("Read")->getOperation("read");
     BOOST_CHECK( mget.ready() );
 
-    mset( 3.991 );
+    BOOST_CHECK_EQUAL( mset( 3.991 ), WriteSuccess );
 
     double get_value = 0;
     BOOST_CHECK( mget(get_value) );
@@ -686,19 +686,19 @@ BOOST_AUTO_TEST_CASE(testPortSignalling)
 
     wp1.createConnection(rp1, ConnPolicy::data());
     signalled_port = 0;
-    wp1.write(0.1);
+    BOOST_CHECK_EQUAL( wp1.write(0.1), WriteSuccess );
     BOOST_CHECK(&rp1 == signalled_port);
 
     wp1.disconnect();
     wp1.createConnection(rp1, ConnPolicy::buffer(2));
     signalled_port = 0;
-    wp1.write(0.1);
+    BOOST_CHECK_EQUAL( wp1.write(0.1), WriteSuccess );
     BOOST_CHECK(&rp1 == signalled_port);
     signalled_port = 0;
-    wp1.write(0.1);
+    BOOST_CHECK_EQUAL( wp1.write(0.1), WriteSuccess );
     BOOST_CHECK(&rp1 == signalled_port);
     signalled_port = 0;
-    wp1.write(0.1);
+    BOOST_CHECK_EQUAL( wp1.write(0.1), WriteSuccess );
     BOOST_CHECK(0 == signalled_port);
 }
 #endif
@@ -779,7 +779,7 @@ BOOST_AUTO_TEST_CASE(testEventPortSignalling)
 
     wp1.createConnection(rp1, ConnPolicy::data());
     signalled_port = 0;
-    wp1.write(0.1);
+    BOOST_CHECK_EQUAL( wp1.write(0.1), WriteSuccess );
     BOOST_CHECK(&rp1 == signalled_port);
     BOOST_CHECK(tce->had_event);
     tce->resetStats();
@@ -788,18 +788,18 @@ BOOST_AUTO_TEST_CASE(testEventPortSignalling)
     wp1.createConnection(rp1, ConnPolicy::buffer(2));
     // send two items into the buffer
     signalled_port = 0;
-    wp1.write(0.1);
+    BOOST_CHECK_EQUAL( wp1.write(0.1), WriteSuccess );
     BOOST_CHECK(&rp1 == signalled_port);
     BOOST_CHECK(tce->had_event);
     tce->resetStats();
     signalled_port = 0;
-    wp1.write(0.1);
+    BOOST_CHECK_EQUAL( wp1.write(0.1), WriteSuccess );
     BOOST_CHECK(&rp1 == signalled_port);
     BOOST_CHECK(tce->had_event);
     tce->resetStats();
     signalled_port = 0;
     // test buffer full:
-    wp1.write(0.1);
+    BOOST_CHECK_EQUAL( wp1.write(0.1), WriteFailure );
     BOOST_CHECK(0 == signalled_port);
     BOOST_CHECK( !tce->had_event);
     tce->resetStats();
@@ -819,13 +819,13 @@ BOOST_AUTO_TEST_CASE(testPlainPortNotSignalling)
     tce->addPort(rp1);
 
     wp1.createConnection(rp1, ConnPolicy::data());
-    wp1.write(0.1);
+    BOOST_CHECK_EQUAL( wp1.write(0.1), WriteSuccess );
     BOOST_CHECK( !tce->had_event );
     tce->resetStats();
 
     wp1.disconnect();
     wp1.createConnection(rp1, ConnPolicy::buffer(2));
-    wp1.write(0.1);
+    BOOST_CHECK_EQUAL( wp1.write(0.1), WriteSuccess );
     BOOST_CHECK( !tce->had_event );
 
     // mandatory
@@ -842,8 +842,8 @@ BOOST_AUTO_TEST_CASE(testPortDataSource)
     BOOST_CHECK(source);
 
     BOOST_CHECK(!source->evaluate());
-    wp1.write(10);
-    wp1.write(20);
+    BOOST_CHECK_EQUAL( wp1.write(10), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp1.write(20), WriteSuccess );
     // value is still null when not get()/evaluate()
     BOOST_CHECK_EQUAL(0, source->value());
 

@@ -295,7 +295,7 @@ bool MultipleOutputsChannelElementBase::addOutput(ChannelElementBase::shared_ptr
         if (std::find(outputs.begin(), outputs.end(), output) != outputs.end()) return false;
         assert(std::find(outputs.begin(), outputs.end(), output) == outputs.end());
         outputs.push_back(output);
-        outputs_mandatory[output.get()] = true;
+        outputs_mandatory[output.get()] = mandatory;
     }
 
     output->setInput(this);

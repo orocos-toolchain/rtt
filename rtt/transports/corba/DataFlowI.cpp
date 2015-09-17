@@ -460,7 +460,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
 
         if (ceb) {
             // OOB is added to end of chain.
-            start->setOutput( dynamic_cast<ChannelElementBase*>(this_element) );
+            start->addOutput( dynamic_cast<ChannelElementBase*>(this_element), policy2.mandatory );
             dynamic_cast<ChannelElementBase*>(this_element)->setOutput( ceb );
             log(Info) <<"Sending data from port "<< policy2.name_id << " to out-of-band protocol "<< corba_policy.transport <<endlog();
         } else {
@@ -471,7 +471,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
     } else {
         // No OOB. Always add output buffer.
         ChannelElementBase::shared_ptr buf = type_info->buildDataStorage(toRTT(corba_policy));
-        start->setOutput(buf);
+        start->addOutput(buf, policy2.mandatory);
         buf->setOutput( dynamic_cast<ChannelElementBase*>(this_element) );
     }
 
