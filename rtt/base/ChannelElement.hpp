@@ -224,6 +224,7 @@ namespace RTT { namespace base {
             // We only copy OldData in the initial read of the current channel.
             // if it has no new data, the search over the other channels starts,
             // but no old data is needed.
+            if ( !cur_input && !inputs.empty() ) cur_input = inputs.front()->narrow<T>();
             if ( cur_input )
                 if ( pred( copy_old_data, cur_input ) )
                     return cur_input;
