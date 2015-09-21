@@ -116,9 +116,11 @@ module RTT
     /** Emitted when information is requested on a port that does not exist */
     exception CNoSuchPortException {};
     /** Emitted during connections, when there is no CORBA transport defined
-     * for the data type of the given ports
-     */
+     * for the data type of the given ports */
     exception CNoCorbaTransport {};
+    /** Emitted during connections, when it is not possible to build new connections
+     * with the given arguments */
+    exception CInvalidArgument {};
 
     enum CPortType { CInput, COutput };
 
@@ -186,7 +188,7 @@ module RTT
        * channelReady() has been called for it
        */
       CChannelElement buildChannelOutput(in string input_port, inout CConnPolicy policy)
-            raises(CNoCorbaTransport,CNoSuchPortException);
+            raises(CNoCorbaTransport,CNoSuchPortException,CInvalidArgument);
 
       /**
        * Use this to read from an output port with
@@ -195,7 +197,7 @@ module RTT
        * into the policy, such as the name of the newly created connection.
        */
       CChannelElement buildChannelInput(in string output_port, inout CConnPolicy policy)
-            raises(CNoCorbaTransport,CNoSuchPortException);
+            raises(CNoCorbaTransport,CNoSuchPortException,CInvalidArgument);
 
       /**
        * Connect the given named port to the given remote port.
@@ -217,6 +219,13 @@ module RTT
       boolean createConnection(in string local_port, in CDataFlowInterface remote_ports,
             in string remote_port, inout CConnPolicy policy)
             raises(CNoSuchPortException);
+
+      /**
+       * Use this to connect a port to an existing connection that can be looked up
+       * by the given policy.
+       */
+      boolean createSharedConnection(in string input_port, inout CConnPolicy policy)
+            raises(CNoSuchPortException,CInvalidArgument);
 
       /**
        * Removes the specified connection created with createConnection.

@@ -175,6 +175,11 @@ namespace RTT
         virtual bool createStream(ConnPolicy const& policy) = 0;
 
         /**
+         * Connects this port to an existing shared connection instance.
+         */
+        virtual bool createConnection(internal::SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy = ConnPolicy()) = 0;
+
+        /**
          * Adds a user created connection to this port.
          * This is an advanced method, prefer to use connectTo and createStream.
          */
@@ -219,6 +224,11 @@ namespace RTT
          * connections of this port.
          */
         virtual const internal::ConnectionManager* getManager() const { return &cmanager; }
+
+        /**
+         * Returns a pointer to the shared connection element this port may be connected to.
+         */
+        virtual internal::SharedConnectionBase::shared_ptr getSharedConnection() const;
 
         /**
          * Returns the input or output endpoint of this port (if any).

@@ -135,6 +135,11 @@ namespace RTT
 
         virtual bool connectTo(PortInterface* other);
 
+        /**
+         * Connects the port to an existing shared connection instance.
+         */
+        virtual bool createConnection( internal::SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy = ConnPolicy() );
+
         /** This method is analoguous to the static ConnFactory::buildChannelOutput.
          * It is provided for remote connection building: for these connections,
          * no template can be used and therefore the connection setup should be
@@ -144,7 +149,6 @@ namespace RTT
                 base::OutputPortInterface& output_port,
                 types::TypeInfo const* type_info,
                 base::InputPortInterface& input, const ConnPolicy& policy);
-
     };
 
 }}

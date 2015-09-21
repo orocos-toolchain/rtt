@@ -151,7 +151,8 @@ RTT::base::ChannelElementBase::shared_ptr RemoteInputPort::buildRemoteChannelOut
             return 0;
         }
         remote = CRemoteChannelElement::_narrow( ret.in() );
-        policy.name_id = toRTT(cpolicy).name_id;
+        policy.name_id = cpolicy.name_id;
+        policy.data_size = cpolicy.data_size;
     }
     catch(CORBA::Exception& e)
     {
@@ -208,6 +209,31 @@ RTT::base::ChannelElementBase::shared_ptr RemoteInputPort::buildRemoteChannelOut
     return corba_ceb;
 }
 
+bool RemoteInputPort::createConnection( internal::SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy )
+{
+    Logger::In in("RemoteInputPort::createConnection");
+
+    try {
+        CConnPolicy cpolicy = toCORBA(policy);
+        cpolicy.name_id = CORBA::string_dup( shared_connection->getName().c_str() );
+        if ( dataflow->createSharedConnection( this->getName().c_str(), cpolicy ) ) {
+            policy.name_id = cpolicy.name_id;
+            policy.data_size = cpolicy.data_size;
+            return true;
+        }
+    }
+    catch(CORBA::Exception& e)
+    {
+        log(Error) << "Caught CORBA exception while trying to add an input port to an existing connection:" << endlog();
+        log(Error) << CORBA_EXCEPTION_INFO( e ) <<endlog();
+        return false;
+    }
+
+    log(Error) << "Failed to connect remote InputPort '" << getName() << "' to shared connection '" << shared_connection->getName() << "', "
+               << "most likely because you tried to connect input ports in different processes." << endlog();
+    return false;
+}
+
 RTT::base::PortInterface* RemoteInputPort::clone() const
 { return type_info->inputPort(getName()); }
 
@@ -242,6 +268,7 @@ bool RemoteOutputPort::createConnection( RTT::base::InputPortInterface& sink, RT
             CDataFlowInterface_var cdfi = rip->getDataFlowInterface();
             if ( dataflow->createConnection( this->getName().c_str(), cdfi.in() , sink.getName().c_str(), cpolicy ) ) {
                 policy.name_id = cpolicy.name_id;
+                policy.data_size = cpolicy.data_size;
                 return true;
             } else
                 return false;
@@ -255,6 +282,7 @@ bool RemoteOutputPort::createConnection( RTT::base::InputPortInterface& sink, RT
         CDataFlowInterface_ptr cdfi = CDataFlowInterface_i::getRemoteInterface( sink.getInterface(), mpoa.in() );
         if ( dataflow->createConnection( this->getName().c_str(), cdfi , sink.getName().c_str(), cpolicy ) ) {
             policy.name_id = cpolicy.name_id;
+            policy.data_size = cpolicy.data_size;
             return true;
         }
     }

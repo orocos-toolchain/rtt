@@ -114,6 +114,8 @@ namespace RTT
          */
         bool createBufferConnection( InputPortInterface& sink, int size, int lock_policy = ConnPolicy::LOCK_FREE );
 
+        using PortInterface::createConnection;
+
         /** Connects this write port to the given read port, using as policy
          * the default policy of the sink port
          */
@@ -123,6 +125,11 @@ namespace RTT
          * given connection policy.
          */
         virtual bool createConnection( InputPortInterface& sink, ConnPolicy const& policy ) = 0;
+
+        /**
+         * Connects the port to an existing shared connection instance.
+         */
+        virtual bool createConnection( internal::SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy = ConnPolicy() );
 
         /** Removes the channel that connects this port to \c port */
         virtual bool disconnect(PortInterface* port);

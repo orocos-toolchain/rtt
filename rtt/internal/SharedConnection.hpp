@@ -210,6 +210,18 @@ namespace internal {
             return mstorage->data_sample();
         }
     };
+
+    template <typename T>
+    class SharedRemoteConnection : public SharedConnectionBase, public base::ChannelElement<T> {
+    public:
+        typedef boost::intrusive_ptr< SharedRemoteConnection<T> > shared_ptr;
+
+    public:
+        SharedRemoteConnection(const ConnPolicy &policy)
+            : SharedConnectionBase(policy)
+        {}
+        virtual ~SharedRemoteConnection() {}
+    };
 }}
 
 #endif

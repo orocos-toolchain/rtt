@@ -333,6 +333,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
          	      CORBA::SystemException
          	      ,::RTT::corba::CNoCorbaTransport
                   ,::RTT::corba::CNoSuchPortException
+                  ,::RTT::corba::CInvalidArgument
          	    ))
 {
     Logger::In in("CDataFlowInterface_i::buildChannelOutput");
@@ -353,8 +354,30 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
     // Convert to RTT policy.
     ConnPolicy policy2 = toRTT(corba_policy);
 
-    ChannelElementBase::shared_ptr end = type_info->buildChannelOutput(*port, policy2);
-    if (!end) return CChannelElement_ptr();
+    // For shared push connections, also build or check the local shared connection instance here
+    ChannelElementBase::shared_ptr end;
+    if (policy2.shared == ConnPolicy::SHARED && policy2.pull == ConnPolicy::PUSH) {
+        internal::SharedConnectionBase::shared_ptr shared_connection = type_info->buildSharedConnection(0, port, policy2);
+        if (!shared_connection) {
+            throw CInvalidArgument();
+        }
+
+        // If no user supplied name, pass on the new name.
+        if ( strlen( corba_policy.name_id.in()) == 0 )
+            corba_policy.name_id = CORBA::string_dup( shared_connection->getName().c_str() );
+
+        // Connect the input port if it is not already connected
+        if (!port->createConnection(shared_connection, policy2)) {
+            return RTT::corba::CChannelElement::_nil();
+        }
+
+        end = shared_connection;
+
+    // ...otherwise, create default channel output.
+    } else {
+        end = type_info->buildChannelOutput(*port, policy2);
+        if (!end) throw CInvalidArgument();
+    }
 
     CRemoteChannelElement_i* this_element =
         transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull, corba_policy.mandatory);
@@ -412,6 +435,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
         	      CORBA::SystemException
         	      ,::RTT::corba::CNoCorbaTransport
         	      ,::RTT::corba::CNoSuchPortException
+                  ,::RTT::corba::CInvalidArgument
         	    ))
 {
     Logger::In in("CDataFlowInterface_i::buildChannelInput");
@@ -435,6 +459,9 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
 
     // Now create the output-side channel elements.
     ChannelElementBase::shared_ptr start = type_info->buildChannelInput(*port, policy2);
+    if (!start) {
+        throw CInvalidArgument();
+    }
 
     // The channel element that exposes our channel in CORBA
     CRemoteChannelElement_i* this_element;
@@ -490,6 +517,37 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
     return this_element->_this();
 }
 
+::CORBA::Boolean CDataFlowInterface_i::createSharedConnection(const char* port_name, ::RTT::corba::CConnPolicy& corba_policy)
+{
+    Logger::In in("CDataFlowInterface_i::createSharedConnection");
+    InputPortInterface* port = dynamic_cast<InputPortInterface*>(mdf->getPort(port_name));
+    if (port == 0)
+        throw CNoSuchPortException();
+
+    TypeInfo const* type_info = port->getTypeInfo();
+    if (!type_info)
+        throw CNoCorbaTransport();
+
+    if (!(corba_policy.shared == ConnPolicy::SHARED && corba_policy.pull == ConnPolicy::PUSH)) {
+        throw CInvalidArgument();
+    }
+
+    CORBA_CHECK_THREAD();
+
+    // Convert to RTT policy.
+    ConnPolicy policy2 = toRTT(corba_policy);
+
+    // For shared push connections, also build or check the local shared connection instance here
+    internal::SharedConnectionBase::shared_ptr shared_connection;
+    if (!internal::ConnFactory::findSharedConnection(0, port, policy2, shared_connection) || !shared_connection) return false;
+
+    // If no user supplied name, pass on the new name.
+    if ( strlen( corba_policy.name_id.in()) == 0 )
+        corba_policy.name_id = CORBA::string_dup( shared_connection->getName().c_str() );
+
+    // connect the port
+    return port->createConnection(shared_connection, policy2);
+}
 
 ::CORBA::Boolean CDataFlowInterface_i::createConnection(
         const char* writer_port, CDataFlowInterface_ptr reader_interface,
@@ -537,7 +595,10 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
         RemoteInputPort port(writer->getTypeInfo(), reader_interface, reader_port, mpoa);
         port.setInterface( mdf ); // cheating !
         // Connect to proxy.
-        return writer->createConnection(port, toRTT(policy));
+        ConnPolicy policy2 = toRTT(policy);
+        bool result = writer->createConnection(port, policy2);
+        policy = toCORBA(policy2);
+        return result;
     }
     catch(CORBA::COMM_FAILURE&) { throw; }
     catch(CORBA::TRANSIENT&) { throw; }

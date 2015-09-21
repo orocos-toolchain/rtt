@@ -42,6 +42,7 @@
 #include <string>
 #include "../base/DataSourceBase.hpp"
 #include "../base/ChannelElementBase.hpp"
+#include "../internal/SharedConnection.hpp"
 
 #ifndef NO_TYPE_INFO_FACTORY_FUNCTIONS
 #include "MemberFactory.hpp"
@@ -440,6 +441,7 @@ namespace RTT
         base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const;
         base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port, ConnPolicy const& policy) const;
         base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port, ConnPolicy const& policy) const;
+        internal::SharedConnectionBase::shared_ptr buildSharedConnection(base::OutputPortInterface *output_port, base::InputPortInterface *input_port, ConnPolicy const& policy) const;
 
 #endif // NO_TYPE_INFO_FACTORY_FUNCTIONS
 

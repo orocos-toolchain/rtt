@@ -122,6 +122,7 @@ namespace RTT
          * @return The created endpoint.
          */
         virtual base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port, ConnPolicy const& policy) const = 0;
+
         /**
          * Creates the input endpoint (starting point) of a communication channel and adds it to an OutputPort.
          *
@@ -130,6 +131,18 @@ namespace RTT
          * @return The created endpoint.
          */
         virtual base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port, ConnPolicy const& policy) const = 0;
+
+        /**
+         * Tries to find an existing or creates a new shared connection object for the given output port, input port and connection policy.
+         * If an existing shared connection has been found, also checks if it matches the given policy and output an error otherwise.
+         * The input and output port arguments are optional and can be NULL pointers.
+         *
+         * @param output_port The output port to connect the channel's input end to (optional).
+         * @param input_port The output port to connect the channel's output end to (optional).
+         * @param policy Describes the kind of storage requested by the user
+         * @return a SharedConnectionBase element.
+         */
+        virtual internal::SharedConnectionBase::shared_ptr buildSharedConnection(base::OutputPortInterface *output_port, base::InputPortInterface *input_port, ConnPolicy const& policy) const = 0;
 
         /** This method creates the connection element that will store data
          * inside the connection, based on the given policy
@@ -316,55 +329,80 @@ namespace RTT
             return endpoint;
         }
 
+        /**
+         * Tries to find an existing or creates a new shared connection object for the given output port, input port and connection policy.
+         * If an existing shared connection has been found, also checks if it matches the given policy and output an error otherwise.
+         * The input and output port arguments are optional and can be NULL pointers.
+         *
+         * @param output_port The output port to connect the channel's input end to (optional).
+         * @param input_port The output port to connect the channel's output end to (optional).
+         * @param policy Describes the kind of storage requested by the user
+         * @param shared_connection A reference to a SharedConnectionBase pointer that will point to the found instance or an empty pointer, if
+         *                          either no connection has been found or the found connection was invalid for the given ports and policy.
+         * @return true if an exiting SharedConnectionBase instance could be found.
+         */
+        static bool findSharedConnection(base::OutputPortInterface *output_port, base::InputPortInterface *input_port, ConnPolicy const& policy, SharedConnectionBase::shared_ptr &shared_connection);
+
+        /**
+         * Tries to find an existing or creates a new shared connection object for the given output port, input port and connection policy.
+         * If an existing shared connection has been found, also checks if it matches the given policy and output an error otherwise.
+         * The input and output port arguments are optional and can be NULL pointers.
+         *
+         * @param output_port The output port to connect the channel's input end to (optional).
+         * @param input_port The output port to connect the channel's output end to (optional).
+         * @param policy Describes the kind of storage requested by the user
+         * @return a SharedConnectionBase element.
+         */
         template <typename T>
-        static SharedConnectionBase::shared_ptr buildOrCheckSharedConnection(OutputPort<T>& output_port, base::InputPortInterface& input_port, ConnPolicy const& policy)
+        static SharedConnectionBase::shared_ptr buildSharedConnection(OutputPort<T> *output_port, base::InputPortInterface *input_port, ConnPolicy const& policy)
         {
             // try to find an existing shared connection first
             SharedConnectionBase::shared_ptr shared_connection;
-            shared_connection = output_port.getManager()->getSharedConnection();
-            if (!shared_connection) {
-                shared_connection = input_port.getManager()->getSharedConnection();
-                if (!shared_connection && !policy.name_id.empty()) {
-                    // lookup shared connection by the given name
-                    shared_connection = SharedConnectionRepository::Instance()->get(policy.name_id);
+
+            // abort if an incompatible connection has been found or one of the ports is already connected to another shared connection
+            if (findSharedConnection(output_port, input_port, policy, shared_connection) && !shared_connection) {
+                return SharedConnectionBase::shared_ptr();
+            }
+
+            // for remote input ports, and if we can derive the type from the output port, build the shared buffer at the remote side and only generate a proxy here:
+            if (input_port && !input_port->isLocal()) {
+                if (!output_port) {
+                    log(Error) << "Cannot create a shared connection for a remote input port or a non-standard transport without knowing the local output port." << endlog();
+                    return SharedConnectionBase::shared_ptr();
                 }
 
-            } else {
-                // For the case both, the output and the input port already have shared connections, check if it matches the one of the input port:
-                SharedConnectionBase::shared_ptr input_ports_shared_connection = input_port.getManager()->getSharedConnection();
-                if (shared_connection == input_ports_shared_connection) {
-                    RTT::log(RTT::Info) << "Output port '" << output_port.getName() << "' and input port '" << input_port.getName() << "' are already connected to the same shared connection." << RTT::endlog();
-                    // return SharedConnectionBase::shared_ptr();
-                } else if (input_ports_shared_connection) {
-                    RTT::log(RTT::Error) << "Output port '" << output_port.getName() << "' and input port '" << input_port.getName() << "' are already connected to different shared connections!" << RTT::endlog();
-                    return SharedConnectionBase::shared_ptr();
+                // If no existing shared connection has been found, ask the remote side to build a shared channel output and create a local proxy.
+                if (!shared_connection) {
+                    base::ChannelElementBase::shared_ptr output_half = buildRemoteChannelOutput( *output_port, *input_port, policy);
+                    if (!output_half) {
+                        log(Error) << "Could not create a shared remote connection for input port '" << input_port->getName() << "'." << endlog();
+                        return SharedConnectionBase::shared_ptr();
+                    }
+
+                    shared_connection = new SharedRemoteConnection<T>(policy);
+                    shared_connection->addOutput(output_half, policy.mandatory);
+
+                // ...or only ask the remote side to connect the additional input port to an existing remote shared connection
+                } else {
+//                    typename SharedRemoteConnection<T>::shared_ptr shared_remote_connection = boost::dynamic_pointer_cast<SharedRemoteConnection<T> >(shared_connection);
+
+//                    if (!shared_remote_connection) {
+//                        log(Error) << "Cannot create a shared connection for a remote input port because the local output port is already connected to a local shared connection." << endlog();
+//                        return SharedConnectionBase::shared_ptr();
+//                    }
+
+//                    if (!input_port->createConnection(shared_remote_connection, policy)) {
+                    if (!input_port->createConnection(shared_connection, policy)) {
+                        log(Error) << "The remote side refused to connect the input port '" << input_port->getName() << "' to the existing shared connection '" << shared_connection->getName() << "'." << endlog();
+                        return SharedConnectionBase::shared_ptr();
+                    }
                 }
             }
 
-            // create a new shared connection or check if the existing one matches
+            // create a new shared connection instance
             if (!shared_connection) {
-                shared_connection.reset(new SharedConnection<T>(buildDataStorage<T>(policy, output_port.getLastWrittenValue()), policy));
-                policy.name_id = shared_connection->getName();
-
-            // ... or check if the found connection is compatible
-            } else {
-                if (!policy.name_id.empty() && shared_connection->getName() != policy.name_id) {
-                    RTT::log(RTT::Error) << "Either the output port '" << output_port.getName() << "' or the input port '" << input_port.getName() << "' or both "
-                                         << "are already connected to shared connection '" << shared_connection->getName() << "' but you requested to connect to '" << policy.name_id << "'!" << RTT::endlog();
-                    return SharedConnectionBase::shared_ptr();
-                }
-
-                if (
-                    (shared_connection->getConnPolicy()->type != policy.type) ||
-                    (shared_connection->getConnPolicy()->size != policy.size) ||
-                    (shared_connection->getConnPolicy()->lock_policy != policy.lock_policy)
-                   )
-                {
-                    log(Error) << "You mixed incompatible connection policies for shared connection '" << shared_connection->getName() << "': "
-                               << "The new connection requests a " << policy.toString() << " connection, "
-                               << "but the existing connection has a " << shared_connection->getConnPolicy()->toString() << " buffer." << endlog();
-                    return SharedConnectionBase::shared_ptr();
-                }
+                RTT::OutputPort<T> *output_p = dynamic_cast<RTT::OutputPort<T> *>(output_port);
+                shared_connection.reset(new SharedConnection<T>(buildDataStorage<T>(policy, (output_p ? output_p->getLastWrittenValue() : T())), policy));
             }
 
             return shared_connection;
@@ -389,6 +427,11 @@ namespace RTT
 
             InputPort<T>* input_p = dynamic_cast<InputPort<T>*>(&input_port);
 
+            // Shared push connection? => forward to createAndCheckSharedConnection()
+            if (policy.pull == ConnPolicy::PUSH && policy.shared == ConnPolicy::SHARED) {
+                return createAndCheckSharedConnection(&output_port, &input_port, buildSharedConnection<T>(&output_port, &input_port, policy), policy);
+            }
+
             // This is the input and output channel element of the output half
             base::ChannelElementBase::shared_ptr output_half;
             if (input_port.isLocal() && policy.transport == 0)
@@ -401,10 +444,6 @@ namespace RTT
                 }
 
                 // local ports, create buffer here.
-                if (policy.pull == ConnPolicy::PUSH && policy.shared == ConnPolicy::SHARED) {
-                    return createAndCheckSharedConnection(output_port, input_port, buildOrCheckSharedConnection<T>(output_port, input_port, policy), policy);
-                }
-
                 output_half = buildChannelOutput<T>(*input_p, policy, output_port.getLastWrittenValue());
             }
             else
@@ -414,9 +453,13 @@ namespace RTT
                 // than plain memory, rare case, but we accept it. The unit tests use this for example
                 // to test the OOB transports.
                 if ( !input_port.isLocal() ) {
-                    output_half = createRemoteConnection( output_port, input_port, policy);
-                } else
+                    output_half = buildRemoteChannelOutput( output_port, input_port, policy);
+                } else if (input_p) {
                     output_half = createOutOfBandConnection<T>( output_port, *input_p, policy);
+                } else {
+                    log(Error) << "Port " << input_port.getName() << " is not compatible with " << output_port.getName() << endlog();
+                    return false;
+                }
             }
 
             if (!output_half)
@@ -468,6 +511,8 @@ namespace RTT
             return createAndCheckStream(input_port, policy, outhalf, sid);
         }
 
+        static bool createAndCheckSharedConnection(base::OutputPortInterface* output_port, base::InputPortInterface* input_port, SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy);
+
     protected:
         static bool createAndCheckConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, base::ChannelElementBase::shared_ptr channel_input, base::ChannelElementBase::shared_ptr channel_output, ConnPolicy const& policy);
 
@@ -475,9 +520,7 @@ namespace RTT
 
         static bool createAndCheckStream(base::InputPortInterface& input_port, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr channel_output, StreamConnID* conn_id);
 
-        static base::ChannelElementBase::shared_ptr createRemoteConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, ConnPolicy const& policy);
-
-        static bool createAndCheckSharedConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy);
+        static base::ChannelElementBase::shared_ptr buildRemoteChannelOutput(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, ConnPolicy const& policy);
 
         /**
          * This code is for setting up an in-process out-of-band connection.

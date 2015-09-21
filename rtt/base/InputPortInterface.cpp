@@ -41,6 +41,7 @@
 #include "OutputPortInterface.hpp"
 #include "DataFlowInterface.hpp"
 #include "../internal/ConnInputEndPoint.hpp"
+#include "../internal/ConnFactory.hpp"
 #include "../Logger.hpp"
 #include <exception>
 #include <stdexcept>
@@ -130,6 +131,11 @@ bool InputPortInterface::disconnect(PortInterface* port)
     return cmanager.disconnect(port);
 }
 
+bool InputPortInterface::createConnection( internal::SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy )
+{
+    return internal::ConnFactory::createAndCheckSharedConnection(0, this, shared_connection, policy);
+}
+
 base::ChannelElementBase::shared_ptr InputPortInterface::buildRemoteChannelOutput(
                 base::OutputPortInterface& output_port,
                 types::TypeInfo const* type_info,
@@ -137,4 +143,3 @@ base::ChannelElementBase::shared_ptr InputPortInterface::buildRemoteChannelOutpu
 {
     return base::ChannelElementBase::shared_ptr();
 }
-

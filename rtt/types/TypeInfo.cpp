@@ -218,4 +218,8 @@ namespace RTT
         return mconnf ? mconnf->buildChannelInput(port, policy) : base::ChannelElementBase::shared_ptr();
     }
 
+    internal::SharedConnectionBase::shared_ptr TypeInfo::buildSharedConnection(base::OutputPortInterface *output_port, base::InputPortInterface *input_port, ConnPolicy const& policy) const
+    {
+        return mconnf ? mconnf->buildSharedConnection(output_port, input_port, policy) : internal::SharedConnectionBase::shared_ptr();
+    }
 }

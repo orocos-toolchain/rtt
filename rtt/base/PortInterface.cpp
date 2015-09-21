@@ -107,3 +107,7 @@ DataFlowInterface* PortInterface::getInterface() const
     return iface;
 }
 
+internal::SharedConnectionBase::shared_ptr PortInterface::getSharedConnection() const
+{
+    return cmanager.getSharedConnection();
+}

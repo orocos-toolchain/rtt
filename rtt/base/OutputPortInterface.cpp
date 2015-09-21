@@ -39,6 +39,7 @@
 #include "PortInterface.hpp"
 #include "OutputPortInterface.hpp"
 #include "InputPortInterface.hpp"
+#include "../internal/ConnFactory.hpp"
 #include <exception>
 #include <stdexcept>
 
@@ -89,6 +90,11 @@ bool OutputPortInterface::createBufferConnection( InputPortInterface& input, int
 
 bool OutputPortInterface::createConnection( InputPortInterface& input )
 { return createConnection(input, input.getDefaultPolicy()); }
+
+bool OutputPortInterface::createConnection( internal::SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy )
+{
+    return internal::ConnFactory::createAndCheckSharedConnection(this, 0, shared_connection, policy);
+}
 
 bool OutputPortInterface::connectTo(PortInterface* other, ConnPolicy const& policy)
 {
