@@ -264,51 +264,43 @@ base::ChannelElementBase::shared_ptr ConnFactory::createAndCheckOutOfBandConnect
         return 0;
     }
 
-    // we force the creation of a buffer on input side
-    ConnPolicy policy2 = policy;
-    policy2.pull = false;
-    conn_id->name_id = policy2.name_id;
-
     // check if marshaller supports size hints:
     types::TypeMarshaller* ttt = dynamic_cast<types::TypeMarshaller*>( type->getProtocol(policy.transport) );
     if (ttt) {
-        policy2.data_size = ttt->getSampleSize(  output_port.getDataSource() );
+        policy.data_size = ttt->getSampleSize(  output_port.getDataSource() );
     } else {
         log(Debug) <<"Could not determine sample size for type " << type->getTypeName() << endlog();
     }
     // XXX: this seems to be always true
     if ( input_port.isLocal() ) {
-        RTT::base::ChannelElementBase::shared_ptr ceb_input = type->getProtocol(policy.transport)->createStream(&input_port, policy2, false);
+        RTT::base::ChannelElementBase::shared_ptr ceb_input = type->getProtocol(policy.transport)->createStream(&input_port, policy, false);
         if (ceb_input) {
-            log(Info) <<"Receiving data for port "<<input_port.getName() << " from out-of-band protocol "<< policy.transport << " with id "<< policy2.name_id<<endlog();
+            log(Info) <<"Receiving data for port "<<input_port.getName() << " from out-of-band protocol "<< policy.transport << " with id "<< policy.name_id<<endlog();
         } else {
             log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a remote channel for port " << input_port.getName()<<endlog();
             return 0;
         }
-        ceb_input->getOutputEndPoint()->addOutput(output_half, policy2.mandatory);
+        ceb_input->getOutputEndPoint()->addOutput(output_half, policy.mandatory);
         output_half = ceb_input;
     }
 
     // XXX: this seems to be always true
     if ( output_port.isLocal() ) {
 
-        RTT::base::ChannelElementBase::shared_ptr ceb_output = type->getProtocol(policy.transport)->createStream(&output_port, policy2, true);
+        RTT::base::ChannelElementBase::shared_ptr ceb_output = type->getProtocol(policy.transport)->createStream(&output_port, policy, true);
         if (ceb_output) {
-            log(Info) <<"Redirecting data for port "<< output_port.getName() << " to out-of-band protocol "<< policy.transport << " with id "<< policy2.name_id <<endlog();
+            log(Info) <<"Redirecting data for port "<< output_port.getName() << " to out-of-band protocol "<< policy.transport << " with id "<< policy.name_id <<endlog();
         } else {
             log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a remote channel for port " << output_port.getName()<<endlog();
             return 0;
         }
         // this mediates the 'channel ready leads to initial data sample'.
         // it is probably not necessary, since streams don't assume this relation.
-        ceb_output->getOutputEndPoint()->addOutput(output_half, policy2.mandatory);
+        ceb_output->getOutputEndPoint()->addOutput(output_half, policy.mandatory);
         output_half = ceb_output;
     }
 
-    // Important ! since we made a copy above, we need to set the original to the changed name_id.
-    policy.name_id = policy2.name_id;
-    policy.data_size = policy2.data_size;
-    conn_id->name_id = policy2.name_id;
+    conn_id->name_id = policy.name_id;
 
     return output_half;
 

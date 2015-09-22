@@ -137,12 +137,12 @@ namespace RTT
                     typename base::ChannelElement<T>::shared_ptr input =
                         this->getInput();
                     if( input && input->read(read_sample->set(), false) == NewData )
-                        return this->write(read_sample->rvalue());
+                        return ( this->write(read_sample->rvalue()) == WriteSuccess );
                 } else {
                     typename base::ChannelElement<T>::shared_ptr output =
                         this->getOutput();
                     if (output && mqRead(read_sample))
-                        return output->write(read_sample->rvalue());
+                        return ( output->write(read_sample->rvalue()) == WriteSuccess );
                 }
                 return false;
             }

@@ -182,10 +182,10 @@ BOOST_FIXTURE_TEST_SUITE(  CorbaMQueueIPCTestSuite,  CorbaMQueueIPCTest )
 BOOST_AUTO_TEST_CASE( testPortConnections )
 {
     // This test tests the different port-to-port connections.
-    ts = corba::TaskContextServer::Create( tc, false ); //no-naming
-    //tp = corba::TaskContextProxy::Create("other");
-    //if (!tp )
-    tp = corba::TaskContextProxy::CreateFromFile( "other.ior");
+    ts = corba::TaskContextServer::Create( tc, /* use_naming = */ false );
+    tp = corba::TaskContextProxy::Create( "other", /* is_ior = */ false );
+    if (!tp)
+        tp = corba::TaskContextProxy::CreateFromFile( "other.ior");
 
     // Create a default CORBA policy specification
     RTT::corba::CConnPolicy policy = toCORBA( RTT::ConnPolicy() );

@@ -188,7 +188,7 @@ RTT::base::ChannelElementBase::shared_ptr RemoteInputPort::buildRemoteChannelOut
         RTT::base::ChannelElementBase::shared_ptr ceb = type->getProtocol(policy.transport)->createStream(this, policy, true);
         if (ceb) {
             // insertion before corba.
-            ceb->setOutput( corba_ceb );
+            ceb->addOutput( corba_ceb, policy.mandatory );
             corba_ceb = ceb;
             log(Info) <<"Redirecting data for port "<<name << " to out-of-band protocol "<< policy.transport << endlog();
         } else {
@@ -200,7 +200,7 @@ RTT::base::ChannelElementBase::shared_ptr RemoteInputPort::buildRemoteChannelOut
         if (policy.pull == ConnPolicy::PUSH) {
             buf = type->buildDataStorage(policy);
             assert(buf);
-            buf->setOutput( corba_ceb );
+            buf->addOutput( corba_ceb, policy.mandatory );
             corba_ceb = buf;
         }
     }
