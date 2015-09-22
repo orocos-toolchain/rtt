@@ -158,15 +158,8 @@ void CorbaMQueueIPCTest::testPortBufferConnection()
     ASSERT_PORT_SIGNALLING(mw1->write(1.0), mr1);
     ASSERT_PORT_SIGNALLING(mw1->write(2.0), mr1);
     ASSERT_PORT_SIGNALLING(mw1->write(3.0), mr1);
-    // There are two connections between mw1 and mr1. We first flush one of the
-    // two, and then the second one (normal multi-writer single-reader
-    // behaviour)
-    BOOST_CHECK( mr1->read(value) );
-    BOOST_CHECK_EQUAL( 1.0, value );
-    BOOST_CHECK( mr1->read(value) );
-    BOOST_CHECK_EQUAL( 2.0, value );
-    BOOST_CHECK( mr1->read(value) );
-    BOOST_CHECK_EQUAL( 3.0, value );
+    // it will be emptied too fast by mqueue.
+    //ASSERT_PORT_SIGNALLING(mw1->write(4.0), 0);
     BOOST_CHECK( mr1->read(value) );
     BOOST_CHECK_EQUAL( 1.0, value );
     BOOST_CHECK( mr1->read(value) );
@@ -192,8 +185,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     ts = corba::TaskContextServer::Create( tc, false ); //no-naming
     //tp = corba::TaskContextProxy::Create("other");
     //if (!tp )
-    tp = corba::TaskContextProxy::CreateFromFile( "root.ior");
-    BOOST_CHECK( tp );
+    tp = corba::TaskContextProxy::CreateFromFile( "other.ior");
 
     // Create a default CORBA policy specification
     RTT::corba::CConnPolicy policy = toCORBA( RTT::ConnPolicy() );
