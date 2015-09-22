@@ -69,52 +69,47 @@ namespace RTT
             this->disconnect();
         }
 
-        bool ConnectionManager::findMatchingConnectionByConnID(ConnID const* conn_id, ChannelDescriptor const& descriptor)
-        {
-            return ( descriptor.get<0>() && conn_id->isSameID(*descriptor.get<0>()));
-        }
-
-        bool ConnectionManager::findMatchingConnectionByChannel(ChannelElementBase *channel, const ChannelDescriptor &descriptor)
-        {
-            return ( descriptor.get<1>() && descriptor.get<1>() == channel);
-        }
-
         bool ConnectionManager::disconnect(PortInterface* port)
         {
             boost::scoped_ptr<ConnID> conn_id( port->getPortID() );
-            return this->removeConnection(conn_id.get());
+            return this->removeConnection(conn_id.get(), /* disconnect = */ true);
         }
 
-        bool ConnectionManager::eraseConnection(const ConnectionManager::ChannelDescriptor& descriptor)
+        ConnectionManager::Connections::iterator ConnectionManager::eraseConnection(const Connections::iterator& descriptor, bool disconnect)
         {
-            // disconnect needs to know if we're from Out->In (forward) or from In->Out
-            bool is_forward = true;
-            if ( dynamic_cast<InputPortInterface*>(mport) )
-                is_forward = false; // disconnect on input port = backward.
+            base::ChannelElementBase::shared_ptr channel = descriptor->get<1>();
 
             // disconnect from a shared connection
-            if (descriptor.get<1>() == shared_connection) {
+            if (channel == shared_connection) {
                 RTT::log(Debug) << "Port " << mport->getName() << " disconnected from shared connection " << shared_connection->getName() << RTT::endlog();
                 shared_connection.reset();
             }
+            Connections::iterator next = connections.erase(descriptor); // invalidates descriptor
 
-            return mport->getConnEndpoint()->disconnect(descriptor.get<1>(), is_forward);
+            if (disconnect) {
+                // disconnect needs to know if we're from Out->In (forward) or from In->Out
+                bool is_forward = true;
+                if ( dynamic_cast<InputPortInterface*>(mport) )
+                    is_forward = false; // disconnect on input port = backward.
+
+                mport->getConnEndpoint()->disconnect(channel, is_forward);
+            }
+
+            return next;
         }
 
         void ConnectionManager::disconnect()
         {
-            std::list<ChannelDescriptor> all_connections;
-            { RTT::os::MutexLock lock(connection_lock);
-                all_connections.splice(all_connections.end(), connections);
+            RTT::os::MutexLock lock(connection_lock);
+            for(Connections::iterator conn_it = connections.begin(); conn_it != connections.end(); ) {
+                conn_it = eraseConnection(conn_it, true);
             }
-            std::for_each(all_connections.begin(), all_connections.end(),
-                          boost::bind(&ConnectionManager::eraseConnection, this, _1));
         }
 
         bool ConnectionManager::connected() const
         { return !connections.empty(); }
 
-        void ConnectionManager::addConnection(ConnID* conn_id, ChannelElementBase::shared_ptr channel, ConnPolicy policy)
+        bool ConnectionManager::addConnection(ConnID* conn_id, ChannelElementBase::shared_ptr channel, ConnPolicy policy)
         { RTT::os::MutexLock lock(connection_lock);
             assert(conn_id);
 
@@ -127,48 +122,38 @@ namespace RTT
             // add ChannelDescriptor to the connections list
             ChannelDescriptor descriptor = boost::make_tuple(conn_id, channel, policy);
             connections.push_back(descriptor);
-        }
 
-        bool ConnectionManager::removeConnection(ConnID* conn_id)
-        {
-            ChannelDescriptor descriptor;
-            { RTT::os::MutexLock lock(connection_lock);
-                std::list<ChannelDescriptor>::iterator conn_it =
-                    std::find_if(connections.begin(), connections.end(), boost::bind(&ConnectionManager::findMatchingConnectionByConnID, this, conn_id, _1));
-                if (conn_it == connections.end())
-                    return false;
-                descriptor = *conn_it;
-                connections.erase(conn_it);
-            }
-
-            // disconnect channel
-            eraseConnection(descriptor);
             return true;
         }
 
-        bool ConnectionManager::removeConnection(base::ChannelElementBase* channel)
+        bool ConnectionManager::removeConnection(ConnID* conn_id, bool disconnect /* = true */)
         {
-            std::list<ChannelDescriptor> descriptors;
-            { RTT::os::MutexLock lock(connection_lock);
-                while(true) {
-                    std::list<ChannelDescriptor>::iterator conn_it =
-                        std::find_if(connections.begin(), connections.end(), boost::bind(&ConnectionManager::findMatchingConnectionByChannel, this, channel, _1));
-                    if (conn_it == connections.end())
-                        break;
-                    descriptors.push_back(*conn_it);
-                    connections.erase(conn_it);
+            RTT::os::MutexLock lock(connection_lock);
+            bool found = false;
+            for(Connections::iterator conn_it = connections.begin(); conn_it != connections.end(); ) {
+                if (conn_it->get<0>() && conn_id->isSameID(*conn_it->get<0>())) {
+                    conn_it = eraseConnection(conn_it, disconnect);
+                    found = true;
+                } else {
+                    conn_it++;
                 }
             }
-            if (descriptors.empty()) return false;
-
-            std::for_each(descriptors.begin(), descriptors.end(),
-                          boost::bind(&ConnectionManager::eraseConnection, this, _1));
-            return true;
+            return found;
         }
 
-        bool is_same_id(ConnID* conn_id, ConnectionManager::ChannelDescriptor const& channel)
+        bool ConnectionManager::removeConnection(base::ChannelElementBase* channel, bool disconnect /* = true */)
         {
-            return conn_id->isSameID( *channel.get<0>() );
+            RTT::os::MutexLock lock(connection_lock);
+            bool found = false;
+            for(Connections::iterator conn_it = connections.begin(); conn_it != connections.end(); ) {
+                if (conn_it->get<1>() && channel == conn_it->get<1>()) {
+                    conn_it = eraseConnection(conn_it, disconnect);
+                    found = true;
+                } else {
+                    conn_it++;
+                }
+            }
+            return found;
         }
 
     }

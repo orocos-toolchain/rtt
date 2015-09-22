@@ -71,20 +71,21 @@ namespace RTT
 
         virtual bool disconnect(const base::ChannelElementBase::shared_ptr& channel, bool forward)
         {
+            OutputPort<T>* port = this->port;
+            if (port && channel && !forward)
+            {
+                port->getManager()->removeConnection(channel.get(), /* disconnect = */ false);
+            }
+
             // Call the base class: it does the common cleanup
             if (!Base::disconnect(channel, forward)) {
                 return false;
             }
 
-            OutputPort<T>* port = this->port;
-            if (port && channel && !forward)
-            {
-                port->removeConnection(channel.get());
-            }
-
-            // If this was the last connection, remove the buffer.
-            if (!this->connected()) { // connected() only checks for outputs
-                Base::disconnect(0, false);
+            // If this was the last connection, remove the buffer, too.
+            // For forward == false this was already done by the base class.
+            if (!this->connected() && forward) {
+                this->disconnect(false);
             }
 
             return true;

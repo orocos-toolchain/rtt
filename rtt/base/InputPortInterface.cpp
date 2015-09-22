@@ -100,8 +100,7 @@ bool InputPortInterface::connectTo(PortInterface* other)
 bool InputPortInterface::addConnection(ConnID* cid, ChannelElementBase::shared_ptr channel, const ConnPolicy& policy)
 {
     // input ports don't check the connection policy.
-    cmanager.addConnection( cid, channel, policy);
-    return true;
+    return cmanager.addConnection( cid, channel, policy);
 }
 
 #ifndef ORO_SIGNALLING_PORTS

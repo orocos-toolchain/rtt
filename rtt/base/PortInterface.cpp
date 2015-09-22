@@ -93,11 +93,6 @@ bool PortInterface::removeConnection(ConnID* conn)
     return cmanager.removeConnection(conn);
 }
 
-bool PortInterface::removeConnection(ChannelElementBase* channel)
-{
-    return cmanager.removeConnection(channel);
-}
-
 void PortInterface::setInterface(DataFlowInterface* dfi) {
     iface = dfi;
 }

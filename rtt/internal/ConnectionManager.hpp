@@ -89,6 +89,8 @@ namespace RTT
              */
             typedef boost::tuple<boost::shared_ptr<ConnID>, base::ChannelElementBase::shared_ptr, ConnPolicy> ChannelDescriptor;
 
+            typedef std::list<ChannelDescriptor> Connections;
+
             /**
              * Creates a connection manager to manage the connections of \a port.
              * @param port The port whose connections to manage.
@@ -102,10 +104,10 @@ namespace RTT
              * also validates if the connection is sound.
              * @return false if the connection failed to work, true otherwise.
              */
-            void addConnection(ConnID* port_id, base::ChannelElementBase::shared_ptr channel, ConnPolicy policy);
+            bool addConnection(ConnID* port_id, base::ChannelElementBase::shared_ptr channel, ConnPolicy policy);
 
-            bool removeConnection(ConnID* port_id);
-            bool removeConnection(base::ChannelElementBase* channel);
+            bool removeConnection(ConnID* port_id, bool disconnect = true);
+            bool removeConnection(base::ChannelElementBase* channel, bool disconnect = true);
 
             /**
              * Disconnect all connections.
@@ -129,7 +131,7 @@ namespace RTT
             /**
              * Returns a list of all connections managed by this object.
              */
-            std::list<ChannelDescriptor> getConnections() const {
+            Connections getConnections() const {
                 return connections;
             }
 
@@ -142,30 +144,11 @@ namespace RTT
 
         protected:
 
-            /** Helper method for disconnect(PortInterface*)
-             *
-             * This method removes the connection listed in \c descriptor from the list
-             * of connections if \c port has the same id that the one listed in
-             * \c descriptor.
-             *
-             * @returns true if the descriptor matches, false otherwise
-             */
-            bool findMatchingConnectionByConnID(ConnID const* conn_id, ChannelDescriptor const& descriptor);
-
-            /** Helper method for disconnect(ChannelElementBase*)
-             *
-             * This method removes the connection listed in \c descriptor from the list
-             * of connections if channel is the input or output endpoint.
-             *
-             * @returns true if the channel matches, false otherwise
-             */
-            bool findMatchingConnectionByChannel(base::ChannelElementBase* channel, ChannelDescriptor const& descriptor);
-
             /** Helper method for disconnect()
              *
-             * Unconditionally removes the given connection and return true
+             * Unconditionally removes the given connection and returns the next connection in the list or connections.end()
              */
-            bool eraseConnection(const ChannelDescriptor& descriptor);
+            Connections::iterator eraseConnection(const Connections::iterator& descriptor, bool disconnect);
 
             /**
              * The port for which we manage connections.

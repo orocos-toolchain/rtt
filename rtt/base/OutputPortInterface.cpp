@@ -73,8 +73,7 @@ void OutputPortInterface::disconnect()
 bool OutputPortInterface::addConnection(ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy)
 {
     if ( this->connectionAdded(channel_input, policy) ) {
-        cmanager.addConnection(port_id, channel_input, policy);
-        return true;
+        return cmanager.addConnection(port_id, channel_input, policy);
     }
     return false;
 }

@@ -194,13 +194,6 @@ namespace RTT
         virtual bool removeConnection(internal::ConnID* cid);
 
         /**
-         * Removes all connections from this port which write to or read from the given channel element.
-         * This is an advanced method, prefer to use disconnect()
-         * or a method from a subclass of PortInterface.
-         */
-        virtual bool removeConnection(ChannelElementBase* channel);
-
-        /**
          * Once a port is added to a DataFlowInterface, it gets
          * a pointer to that interface.
          * This allows advanced ports to track back to which component
@@ -223,7 +216,7 @@ namespace RTT
          * @see ConnectionManager::getChannels() for a list of all
          * connections of this port.
          */
-        virtual const internal::ConnectionManager* getManager() const { return &cmanager; }
+        virtual internal::ConnectionManager* getManager() { return &cmanager; }
 
         /**
          * Returns a pointer to the shared connection element this port may be connected to.
