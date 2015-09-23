@@ -96,19 +96,16 @@ namespace RTT
                 return false;
             }
 
-            virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
+            virtual FlowStatus data_sample(typename base::ChannelElement<T>::param_t sample)
             {
                 // send initial data sample to the other side using a plain write.
                 if (mis_sender) {
-                    typename base::ChannelElement<T>::shared_ptr output =
-                        this->getOutput();
-
                     write_sample->setPointer(&sample);
                     // update MQSendRecv buffer:
                     mqNewSample(write_sample);
-                    return mqWrite(write_sample);
+                    return mqWrite(write_sample) ? WriteSuccess : WriteFailure;
                 }
-                return false;
+                return NotConnected;
             }
 
             /**

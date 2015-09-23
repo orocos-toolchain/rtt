@@ -212,8 +212,11 @@ namespace RTT
             has_initial_sample = true;
             has_last_written_value = false;
 
-            if (getInputEndpoint()->data_sample(sample)) {
-                log(Error) << "A channel of port " << getName() << " has been invalidated during setDataSample(), it will be removed" << endlog();
+            if (connected()) {
+                FlowStatus result = getInputEndpoint()->data_sample(sample);
+                if (result == NotConnected) {
+                    log(Error) << "A channel of port " << getName() << " has been invalidated during setDataSample(), it will be removed" << endlog();
+                }
             }
         }
 
@@ -247,9 +250,12 @@ namespace RTT
             }
             has_last_written_value = keeps_last_written_value;
 
-            FlowStatus result = getInputEndpoint()->write(sample);
-            if (result == NotConnected) {
-                log(Error) << "A channel of port " << getName() << " has been invalidated during write(), it will be removed" << endlog();
+            FlowStatus result = NotConnected;
+            if (connected()) {
+                result = getInputEndpoint()->write(sample);
+                if (result == NotConnected) {
+                    log(Error) << "A channel of port " << getName() << " has been invalidated during write(), it will be removed" << endlog();
+                }
             }
 
             return result;

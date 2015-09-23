@@ -83,12 +83,12 @@ namespace RTT { namespace base {
          *
          * @returns false if an error occured that requires the channel to be invalidated.
          */
-        virtual bool data_sample(param_t sample)
+        virtual FlowStatus data_sample(param_t sample)
         {
             typename ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< ChannelElement<T> >(getOutput());
             if (output)
                 return output->data_sample(sample);
-            return false;
+            return WriteSuccess;
         }
 
         virtual value_t data_sample()
@@ -255,17 +255,21 @@ namespace RTT { namespace base {
         using typename ChannelElement<T>::param_t;
         using typename ChannelElement<T>::reference_t;
 
-        virtual bool data_sample(param_t sample)
+        virtual FlowStatus data_sample(param_t sample)
         {
             RTT::os::SharedMutexLock lock(outputs_lock);
-            if (outputs.empty()) return false;
-            bool result = true;
+            FlowStatus result = WriteSuccess;
             for(Outputs::const_iterator it = outputs.begin(); it != outputs.end(); ++it)
             {
                 typename ChannelElement<T>::shared_ptr output = (*it)->narrow<T>();
-                if (!output->data_sample(sample)) {
-                    result = false;
-                    // TODO: disconnect channel
+                FlowStatus fs = output->data_sample(sample);
+                if (fs != WriteSuccess) {
+                    if (fs == NotConnected)
+                        result = NotConnected;
+                    else if (fs == WriteFailure && result == WriteSuccess)
+                        result = WriteFailure;
+
+                    // TODO: disconnect channel if fs == NotConnected
                 }
             }
             return result;

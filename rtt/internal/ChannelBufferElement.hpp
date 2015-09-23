@@ -116,7 +116,7 @@ namespace RTT { namespace internal {
             Base::clear();
         }
 
-        virtual bool data_sample(param_t sample)
+        virtual FlowStatus data_sample(param_t sample)
         {
             buffer->data_sample(sample);
             return Base::data_sample(sample);

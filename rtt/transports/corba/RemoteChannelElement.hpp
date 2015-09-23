@@ -374,15 +374,11 @@ namespace RTT {
                 return (CFlowStatus)fs;
             }
 
-            virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
+            virtual FlowStatus data_sample(typename base::ChannelElement<T>::param_t sample)
             {
                 // we don't pass it on through CORBA (yet).
                 // If an oob transport is used, that one will send it through.
-                typename base::ChannelElement<T>::shared_ptr output =
-                    this->getOutput();
-                if (output)
-                    return base::ChannelElement<T>::data_sample(sample);
-                return true;
+                return base::ChannelElement<T>::data_sample(sample);
             }
 
             virtual bool inputReady(base::ChannelElementBase::shared_ptr const& caller)

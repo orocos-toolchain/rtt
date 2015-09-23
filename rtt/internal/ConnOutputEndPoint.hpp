@@ -139,7 +139,6 @@ namespace RTT
                 this->disconnect(true);
             }
 
-
             return true;
         }
 
@@ -153,16 +152,6 @@ namespace RTT
             if (port )
                 port->signal();
 #endif
-            return true;
-        }
-
-        using Base::data_sample;
-        virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
-        {
-            typename base::ChannelElement<T>::shared_ptr output = this->getOutput();
-            if (output) {
-                output->data_sample(sample);
-            }
             return true;
         }
 

@@ -196,13 +196,13 @@ namespace internal {
          *
          * @returns false if an error occured that requires the channel to be invalidated.
          */
-        virtual bool data_sample(param_t sample)
+        virtual FlowStatus data_sample(param_t sample)
         {
             if (!mstorage_initialized) {
                 mstorage->data_sample(sample);
                 mstorage_initialized = true;
             }
-            return true;
+            return base::MultipleInputsMultipleOutputsChannelElement<T>::data_sample(sample);
         }
 
         virtual value_t data_sample()
