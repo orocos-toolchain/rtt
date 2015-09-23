@@ -99,7 +99,7 @@ base::ChannelElementBase::shared_ptr RTT::internal::ConnFactory::buildRemoteChan
 
 bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, base::ChannelElementBase::shared_ptr channel_input, base::ChannelElementBase::shared_ptr channel_output, ConnPolicy const& policy) {
     // connect channel input to channel output
-    channel_input->addOutput(channel_output, policy.mandatory);
+    channel_input->connectTo(channel_output, policy.mandatory);
 
     // Register the channel's input to the output port.
     // This is a bit hacky. We have to find the next channel element in the pipeline as seen from the ConnOutputEndpoint:
@@ -155,7 +155,7 @@ bool ConnFactory::createAndCheckStream(base::OutputPortInterface& output_port, C
         log(Error) << "Transport failed to create remote channel for output stream of port "<<output_port.getName() << endlog();
         return false;
     }
-    channel_input->addOutput( chan_stream, policy.mandatory );
+    channel_input->connectTo( chan_stream, policy.mandatory );
 
     if ( output_port.addConnection( new StreamConnID(policy.name_id), chan_stream, policy ) ) {
         log(Info) << "Created output stream for output port "<< output_port.getName() <<endlog();
@@ -190,7 +190,7 @@ bool ConnFactory::createAndCheckStream(base::InputPortInterface& input_port, Con
     chan = chan->getOutputEndPoint();
     conn_id->name_id = policy.name_id;
 
-    chan->addOutput( outhalf, policy.mandatory );
+    chan->connectTo( outhalf, policy.mandatory );
     if ( !outhalf->channelReady(chan, policy, conn_id) == true ) {
         // setup failed: manual cleanup.
         chan->disconnect(true);
@@ -232,7 +232,7 @@ bool ConnFactory::createAndCheckSharedConnection(base::OutputPortInterface* outp
             return false;
         }
 
-        output_port->getConnEndpoint()->addOutput(shared_connection, policy.mandatory);
+        output_port->getConnEndpoint()->connectTo(shared_connection, policy.mandatory);
     }
 
     // ... and the input port
@@ -244,7 +244,7 @@ bool ConnFactory::createAndCheckSharedConnection(base::OutputPortInterface* outp
             return false;
         }
 
-        shared_connection->addOutput(input_port->getConnEndpoint(), policy.mandatory);
+        shared_connection->connectTo(input_port->getConnEndpoint(), policy.mandatory);
     }
 
     return true;
@@ -280,7 +280,7 @@ base::ChannelElementBase::shared_ptr ConnFactory::createAndCheckOutOfBandConnect
             log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a remote channel for port " << input_port.getName()<<endlog();
             return 0;
         }
-        ceb_input->getOutputEndPoint()->addOutput(output_half, policy.mandatory);
+        ceb_input->getOutputEndPoint()->connectTo(output_half, policy.mandatory);
         output_half = ceb_input;
     }
 
@@ -296,7 +296,7 @@ base::ChannelElementBase::shared_ptr ConnFactory::createAndCheckOutOfBandConnect
         }
         // this mediates the 'channel ready leads to initial data sample'.
         // it is probably not necessary, since streams don't assume this relation.
-        ceb_output->getOutputEndPoint()->addOutput(output_half, policy.mandatory);
+        ceb_output->getOutputEndPoint()->connectTo(output_half, policy.mandatory);
         output_half = ceb_output;
     }
 

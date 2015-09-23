@@ -72,7 +72,7 @@ namespace RTT
                   if ( !is_sender && (policy.pull == ConnPolicy::PULL) ) {
                       // the receiver needs a buffer to store his messages in. For pull connections buildChannelOutput does not add an output buffer, so we add it here:
                       base::ChannelElementBase::shared_ptr buf = detail::DataSourceTypeInfo<T>::getTypeInfo()->buildDataStorage(policy);
-                      mq->setOutput(buf);
+                      mq->connectTo(buf);
                   }
                   return mq;
               } catch(std::exception& e) {

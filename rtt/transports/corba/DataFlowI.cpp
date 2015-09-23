@@ -401,8 +401,8 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
 
         if (ceb) {
             // override, insert oob element between corba and endpoint and add a buffer between oob and endpoint.
-            dynamic_cast<ChannelElementBase*>(this_element)->addOutput(ceb, policy2.mandatory);
-            ceb->getOutputEndPoint()->addOutput(end, policy2.mandatory);
+            dynamic_cast<ChannelElementBase*>(this_element)->connectTo(ceb, policy2.mandatory);
+            ceb->getOutputEndPoint()->connectTo(end, policy2.mandatory);
             log(Info) <<"Receiving data for port "<< policy2.name_id << " from out-of-band protocol "<< corba_policy.transport <<endlog();
         } else {
             log(Error) << "The type transporter for type "<<type_info->getTypeName()<< " failed to create an out-of-band endpoint for port " << port_name<<endlog();
@@ -411,7 +411,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
         //
     } else {
         // No OOB.
-        dynamic_cast<ChannelElementBase*>(this_element)->addOutput(end, policy2.mandatory);
+        dynamic_cast<ChannelElementBase*>(this_element)->connectTo(end, policy2.mandatory);
     }
 
     this_element->_remove_ref();
@@ -485,8 +485,8 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
 
         if (ceb) {
             // OOB is added to end of chain.
-            start->addOutput( dynamic_cast<ChannelElementBase*>(this_element), policy2.mandatory );
-            dynamic_cast<ChannelElementBase*>(this_element)->setOutput( ceb );
+            start->connectTo( dynamic_cast<ChannelElementBase*>(this_element), policy2.mandatory );
+            dynamic_cast<ChannelElementBase*>(this_element)->connectTo( ceb );
             log(Info) <<"Sending data from port "<< policy2.name_id << " to out-of-band protocol "<< corba_policy.transport <<endlog();
         } else {
             log(Error) << "The type transporter for type "<<type_info->getTypeName()<< " failed to create an out-of-band endpoint for port " << port_name<<endlog();
@@ -496,8 +496,8 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
     } else {
         // No OOB. Always add output buffer.
         ChannelElementBase::shared_ptr buf = type_info->buildDataStorage(toRTT(corba_policy));
-        start->addOutput(buf, policy2.mandatory);
-        buf->setOutput( dynamic_cast<ChannelElementBase*>(this_element) );
+        start->connectTo(buf, policy2.mandatory);
+        buf->connectTo( dynamic_cast<ChannelElementBase*>(this_element) );
     }
 
 

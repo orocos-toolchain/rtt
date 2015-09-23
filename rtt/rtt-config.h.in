@@ -84,4 +84,17 @@
 # endif
 #endif
 
+//
+// Deprecation Macro
+// (copied from http://stackoverflow.com/questions/295120/c-mark-as-deprecated/21265197#21265197)
+//
+#ifdef __GNUC__
+#define RTT_DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#define RTT_DEPRECATED __declspec(deprecated)
+#else
+#pragma message("WARNING: You need to implement RTT_DEPRECATED for this compiler")
+#define RTT_DEPRECATED
+#endif
+
 #endif

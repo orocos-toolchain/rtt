@@ -224,7 +224,7 @@ namespace RTT
                 if (!buffer) {
                     return typename internal::ConnOutputEndpoint<T>::shared_ptr();
                 }
-                endpoint->addOutput(buffer, policy.mandatory);
+                endpoint->connectTo(buffer, policy.mandatory);
                 return buffer;
 
             } else if (policy.pull == ConnPolicy::PULL && policy.shared == ConnPolicy::SHARED) {
@@ -242,7 +242,7 @@ namespace RTT
                     if (!buffer) {
                         return typename internal::ConnOutputEndpoint<T>::shared_ptr();
                     }
-                    buffer->setOutput(endpoint);
+                    buffer->connectTo(endpoint);
 
                 } else {
                     // check that the existing buffer type is compatible to the new ConnPolicy
@@ -295,7 +295,7 @@ namespace RTT
                     if (!buffer) {
                         return typename internal::ConnOutputEndpoint<T>::shared_ptr();
                     }
-                    endpoint->setOutput(buffer);
+                    endpoint->connectTo(buffer);
 
                 } else {
                     // check that the existing buffer type is compatible to the new ConnPolicy
@@ -380,7 +380,7 @@ namespace RTT
                     }
 
                     shared_connection = new SharedRemoteConnection<T>(policy);
-                    shared_connection->addOutput(output_half, policy.mandatory);
+                    shared_connection->connectTo(output_half, policy.mandatory);
 
                 // ...or only ask the remote side to connect the additional input port to an existing remote shared connection
                 } else {

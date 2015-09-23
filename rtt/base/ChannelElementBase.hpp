@@ -75,7 +75,8 @@ namespace RTT { namespace base {
         shared_ptr input;
         shared_ptr output;
 
-        RTT::os::SharedMutex inout_lock;
+        RTT::os::SharedMutex input_lock;
+        RTT::os::SharedMutex output_lock;
 
     protected:
         /** Increases the reference count */
@@ -88,7 +89,7 @@ namespace RTT { namespace base {
         /**
          * A default constructed ChannelElementBase has no input nor output
          * configured. The only way to set an input or output is to use
-         * setInput() or setOutput().
+         * connectTo() or connectFrom().
          */
         ChannelElementBase();
         virtual ~ChannelElementBase();
@@ -113,7 +114,7 @@ namespace RTT { namespace base {
          * Returns the current input channel element.
          * This will only return a valid channel element if
          * another element has received this object as an argument
-         * to setOutput().
+         * to connectTo().
          * @return
          */
         shared_ptr getInput();
@@ -141,34 +142,17 @@ namespace RTT { namespace base {
         virtual shared_ptr getOutputEndPoint();
 
         /**
-         * Sets the output of this channel element to \a output and sets the input of \a output to this.
-         * This implies that this channel element becomes the input of \a output.
+         * Connects a new output to this element.
          * @param output the next element in chain.
+         * @param mandatory whether the added output is mandatory for a write operation to succeed
          */
-        virtual void setOutput(shared_ptr output);
+        virtual bool connectTo(ChannelElementBase::shared_ptr const& output, bool mandatory = true);
 
         /**
-         * Adds a new output to this element. This method replaces setOutput(),
-         * for a MultipleOutputsChannelElementBase which can have multiple outputs.
-         * Returns false if the channel does not support multiple outputs.
-         * @param output the next element in chain.
-         * @param mandatory whether the added output is mandatory for a write to succeed
-         */
-        virtual bool addOutput(ChannelElementBase::shared_ptr output, bool mandatory = false);
-
-        /**
-         * Sets the input of this channel element to \a input.
+         * Connects a new input to this element.
          * @param input the previous element in chain.
          */
-        virtual void setInput(shared_ptr input);
-
-        /**
-         * Adds a new input to this element. This method replaces setInput(),
-         * for a MultipleInputsChannelElementBase which can have multiple inputs.
-         * Returns false if the channel does not support multiple inputs.
-         * @param input the previous element in chain.
-         */
-        virtual bool addInput(ChannelElementBase::shared_ptr input);
+        virtual bool connectFrom(ChannelElementBase::shared_ptr const& input);
 
         /**
          * Returns true, if this channel element is connected on the input or output side.
@@ -228,7 +212,7 @@ namespace RTT { namespace base {
          * The ChannelElementBase implementation ignores the given channel and disconnects
          * unconditinally.
          */
-        virtual bool disconnect(const ChannelElementBase::shared_ptr& channel, bool forward);
+        virtual bool disconnect(ChannelElementBase::shared_ptr const& channel, bool forward);
 
         /**
          * Gets the port this channel element is connected to.
@@ -244,6 +228,50 @@ namespace RTT { namespace base {
          * instance of ConnPolicy otherwise.
          */
         virtual const ConnPolicy* getConnPolicy() const;
+
+
+        RTT_DEPRECATED void setOutput(const ChannelElementBase::shared_ptr &output)
+        {
+            assert(false && "ChannelElementBase::setOutput() is deprecated! You should use ChannelElementBase::connectTo() instead.");
+            (void) connectTo(output);
+        }
+
+        RTT_DEPRECATED void setInput(const ChannelElementBase::shared_ptr &input)
+        {
+            assert(false && "ChannelElementBase::setInput() is deprecated! You should use ChannelElementBase::addInput() instead.");
+            (void) addInput(input);
+        }
+
+    protected:
+        friend class MultipleInputsChannelElementBase;
+        friend class MultipleOutputsChannelElementBase;
+
+        /**
+         * Sets the new output channel element of this element or adds a channel to the outputs list.
+         * @param output the next element in chain.
+         * @param mandatory whether the added output is mandatory for a write to succeed
+         * @return true if the output was set or false if this element does not support multiple outputs and the output is already set.
+         */
+        virtual bool addOutput(shared_ptr const& output, bool mandatory = true);
+
+        /**
+         * Remove an output from the outputs list.
+         * @param output the element to be removed, or null to remove unconditionally
+         */
+        virtual void removeOutput(shared_ptr const& output);
+
+        /**
+         * Sets the new input channel element of this element or adds a channel to the inputs list.
+         * @param input the previous element in chain.
+         * @return true if the input was set or false if this element does not support multiple inputs and the input is already set.
+         */
+        virtual bool addInput(shared_ptr const& input);
+
+        /**
+         * Remove an input from the inputs list.
+         * @param input the element to be removed, or null to remove unconditionally
+         */
+        virtual void removeInput(shared_ptr const& input);
     };
 
     /**
@@ -260,20 +288,6 @@ namespace RTT { namespace base {
         RTT::os::SharedMutex inputs_lock;
 
     public:
-        /**
-         * Adds a new input to this element. This method replaces ChannelElementBase::setInput(),
-         * for a MultipleInputsChannelElementBase which can have multiple inputs.
-         * @param input the previous element in chain.
-         */
-        virtual bool addInput(ChannelElementBase::shared_ptr input);
-
-        /**
-         * Overwritten implementation of \ref ChannelElementBase::setInput() which forwards to \ref addInput()
-         * for instances of MultipleInputsChannelElementBase.
-         * @param input the previous element in chain.
-         */
-        virtual void setInput(ChannelElementBase::shared_ptr input);
-
         /**
          * Returns true, if this channel element has at least one input, independent of whether is has an
          * output connection or not.
@@ -297,14 +311,22 @@ namespace RTT { namespace base {
         /**
          * Overwritten implementation of \ref ChannelElementBase::disconnect(forward, channel).
          */
-        virtual bool disconnect(const ChannelElementBase::shared_ptr& channel, bool forward = true);
+        virtual bool disconnect(ChannelElementBase::shared_ptr const& channel, bool forward = true);
+
 
     protected:
+        /**
+         * Sets the new input channel element of this element or adds a channel to the inputs list.
+         * @param input the previous element in chain.
+         * @return true if the input was set or false if this element does not support multiple inputs and the input is already set.
+         */
+        virtual bool addInput(ChannelElementBase::shared_ptr const& input);
+
         /**
          * Remove an input from the inputs list.
          * @param input the element to be removed
          */
-        virtual void removeInput(ChannelElementBase *input);
+        virtual void removeInput(ChannelElementBase::shared_ptr const& input);
     };
 
     /**
@@ -314,39 +336,25 @@ namespace RTT { namespace base {
     {
     public:
         typedef boost::intrusive_ptr<MultipleOutputsChannelElementBase> shared_ptr;
-        typedef std::list<ChannelElementBase::shared_ptr> Outputs;
+        struct Output {
+            Output(ChannelElementBase::shared_ptr const &channel, bool mandatory = true);
+            bool operator==(ChannelElementBase::shared_ptr const& channel) const;
+            ChannelElementBase::shared_ptr channel;
+            bool mandatory;
+            bool disconnected;
+        };
+        typedef std::list<Output> Outputs;
 
     protected:
         Outputs outputs;
-        std::map<const ChannelElementBase *, bool> outputs_mandatory;
         RTT::os::SharedMutex outputs_lock;
 
     public:
-        /**
-         * Adds a new output to this element. This method replaces ChannelElementBase::setOutput(),
-         * for a MultipleOutputsChannelElementBase which can have multiple outputs.
-         * @param output the next element in chain.
-         * @param mandatory whether the added output is mandatory for a write to succeed
-         */
-        virtual bool addOutput(ChannelElementBase::shared_ptr output, bool mandatory = false);
-
-        /**
-         * Overwritten implementation of \ref ChannelElementBase::setOutput() which forwards to \ref addOutput()
-         * for instances of MultipleOutputsChannelElementBase.
-         * @param output the next element in chain.
-         */
-        virtual void setOutput(ChannelElementBase::shared_ptr output);
-
         /**
          * Returns true, if this channel element has at least one output, independent of whether is has an
          * input connection or not.
          */
         virtual bool connected();
-
-        /**
-         * Returns true, if the given output channel is mandatory for a successful write to this channel element.
-         */
-        virtual bool isMandatory(const ChannelElementBase *output);
 
         /**
          * Overwritten implementation of \ref ChannelElementBase::signal() which forwards the signal to all
@@ -365,14 +373,29 @@ namespace RTT { namespace base {
         /**
          * Overwritten implementation of \ref ChannelElementBase::disconnect(forward, channel).
          */
-        virtual bool disconnect(const ChannelElementBase::shared_ptr& channel, bool forward = false);
+        virtual bool disconnect(ChannelElementBase::shared_ptr const& channel, bool forward = false);
+
 
     protected:
+        /**
+         * Sets the new output channel element of this element or adds a channel to the outputs list.
+         * @param output the next element in chain.
+         * @param mandatory whether the added output is mandatory for a write to succeed
+         * @return true if the output was set or false if this element does not support multiple outputs and the output is already set.
+         */
+        virtual bool addOutput(ChannelElementBase::shared_ptr const& output, bool mandatory = true);
+
         /**
          * Remove an output from the outputs list.
          * @param output the element to be removed
          */
-        virtual void removeOutput(ChannelElementBase *output);
+        virtual void removeOutput(ChannelElementBase::shared_ptr const& output);
+
+        /**
+         * Iterate over all output channels and remove the ones that have been marked as disconnected
+         * (after a failed write() or data_sample() call).
+         */
+        void removeDisconnectedOutputs(RTT::os::SharedMutexLock &lock);
     };
 
     /**
@@ -393,7 +416,7 @@ namespace RTT { namespace base {
         /**
          * Overwritten implementation of \ref ChannelElementBase::disconnect(forward, channel).
          */
-        virtual bool disconnect(const ChannelElementBase::shared_ptr& channel, bool forward);
+        virtual bool disconnect(ChannelElementBase::shared_ptr const& channel, bool forward);
     };
 
     void RTT_API intrusive_ptr_add_ref( ChannelElementBase* e );

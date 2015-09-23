@@ -173,7 +173,7 @@ namespace internal {
          *
          * @return false if no sample has ever been written, true otherwise
          */
-        virtual FlowStatus read(reference_t sample, bool copy_old_data)
+        virtual FlowStatus read(reference_t sample, bool copy_old_data = true)
         {
             return mstorage->read(sample, copy_old_data);
         }

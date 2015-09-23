@@ -225,11 +225,46 @@ namespace RTT
              }
 
          protected:
+             friend class UpgradeMutexLock;
              MutexInterface *_mutex;
 
              SharedMutexLock()
              {}
      };
+
+     /**
+      * @brief UpgradeMutexLock is a scope based Monitor, protecting critical
+      * sections with a SharedMutex object through locking and unlocking it.
+      */
+     class RTT_API UpgradeMutexLock
+     {
+
+     public:
+         /**
+          * Create a shared lock on a SharedMutex object.
+          *
+          * @param mutex The Mutex to be locked.
+          */
+         UpgradeMutexLock( SharedMutexLock &shared_lock )
+             : _mutex(shared_lock._mutex)
+         {
+             _mutex->lock_upgrade();
+         }
+
+         /**
+          * Remove a lock from a SharedMutex object
+          */
+         ~UpgradeMutexLock()
+         {
+             _mutex->unlock_upgrade();
+         }
+
+     protected:
+         MutexInterface *_mutex;
+
+         UpgradeMutexLock()
+         {}
+    };
 }}
 
 #endif

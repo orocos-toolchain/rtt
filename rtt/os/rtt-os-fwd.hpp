@@ -12,6 +12,9 @@ namespace RTT {
         class MutexRecursive;
         class MutexTimedLock;
         class MutexTryLock;
+        class SharedMutex;
+        class SharedMutexLock;
+        class UpgradeMutexLock;
         class Semaphore;
         class StartStopManager;
         class Thread;
