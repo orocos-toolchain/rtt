@@ -8,6 +8,12 @@
 
 #cmakedefine ORO_DISABLE_PORT_DATA_SCRIPTING
 
+#cmakedefine RTT_V2_COMPATIBILITY_MODE
+#cmakedefine RTT_V2_DATAFLOW_COMPATIBILITY_MODE
+#if defined(RTT_V2_COMPATIBILITY_MODE) && !defined(RTT_V2_DATAFLOW_COMPATIBILITY_MODE)
+# define RTT_V2_DATAFLOW_COMPATIBILITY_MODE
+#endif
+
 // if not defined, show an error
 #ifndef OROCOS_TARGET
 // OROCOS_TARGET is only used to include the file targets/OROCOS_TARGET

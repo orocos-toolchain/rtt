@@ -9,6 +9,10 @@ include (SelectOneLibrary)
 ### only read the options, not change them (Variable scope limits in cmake).
 ###
 
+### Compatibility flags
+OPTION(RTT_V2_COMPATIBILITY_MODE "Enable v2 compatibility mode where RTT behaves as close to v2 behavior as possible" OFF)
+OPTION(RTT_V2_DATAFLOW_COMPATIBILITY_MODE "Enable v2 compatibility mode (dataflow only)" OFF)
+
 ### OS Abstraction
 OPTION(OS_AGNOSTIC "Do not use asm/system.h and asm/atomic.h global system heades, but use RTT implementations." ON)
 OPTION(OS_HAVE_IOSTREAM "Use C++ iostream library." ON)

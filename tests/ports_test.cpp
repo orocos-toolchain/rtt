@@ -29,6 +29,8 @@
 #include <boost/function_types/function_type.hpp>
 #include <OperationCaller.hpp>
 
+#include <rtt/rtt-config.h>
+
 using namespace std;
 using namespace RTT;
 using namespace RTT::detail;
@@ -375,6 +377,8 @@ BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithPushConnection)
     BOOST_CHECK( wp1.connected() );
     BOOST_CHECK( wp2.connected() );
     BOOST_CHECK( wp3.connected() );
+
+#ifndef RTT_V2_DATAFLOW_COMPATIBILITY_MODE
     BOOST_CHECK( rp.getBuffer() );
 
     BOOST_CHECK_EQUAL( wp1.write(10), WriteSuccess );
@@ -432,6 +436,81 @@ BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithPushConnection)
     BOOST_CHECK( !wp3.connected() );
     BOOST_CHECK( !rp.getBuffer() );
     BOOST_CHECK_EQUAL( rp.read(value), NoData );
+
+#else
+    // copied from testPortThreeWritersOneReaderWithPullConnection test
+    BOOST_CHECK( !rp.getBuffer() );
+
+    BOOST_CHECK_EQUAL( wp1.write(10), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp1.write(20), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp1.write(30), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp1.write(40), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp1.write(50), WriteFailure ); // buffer full
+
+    BOOST_CHECK_EQUAL( wp2.write(12), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp2.write(22), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp2.write(32), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp2.write(42), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp2.write(52), WriteFailure ); // buffer full
+
+    BOOST_CHECK_EQUAL( wp3.write(13), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp3.write(23), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp3.write(33), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp3.write(43), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp3.write(53), WriteFailure ); // buffer full
+
+    int value = 0;
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(10, value);
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(20, value);
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(30, value);
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(40, value);
+
+    // Now removes the middle writer
+    wp2.disconnect(&rp);
+    BOOST_CHECK( rp.connected() );
+    BOOST_CHECK( wp1.connected() );
+    BOOST_CHECK( !wp2.connected() );
+    BOOST_CHECK( wp3.connected() );
+
+    // write one more sample
+    BOOST_CHECK_EQUAL( wp1.write(60), WriteSuccess );
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(60, value);
+
+    // now check if wp3's connection is used:
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(13, value);
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(23, value);
+
+    // in the middle adding a sample
+    BOOST_CHECK_EQUAL( wp1.write(70), WriteSuccess );
+
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(33, value);
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(43, value);
+
+    // now the in the middle sample shows up
+    BOOST_CHECK_EQUAL( rp.read(value), NewData );
+    BOOST_CHECK_EQUAL(70, value);
+    value = 0;
+    BOOST_CHECK_EQUAL( rp.read(value), OldData );
+    BOOST_CHECK_EQUAL(70, value);
+
+    // And finally the other ports as well
+    rp.disconnect(&wp1);
+    rp.disconnect(&wp3);
+    BOOST_CHECK( !rp.connected() );
+    BOOST_CHECK( !wp1.connected() );
+    BOOST_CHECK( !wp2.connected() );
+    BOOST_CHECK( !wp3.connected() );
+    BOOST_CHECK_EQUAL( rp.read(value), NoData );
+#endif
 }
 
 // This test is equivalent to testPortThreeWritersOneReader before the data flow semantics have been changed in Orocos Toolchain 2.9.
@@ -615,6 +694,50 @@ BOOST_AUTO_TEST_CASE(testSharedDataConnection)
     BOOST_CHECK_EQUAL(34, value);
     BOOST_CHECK_EQUAL( rp2.read(value), OldData );
     BOOST_CHECK_EQUAL(34, value);
+}
+
+
+BOOST_AUTO_TEST_CASE(testInvalidPrivateConnections)
+{
+    OutputPort<int> wp1("W1");
+    OutputPort<int> wp2("W2");
+    InputPort<int> rp("R1");
+
+    // mix push and pull
+    BOOST_CHECK( wp1.connectTo(&rp, ConnPolicy::data(ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PUSH)) );
+#ifndef RTT_V2_DATAFLOW_COMPATIBILITY_MODE
+    BOOST_CHECK( !wp2.connectTo(&rp, ConnPolicy::data(ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PULL)) );
+#else
+    BOOST_CHECK(  wp2.connectTo(&rp, ConnPolicy::data(ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PULL)) );
+#endif
+    rp.disconnect();
+
+    // mix data and buffer connections
+    BOOST_CHECK( wp1.connectTo(&rp, ConnPolicy::data(ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PUSH)) );
+#ifndef RTT_V2_DATAFLOW_COMPATIBILITY_MODE
+    BOOST_CHECK( !wp2.connectTo(&rp, ConnPolicy::buffer(10, ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PUSH)) );
+#else
+    BOOST_CHECK(  wp2.connectTo(&rp, ConnPolicy::buffer(10, ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PUSH)) );
+#endif
+    rp.disconnect();
+
+    // mix different locking policies
+    BOOST_CHECK( wp1.connectTo(&rp, ConnPolicy::data(ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PUSH)) );
+#ifndef RTT_V2_DATAFLOW_COMPATIBILITY_MODE
+    BOOST_CHECK( !wp2.connectTo(&rp, ConnPolicy::data(ConnPolicy::LOCKED, /* init_connection = */ false, ConnPolicy::PUSH)) );
+#else
+    BOOST_CHECK(  wp2.connectTo(&rp, ConnPolicy::data(ConnPolicy::LOCKED, /* init_connection = */ false, ConnPolicy::PUSH)) );
+#endif
+    rp.disconnect();
+
+    // mix different buffer sizes
+    BOOST_CHECK( wp1.connectTo(&rp, ConnPolicy::buffer(5, ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PUSH)) );
+#ifndef RTT_V2_DATAFLOW_COMPATIBILITY_MODE
+    BOOST_CHECK( !wp1.connectTo(&rp, ConnPolicy::buffer(10, ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PUSH)) );
+#else
+    BOOST_CHECK(  wp1.connectTo(&rp, ConnPolicy::buffer(10, ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PUSH)) );
+#endif
+    rp.disconnect();
 }
 
 BOOST_AUTO_TEST_CASE(testInvalidSharedConnection)

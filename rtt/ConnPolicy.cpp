@@ -225,7 +225,7 @@ namespace RTT
     std::string ConnPolicy::toString() const {
         std::string s;
         if (shared) s += sharedToString(shared) + " ";
-        if (pull)   s += pullToString(shared) + " ";
+        s += pullToString(pull) + " ";
         s += lock_policyToString(lock_policy) + " ";
         s += typeToString(type, size);
         return s;

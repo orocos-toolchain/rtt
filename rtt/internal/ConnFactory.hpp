@@ -55,6 +55,8 @@
 #include "../base/BufferUnSync.hpp"
 #include "../Logger.hpp"
 
+#include "../rtt-config.h"
+
 namespace RTT
 { namespace internal {
 
@@ -288,6 +290,7 @@ namespace RTT
             typename base::ChannelElement<T>::shared_ptr buffer = port.getBuffer();
 
             if (policy.pull == ConnPolicy::PUSH && policy.shared == ConnPolicy::PRIVATE) {
+#ifndef RTT_V2_DATAFLOW_COMPATIBILITY_MODE
                 // For private push connections, the buffer belongs to this input port.
 
                 if (!buffer) {
@@ -314,6 +317,19 @@ namespace RTT
                         return typename internal::ConnOutputEndpoint<T>::shared_ptr();
                     }
                 }
+
+#else // RTT_V2_DATAFLOW_COMPATIBILITY_MODE
+                // Build channel output with per-connection buffers.
+
+                log(Debug) << "[RTT_V2_COMPATIBILITY_MODE] Building a per-connection channel output for input port '" << port.getName() << "' with ConnPolicy " << policy.toString() << endlog();
+                assert(!buffer);
+                buffer = buildDataStorage<T>(policy, initial_value);
+                if (!buffer) {
+                    return typename internal::ConnOutputEndpoint<T>::shared_ptr();
+                }
+                buffer->connectTo(endpoint);
+                return buffer;
+#endif
 
             } else if (buffer) {
                 // The new connection requires an unbuffered channel output, but this port already has an input buffer!

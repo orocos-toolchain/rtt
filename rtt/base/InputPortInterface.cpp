@@ -46,6 +46,10 @@
 #include <exception>
 #include <stdexcept>
 
+#ifdef RTT_V2_DATAFLOW_COMPATIBILITY_MODE
+# include "../TaskContext.hpp"
+#endif
+
 using namespace RTT;
 using namespace RTT::detail;
 using namespace std;
@@ -97,8 +101,55 @@ bool InputPortInterface::connectTo(PortInterface* other)
     return connectTo(other, default_policy);
 }
 
+#ifdef RTT_V2_DATAFLOW_COMPATIBILITY_MODE
+static std::string toString(const ConnID *conn_id)
+{
+    const internal::LocalConnID *local_conn_id = dynamic_cast<const internal::LocalConnID *>(conn_id);
+    if (local_conn_id) {
+        std::string port_name = local_conn_id->ptr->getName();
+        if (local_conn_id->ptr->getInterface() && local_conn_id->ptr->getInterface()->getOwner()) {
+            port_name = local_conn_id->ptr->getInterface()->getOwner()->getName() + "." + port_name;
+        }
+        return "from port " + port_name;
+    }
+
+    const internal::StreamConnID *stream_conn_id = dynamic_cast<const internal::StreamConnID *>(conn_id);
+    if (stream_conn_id) {
+        return "from stream " + stream_conn_id->name_id;
+    }
+
+    return "from unknown source";
+}
+#endif
+
 bool InputPortInterface::addConnection(ConnID* cid, ChannelElementBase::shared_ptr channel, const ConnPolicy& policy)
 {
+#ifdef RTT_V2_DATAFLOW_COMPATIBILITY_MODE
+    // Log errors for incompatible connection policies if RTT_V2_DATAFLOW_COMPATIBILITY_MODE is defined:
+    internal::ConnectionManager::Connections connections = cmanager.getConnections();
+    for(internal::ConnectionManager::Connections::const_iterator connection = connections.begin(); connection != connections.end(); ++connection) {
+        const ConnID *other_cid = connection->get<0>().get();
+        const ConnPolicy &other = connection->get<2>();
+
+        // check if push/pull connections have been mixed
+        if (policy.pull != other.pull) {
+            log(Error) << "[RTT_V2_COMPATIBILITY_MODE] You mixed push and pull connections to input port " << getName() << ":" << nlog()
+                       << "[RTT_V2_COMPATIBILITY_MODE]   The new connection " << toString(cid) << " with policy " << policy.toString() << nlog()
+                       << "[RTT_V2_COMPATIBILITY_MODE]   conflicts with connection " << toString(other_cid) << " with policy " << other.toString() << endlog();
+
+        // check if buffer policies match (push connections only)
+        } else if (policy.pull == ConnPolicy::PUSH) {
+            if ((policy.type != other.type) ||
+                (policy.lock_policy != other.lock_policy) ||
+                (policy.size != other.size)) {
+                log(Error) << "[RTT_V2_COMPATIBILITY_MODE] You mixed push connections to input port " << getName() << "  with different buffer policies:" << nlog()
+                           << "[RTT_V2_COMPATIBILITY_MODE]   The new connection " << toString(cid) << " with policy " << policy.toString() << nlog()
+                           << "[RTT_V2_COMPATIBILITY_MODE]   conflicts with connection " << toString(other_cid) << " with policy " << other.toString() << endlog();
+            }
+        }
+    }
+#endif
+
     // input ports don't check the connection policy.
     return cmanager.addConnection( cid, channel, policy);
 }
