@@ -47,6 +47,7 @@
 // BOOST_DATE_TIME_POSIX_TIME_STD_CONFIG is defined in rtt-config.h
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/recursive_mutex.hpp>
+#include <boost/thread/shared_mutex.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #endif
 
@@ -66,16 +67,10 @@ namespace RTT
 		virtual void unlock() =0;
 		virtual bool trylock() = 0;
 		virtual bool timedlock(Seconds s) = 0;
-
         virtual void lock_shared() {}
         virtual void unlock_shared() {}
         virtual bool trylock_shared() { return false; }
         virtual bool timedlock_shared(Seconds s) { return false; }
-
-        virtual bool lock_upgrade() { return false; }
-        virtual void unlock_upgrade() {}
-        virtual bool trylock_upgrade() { return false; }
-        virtual bool timedlock_upgrade(Seconds s) { return false; }
 	};
 
 
@@ -501,73 +496,6 @@ namespace RTT
             return true;
         }
 
-        /**
-         * Obtain upgrade ownership of this mutex.
-         */
-        virtual bool lock_upgrade ()
-        {
-            rtos_mutex_lock( &m );
-            while ((shared_count > 1) || exclusive) {
-                rtos_cond_wait(&exclusive_cond, &m);
-            }
-            exclusive = true;
-            rtos_mutex_unlock( &m );
-            return true;
-        }
-
-        /**
-         * Release upgrade ownership of this mutex.
-         */
-        virtual void unlock_upgrade()
-        {
-            rtos_mutex_lock( &m );
-            assert(shared_count == 1);
-            assert(exclusive);
-            exclusive = false;
-            rtos_cond_broadcast( &exclusive_cond );
-            rtos_cond_broadcast( &shared_cond );
-            rtos_mutex_unlock( &m );
-        }
-
-        /**
-        * Attempt to obtain upgrade ownership of this mutex
-        *
-        * @return true when the locking succeeded, false otherwise
-        */
-        virtual bool trylock_upgrade()
-        {
-            rtos_mutex_lock( &m );
-            if ((shared_count > 1) || exclusive) {
-                rtos_mutex_unlock( &m );
-                return false;
-            }
-            exclusive = true;
-            rtos_mutex_unlock( &m );
-            return true;
-        }
-
-        /**
-        * Attempt to obtain upgrade ownership of this mutex, but don't wait longer for the lock
-        * than the specified timeout.
-        *
-        * @param  s The maximum time to wait before aqcuiring the lock.
-        * @return true when the locking succeeded, false otherwise
-        */
-        virtual bool timedlock_upgrade(Seconds s)
-        {
-            RTT::nsecs abs_time = rtos_get_time_ns() + Seconds_to_nsecs(s);
-            rtos_mutex_lock( &m );
-            while ((shared_count > 1) || exclusive) {
-                if ( rtos_cond_timedwait( &shared_cond, &m, abs_time ) != 0 ) {
-                    rtos_mutex_unlock( &m );
-                    return false;
-                }
-            }
-            exclusive = true;
-            rtos_mutex_unlock( &m );
-            return true;
-        }
-
 #else
     protected:
         boost::shared_mutex sharedm;
@@ -617,7 +545,7 @@ namespace RTT
         */
         virtual bool timedlock(Seconds s)
         {
-            return recm.timed_lock( boost::posix_time::microseconds( Seconds_to_nsecs(s)/1000 ) );
+            return sharedm.timed_lock( boost::posix_time::microseconds( Seconds_to_nsecs(s)/1000 ) );
         }
 
         /**
@@ -655,50 +583,7 @@ namespace RTT
         */
         virtual bool timedlock_shared(Seconds s)
         {
-            return recm.timed_lock_shared( boost::posix_time::microseconds( Seconds_to_nsecs(s)/1000 ) );
-        }
-
-        /**
-         * Obtain upgrade ownership of this mutex.
-         */
-        virtual bool lock_upgrade ()
-        {
-            try {
-                recm.lock_upgrade();
-            } catch(boost::lock_error&) {
-                return false;
-            }
-            return true;
-        }
-
-        /**
-         * Release upgrade ownership of this mutex.
-         */
-        virtual void unlock_upgrade()
-        {
-            recm.unlock_upgrade();
-        }
-
-        /**
-        * Attempt to obtain upgrade ownership of this mutex
-        *
-        * @return true when the locking succeeded, false otherwise
-        */
-        virtual bool trylock_upgrade()
-        {
-            return recm.try_lock_upgrade();
-        }
-
-        /**
-        * Attempt to obtain upgrade ownership of this mutex, but don't wait longer for the lock
-        * than the specified timeout.
-        *
-        * @param  s The maximum time to wait before aqcuiring the lock.
-        * @return true when the locking succeeded, false otherwise
-        */
-        virtual bool timedlock_upgrade(Seconds s)
-        {
-            return recm.try_lock_upgrade_for( boost::posix_time::microseconds( Seconds_to_nsecs(s)/1000 ) );
+            return sharedm.timed_lock_shared( boost::posix_time::microseconds( Seconds_to_nsecs(s)/1000 ) );
         }
 #endif
     };

@@ -266,31 +266,32 @@ namespace RTT { namespace base {
 
         virtual FlowStatus data_sample(param_t sample)
         {
-            RTT::os::SharedMutexLock lock(outputs_lock);
             FlowStatus result = WriteSuccess;
-            bool need_to_disconnect = false;
+            bool at_least_one_output_is_disconnected = false;
+            bool at_least_one_output_is_connected = false;
 
-            for(Outputs::iterator it = outputs.begin(); it != outputs.end(); ++it)
             {
-                typename ChannelElement<T>::shared_ptr output = it->channel->narrow<T>();
-                FlowStatus fs = output->data_sample(sample);
-                if (fs != WriteSuccess) {
-                    if (fs == NotConnected)
-                        result = NotConnected;
-                    else if (fs == WriteFailure && result == WriteSuccess)
-                        result = WriteFailure;
-
+                RTT::os::SharedMutexLock lock(outputs_lock);
+                if (outputs.empty()) return WriteSuccess;
+                for(Outputs::iterator it = outputs.begin(); it != outputs.end(); ++it)
+                {
+                    typename ChannelElement<T>::shared_ptr output = it->channel->narrow<T>();
+                    FlowStatus fs = output->data_sample(sample);
+                    if (result < fs) result = fs;
                     if (fs == NotConnected) {
                         it->disconnected = true;
-                        need_to_disconnect = true;
+                        at_least_one_output_is_disconnected = true;
+                    } else {
+                        at_least_one_output_is_connected = true;
                     }
                 }
             }
 
-            if (need_to_disconnect) {
-                removeDisconnectedOutputs(lock);
-                if (outputs.empty()) result = NotConnected;
+            if (at_least_one_output_is_disconnected) {
+                removeDisconnectedOutputs();
+                if (!at_least_one_output_is_connected) result = NotConnected;
             }
+
             return result;
         }
 
@@ -301,34 +302,32 @@ namespace RTT { namespace base {
          */
         virtual FlowStatus write(param_t sample)
         {
-            RTT::os::SharedMutexLock lock(outputs_lock);
-            if (outputs.empty()) return NotConnected;
             FlowStatus result = WriteSuccess;
-            bool need_to_disconnect = false;
+            bool at_least_one_output_is_disconnected = false;
+            bool at_least_one_output_is_connected = false;
 
-            for(Outputs::iterator it = outputs.begin(); it != outputs.end(); ++it)
             {
-                typename ChannelElement<T>::shared_ptr output = it->channel->narrow<T>();
-                FlowStatus fs = output->write(sample);
-                if (fs != WriteSuccess) {
-                    if (it->mandatory) {
-                        if (fs == NotConnected)
-                            result = NotConnected;
-                        else if (fs == WriteFailure && result == WriteSuccess)
-                            result = WriteFailure;
-                    }
-
+                RTT::os::SharedMutexLock lock(outputs_lock);
+                if (outputs.empty()) return NotConnected;
+                for(Outputs::iterator it = outputs.begin(); it != outputs.end(); ++it)
+                {
+                    typename ChannelElement<T>::shared_ptr output = it->channel->narrow<T>();
+                    FlowStatus fs = output->write(sample);
+                    if (it->mandatory && (result < fs)) result = fs;
                     if (fs == NotConnected) {
                         it->disconnected = true;
-                        need_to_disconnect = true;
+                        at_least_one_output_is_disconnected = true;
+                    } else {
+                        at_least_one_output_is_connected = true;
                     }
                 }
             }
 
-            if (need_to_disconnect) {
-                removeDisconnectedOutputs(lock);
-                if (outputs.empty()) result = NotConnected;
+            if (at_least_one_output_is_disconnected) {
+                removeDisconnectedOutputs();
+                if (!at_least_one_output_is_connected) result = NotConnected;
             }
+
             return result;
         }
     };

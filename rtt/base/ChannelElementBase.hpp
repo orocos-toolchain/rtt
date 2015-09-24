@@ -395,7 +395,7 @@ namespace RTT { namespace base {
          * Iterate over all output channels and remove the ones that have been marked as disconnected
          * (after a failed write() or data_sample() call).
          */
-        void removeDisconnectedOutputs(RTT::os::SharedMutexLock &lock);
+        void removeDisconnectedOutputs();
     };
 
     /**

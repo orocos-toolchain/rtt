@@ -381,9 +381,9 @@ bool MultipleOutputsChannelElementBase::disconnect(ChannelElementBase::shared_pt
     return ChannelElementBase::disconnect(channel, forward);
 }
 
-void MultipleOutputsChannelElementBase::removeDisconnectedOutputs(SharedMutexLock &shared_lock)
+void MultipleOutputsChannelElementBase::removeDisconnectedOutputs()
 {
-    RTT::os::UpgradeMutexLock lock(shared_lock);
+    RTT::os::MutexLock lock(outputs_lock);
     for (Outputs::iterator it = outputs.begin(); it != outputs.end(); ) {
         const Output &output = *it++;
         if (output.disconnected) {
