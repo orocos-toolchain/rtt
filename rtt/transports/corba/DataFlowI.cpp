@@ -394,7 +394,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
             log(Error) << "No such transport registered. Check your corba_policy.transport settings or add the transport for type "<< type_info->getTypeName() <<endlog();
             return RTT::corba::CChannelElement::_nil();
         }
-        RTT::base::ChannelElementBase::shared_ptr ceb = type_info->getProtocol(corba_policy.transport)->createStream(port, policy2, false);
+        RTT::base::ChannelElementBase::shared_ptr ceb = type_info->getProtocol(corba_policy.transport)->createStream(port, policy2, /* is_sender = */ false);
         // if no user supplied name, pass on the new name.
         if ( strlen( corba_policy.name_id.in()) == 0 )
             corba_policy.name_id = CORBA::string_dup( policy2.name_id.c_str() );
@@ -478,7 +478,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
             log(Error) << "No such transport registered. Check your corba_policy.transport settings or add the transport for type "<< type_info->getTypeName() <<endlog();
             throw CNoCorbaTransport();
         }
-        RTT::base::ChannelElementBase::shared_ptr ceb = type_info->getProtocol(corba_policy.transport)->createStream(port, policy2, true);
+        RTT::base::ChannelElementBase::shared_ptr ceb = type_info->getProtocol(corba_policy.transport)->createStream(port, policy2, /* is_sender = */ true);
         // if no user supplied name, pass on the new name.
         if ( strlen( corba_policy.name_id.in()) == 0 )
             corba_policy.name_id = CORBA::string_dup( policy2.name_id.c_str() );

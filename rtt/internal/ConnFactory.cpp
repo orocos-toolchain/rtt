@@ -112,9 +112,9 @@ bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_por
     }
     if ( !output_port.addConnection( input_port.getPortID(), next_hop, policy ) ) {
         // setup failed.
-        channel_output->disconnect(channel_input.get(), true);
         log(Error) << "The output port "<< output_port.getName()
                    << " could not successfully use the connection to input port " << input_port.getName() <<endlog();
+        channel_input->disconnect(channel_output, true);
         return false;
     }
 
@@ -131,16 +131,16 @@ bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_por
     return true;
 }
 
-bool ConnFactory::createAndCheckStream(base::OutputPortInterface& output_port, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr channel_input, StreamConnID* conn_id) {
+base::ChannelElementBase::shared_ptr ConnFactory::createAndCheckStream(base::OutputPortInterface& output_port, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr channel_input, StreamConnID* conn_id) {
     if (policy.transport == 0 ) {
         log(Error) << "Need a transport for creating streams." <<endlog();
-        return false;
+        return base::ChannelElementBase::shared_ptr();
     }
     const types::TypeInfo* type = output_port.getTypeInfo();
     if ( type->getProtocol(policy.transport) == 0 ) {
         log(Error) << "Could not create transport stream for port "<< output_port.getName() << " with transport id " << policy.transport <<endlog();
         log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
-        return false;
+        return base::ChannelElementBase::shared_ptr();
     }
     types::TypeMarshaller* ttt = dynamic_cast<types::TypeMarshaller*> ( type->getProtocol(policy.transport) );
     if (ttt) {
@@ -149,42 +149,46 @@ bool ConnFactory::createAndCheckStream(base::OutputPortInterface& output_port, C
     } else {
         log(Debug) <<"Could not determine sample size for type " << type->getTypeName() << endlog();
     }
-    RTT::base::ChannelElementBase::shared_ptr chan_stream = type->getProtocol(policy.transport)->createStream(&output_port, policy, true);
+    RTT::base::ChannelElementBase::shared_ptr chan_stream = type->getProtocol(policy.transport)->createStream(&output_port, policy, /* is_sender = */ true);
             
     if ( !chan_stream ) {
         log(Error) << "Transport failed to create remote channel for output stream of port "<<output_port.getName() << endlog();
-        return false;
+        return base::ChannelElementBase::shared_ptr();
     }
+
+    conn_id->name_id = policy.name_id;
     channel_input->connectTo( chan_stream, policy.mandatory );
 
-    if ( output_port.addConnection( new StreamConnID(policy.name_id), chan_stream, policy ) ) {
-        log(Info) << "Created output stream for output port "<< output_port.getName() <<endlog();
-        return true;
+    if ( !output_port.addConnection( conn_id, chan_stream, policy ) ) {
+        // setup failed: manual cleanup.
+        channel_input->disconnect( chan_stream, true );
+        log(Error) << "Failed to create output stream for output port "<< output_port.getName() <<endlog();
+        return base::ChannelElementBase::shared_ptr();
     }
-    // setup failed.
-    log(Error) << "Failed to create output stream for output port "<< output_port.getName() <<endlog();
-    return false;
+
+    log(Info) << "Created output stream for output port "<< output_port.getName() <<endlog();
+    return chan_stream;
 }
 
-bool ConnFactory::createAndCheckStream(base::InputPortInterface& input_port, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr outhalf, StreamConnID* conn_id) {
+base::ChannelElementBase::shared_ptr ConnFactory::createAndCheckStream(base::InputPortInterface& input_port, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr outhalf, StreamConnID* conn_id) {
     if (policy.transport == 0 ) {
         log(Error) << "Need a transport for creating streams." <<endlog();
-        return false;
+        return base::ChannelElementBase::shared_ptr();
     }
     const types::TypeInfo* type = input_port.getTypeInfo();
     if ( type->getProtocol(policy.transport) == 0 ) {
         log(Error) << "Could not create transport stream for port "<< input_port.getName() << " with transport id " << policy.transport <<endlog();
         log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
-        return false;
+        return base::ChannelElementBase::shared_ptr();
     }
 
     // note: don't refcount this final input chan, because no one will
     // take a reference to it. It would be destroyed upon return of this function.
-    RTT::base::ChannelElementBase::shared_ptr chan = type->getProtocol(policy.transport)->createStream(&input_port, policy, false);
+    RTT::base::ChannelElementBase::shared_ptr chan = type->getProtocol(policy.transport)->createStream(&input_port, policy, /* is_sender = */ false);
 
     if ( !chan ) {
         log(Error) << "Transport failed to create remote channel for input stream of port " << input_port.getName() << endlog();
-        return false;
+        return base::ChannelElementBase::shared_ptr();
     }
 
     chan = chan->getOutputEndPoint();
@@ -195,11 +199,11 @@ bool ConnFactory::createAndCheckStream(base::InputPortInterface& input_port, Con
         // setup failed: manual cleanup.
         chan->disconnect(true);
         log(Error) << "Failed to create input stream for input port " << input_port.getName() <<endlog();
-        return false;
+        return base::ChannelElementBase::shared_ptr();
     }
 
     log(Info) << "Created input stream for input port " << input_port.getName() <<endlog();
-    return true;
+    return chan;
 }
 
 bool ConnFactory::createAndCheckSharedConnection(base::OutputPortInterface* output_port, base::InputPortInterface* input_port, SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy)
@@ -248,62 +252,6 @@ bool ConnFactory::createAndCheckSharedConnection(base::OutputPortInterface* outp
     }
 
     return true;
-}
-
-base::ChannelElementBase::shared_ptr ConnFactory::createAndCheckOutOfBandConnection( base::OutputPortInterface& output_port,
-                                                                                     base::InputPortInterface& input_port, 
-                                                                                     ConnPolicy const& policy, 
-                                                                                     base::ChannelElementBase::shared_ptr output_half, 
-                                                                                     StreamConnID* conn_id) 
-{
-    // create input half using a transport.
-    const types::TypeInfo* type = output_port.getTypeInfo();
-    if ( type->getProtocol(policy.transport) == 0 ) {
-        log(Error) << "Could not create out-of-band transport for port "<< output_port.getName() << " with transport id " << policy.transport <<endlog();
-        log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
-        return 0;
-    }
-
-    // check if marshaller supports size hints:
-    types::TypeMarshaller* ttt = dynamic_cast<types::TypeMarshaller*>( type->getProtocol(policy.transport) );
-    if (ttt) {
-        policy.data_size = ttt->getSampleSize(  output_port.getDataSource() );
-    } else {
-        log(Debug) <<"Could not determine sample size for type " << type->getTypeName() << endlog();
-    }
-    // XXX: this seems to be always true
-    if ( input_port.isLocal() ) {
-        RTT::base::ChannelElementBase::shared_ptr ceb_input = type->getProtocol(policy.transport)->createStream(&input_port, policy, false);
-        if (ceb_input) {
-            log(Info) <<"Receiving data for port "<<input_port.getName() << " from out-of-band protocol "<< policy.transport << " with id "<< policy.name_id<<endlog();
-        } else {
-            log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a remote channel for port " << input_port.getName()<<endlog();
-            return 0;
-        }
-        ceb_input->getOutputEndPoint()->connectTo(output_half, policy.mandatory);
-        output_half = ceb_input;
-    }
-
-    // XXX: this seems to be always true
-    if ( output_port.isLocal() ) {
-
-        RTT::base::ChannelElementBase::shared_ptr ceb_output = type->getProtocol(policy.transport)->createStream(&output_port, policy, true);
-        if (ceb_output) {
-            log(Info) <<"Redirecting data for port "<< output_port.getName() << " to out-of-band protocol "<< policy.transport << " with id "<< policy.name_id <<endlog();
-        } else {
-            log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a remote channel for port " << output_port.getName()<<endlog();
-            return 0;
-        }
-        // this mediates the 'channel ready leads to initial data sample'.
-        // it is probably not necessary, since streams don't assume this relation.
-        ceb_output->getOutputEndPoint()->connectTo(output_half, policy.mandatory);
-        output_half = ceb_output;
-    }
-
-    conn_id->name_id = policy.name_id;
-
-    return output_half;
-
 }
 
 bool ConnFactory::findSharedConnection(base::OutputPortInterface *output_port, base::InputPortInterface *input_port, ConnPolicy const& policy, SharedConnectionBase::shared_ptr &shared_connection)
