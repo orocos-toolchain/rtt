@@ -174,11 +174,16 @@ bool ChannelElementBase::channelReady(ChannelElementBase::shared_ptr const&, Con
     return output ? output->channelReady(this, policy, conn_id) : false;
 }
 
-bool ChannelElementBase::inputReady(ChannelElementBase::shared_ptr const&)
+bool ChannelElementBase::inputReady()
 {
     // we go against the data stream
     shared_ptr input = getInput();
     return input ? input->inputReady(this) : false;
+}
+
+bool ChannelElementBase::inputReady(ChannelElementBase::shared_ptr const&)
+{
+    return inputReady();
 }
 
 void ChannelElementBase::clear()

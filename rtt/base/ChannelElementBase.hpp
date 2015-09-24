@@ -272,6 +272,14 @@ namespace RTT { namespace base {
          * @param input the element to be removed, or null to remove unconditionally
          */
         virtual void removeInput(shared_ptr const& input);
+
+    private:
+        /**
+         * Deprecated, argument-less variant of \ref inputReady(shared_ptr).
+         * Left here as a fallback for backwards compatibility, if
+         * transports deriving from ChannelElementBase implement inputReady() only.
+         */
+        virtual bool inputReady();
     };
 
     /**

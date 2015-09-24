@@ -195,7 +195,7 @@ base::ChannelElementBase::shared_ptr ConnFactory::createAndCheckStream(base::Inp
     conn_id->name_id = policy.name_id;
 
     chan->connectTo( outhalf, policy.mandatory );
-    if ( !outhalf->channelReady(chan, policy, conn_id) == true ) {
+    if ( !outhalf->channelReady(chan, policy, conn_id) ) {
         // setup failed: manual cleanup.
         chan->disconnect(true);
         log(Error) << "Failed to create input stream for input port " << input_port.getName() <<endlog();
