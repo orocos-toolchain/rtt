@@ -40,6 +40,7 @@
 #define ORO_CONN_POLICY_HPP
 
 #include <string>
+#include <iosfwd>
 #include "rtt-fwd.hpp"
 #include "rtt-config.h"
 
@@ -161,6 +162,7 @@ namespace RTT {
 
         /** DATA, BUFFER or CIRCULAR_BUFFER */
         int    type;
+
         /** If true, one should initialize the connection's value with the last
          * value written on the writer port. This is only possible if the writer
          * port has the keepsLastWrittenValue() flag set (i.e. if it remembers
@@ -223,6 +225,8 @@ namespace RTT {
         std::string toString() const;
     };
 }
+
+std::ostream &operator<<(std::ostream &os, const RTT::ConnPolicy &cp);
 
 #endif
 

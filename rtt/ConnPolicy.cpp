@@ -48,6 +48,7 @@
 #include "PropertyBag.hpp"
 
 #include <boost/lexical_cast.hpp>
+#include <iostream>
 
 using namespace std;
 
@@ -228,7 +229,15 @@ namespace RTT
         s += pullToString(pull) + " ";
         s += lock_policyToString(lock_policy) + " ";
         s += typeToString(type, size);
+        if (!name_id.empty()) s += " (name_id=" + name_id + ")";
         return s;
     }
 
 }
+
+std::ostream &operator<<(std::ostream &os, const RTT::ConnPolicy &cp)
+{
+    os << cp.toString();
+    return os;
+}
+
