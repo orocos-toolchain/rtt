@@ -40,6 +40,7 @@
 #define ORO_CONN_POLICY_HPP
 
 #include <string>
+#include <iosfwd>
 #include "rtt-fwd.hpp"
 #include "rtt-config.h"
 
@@ -101,6 +102,12 @@ namespace RTT {
         static const int LOCKED    = 1;
         static const int LOCK_FREE = 2;
 
+        static const bool PUSH = false;
+        static const bool PULL = true;
+
+        static const bool PRIVATE = false;
+        static const bool SHARED  = true;
+
         /**
          * Create a policy for a (lock-free) fifo buffer connection of a given size.
          * @param size The size of the buffer in this connection
@@ -142,21 +149,26 @@ namespace RTT {
 
         /** DATA, BUFFER or CIRCULAR_BUFFER */
         int    type;
+
         /** If true, one should initialize the connection's value with the last
          * value written on the writer port. This is only possible if the writer
          * port has the keepsLastWrittenValue() flag set (i.e. if it remembers
          * what was the last written value).
          */
         bool   init;
+
         /** This is the locking policy on the connection */
         int    lock_policy;
+
         /** If true, then the sink will have to pull data. Otherwise, it is pushed
          * from the source. In both cases, the reader side is notified that new
          * data is available by base::ChannelElementBase::signal()
          */
         bool   pull;
+
         /** If the connection is a buffered connection, the size of the buffer */
         int    size;
+
         /**
          * The prefered transport used. 0 is local (in process), a higher number
          * is used for inter-process or networked communication transports.
@@ -180,8 +192,15 @@ namespace RTT {
          * work around name clashes or if the transport protocol documents to do so.
          */
         mutable std::string name_id;
+
+        static std::string typeToString(int type, int size);
+        static std::string lock_policyToString(int lock_policy);
+        static std::string pullToString(bool pull);
+        std::string toString() const;
     };
 }
+
+std::ostream &operator<<(std::ostream &os, const RTT::ConnPolicy &cp);
 
 #endif
 

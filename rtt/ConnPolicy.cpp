@@ -47,6 +47,9 @@
 #include "Property.hpp"
 #include "PropertyBag.hpp"
 
+#include <boost/lexical_cast.hpp>
+#include <iostream>
+
 using namespace std;
 
 namespace RTT
@@ -171,4 +174,51 @@ namespace RTT
     }
     /** @endcond */
 
+    std::string ConnPolicy::typeToString(int type, int size) {
+        std::string s;
+        switch(type) {
+            case UNBUFFERED:      s = "UNBUFFERED"; break;
+            case DATA:            s = "DATA"; break;
+            case BUFFER:          s = "BUFFER"; break;
+            case CIRCULAR_BUFFER: s = "CIRCULAR_BUFFER"; break;
+            default:              s = "(unknown)"; break;
+        }
+        if (size > 0) {
+            s += "[" + boost::lexical_cast<std::string>(size) + "]";
+        }
+        return s;
+    }
+
+    std::string ConnPolicy::lock_policyToString(int lock_policy) {
+        switch(lock_policy) {
+            case UNSYNC:    return "UNSYNC";
+            case LOCKED:    return "LOCKED";
+            case LOCK_FREE: return "LOCK_FREE";
+            default:        return "(unknown)";
+        }
+    }
+
+    std::string ConnPolicy::pullToString(bool pull) {
+        switch(pull) {
+            case PUSH: return "PUSH";
+            case PULL: return "PULL";
+        }
+    }
+
+    std::string ConnPolicy::toString() const {
+        std::string s;
+        s += pullToString(pull) + " ";
+        s += lock_policyToString(lock_policy) + " ";
+        s += typeToString(type, size);
+        if (!name_id.empty()) s += " (name_id=" + name_id + ")";
+        return s;
+    }
+
 }
+
+std::ostream &operator<<(std::ostream &os, const RTT::ConnPolicy &cp)
+{
+    os << cp.toString();
+    return os;
+}
+
