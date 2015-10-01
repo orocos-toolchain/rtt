@@ -51,6 +51,5 @@ BufferBase::Options::Options(bool circular) : circular_(circular), multiple_read
 BufferBase::Options::Options(const ConnPolicy &policy)
 {
     circular_         = (policy.type == ConnPolicy::CIRCULAR_BUFFER);
-//    multiple_readers_ = (policy.write_policy == WritePolicy::WriteShared);
-    multiple_readers_ = false;
+    multiple_readers_ = (policy.write_policy == WriteShared);
 }

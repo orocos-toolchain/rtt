@@ -44,10 +44,11 @@
 #include <boost/intrusive_ptr.hpp>
 #include <boost/call_traits.hpp>
 
-#include <rtt/os/Mutex.hpp>
 #include "../rtt-fwd.hpp"
 #include "rtt-base-fwd.hpp"
 #include "../internal/rtt-internal-fwd.hpp"
+#include "../ReadPolicy.hpp"
+#include "../os/Mutex.hpp"
 
 #include <list>
 #include <map>
@@ -165,6 +166,11 @@ namespace RTT { namespace base {
          * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
          */
         virtual bool signal();
+
+        /** Signals that there is new data available on this channel
+         * Forwards to \ref signal() unless overwritten in a derived class.
+         */
+        virtual bool signal(ChannelElementBase *caller) { return signal(); }
 
         /**
          * This is called on the output half of a new connection by the connection
@@ -295,7 +301,12 @@ namespace RTT { namespace base {
         Inputs inputs;
         RTT::os::SharedMutex inputs_lock;
 
+        ReadPolicy read_policy;
+        ChannelElementBase *last_signalled;
+
     public:
+        MultipleInputsChannelElementBase();
+
         /**
          * Returns true, if this channel element has at least one input, independent of whether is has an
          * output connection or not.
@@ -321,6 +332,14 @@ namespace RTT { namespace base {
          */
         virtual bool disconnect(ChannelElementBase::shared_ptr const& channel, bool forward = true);
 
+        /**
+         * Overwritten implementation of \ref ChannelElementBase::signal(caller) which remembers the caller who last signalled this channel element.
+         */
+        bool signal(ChannelElementBase *caller);
+        using ChannelElementBase::signal;
+
+        virtual bool setReadPolicy(ReadPolicy policy, bool force = false);
+        virtual ReadPolicy getReadPolicy() const;
 
     protected:
         /**
@@ -358,6 +377,8 @@ namespace RTT { namespace base {
         RTT::os::SharedMutex outputs_lock;
 
     public:
+        MultipleOutputsChannelElementBase();
+
         /**
          * Returns true, if this channel element has at least one output, independent of whether is has an
          * input connection or not.
@@ -369,6 +390,7 @@ namespace RTT { namespace base {
          * outputs.
          */
         virtual bool signal();
+        using ChannelElementBase::signal;
 
         /**
          * Overwritten implementation of \ref ChannelElementBase::channelReady() which forwards the signal to all
@@ -425,6 +447,9 @@ namespace RTT { namespace base {
          * Overwritten implementation of \ref ChannelElementBase::disconnect(forward, channel).
          */
         virtual bool disconnect(ChannelElementBase::shared_ptr const& channel, bool forward);
+
+        using MultipleInputsChannelElementBase::signal;
+        using MultipleOutputsChannelElementBase::signal;
     };
 
     void RTT_API intrusive_ptr_add_ref( ChannelElementBase* e );

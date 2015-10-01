@@ -42,8 +42,10 @@
 #include <boost/intrusive_ptr.hpp>
 #include <boost/call_traits.hpp>
 #include "ChannelElementBase.hpp"
+#include "../ReadPolicy.hpp"
 #include "../FlowStatus.hpp"
 #include "../os/MutexLock.hpp"
+#include "../os/CAS.hpp"
 
 #include <boost/bind.hpp>
 #ifndef USE_CPP11
@@ -83,11 +85,11 @@ namespace RTT { namespace base {
          *
          * @returns false if an error occured that requires the channel to be invalidated.
          */
-        virtual FlowStatus data_sample(param_t sample)
+        virtual FlowStatus data_sample(param_t sample, bool reset = true)
         {
             typename ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< ChannelElement<T> >(getOutput());
             if (output)
-                return output->data_sample(sample);
+                return output->data_sample(sample, reset);
             return WriteSuccess;
         }
 
@@ -138,13 +140,17 @@ namespace RTT { namespace base {
         using typename ChannelElement<T>::param_t;
         using typename ChannelElement<T>::reference_t;
 
+        MultipleInputsChannelElement()
+            : last_read()
+        {}
+
         /**
          * Overwritten implementation of MultipleInputsChannelElementBase::removeInput() that resets the current channel on removal.
          */
         virtual void removeInput(ChannelElementBase *input)
         {
-            if (input == cur_input) {
-                cur_input.reset();
+            if (input == last_read) {
+                last_read = 0;
             }
             MultipleInputsChannelElementBase::removeInput(input);
         }
@@ -154,7 +160,7 @@ namespace RTT { namespace base {
          */
         virtual value_t data_sample()
         {
-            typename ChannelElement<T>::shared_ptr input = cur_input;
+            typename ChannelElement<T>::shared_ptr input = currentInput();
             if (input) {
                 return input->data_sample();
             }
@@ -176,6 +182,24 @@ namespace RTT { namespace base {
             select_reader_channel( boost::bind( &MultipleInputsChannelElement<T>::do_read, this, boost::ref(sample), boost::ref(result), boost::lambda::_1, boost::lambda::_2), copy_old_data );
 #endif
             return result;
+        }
+
+        typename ChannelElement<T>::shared_ptr currentInput() {
+            typename ChannelElement<T>::shared_ptr last;
+            ReadPolicy read_policy = getReadPolicy();
+            if (!read_policy) read_policy = ReadPolicyDefault;
+            switch(read_policy) {
+            case ReadUnordered:
+                last = last_read;
+                if ( !last && !inputs.empty() ) last = inputs.front()->narrow<T>();
+                break;
+            case ReadShared:
+                last = last_signalled->narrow<T>();
+                break;
+            default:
+                return typename ChannelElement<T>::shared_ptr();
+            }
+            return last;
         }
 
     private:
@@ -215,28 +239,31 @@ namespace RTT { namespace base {
                 // We don't clear the current channel (to get it to NoData state), because there is a race
                 // between find_if and this line. We have to accept (in other parts of the code) that eventually,
                 // all channels return 'OldData'.
-                cur_input = new_input;
+                last_read = new_input.get();
             }
         }
 
         template<typename Pred>
         typename ChannelElement<T>::shared_ptr find_if(Pred pred, bool copy_old_data) {
+            typename ChannelElement<T>::shared_ptr current = currentInput();
+
             // We only copy OldData in the initial read of the current channel.
             // if it has no new data, the search over the other channels starts,
             // but no old data is needed.
-            if ( !cur_input && !inputs.empty() ) cur_input = inputs.front()->narrow<T>();
-            if ( cur_input )
-                if ( pred( copy_old_data, cur_input ) )
-                    return cur_input;
+            if ( current )
+                if ( pred( copy_old_data, current ) )
+                    return current;
 
-            Inputs::iterator result;
-            for (result = inputs.begin(); result != inputs.end(); ++result) {
-                if (*result == cur_input) continue;
-                typename ChannelElement<T>::shared_ptr input = (*result)->narrow<T>();
-                assert(input);
-                if ( pred(false, input) == true)
-                    return input;
+            if (read_policy != ReadShared) {
+                for (Inputs::iterator it = inputs.begin(); it != inputs.end(); ++it) {
+                    if (*it == current) continue;
+                    typename ChannelElement<T>::shared_ptr input = (*it)->narrow<T>();
+                    assert(input);
+                    if ( pred(false, input) == true)
+                        return input;
+                }
             }
+
             return typename ChannelElement<T>::shared_ptr();
         }
 
@@ -244,13 +271,12 @@ namespace RTT { namespace base {
         virtual void removeInput(ChannelElementBase::shared_ptr const& input)
         {
             MultipleInputsChannelElementBase::removeInput(input);
-            if (cur_input == input) {
-                cur_input.reset();
-            }
+            if (last_read == input) last_read = 0;
+            os::CAS(&last_signalled, input.get(), 0);
         }
 
     private:
-        typename ChannelElement<T>::shared_ptr cur_input;
+        ChannelElement<T> *last_read;
     };
 
     /** A typed version of MultipleOutputsChannelElementBase.

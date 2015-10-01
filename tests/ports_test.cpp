@@ -29,7 +29,7 @@
 #include <boost/function_types/function_type.hpp>
 #include <OperationCaller.hpp>
 
-#include <rtt/rtt-config.h>
+#include <rtt-config.h>
 
 using namespace std;
 using namespace RTT;
@@ -355,12 +355,14 @@ BOOST_AUTO_TEST_CASE(testPortOneWriterThreeReaders)
     BOOST_CHECK_EQUAL( rp3.read(value), NoData );
 }
 
-BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithPushConnection)
+BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithReadShared)
 {
+    ConnPolicy cp = ConnPolicy::buffer(4, /* int lock_policy = */ ConnPolicy::LOCK_FREE, /* bool init_connection = */ true, /* bool pull = */ false);
+    cp.read_policy = ReadShared;
     OutputPort<int> wp1("W1");
     OutputPort<int> wp2("W2");
     OutputPort<int> wp3("W3");
-    InputPort<int> rp("R", ConnPolicy::buffer(4, /* int lock_policy = */ ConnPolicy::LOCK_FREE, /* bool init_connection = */ true, /* bool pull = */ false));
+    InputPort<int> rp("R", cp);
 
     wp1.createConnection(rp);
     BOOST_CHECK( wp1.connected() );
@@ -513,13 +515,12 @@ BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithPushConnection)
 #endif
 }
 
-// This test is equivalent to testPortThreeWritersOneReader before the data flow semantics have been changed in Orocos Toolchain 2.9.
-BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithPullConnection)
+BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReader)
 {
     OutputPort<int> wp1("W1");
     OutputPort<int> wp2("W2");
     OutputPort<int> wp3("W3");
-    InputPort<int> rp("R", ConnPolicy::buffer(4, /* int lock_policy = */ ConnPolicy::LOCK_FREE, /* bool init_connection = */ true, /* bool pull = */ true));
+    InputPort<int> rp("R", ConnPolicy::buffer(4));
 
     wp1.createConnection(rp);
     BOOST_CHECK( wp1.connected() );
@@ -611,10 +612,14 @@ BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithPullConnection)
 
 BOOST_AUTO_TEST_CASE(testSharedBufferConnection)
 {
+    ConnPolicy cp = ConnPolicy::buffer(10);
+    cp.write_policy = WriteShared;
+    cp.read_policy = ReadShared;
+
     OutputPort<int> wp1("W1");
     OutputPort<int> wp2("W1");
-    InputPort<int> rp1("R1", ConnPolicy::buffer(10, ConnPolicy::LOCK_FREE, false, false, true));
-    InputPort<int> rp2("R2", ConnPolicy::buffer(10, ConnPolicy::LOCK_FREE, false, false, true));
+    InputPort<int> rp1("R1", cp);
+    InputPort<int> rp2("R2", cp);
     int value = 0;
 
     BOOST_CHECK( wp1.createConnection(rp1) );
@@ -666,10 +671,14 @@ BOOST_AUTO_TEST_CASE(testSharedBufferConnection)
 
 BOOST_AUTO_TEST_CASE(testSharedDataConnection)
 {
+    ConnPolicy cp = ConnPolicy::buffer(10);
+    cp.write_policy = WriteShared;
+    cp.read_policy = ReadShared;
+
     OutputPort<int> wp1("W1");
     OutputPort<int> wp2("W1");
-    InputPort<int> rp1("R1", ConnPolicy::data(ConnPolicy::LOCK_FREE, false, false, true));
-    InputPort<int> rp2("R2", ConnPolicy::data(ConnPolicy::LOCK_FREE, false, false, true));
+    InputPort<int> rp1("R1", cp);
+    InputPort<int> rp2("R2", cp);
     int value = 0;
 
     BOOST_CHECK( wp1.createConnection(rp1) );
@@ -742,10 +751,14 @@ BOOST_AUTO_TEST_CASE(testInvalidPrivateConnections)
 
 BOOST_AUTO_TEST_CASE(testInvalidSharedConnection)
 {
+    ConnPolicy cp = ConnPolicy::data();
+    cp.write_policy = WriteShared;
+    cp.read_policy = ReadShared;
+
     OutputPort<int> wp1("W1");
     OutputPort<int> wp2("W1");
-    InputPort<int> rp1("R1", ConnPolicy::data(ConnPolicy::LOCK_FREE, false, false, true));
-    InputPort<int> rp2("R2", ConnPolicy::data(ConnPolicy::LOCK_FREE, false, false, true));
+    InputPort<int> rp1("R1", cp);
+    InputPort<int> rp2("R2", cp);
 
     BOOST_CHECK( wp1.createConnection(rp1) );           // new shared connection
     BOOST_CHECK( wp2.createConnection(rp2) );           // new shared connection

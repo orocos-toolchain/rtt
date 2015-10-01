@@ -221,7 +221,7 @@ namespace RTT
             typename internal::ConnInputEndpoint<T>::shared_ptr endpoint = port.getConnEndpoint();
             typename base::ChannelElement<T>::shared_ptr buffer;
 
-            if (policy.pull == ConnPolicy::PULL && policy.shared == ConnPolicy::PRIVATE && !force_unbuffered) {
+            if (policy.pull == ConnPolicy::PULL && policy.write_policy == WriteShared && !force_unbuffered) {
                 buffer = buildDataStorage<T>(policy, port.getLastWrittenValue());
                 if (!buffer) {
                     return typename internal::ConnOutputEndpoint<T>::shared_ptr();
@@ -229,7 +229,7 @@ namespace RTT
                 endpoint->connectTo(buffer, policy.mandatory);
                 return buffer;
 
-            } else if (policy.pull == ConnPolicy::PULL && policy.shared == ConnPolicy::SHARED && !force_unbuffered) {
+            } else if (policy.pull == ConnPolicy::PULL && policy.write_policy == WriteShared && !force_unbuffered) {
                 // For shared pull connections, the buffer belongs to this output port.
                 buffer = port.getBuffer();
 
@@ -258,8 +258,8 @@ namespace RTT
                        )
                     {
                         log(Error) << "You mixed incompatible connection policies for output port " << port.getName() << ": "
-                                   << "The new connection requests a " << policy.toString() << " connection, "
-                                   << "but the port already has a " << buffer_policy.toString() << " buffer." << endlog();
+                                   << "The new connection requests a " << policy << " connection, "
+                                   << "but the port already has a " << buffer_policy << " buffer." << endlog();
                         return typename internal::ConnOutputEndpoint<T>::shared_ptr();
                     }
                 }
@@ -289,18 +289,33 @@ namespace RTT
             typename internal::ConnOutputEndpoint<T>::shared_ptr endpoint = port.getConnEndpoint();
             typename base::ChannelElement<T>::shared_ptr buffer = port.getBuffer();
 
-            if (policy.pull == ConnPolicy::PUSH && policy.shared == ConnPolicy::PRIVATE) {
+            // Set read policy of the port
+            if (!(endpoint->setReadPolicy(policy.read_policy))) {
+                log(Error) << "You mixed incompatible read policies for input port " << port.getName() << ": "
+                           << "The new connection requests a " << policy.read_policy << " policy, "
+                           << "but the port already has a " << endpoint->getReadPolicy() << " policy." << endlog();
+                return typename internal::ConnOutputEndpoint<T>::shared_ptr();
+            }
+
+            if (policy.pull == ConnPolicy::PUSH && policy.write_policy != WriteShared) {
 #ifndef RTT_V2_DATAFLOW_COMPATIBILITY_MODE
-                // For private push connections, the buffer belongs to this input port.
 
                 if (!buffer) {
                     buffer = buildDataStorage<T>(policy, initial_value);
                     if (!buffer) {
                         return typename internal::ConnOutputEndpoint<T>::shared_ptr();
                     }
-                    endpoint->connectTo(buffer);
+
+                    if (policy.type != ConnPolicy::DATA && policy.read_policy == ReadShared) {
+                        // For ReadShared BUFFER connections, the buffer is installed AFTER the output endpoint!
+                        return endpoint->connectTo(buffer) ? endpoint : typename internal::ConnOutputEndpoint<T>::shared_ptr();
+                    } else {
+                        return buffer->connectTo(endpoint) ? buffer : typename internal::ConnOutputEndpoint<T>::shared_ptr();
+                    }
 
                 } else {
+                    assert(policy.read_policy == ReadShared);
+
                     // check that the existing buffer type is compatible to the new ConnPolicy
                     assert(buffer->getConnPolicy());
                     ConnPolicy buffer_policy = *(buffer->getConnPolicy());
@@ -312,16 +327,18 @@ namespace RTT
                        )
                     {
                         log(Error) << "You mixed incompatible connection policies for input port " << port.getName() << ": "
-                                   << "The new connection requests a " << policy.toString() << " connection, "
-                                   << "but the port already has a " << buffer_policy.toString() << " buffer." << endlog();
+                                   << "The new connection requests a " << policy << " connection, "
+                                   << "but the port already has a " << buffer_policy << " buffer." << endlog();
                         return typename internal::ConnOutputEndpoint<T>::shared_ptr();
                     }
+
+                    return endpoint;
                 }
 
 #else // RTT_V2_DATAFLOW_COMPATIBILITY_MODE
                 // Build channel output with per-connection buffers.
 
-                log(Debug) << "[RTT_V2_COMPATIBILITY_MODE] Building a per-connection channel output for input port '" << port.getName() << "' with ConnPolicy " << policy.toString() << endlog();
+                log(Debug) << "[RTT_V2_COMPATIBILITY_MODE] Building a per-connection channel output for input port '" << port.getName() << "' with ConnPolicy " << policy << endlog();
                 assert(!buffer);
                 buffer = buildDataStorage<T>(policy, initial_value);
                 if (!buffer) {
@@ -337,12 +354,12 @@ namespace RTT
                 ConnPolicy buffer_policy = *(buffer->getConnPolicy());
 
                 log(Error) << "You mixed incompatible connection policies for input port " << port.getName() << ": "
-                           << "The new connection requests a " << policy.toString() << " connection, "
-                           << "but the port already has a " << buffer_policy.toString() << " buffer." << endlog();
+                           << "The new connection requests a " << policy << " connection, "
+                           << "but the port already has a " << buffer_policy << " buffer." << endlog();
                 return typename internal::ConnOutputEndpoint<T>::shared_ptr();
             }
 
-            return endpoint;
+            return typename internal::ConnOutputEndpoint<T>::shared_ptr();
         }
 
         /**
@@ -444,7 +461,7 @@ namespace RTT
             InputPort<T>* input_p = dynamic_cast<InputPort<T>*>(&input_port);
 
             // Shared push connection? => forward to createAndCheckSharedConnection()
-            if (policy.pull == ConnPolicy::PUSH && policy.shared == ConnPolicy::SHARED) {
+            if (policy.write_policy == WriteShared && policy.read_policy == ReadShared) {
                 return createAndCheckSharedConnection(&output_port, &input_port, buildSharedConnection<T>(&output_port, &input_port, policy), policy);
             }
 

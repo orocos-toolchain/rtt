@@ -212,15 +212,16 @@ bool ConnFactory::createAndCheckSharedConnection(base::OutputPortInterface* outp
 
     // check if the found connection is compatible to the requested policy
     if (
-        (policy.shared != ConnPolicy::SHARED) ||
+        (policy.read_policy != ReadShared) ||
+        (policy.write_policy != WriteShared) ||
         (shared_connection->getConnPolicy()->type != policy.type) ||
         (shared_connection->getConnPolicy()->size != policy.size) ||
         (shared_connection->getConnPolicy()->lock_policy != policy.lock_policy)
        )
     {
         log(Error) << "You mixed incompatible connection policies for shared connection '" << shared_connection->getName() << "': "
-                   << "The new connection requests a " << policy.toString() << " connection, "
-                   << "but the existing connection is of type " << shared_connection->getConnPolicy()->toString() << "." << endlog();
+                   << "The new connection requests a " << policy << " connection, "
+                   << "but the existing connection is of type " << *(shared_connection->getConnPolicy()) << "." << endlog();
         return false;
     }
 

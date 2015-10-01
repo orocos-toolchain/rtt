@@ -89,9 +89,11 @@ namespace RTT {
         template<class T, class Enable>
         struct DSWrap;
         template<class T>
-        class AtomicMWSRQueue;
-        template<class T>
         class AtomicQueue;
+        template<class T>
+        class AtomicMWMRQueue;
+        template<class T>
+        class AtomicMWSRQueue;
         template<class T>
         class MWSRQueue;
         template<class T>

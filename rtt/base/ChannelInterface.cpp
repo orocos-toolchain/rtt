@@ -197,7 +197,7 @@ bool ChannelElementBase::signal()
 {
     shared_ptr output = getOutput();
     if (output)
-        return output->signal();
+        return output->signal(this);
     return true;
 }
 
@@ -208,6 +208,10 @@ PortInterface* ChannelElementBase::getPort() const {
 const ConnPolicy* ChannelElementBase::getConnPolicy() const {
     return 0;
 }
+
+MultipleInputsChannelElementBase::MultipleInputsChannelElementBase()
+    : read_policy(UnspecifiedReadPolicy), last_signalled()
+{}
 
 bool MultipleInputsChannelElementBase::addInput(ChannelElementBase::shared_ptr const& input)
 {
@@ -291,6 +295,30 @@ bool MultipleInputsChannelElementBase::disconnect(ChannelElementBase::shared_ptr
     return ChannelElementBase::disconnect(channel, forward);
 }
 
+bool MultipleInputsChannelElementBase::signal(ChannelElementBase *caller)
+{
+    last_signalled = caller;
+    return signal();
+}
+
+bool MultipleInputsChannelElementBase::setReadPolicy(ReadPolicy policy, bool force)
+{
+    if (!read_policy || force) {
+        read_policy = policy;
+        return true;
+    }
+    return read_policy == policy;
+}
+
+ReadPolicy MultipleInputsChannelElementBase::getReadPolicy() const
+{
+    return read_policy;
+}
+
+MultipleOutputsChannelElementBase::MultipleOutputsChannelElementBase()
+    : write_policy(UnspecifiedWritePolicy)
+{}
+
 MultipleOutputsChannelElementBase::Output::Output(ChannelElementBase::shared_ptr const &channel, bool mandatory)
     : channel(channel)
     , mandatory(mandatory)
@@ -327,7 +355,7 @@ bool MultipleOutputsChannelElementBase::signal()
 {
     RTT::os::SharedMutexLock lock(outputs_lock);
     for (Outputs::const_iterator output = outputs.begin(); output != outputs.end(); ++output) {
-        output->channel->signal();
+        output->channel->signal(this);
     }
     return ChannelElementBase::signal();
 }

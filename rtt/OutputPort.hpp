@@ -83,7 +83,7 @@ namespace RTT
             if (has_initial_sample)
             {
                 T const& initial_sample = sample->Get();
-                if ( channel_el_input->data_sample(initial_sample) ) {
+                if ( channel_el_input->data_sample(initial_sample, /* reset = */ false) ) {
                     if ( has_last_written_value && policy.init )
                         return channel_el_input->write(initial_sample);
                     return true;
@@ -213,7 +213,7 @@ namespace RTT
             has_last_written_value = false;
 
             if (connected()) {
-                FlowStatus result = getInputEndpoint()->data_sample(sample);
+                FlowStatus result = getInputEndpoint()->data_sample(sample, /* reset = */ true);
                 if (result == NotConnected) {
                     log(Error) << "A channel of port " << getName() << " has been invalidated during setDataSample(), it will be removed" << endlog();
                 }

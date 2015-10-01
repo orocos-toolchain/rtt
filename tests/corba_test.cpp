@@ -571,7 +571,8 @@ BOOST_AUTO_TEST_CASE( testSharedConnections )
     // Create a CORBA policy specification
     RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::data());
     policy.init = false;
-    policy.shared = true;
+    policy.write_policy = RTT::corba::CWriteShared;
+    policy.read_policy = RTT::corba::CReadShared;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = ts->server()->ports();

@@ -151,6 +151,8 @@ namespace internal {
         {}
         virtual ~SharedConnection() {}
 
+        using base::MultipleInputsMultipleOutputsChannelElement<T>::signal;
+
         /**
          * Writes a new sample on this connection. \a sample is the sample to
          * write.

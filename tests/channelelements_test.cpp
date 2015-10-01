@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE( testMultipleInputsChannelElementConnection )
 {
     ChannelElement<int>::shared_ptr out1(new ChannelElement<int>());
     ChannelElement<int>::shared_ptr out2(new ChannelElement<int>());
-    ChannelElement<int>::shared_ptr in(new MultipleInputsChannelElement<int>());
+    MultipleInputsChannelElement<int>::shared_ptr in(new MultipleInputsChannelElement<int>());
 
     BOOST_CHECK( !out1->connected() );
     BOOST_CHECK( !out2->connected() );
@@ -132,6 +132,17 @@ BOOST_AUTO_TEST_CASE( testMultipleInputsChannelElementConnection )
     BOOST_CHECK( !in->getInput() );
     BOOST_CHECK_EQUAL( out1->getOutput(), in );
     BOOST_CHECK_EQUAL( out2->getOutput(), in );
+
+    // test signalling
+    BOOST_CHECK( !in->getReadPolicy() );
+    in->setReadPolicy(ReadShared);
+    BOOST_CHECK( !in->currentInput() );
+    out1->signal();
+    BOOST_CHECK_EQUAL( in->currentInput(), out1 );
+    out2->signal();
+    BOOST_CHECK_EQUAL( in->currentInput(), out2 );
+    in->setReadPolicy(ReadUnordered);
+    BOOST_CHECK_EQUAL( in->currentInput(), out1 );
 
     // disconnect input
     in->disconnect(false);
