@@ -132,7 +132,7 @@ bool SharedConnectionRepository::add(const key_t &key, SharedConnectionBase* con
 void SharedConnectionRepository::remove(SharedConnectionBase* connection)
 {
     RTT::os::MutexLock lock(mutex);
-    for(Map::iterator it = map.begin(); it != map.begin(); )
+    for(Map::iterator it = map.begin(); it != map.end(); )
     {
         if (it->second == connection) {
             Map::iterator copy = it++;
