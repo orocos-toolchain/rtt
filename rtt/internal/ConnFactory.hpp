@@ -148,8 +148,8 @@ namespace RTT
                     data_object.reset( new base::DataObjectLockFree<T>(initial_value) );
                     break;
 #else
-		case ConnPolicy::LOCK_FREE:
-		    RTT::log(Warning) << "lock free connection policy is unavailable on this system, defaulting to LOCKED" << RTT::endlog();
+                case ConnPolicy::LOCK_FREE:
+                    RTT::log(Warning) << "lock free connection policy is unavailable on this system, defaulting to LOCKED" << RTT::endlog();
 #endif
                 case ConnPolicy::LOCKED:
                     data_object.reset( new base::DataObjectLocked<T>(initial_value) );
@@ -158,9 +158,7 @@ namespace RTT
                     data_object.reset( new base::DataObjectUnSync<T>(initial_value) );
                     break;
                 }
-
-                ChannelDataElement<T>* result = new ChannelDataElement<T>(data_object);
-                return result;
+                return new ChannelDataElement<T>(data_object, policy);
             }
             else if (policy.type == ConnPolicy::BUFFER || policy.type == ConnPolicy::CIRCULAR_BUFFER)
             {
@@ -169,20 +167,20 @@ namespace RTT
                 {
 #ifndef OROBLD_OS_NO_ASM
                 case ConnPolicy::LOCK_FREE:
-                    buffer_object = new base::BufferLockFree<T>(policy.size, initial_value, policy.type == ConnPolicy::CIRCULAR_BUFFER);
+                    buffer_object = new base::BufferLockFree<T>(policy.size, initial_value, policy);
                     break;
 #else
-		case ConnPolicy::LOCK_FREE:
-		    RTT::log(Warning) << "lock free connection policy is unavailable on this system, defaulting to LOCKED" << RTT::endlog();
+                case ConnPolicy::LOCK_FREE:
+                    RTT::log(Warning) << "lock free connection policy is unavailable on this system, defaulting to LOCKED" << RTT::endlog();
 #endif
                 case ConnPolicy::LOCKED:
-                    buffer_object = new base::BufferLocked<T>(policy.size, initial_value, policy.type == ConnPolicy::CIRCULAR_BUFFER);
+                    buffer_object = new base::BufferLocked<T>(policy.size, initial_value, policy);
                     break;
                 case ConnPolicy::UNSYNC:
-                    buffer_object = new base::BufferUnSync<T>(policy.size, initial_value, policy.type == ConnPolicy::CIRCULAR_BUFFER);
+                    buffer_object = new base::BufferUnSync<T>(policy.size, initial_value, policy);
                     break;
                 }
-                return new ChannelBufferElement<T>(typename base::BufferInterface<T>::shared_ptr(buffer_object));
+                return new ChannelBufferElement<T>(typename base::BufferInterface<T>::shared_ptr(buffer_object), policy);
             }
             return NULL;
         }
