@@ -40,6 +40,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include "../rtt-config.h"
+#include "../rtt-fwd.hpp"
 
 namespace RTT
 { namespace base {
@@ -53,8 +54,21 @@ namespace RTT
     {
     public:
         typedef int size_type;
-
         typedef boost::shared_ptr< BufferBase > shared_ptr;
+
+        class Options {
+        private:
+            bool circular_;
+            bool multiple_readers_;
+        public:
+            Options();
+            Options(bool circular); // implicit conversion from bool for backwards-compatibility only
+            Options(const ConnPolicy &policy);
+            bool circular() const { return circular_; }
+            Options &circular(bool value) { circular_ = value; return *this; }
+            bool multiple_readers() const { return multiple_readers_; }
+            Options &multiple_readers(bool value) { multiple_readers_ = value; return *this; }
+        };
 
         virtual ~BufferBase();
 
