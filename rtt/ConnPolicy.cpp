@@ -47,6 +47,9 @@
 #include "Property.hpp"
 #include "PropertyBag.hpp"
 
+#include <boost/lexical_cast.hpp>
+#include <iostream>
+
 using namespace std;
 
 namespace RTT
@@ -54,18 +57,18 @@ namespace RTT
     ConnPolicy ConnPolicy::buffer(int size, int lock_policy /*= LOCK_FREE*/, bool init_connection /*= false*/, bool pull /*= false*/)
     {
         ConnPolicy result(BUFFER, lock_policy);
+        result.size = size;
         result.init = init_connection;
         result.pull = pull;
-        result.size = size;
         return result;
     }
 
     ConnPolicy ConnPolicy::circularBuffer(int size, int lock_policy /*= LOCK_FREE*/, bool init_connection /*= false*/, bool pull /*= false*/)
     {
         ConnPolicy result(CIRCULAR_BUFFER, lock_policy);
+        result.size = size;
         result.init = init_connection;
         result.pull = pull;
-        result.size = size;
         return result;
     }
 
@@ -78,97 +81,53 @@ namespace RTT
     }
 
     ConnPolicy::ConnPolicy(int type /* = DATA*/, int lock_policy /*= LOCK_FREE*/)
-        : type(type), init(false), lock_policy(lock_policy), pull(false), size(0), transport(0), data_size(0) {}
+        : type(type)
+        , size(0)
+        , lock_policy(lock_policy)
+        , init(false)
+        , pull(false)
+        , read_policy(ReadPolicyDefault)
+        , write_policy(WritePolicyDefault)
+        , mandatory(true)
+        , transport(0)
+        , data_size(0)
+    {}
 
-    /** @cond */
-    /** This is dead code. We use the boost::serialization now.
-     */
-    bool composeProperty(const PropertyBag& bag, ConnPolicy& result)
+    std::ostream &operator<<(std::ostream &os, const ConnPolicy &cp)
     {
-        Property<int> i;
-        Property<bool> b;
-        Property<string> s;
-        if ( bag.getType() != "ConnPolicy")
-            return false;
-        log(Debug) <<"Composing ConnPolicy..." <<endlog();
-        i = bag.getProperty("type");
-        if ( i.ready() )
-            result.type = i.get();
-        else if ( bag.find("type") ){
-            log(Error) <<"ConnPolicy: wrong property type of 'type'."<<endlog();
-            return false;
+        std::string type;
+        switch(cp.type) {
+            case ConnPolicy::UNBUFFERED:      type = "UNBUFFERED"; break;
+            case ConnPolicy::DATA:            type = "DATA"; break;
+            case ConnPolicy::BUFFER:          type = "BUFFER"; break;
+            case ConnPolicy::CIRCULAR_BUFFER: type = "CIRCULAR_BUFFER"; break;
+            default:                          type = "(unknown type)"; break;
         }
-        i = bag.getProperty("lock_policy");
-        if ( i.ready() )
-            result.lock_policy = i.get();
-        else if ( bag.find("lock_policy") ){
-            log(Error) <<"ConnPolicy: wrong property type of 'lock_policy'."<<endlog();
-            return false;
-        }
-        i = bag.getProperty("size");
-        if ( i.ready() )
-            result.size = i.get();
-        else if ( bag.find("size") ){
-            log(Error) <<"ConnPolicy: wrong property type of 'size'."<<endlog();
-            return false;
-        }
-        i = bag.getProperty("data_size");
-        if ( i.ready() )
-            result.data_size = i.get();
-        else if ( bag.find("data_size") ){
-            log(Error) <<"ConnPolicy: wrong property type of 'data_size'."<<endlog();
-            return false;
-        }
-        i = bag.getProperty("transport");
-        if ( i.ready() )
-            result.transport = i.get();
-        else if ( bag.find("transport") ){
-            log(Error) <<"ConnPolicy: wrong property type of 'transport'."<<endlog();
-            return false;
+        if (cp.size > 0) {
+            type += "[" + boost::lexical_cast<std::string>(cp.size) + "]";
         }
 
-        b = bag.getProperty("init");
-        if ( b.ready() )
-            result.init = b.get();
-        else if ( bag.find("init") ){
-            log(Error) <<"ConnPolicy: wrong property type of 'init'."<<endlog();
-            return false;
-        }
-        b = bag.getProperty("pull");
-        if ( b.ready() )
-            result.pull = b.get();
-        else if ( bag.find("pull") ){
-            log(Error) <<"ConnPolicy: wrong property type of 'pull'."<<endlog();
-            return false;
+        std::string lock_policy;
+        switch(cp.lock_policy) {
+            case ConnPolicy::UNSYNC:    lock_policy = "UNSYNC"; break;
+            case ConnPolicy::LOCKED:    lock_policy = "LOCKED"; break;
+            case ConnPolicy::LOCK_FREE: lock_policy = "LOCK_FREE"; break;
+            default:                    lock_policy = "(unknown lock policy)"; break;
         }
 
-        s = bag.getProperty("name_id");
-        if ( s.ready() )
-            result.name_id = s.get();
-        else if ( bag.find("name_id") ){
-            log(Error) <<"ConnPolicy: wrong property type of 'name_id'."<<endlog();
-            return false;
+        std::string pull;
+        switch(cp.pull) {
+            case ConnPolicy::PUSH: pull = "PUSH"; break;
+            case ConnPolicy::PULL: pull = "PULL"; break;
         }
-        return true;
+
+        os << pull << " ";
+        os << cp.write_policy << " ";
+        os << cp.read_policy << " ";
+        os << lock_policy << " ";
+        os << type;
+        if (!cp.name_id.empty()) os << " (name_id=" << cp.name_id << ")";
+
+        return os;
     }
-
-    /** This is dead code. We use the boost::serialization now.
-     * @internal
-     */
-    void decomposeProperty(const ConnPolicy& cp, PropertyBag& targetbag)
-    {
-        log(Debug) <<"Decomposing ConnPolicy..." <<endlog();
-        assert( targetbag.empty() );
-        targetbag.setType("ConnPolicy");
-        targetbag.ownProperty( new Property<int>("type","Data type", cp.type));
-        targetbag.ownProperty( new Property<bool>("init","Initialize flag", cp.init));
-        targetbag.ownProperty( new Property<int>("lock_policy","Locking Policy", cp.lock_policy));
-        targetbag.ownProperty( new Property<bool>("pull","Fetch data over network", cp.pull));
-        targetbag.ownProperty( new Property<int>("size","The size of a buffered connection", cp.size));
-        targetbag.ownProperty( new Property<int>("transport","The prefered transport. Set to zero if unsure.", cp.transport));
-        targetbag.ownProperty( new Property<int>("data_size","A hint about the data size of a single data sample. Set to zero if unsure.", cp.transport));
-        targetbag.ownProperty( new Property<string>("name_id","The name of the connection to be formed.",cp.name_id));
-    }
-    /** @endcond */
-
 }

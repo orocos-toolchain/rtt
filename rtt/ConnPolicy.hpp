@@ -40,8 +40,11 @@
 #define ORO_CONN_POLICY_HPP
 
 #include <string>
+#include <iosfwd>
 #include "rtt-fwd.hpp"
 #include "rtt-config.h"
+#include "ReadPolicy.hpp"
+#include "WritePolicy.hpp"
 
 namespace RTT {
 
@@ -55,6 +58,7 @@ namespace RTT {
      *       \a size number of elements can be stored until the reader reads
      *       them. BUFFER drops newer samples on full, CIRCULAR_BUFFER drops older samples on full.
      *       UNBUFFERED is only valid for output streaming connections.
+     *
      *  <li> the locking policy: LOCKED, LOCK_FREE or UNSYNC. This defines how locking is done in the
      *       connection. For now, only three policies are available. LOCKED uses
      *       mutexes, LOCK_FREE uses a lock free method and UNSYNC means there's no
@@ -72,15 +76,32 @@ namespace RTT {
      *       default), new data is actively pushed to the reader's process. In
      *       the pulled case, data must be requested by the reader.
      *
+     *  <li> the read policy, which influences in what way multiple connections to the
+     *       same input port are read. The default is PreferLastRead, where the input
+     *       port first checks the connection where it read the last sample from and only
+     *       then starts to iterate over all others. See \ref ReadPolicy to see all available options.
+     *       Not all combinations of read policy and the pull flag are valid and non-standard transports
+     *       can have additional restrictions.
+     *
+     *  <li> the write policy, which influences how an output port serves multiple connections.
+     *       By default, all connections are written independently (WritePrivate). See \ref WritePolicy
+     *       to see all available options.
+     *
+     *  <li> if the connection is mandatory. Mandatory connections will let the write()
+     *       call fail if the new sample cannot be successfully written. Default connections
+     *       are not mandatory.
+     *
      *  <li> the transport type. Can be used to force a certain kind of transports.
      *       The number is a RTT transport id. When the transport type is zero,
      *       local in-process communication is used, unless one of the ports is
      *       remote. If the transport type deviates from the default remote transport
      *       of one of the ports, an out-of-band transport is setup using that type.
+     *
      *  <li> the data size. Some protocols require a hint on big the data will be,
      *       especially if the data is dynamically sized (like std::vector<double>).
      *       If you leave this empty (recommended), the protocol will try to guess it.
      *       The unit of data size is protocol dependent.
+     *
      *  <li> the name of the connection. Can be used to coordinate out of band
      *       transport such that they can find each other by name. In practice,
      *       the name contains a port number or file descriptor to be opened.
@@ -100,6 +121,9 @@ namespace RTT {
         static const int UNSYNC    = 0;
         static const int LOCKED    = 1;
         static const int LOCK_FREE = 2;
+
+        static const bool PUSH = false;
+        static const bool PULL = true;
 
         /**
          * Create a policy for a (lock-free) fifo buffer connection of a given size.
@@ -142,21 +166,44 @@ namespace RTT {
 
         /** DATA, BUFFER or CIRCULAR_BUFFER */
         int    type;
+
+        /** If the connection is a buffered connection, the size of the buffer */
+        int    size;
+
+        /** This is the locking policy on the connection */
+        int    lock_policy;
+
         /** If true, one should initialize the connection's value with the last
          * value written on the writer port. This is only possible if the writer
          * port has the keepsLastWrittenValue() flag set (i.e. if it remembers
          * what was the last written value).
          */
         bool   init;
-        /** This is the locking policy on the connection */
-        int    lock_policy;
+
         /** If true, then the sink will have to pull data. Otherwise, it is pushed
          * from the source. In both cases, the reader side is notified that new
          * data is available by base::ChannelElementBase::signal()
          */
         bool   pull;
-        /** If the connection is a buffered connection, the size of the buffer */
-        int    size;
+
+        /**
+         * The policy on how to read from this connection. See \ref ReadPolicy for possible options.
+         */
+        ReadPolicy read_policy;
+
+        /**
+         * The policy on how to write to this connection. See \ref WritePolicy for possible options.
+         */
+        WritePolicy write_policy;
+
+        /**
+         * Whether the connection described by this connection policy is mandatory, which
+         * means that write operations will fail if the connection could not be served, e.g. due
+         * to a full input buffer or because of a broken remote connection.
+         * By default, all connections are mandatory.
+         */
+        bool mandatory;
+
         /**
          * The prefered transport used. 0 is local (in process), a higher number
          * is used for inter-process or networked communication transports.
@@ -181,6 +228,8 @@ namespace RTT {
          */
         mutable std::string name_id;
     };
+
+    std::ostream &operator<<(std::ostream &os, const ConnPolicy &cp);
 }
 
 #endif
