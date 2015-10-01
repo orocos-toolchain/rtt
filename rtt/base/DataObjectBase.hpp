@@ -1,13 +1,4 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  DataObjectInterface.hpp
-
-                        DataObjectInterface.hpp -  description
-                           -------------------
-    begin                : Mon January 19 2004
-    copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
-
- ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
  *   License as published by the Free Software Foundation;                 *
@@ -35,79 +26,46 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef CORELIB_DATAOBJECTINTERFACE_HPP
-#define CORELIB_DATAOBJECTINTERFACE_HPP
+#ifndef CORELIB_DATAOBJECTBASE_HPP
+#define CORELIB_DATAOBJECTBASE_HPP
 
-#include "DataObjectBase.hpp"
-#include "../FlowStatus.hpp"
-#include <boost/shared_ptr.hpp>
+#include "../rtt-fwd.hpp"
 
 namespace RTT
 { namespace base {
 
-
     /**
-     * @brief A DataObjectInterface implements multi-threaded read/write solutions.
+     * @brief Base class for all data object classes.
      *
-     * @see DataObject
-     * @param T The \a DataType which can be Get() or Set() with this DataObject.
      * @ingroup PortBuffers
      */
-    template <class T>
-    class DataObjectInterface : public DataObjectBase
+    class DataObjectBase
     {
     public:
         /**
-         * Used for shared_ptr management.
+         * A helper class to pass optional arguments to the constructor of \ref DataObjectLockFree<T>
+         * in order to avoid ambiguity.
          */
-        typedef typename boost::shared_ptr<DataObjectInterface<T> > shared_ptr;
+        class Options {
+        private:
+            unsigned int max_threads_;
+            bool multiple_writers_;
+            bool multiple_readers_;
 
-        /**
-         * Create a DataObject which is initially not reference counted.
-         */
-        DataObjectInterface() {}
+        public:
+            Options();
+            Options(const ConnPolicy &policy);
+            Options(unsigned int max_threads);
 
-        /**
-         * Destructor.
-         */
-        virtual ~DataObjectInterface() {}
+            unsigned int max_threads() const { return max_threads_; }
+            Options &max_threads(unsigned int value) { max_threads_ = value; return *this; }
+            bool multiple_writers() const { return multiple_writers_; }
+            Options &multiple_writers(bool value) { multiple_writers_ = value; return *this; }
+            bool multiple_readers() const { return multiple_readers_; }
+            Options &multiple_readers(bool value) { multiple_readers_ = value; return *this; }
+        };
 
-        /**
-         * The type of the data.
-         */
-        typedef T DataType;
-
-        /**
-         * Get a copy of the Data of this data object.
-         *
-         * @param pull A copy of the data.
-         */
-        virtual FlowStatus Get( DataType& pull, bool copy_old_data = true ) const = 0;
-
-        /**
-         * Get a copy of the data of this data object.
-         *
-         * @return A copy of the data.
-         */
-        virtual DataType Get() const = 0;
-
-        /**
-         * Set the data to a certain value.
-         *
-         * @param push The data which must be set.
-         */
-        virtual bool Set( const DataType& push ) = 0;
-
-        /**
-         * Provides a data sample to initialize this data object.
-         * As such enough storage
-         * space can be allocated before the actual writing begins.
-         *
-         * @param sample the data sample
-         * @param reset enforce reinitialization even if this operation clears the stored data.
-         * @return true if the data object was successfully (re)initialized.
-         */
-        virtual bool data_sample( const DataType& sample, bool reset = true ) = 0;
+        virtual ~DataObjectBase() {}
 
         /**
          * Clears any data stored by this data object, so that any subsequent Get() without
