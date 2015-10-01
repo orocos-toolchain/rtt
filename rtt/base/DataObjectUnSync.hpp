@@ -59,33 +59,69 @@ namespace RTT
          * One element of Data.
          */
         T data;
+
+        mutable FlowStatus status;
+        bool initialized;
+
     public:
         /**
-         * Construct a DataObjectUnSync by name.
-         *
-         * @param _name The name of this DataObject.
+         * Construct an uninitialized DataObjectUnSync.
          */
-        DataObjectUnSync( const T& initial_value = T() )
-            : data(initial_value) {}
+        DataObjectUnSync()
+            : data(), status(NoData), initialized(false) {}
+
+        /**
+         * Construct a DataObjectUnSync with initial value.
+         */
+        DataObjectUnSync( const T& initial_value )
+            : data(initial_value), status(NoData), initialized(true) {}
 
         /**
          * The type of the data.
          */
         typedef T DataType;
 
-        virtual void Get( DataType& pull ) const { pull = data; }
+        virtual FlowStatus Get( DataType& pull, bool copy_old_data = true ) const {
+            FlowStatus result = status;
+            if (status == NewData) {
+                pull = data;
+                status = OldData;
+            } else if (copy_old_data) {
+                pull = data;
+            }
+            return result;
+        }
 
-        virtual DataType Get() const { DataType cache;  Get(cache); return cache; }
+        virtual DataType Get() const {
+            DataType cache;
+            Get(cache);
+            return cache;
+        }
 
-        virtual void Set( const DataType& push ) { data = push; }
+        virtual bool Set( const DataType& push ) {
+            data = push;
+            status = NewData;
+            return true;
+        }
 
-        virtual void data_sample( const DataType& sample ) {
-            Set(sample);
+        virtual bool data_sample( const DataType& sample, bool reset ) {
+            if (!initialized || reset) {
+                Set(sample);
+                initialized = true;
+                return true;
+            } else {
+                return false;
+            }
         }
 
         virtual T data_sample() const
         {
             return data;
+        }
+
+        virtual void clear()
+        {
+            status = NoData;
         }
 
     };

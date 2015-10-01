@@ -185,17 +185,17 @@ namespace RTT
                 {
 #ifndef OROBLD_OS_NO_ASM
                 case ConnPolicy::LOCK_FREE:
-                    buffer_object = new base::BufferLockFree<T>(policy.size, initial_value, policy.type == ConnPolicy::CIRCULAR_BUFFER);
+                    buffer_object = new base::BufferLockFree<T>(policy.size, initial_value, policy);
                     break;
 #else
                 case ConnPolicy::LOCK_FREE:
                     RTT::log(Warning) << "lock free connection policy is unavailable on this system, defaulting to LOCKED" << RTT::endlog();
 #endif
                 case ConnPolicy::LOCKED:
-                    buffer_object = new base::BufferLocked<T>(policy.size, initial_value, policy.type == ConnPolicy::CIRCULAR_BUFFER);
+                    buffer_object = new base::BufferLocked<T>(policy.size, initial_value, policy);
                     break;
                 case ConnPolicy::UNSYNC:
-                    buffer_object = new base::BufferUnSync<T>(policy.size, initial_value, policy.type == ConnPolicy::CIRCULAR_BUFFER);
+                    buffer_object = new base::BufferUnSync<T>(policy.size, initial_value, policy);
                     break;
                 }
                 return new ChannelBufferElement<T>(typename base::BufferInterface<T>::shared_ptr(buffer_object), policy);

@@ -47,28 +47,24 @@ namespace RTT { namespace internal {
 
     /** A connection element that stores a single data sample
      */
-    template<typename T, typename BaseClass = base::ChannelElement<T> >
-    class ChannelDataElement : public BaseClass
+    template<typename T>
+    class ChannelDataElement : public base::ChannelElement<T>
     {
-        bool written, mread;
         typename base::DataObjectInterface<T>::shared_ptr data;
         const ConnPolicy policy;
 
     public:
-        typedef BaseClass Base;
         typedef typename base::ChannelElement<T>::param_t param_t;
         typedef typename base::ChannelElement<T>::reference_t reference_t;
 
         ChannelDataElement(typename base::DataObjectInterface<T>::shared_ptr sample, const ConnPolicy& policy = ConnPolicy())
-            : written(false), mread(false), data(sample), policy(policy) {}
+            : data(sample), policy(policy) {}
 
         /** Update the data sample stored in this element.
          * It always returns true. */
         virtual FlowStatus write(param_t sample)
         {
-            data->Set(sample);
-            written = true;
-            mread = false;
+            if (!data->Set(sample)) return WriteFailure;
             return this->signal() ? WriteSuccess : WriteFailure;
         }
 
@@ -78,20 +74,7 @@ namespace RTT { namespace internal {
          */
         virtual FlowStatus read(reference_t sample, bool copy_old_data)
         {
-            if (written)
-            {
-                if ( !mread ) {
-                    data->Get(sample);
-                    mread = true;
-                    return NewData;
-                }
-
-                if(copy_old_data)
-                    data->Get(sample);
-
-                return OldData;
-            }
-            return NoData;
+            return data->Get(sample, copy_old_data);
         }
 
         /** Resets the stored sample. After clear() has been called, read()
@@ -99,15 +82,14 @@ namespace RTT { namespace internal {
          */
         virtual void clear()
         {
-            written = false;
-            mread = false;
-            Base::clear();
+            data->clear();
+            base::ChannelElement<T>::clear();
         }
 
         virtual FlowStatus data_sample(param_t sample)
         {
-            data->data_sample(sample);
-            return Base::data_sample(sample);
+            if (!data->data_sample(sample)) return WriteFailure;
+            return base::ChannelElement<T>::data_sample(sample);
         }
 
         virtual T data_sample()
@@ -115,6 +97,8 @@ namespace RTT { namespace internal {
             return data->Get();
         }
 
+        /** Returns a pointer to the ConnPolicy that has been used to construct the underlying data object.
+        */
         virtual const ConnPolicy* getConnPolicy() const
         {
             return &policy;

@@ -62,29 +62,44 @@ namespace RTT
         :public BufferInterface<T>
     {
     public:
-
+        using typename BufferBase::Options;
         typedef typename BufferInterface<T>::reference_t reference_t;
         typedef typename BufferInterface<T>::param_t param_t;
         typedef typename BufferInterface<T>::size_type size_type;
         typedef T value_t;
 
         /**
+         * Create an unitialized buffer of size \a size, with preallocated data storage.
+         * @param size The number of elements this buffer can hold.
+         */
+        BufferLocked( size_type size, const Options &options = Options() )
+            : cap(size), buf(), mcircular(options.circular()), initialized(false)
+        {
+        }
+
+        /**
          * Create a buffer of size \a size, with preallocated data storage.
          * @param size The number of elements this buffer can hold.
          * @param initial_value A data sample with which each preallocated data element is initialized.
-         * @param circular Set flag to true to make this buffer circular. If not circular, new values are discarded on full.
          */
-        BufferLocked( size_type size, const T& initial_value = T(), bool circular = false )
-            : cap(size), buf(), mcircular(circular)
+        BufferLocked( size_type size, const T& initial_value, const Options &options = Options() )
+            : cap(size), buf(), mcircular(options.circular())
         {
             data_sample(initial_value);
         }
 
-        virtual void data_sample( const T& sample )
+        virtual bool data_sample( const T& sample, bool reset = true )
         {
-            buf.resize(cap, sample);
-            buf.resize(0);
-            lastSample = sample;
+            os::MutexLock locker(lock);
+            if (!initialized || reset) {
+                buf.resize(cap, sample);
+                buf.resize(0);
+                lastSample = sample;
+                initialized = true;
+                return true;
+            } else {
+                return false;
+            }
         }
 
         virtual T data_sample() const
@@ -133,17 +148,17 @@ namespace RTT
             if (mcircular)
                 assert( (size_type)(itl - items.begin() ) == (size_type)items.size() );
             return (itl - items.begin());
-
         }
-        bool Pop( reference_t item )
+
+        FlowStatus Pop( reference_t item )
         {
             os::MutexLock locker(lock);
             if ( buf.empty() ) {
-                return false;
+                return NoData;
             }
             item = buf.front();
             buf.pop_front();
-            return true;
+            return NewData;
         }
 
         size_type Pop(std::vector<T>& items )
@@ -159,26 +174,26 @@ namespace RTT
             return quant;
         }
 
-	value_t* PopWithoutRelease()
-	{
+        value_t* PopWithoutRelease()
+        {
             os::MutexLock locker(lock);
-	    if(buf.empty())
-		return 0;
-	    
-	    //note we need to copy the sample, as 
-	    //front is not garanteed to be valid after
-	    //any other operation on the deque
-	    lastSample = buf.front();
-	    buf.pop_front();
-	    return &lastSample;
-	}
-	
-	void Release(value_t *item)
-	{
-	    //we do not need to release any memory, but we can check
-	    //if the other side messed up
-	    assert(item == &lastSample && "Wrong pointer given back to buffer");
-	}
+            if(buf.empty())
+                return 0;
+
+            //note we need to copy the sample, as
+            //front is not garanteed to be valid after
+            //any other operation on the deque
+            lastSample = buf.front();
+            buf.pop_front();
+            return &lastSample;
+        }
+
+        void Release(value_t *item)
+        {
+            //we do not need to release any memory, but we can check
+            //if the other side messed up
+            assert(item == &lastSample && "Wrong pointer given back to buffer");
+        }
 
         size_type capacity() const {
             os::MutexLock locker(lock);
@@ -202,14 +217,16 @@ namespace RTT
 
         bool full() const {
             os::MutexLock locker(lock);
-            return (size_type)buf.size() ==  cap;
+            return (size_type)buf.size() == cap;
         }
+
     private:
         size_type cap;
         std::deque<T> buf;
         value_t lastSample;
         mutable os::Mutex lock;
         const bool mcircular;
+        bool initialized;
     };
 }}
 

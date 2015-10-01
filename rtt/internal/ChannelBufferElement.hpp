@@ -47,15 +47,14 @@ namespace RTT { namespace internal {
 
     /** A connection element that can store a fixed number of data samples.
      */
-    template<typename T, typename BaseClass = base::ChannelElement<T> >
-    class ChannelBufferElement : public BaseClass
+    template<typename T>
+    class ChannelBufferElement : public base::ChannelElement<T>
     {
         typename base::BufferInterface<T>::shared_ptr buffer;
         typename base::ChannelElement<T>::value_t *last_sample_p;
         const ConnPolicy policy;
 
     public:
-        typedef BaseClass Base;
         typedef typename base::ChannelElement<T>::param_t param_t;
         typedef typename base::ChannelElement<T>::reference_t reference_t;
         typedef typename base::ChannelElement<T>::value_t value_t;
@@ -75,9 +74,8 @@ namespace RTT { namespace internal {
          */
         virtual FlowStatus write(param_t sample)
         {
-            if (buffer->Push(sample))
-                return this->signal() ? WriteSuccess : WriteFailure;
-            return WriteFailure;
+            if (!buffer->Push(sample)) return WriteFailure;
+            return this->signal() ? WriteSuccess : WriteFailure;
         }
 
         /** Pops and returns the first element of the FIFO
@@ -113,13 +111,13 @@ namespace RTT { namespace internal {
                 buffer->Release(last_sample_p);
             last_sample_p = 0;
             buffer->clear();
-            Base::clear();
+            base::ChannelElement<T>::clear();
         }
 
         virtual FlowStatus data_sample(param_t sample)
         {
-            buffer->data_sample(sample);
-            return Base::data_sample(sample);
+            if (!buffer->data_sample(sample)) return WriteFailure;
+            return base::ChannelElement<T>::data_sample(sample);
         }
 
         virtual T data_sample()
@@ -127,6 +125,8 @@ namespace RTT { namespace internal {
             return buffer->data_sample();
         }
 
+        /** Returns a pointer to the ConnPolicy that has been used to construct the underlying buffer.
+        */
         virtual const ConnPolicy* getConnPolicy() const
         {
             return &policy;

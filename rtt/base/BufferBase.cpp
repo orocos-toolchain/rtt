@@ -38,7 +38,19 @@
 
 
 #include "BufferBase.hpp"
+#include "../ConnPolicy.hpp"
 
+using namespace RTT;
 using namespace RTT::base;
 
 BufferBase::~BufferBase() {}
+
+BufferBase::Options::Options() : circular_(false), multiple_readers_(false) {}
+BufferBase::Options::Options(bool circular) : circular_(circular), multiple_readers_(false) {}
+
+BufferBase::Options::Options(const ConnPolicy &policy)
+{
+    circular_         = (policy.type == ConnPolicy::CIRCULAR_BUFFER);
+//    multiple_readers_ = (policy.write_policy == WritePolicy::WriteShared);
+    multiple_readers_ = false;
+}

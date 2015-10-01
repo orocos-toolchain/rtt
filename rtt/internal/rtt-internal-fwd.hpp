@@ -136,9 +136,9 @@ namespace RTT {
         class ArrayPartDataSource;
         template<typename T>
         class AssignableDataSource;
-        template<typename T, typename BaseClass>
+        template<typename T>
         class ChannelBufferElement;
-        template<typename T, typename BaseClass>
+        template<typename T>
         class ChannelDataElement;
         template<typename T>
         class ConnInputEndpoint;

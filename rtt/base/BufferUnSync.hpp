@@ -59,24 +59,38 @@ namespace RTT
         :public BufferInterface<T>
     {
     public:
+        using typename BufferBase::Options;
         typedef typename BufferInterface<T>::reference_t reference_t;
         typedef typename BufferInterface<T>::param_t param_t;
         typedef typename BufferInterface<T>::size_type size_type;
         typedef T value_t;
 
         /**
+         * Create an uninitialized buffer of size \a size.
+         */
+        BufferUnSync( size_type size, const Options &options = Options() )
+            : cap(size), buf(), mcircular(options.circular()), initialized(false)
+        {
+        }
+
+        /**
          * Create a buffer of size \a size.
          */
-        BufferUnSync( size_type size, const T& initial_value = T(), bool circular = false )
-            : cap(size), buf(), mcircular(circular)
+        BufferUnSync( size_type size, const T& initial_value, const Options &options = Options() )
+            : cap(size), buf(), mcircular(options.circular()), initialized(false)
         {
             data_sample(initial_value);
         }
 
-        virtual void data_sample( const T& sample )
+        virtual bool data_sample( const T& sample, bool reset = true )
         {
-            buf.resize(cap, sample);
-            buf.resize(0);
+            if (!initialized || reset) {
+                buf.resize(cap, sample);
+                buf.resize(0);
+                return true;
+            } else {
+                return false;
+            }
         }
 
         virtual T data_sample() const
@@ -122,14 +136,14 @@ namespace RTT
             return (itl - items.begin());
         }
 
-        bool Pop( reference_t item )
+        FlowStatus Pop( reference_t item )
         {
             if ( buf.empty() ) {
-                return false;
+                return NoData;
             }
             item = buf.front();
             buf.pop_front();
-            return true;
+            return NewData;
         }
 
         size_type Pop(std::vector<T>& items )
@@ -144,27 +158,25 @@ namespace RTT
             return quant;
         }
 
-	value_t* PopWithoutRelease()
-	{
-	    if(buf.empty())
-		return 0;
-	    
-	    //note we need to copy the sample, as 
-	    //front is not garanteed to be valid after
-	    //any other operation on the deque
-	    lastSample = buf.front();
-	    buf.pop_front();
-	    return &lastSample;
+        value_t* PopWithoutRelease()
+        {
+            if(buf.empty())
+                return 0;
 
-	    return 0;
-	}
-	
-	void Release(value_t *item)
-	{
-	    //we do not need to release any memory, but we can check
-	    //if the other side messed up
-	    assert(item == &lastSample && "Wrong pointer given back to buffer");
-	}
+            //note we need to copy the sample, as
+            //front is not garanteed to be valid after
+            //any other operation on the deque
+            lastSample = buf.front();
+            buf.pop_front();
+            return &lastSample;
+        }
+
+        void Release(value_t *item)
+        {
+            //we do not need to release any memory, but we can check
+            //if the other side messed up
+            assert(item == &lastSample && "Wrong pointer given back to buffer");
+        }
 	
         size_type capacity() const {
             return cap;
@@ -185,11 +197,13 @@ namespace RTT
         bool full() const {
             return (size_type)buf.size() ==  cap;
         }
+
     private:
         size_type cap;
         std::deque<T> buf;
         value_t lastSample;
         const bool mcircular;
+        bool initialized;
     };
 }}
 
