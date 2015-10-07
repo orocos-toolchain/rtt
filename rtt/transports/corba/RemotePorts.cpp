@@ -108,13 +108,13 @@ bool RemotePort<BaseClass>::addConnection(RTT::internal::ConnID* port_id, Channe
 }
 
 template<typename BaseClass>
-RTT::base::ChannelElementBase* RemotePort<BaseClass>::getConnEndpoint() const
+RTT::base::ChannelElementBase* RemotePort<BaseClass>::getEndpoint() const
 {
     return 0;
 }
 
 template<typename BaseClass>
-RTT::base::ChannelElementBase* RemotePort<BaseClass>::getBuffer() const
+RTT::base::ChannelElementBase* RemotePort<BaseClass>::getSharedBuffer() const
 {
     return 0;
 }

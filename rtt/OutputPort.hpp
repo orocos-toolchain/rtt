@@ -213,7 +213,7 @@ namespace RTT
             has_last_written_value = false;
 
             if (connected()) {
-                FlowStatus result = getInputEndpoint()->data_sample(sample, /* reset = */ true);
+                FlowStatus result = getEndpoint()->getWriteEndpoint()->data_sample(sample, /* reset = */ true);
                 if (result == NotConnected) {
                     log(Error) << "A channel of port " << getName() << " has been invalidated during setDataSample(), it will be removed" << endlog();
                 }
@@ -227,7 +227,7 @@ namespace RTT
         void clear()
         {
             has_last_written_value = false;
-            getInputEndpoint()->clear(); // only affects shared pull connections, where getInputEndpoint() would return the port's buffer object
+            getEndpoint()->getWriteEndpoint()->clear(); // only affects shared pull connections, where getInputEndpoint() would return the port's buffer object
 
             // eventually clear shared connection
             internal::SharedConnectionBase::shared_ptr shared_connection = cmanager.getSharedConnection();
@@ -252,7 +252,7 @@ namespace RTT
 
             FlowStatus result = NotConnected;
             if (connected()) {
-                result = getInputEndpoint()->write(sample);
+                result = getEndpoint()->getWriteEndpoint()->write(sample);
                 if (result == NotConnected) {
                     log(Error) << "A channel of port " << getName() << " has been invalidated during write(), it will be removed" << endlog();
                 }
@@ -330,26 +330,15 @@ namespace RTT
         }
 #endif
 
-        internal::ConnInputEndpoint<T>* getConnEndpoint() const
+        internal::ConnInputEndpoint<T>* getEndpoint() const
         {
             assert(endpoint);
             return endpoint.get();
         }
 
-        base::ChannelElement<T>* getBuffer() const
+        base::ChannelElement<T>* getSharedBuffer() const
         {
-            assert(endpoint);
-            return endpoint->getInput().get();
-        }
-
-        typename base::ChannelElement<T>::shared_ptr getInputEndpoint() const
-        {
-            typename base::ChannelElement<T>::shared_ptr buffer = getBuffer();
-            if (buffer) {
-                return buffer;
-            } else {
-                return getConnEndpoint();
-            }
+            return this->getEndpoint()->getSharedBuffer();
         }
     };
 

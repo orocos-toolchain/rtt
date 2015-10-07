@@ -90,7 +90,7 @@ namespace RTT
          */
         void clear()
         {
-            getOutputEndpoint()->clear();
+            getEndpoint()->getReadEndpoint()->clear();
         }
 
         /** \overload */
@@ -144,7 +144,7 @@ namespace RTT
          */
         FlowStatus read(typename base::ChannelElement<T>::reference_t sample, bool copy_old_data)
         {
-            return getOutputEndpoint()->read(sample, copy_old_data);
+            return getEndpoint()->getReadEndpoint()->read(sample, copy_old_data);
         }
 
         /** Read all new samples that are available on this port, and returns
@@ -173,7 +173,7 @@ namespace RTT
          */
         void getDataSample(T& sample)
         {
-            sample = getOutputEndpoint()->data_sample();
+            sample = getEndpoint()->getReadEndpoint()->data_sample();
         }
 
         /** Returns the types::TypeInfo object for the port's type */
@@ -224,26 +224,16 @@ namespace RTT
         }
 #endif
 
-        internal::ConnOutputEndpoint<T>* getConnEndpoint() const
+        internal::ConnOutputEndpoint<T>* getEndpoint() const
         {
             assert(endpoint);
             return endpoint.get();
         }
 
-        base::ChannelElement<T>* getBuffer() const
+        base::ChannelElement<T>* getSharedBuffer() const
         {
             assert(endpoint);
-            return endpoint->getOutput().get();
-        }
-
-        typename base::ChannelElement<T>::shared_ptr getOutputEndpoint() const
-        {
-            typename base::ChannelElement<T>::shared_ptr buffer = getBuffer();
-            if (buffer) {
-                return buffer;
-            } else {
-                return getConnEndpoint();
-            }
+            return endpoint->getSharedBuffer();
         }
     };
 }

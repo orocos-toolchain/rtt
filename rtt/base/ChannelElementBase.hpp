@@ -48,6 +48,7 @@
 #include "rtt-base-fwd.hpp"
 #include "../internal/rtt-internal-fwd.hpp"
 #include "../ReadPolicy.hpp"
+#include "../WritePolicy.hpp"
 #include "../os/Mutex.hpp"
 
 #include <list>
@@ -76,8 +77,8 @@ namespace RTT { namespace base {
         shared_ptr input;
         shared_ptr output;
 
-        RTT::os::SharedMutex input_lock;
-        RTT::os::SharedMutex output_lock;
+        mutable RTT::os::SharedMutex input_lock;
+        mutable RTT::os::SharedMutex output_lock;
 
     protected:
         /** Increases the reference count */
@@ -299,7 +300,7 @@ namespace RTT { namespace base {
 
     protected:
         Inputs inputs;
-        RTT::os::SharedMutex inputs_lock;
+        mutable RTT::os::SharedMutex inputs_lock;
 
         ReadPolicy read_policy;
         ChannelElementBase *last_signalled;
@@ -374,7 +375,9 @@ namespace RTT { namespace base {
 
     protected:
         Outputs outputs;
-        RTT::os::SharedMutex outputs_lock;
+        mutable RTT::os::SharedMutex outputs_lock;
+
+        WritePolicy write_policy;
 
     public:
         MultipleOutputsChannelElementBase();
@@ -405,6 +408,8 @@ namespace RTT { namespace base {
          */
         virtual bool disconnect(ChannelElementBase::shared_ptr const& channel, bool forward = false);
 
+        virtual bool setWritePolicy(WritePolicy policy, bool force = false);
+        virtual WritePolicy getWritePolicy() const;
 
     protected:
         /**

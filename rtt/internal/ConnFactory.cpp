@@ -104,9 +104,9 @@ bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_por
     // Register the channel's input to the output port.
     // This is a bit hacky. We have to find the next channel element in the pipeline as seen from the ConnOutputEndpoint:
     base::ChannelElementBase::shared_ptr next_hop = channel_output;
-    if (channel_input != output_port.getConnEndpoint()) {
+    if (channel_input != output_port.getEndpoint()) {
         next_hop = channel_input;
-        while(next_hop->getInput() && next_hop->getInput() != output_port.getConnEndpoint()) {
+        while(next_hop->getInput() && next_hop->getInput() != output_port.getEndpoint()) {
             next_hop = next_hop->getInput();
         }
     }
@@ -237,7 +237,7 @@ bool ConnFactory::createAndCheckSharedConnection(base::OutputPortInterface* outp
             return false;
         }
 
-        output_port->getConnEndpoint()->connectTo(shared_connection, policy.mandatory);
+        output_port->getEndpoint()->connectTo(shared_connection, policy.mandatory);
     }
 
     // ... and the input port
@@ -249,7 +249,7 @@ bool ConnFactory::createAndCheckSharedConnection(base::OutputPortInterface* outp
             return false;
         }
 
-        shared_connection->connectTo(input_port->getConnEndpoint(), policy.mandatory);
+        shared_connection->connectTo(input_port->getEndpoint(), policy.mandatory);
     }
 
     return true;

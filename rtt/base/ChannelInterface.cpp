@@ -38,6 +38,7 @@
 
 #include "../internal/Channels.hpp"
 #include "../os/Atomic.hpp"
+#include "../os/CAS.hpp"
 #include "../os/MutexLock.hpp"
 
 using namespace RTT;
@@ -226,6 +227,8 @@ bool MultipleInputsChannelElementBase::addInput(ChannelElementBase::shared_ptr c
 void MultipleInputsChannelElementBase::removeInput(ChannelElementBase::shared_ptr const& input)
 {
     inputs.remove(input);
+    os::CAS(&last_signalled, input.get(), 0);
+    if (inputs.empty()) read_policy = UnspecifiedReadPolicy;
 }
 
 bool MultipleInputsChannelElementBase::connected()
@@ -303,6 +306,7 @@ bool MultipleInputsChannelElementBase::signal(ChannelElementBase *caller)
 
 bool MultipleInputsChannelElementBase::setReadPolicy(ReadPolicy policy, bool force)
 {
+    RTT::os::MutexLock lock(inputs_lock);
     if (!read_policy || force) {
         read_policy = policy;
         return true;
@@ -312,6 +316,7 @@ bool MultipleInputsChannelElementBase::setReadPolicy(ReadPolicy policy, bool for
 
 ReadPolicy MultipleInputsChannelElementBase::getReadPolicy() const
 {
+    RTT::os::SharedMutexLock lock(inputs_lock);
     return read_policy;
 }
 
@@ -343,6 +348,7 @@ bool MultipleOutputsChannelElementBase::addOutput(ChannelElementBase::shared_ptr
 void MultipleOutputsChannelElementBase::removeOutput(ChannelElementBase::shared_ptr const& output)
 {
     outputs.remove_if(boost::bind(&Output::operator==, _1, output));
+    if (outputs.empty()) write_policy = UnspecifiedWritePolicy;
 }
 
 bool MultipleOutputsChannelElementBase::connected()
@@ -424,6 +430,22 @@ void MultipleOutputsChannelElementBase::removeDisconnectedOutputs()
             removeOutput(output.channel.get()); // invalidates output
         }
     }
+}
+
+bool MultipleOutputsChannelElementBase::setWritePolicy(WritePolicy policy, bool force)
+{
+    RTT::os::MutexLock lock(outputs_lock);
+    if (!write_policy || force) {
+        write_policy = policy;
+        return true;
+    }
+    return write_policy == policy;
+}
+
+WritePolicy MultipleOutputsChannelElementBase::getWritePolicy() const
+{
+    RTT::os::SharedMutexLock lock(outputs_lock);
+    return write_policy;
 }
 
 bool MultipleInputsMultipleOutputsChannelElementBase::connected()

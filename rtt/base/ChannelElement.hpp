@@ -45,7 +45,6 @@
 #include "../ReadPolicy.hpp"
 #include "../FlowStatus.hpp"
 #include "../os/MutexLock.hpp"
-#include "../os/CAS.hpp"
 
 #include <boost/bind.hpp>
 #ifndef USE_CPP11
@@ -143,17 +142,6 @@ namespace RTT { namespace base {
         MultipleInputsChannelElement()
             : last_read()
         {}
-
-        /**
-         * Overwritten implementation of MultipleInputsChannelElementBase::removeInput() that resets the current channel on removal.
-         */
-        virtual void removeInput(ChannelElementBase *input)
-        {
-            if (input == last_read) {
-                last_read = 0;
-            }
-            MultipleInputsChannelElementBase::removeInput(input);
-        }
 
         /**
          * Overwritten implementation of MultipleInputsChannelElementBase::data_sample() that gets a sample from the currently selected input.
@@ -272,7 +260,6 @@ namespace RTT { namespace base {
         {
             MultipleInputsChannelElementBase::removeInput(input);
             if (last_read == input) last_read = 0;
-            os::CAS(&last_signalled, input.get(), 0);
         }
 
     private:
@@ -290,11 +277,12 @@ namespace RTT { namespace base {
         using typename ChannelElement<T>::param_t;
         using typename ChannelElement<T>::reference_t;
 
-        virtual FlowStatus data_sample(param_t sample)
+        virtual FlowStatus data_sample(param_t sample, bool reset = true)
         {
             FlowStatus result = WriteSuccess;
             bool at_least_one_output_is_disconnected = false;
             bool at_least_one_output_is_connected = false;
+            assert((write_policy != WriteShared) || (outputs.size() <= 1));
 
             {
                 RTT::os::SharedMutexLock lock(outputs_lock);
@@ -302,7 +290,7 @@ namespace RTT { namespace base {
                 for(Outputs::iterator it = outputs.begin(); it != outputs.end(); ++it)
                 {
                     typename ChannelElement<T>::shared_ptr output = it->channel->narrow<T>();
-                    FlowStatus fs = output->data_sample(sample);
+                    FlowStatus fs = output->data_sample(sample, reset);
                     if (result < fs) result = fs;
                     if (fs == NotConnected) {
                         it->disconnected = true;
@@ -331,6 +319,7 @@ namespace RTT { namespace base {
             FlowStatus result = WriteSuccess;
             bool at_least_one_output_is_disconnected = false;
             bool at_least_one_output_is_connected = false;
+            assert((write_policy != WriteShared) || (outputs.size() <= 1));
 
             {
                 RTT::os::SharedMutexLock lock(outputs_lock);

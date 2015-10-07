@@ -135,13 +135,13 @@ BOOST_AUTO_TEST_CASE( testMultipleInputsChannelElementConnection )
 
     // test signalling
     BOOST_CHECK( !in->getReadPolicy() );
-    in->setReadPolicy(ReadShared);
+    in->setReadPolicy( ReadShared, true );
     BOOST_CHECK( !in->currentInput() );
     out1->signal();
     BOOST_CHECK_EQUAL( in->currentInput(), out1 );
     out2->signal();
     BOOST_CHECK_EQUAL( in->currentInput(), out2 );
-    in->setReadPolicy(ReadUnordered);
+    in->setReadPolicy( ReadUnordered, true );
     BOOST_CHECK_EQUAL( in->currentInput(), out1 );
 
     // disconnect input

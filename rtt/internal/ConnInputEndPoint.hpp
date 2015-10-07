@@ -99,6 +99,21 @@ namespace RTT
         {
             return this;
         }
+
+        virtual base::ChannelElement<T>* getSharedBuffer()
+        {
+            return this->getInput().get();
+        }
+
+        typename base::ChannelElement<T>::shared_ptr getWriteEndpoint()
+        {
+            if (this->getWritePolicy() == WriteShared) {
+                assert(getSharedBuffer());
+                return getSharedBuffer();
+            } else {
+                return this;
+            }
+        }
     };
 
 }}

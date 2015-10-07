@@ -86,8 +86,8 @@ namespace RTT {
             virtual bool addConnection(internal::ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
             void disconnect();
             bool disconnect(base::PortInterface* p);
-            base::ChannelElementBase* getConnEndpoint() const;
-            base::ChannelElementBase* getBuffer() const;
+            base::ChannelElementBase* getEndpoint() const;
+            base::ChannelElementBase* getSharedBuffer() const;
         };
 
         /**

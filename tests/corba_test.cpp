@@ -572,14 +572,14 @@ BOOST_AUTO_TEST_CASE( testSharedConnections )
     RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::data());
     policy.init = false;
     policy.write_policy = RTT::corba::CWriteShared;
-    policy.read_policy = RTT::corba::CReadShared;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = ts->server()->ports();
     corba::CDataFlowInterface_var ports2 = ts2->server()->ports();
     double value = 0.0;
 
-    // First a push connection...
+    // ReadShared push connection...
+    policy.read_policy = RTT::corba::CReadShared;
     policy.pull = false;
     BOOST_CHECK( ports->createConnection("mo", ports2, "mi", policy) );
     BOOST_CHECK( ports->createConnection("mo", ports2, "mi3", policy) );
@@ -608,15 +608,82 @@ BOOST_AUTO_TEST_CASE( testSharedConnections )
     BOOST_CHECK( !mi2->connected() );
     BOOST_CHECK( !mi3->connected() );
 
-    // ... then pull
+    // ReadShared pull connection...
+    policy.read_policy = RTT::corba::CReadShared;
+    policy.pull = true;
+    BOOST_CHECK( ports->createConnection("mo", ports2, "mi", policy) );
+    BOOST_CHECK( ports->createConnection("mo", ports2, "mi3", policy) );
+    BOOST_CHECK( ports2->createConnection("mo", ports2, "mi", policy) );
+    BOOST_CHECK( mi3->connected() );
+    BOOST_CHECK( mo2->connected() );
+    BOOST_ASSERT( mi2->getManager()->getSharedConnection() );
+    BOOST_ASSERT( mi3->getManager()->getSharedConnection() );
+    BOOST_CHECK_EQUAL( mi2->getManager()->getSharedConnection()->getName(), mi3->getManager()->getSharedConnection()->getName() );
+    BOOST_CHECK_EQUAL( mi3->read(value), NoData );
+    testPortDataConnection(); // communication between mo and mi should work the same as for private connections
+    BOOST_CHECK_EQUAL( mi3->read(value), OldData );
+    BOOST_CHECK_EQUAL( value, 2.0 );
+    BOOST_CHECK_EQUAL( mo2->write(3.0), WriteSuccess );
+    value = 0.0;
+    BOOST_CHECK_EQUAL( mi3->read(value), NewData );
+    BOOST_CHECK_EQUAL( value, 3.0 );
+    value = 0.0;
+    BOOST_CHECK_EQUAL( mi2->read(value), OldData );
+    BOOST_CHECK_EQUAL( value, 3.0 );
+
+    ports->disconnectPort("mo"); // disconnect from the output side
+    ports2->disconnectPort("mo"); // disconnect from the output side
+    BOOST_CHECK( !mo1->connected() );
+    BOOST_CHECK( !mo2->connected() );
+    BOOST_CHECK( !mi2->connected() );
+    BOOST_CHECK( !mi3->connected() );
+
+//    // ReadUnorderered push connection...
+//    policy.read_policy = RTT::corba::CReadUnordered;
+//    policy.pull = false;
+//    BOOST_CHECK( ports->createConnection("mo", ports2, "mi", policy) );
+//    BOOST_CHECK( ports->createConnection("mo", ports2, "mi3", policy) );
+//    BOOST_CHECK( ports2->createConnection("mo", ports2, "mi", policy) ); // cannot use the DataFlowInterface CORBA API here, as it will find the local SharedConnection instance and fail.
+//    BOOST_CHECK( mi3->connected() );
+//    BOOST_CHECK( mo2->connected() );
+//    BOOST_CHECK( mo1->getSharedBuffer() );
+//    BOOST_CHECK( mo2->getSharedBuffer() );
+//    BOOST_CHECK_EQUAL( mi3->read(value), NoData );
+//    testPortDataConnection(); // communication between mo and mi should work the same as for private connections
+//    BOOST_CHECK_EQUAL( mi3->read(value), OldData );
+//    BOOST_CHECK_EQUAL( value, 2.0 );
+//    BOOST_CHECK_EQUAL( mo1->write(3.0), WriteSuccess );
+//    BOOST_CHECK_EQUAL( mo2->write(4.0), WriteSuccess );
+//    value = 0.0;
+//    BOOST_CHECK_EQUAL( mi3->read(value), NewData );
+//    BOOST_CHECK_EQUAL( value, 3.0 );
+//    value = 0.0;
+//    BOOST_CHECK_EQUAL( mi2->read(value), NewData );
+//    BOOST_CHECK_EQUAL( value, 4.0 );
+//    value = 0.0;
+//    BOOST_CHECK_EQUAL( mi3->read(value), OldData );
+//    BOOST_CHECK_EQUAL( value, 3.0 );
+//    value = 0.0;
+//    BOOST_CHECK_EQUAL( mi2->read(value), OldData );
+//    BOOST_CHECK_EQUAL( value, 4.0 );
+
+//    ports2->disconnectPort("mi"); // disconnect from the input side
+//    ports2->disconnectPort("mi3"); // disconnect from the input side
+//    BOOST_CHECK( !mo1->connected() );
+//    BOOST_CHECK( !mo2->connected() );
+//    BOOST_CHECK( !mi2->connected() );
+//    BOOST_CHECK( !mi3->connected() );
+
+    // ReadUnorderered pull connection...
+    policy.read_policy = RTT::corba::CReadUnordered;
     policy.pull = true;
     BOOST_CHECK( ports->createConnection("mo", ports2, "mi", policy) );
     BOOST_CHECK( ports->createConnection("mo", ports2, "mi3", policy) );
     BOOST_CHECK( ports2->createConnection("mo", ports2, "mi", policy) ); // cannot use the DataFlowInterface CORBA API here, as it will find the local SharedConnection instance and fail.
     BOOST_CHECK( mi3->connected() );
     BOOST_CHECK( mo2->connected() );
-    BOOST_CHECK( mo1->getBuffer() );
-    BOOST_CHECK( mo2->getBuffer() );
+    BOOST_CHECK( mo1->getSharedBuffer() );
+    BOOST_CHECK( mo2->getSharedBuffer() );
     BOOST_CHECK_EQUAL( mi3->read(value), NoData );
     testPortDataConnection(); // communication between mo and mi should work the same as for private connections
     BOOST_CHECK_EQUAL( mi3->read(value), OldData );

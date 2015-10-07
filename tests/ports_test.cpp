@@ -381,7 +381,7 @@ BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithReadShared)
     BOOST_CHECK( wp3.connected() );
 
 #ifndef RTT_V2_DATAFLOW_COMPATIBILITY_MODE
-    BOOST_CHECK( rp.getBuffer() );
+    BOOST_CHECK( rp.getSharedBuffer() );
 
     BOOST_CHECK_EQUAL( wp1.write(10), WriteSuccess );
     BOOST_CHECK_EQUAL( wp1.write(20), WriteSuccess );
@@ -436,12 +436,12 @@ BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithReadShared)
     BOOST_CHECK( !wp1.connected() );
     BOOST_CHECK( !wp2.connected() );
     BOOST_CHECK( !wp3.connected() );
-    BOOST_CHECK( !rp.getBuffer() );
+    BOOST_CHECK( !rp.getSharedBuffer() );
     BOOST_CHECK_EQUAL( rp.read(value), NoData );
 
 #else
     // copied from testPortThreeWritersOneReaderWithPullConnection test
-    BOOST_CHECK( !rp.getBuffer() );
+    BOOST_CHECK( !rp.getSharedBuffer() );
 
     BOOST_CHECK_EQUAL( wp1.write(10), WriteSuccess );
     BOOST_CHECK_EQUAL( wp1.write(20), WriteSuccess );
@@ -537,7 +537,7 @@ BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReader)
     BOOST_CHECK( wp1.connected() );
     BOOST_CHECK( wp2.connected() );
     BOOST_CHECK( wp3.connected() );
-    BOOST_CHECK( !rp.getBuffer() );
+    BOOST_CHECK( !rp.getSharedBuffer() );
 
     BOOST_CHECK_EQUAL( wp1.write(10), WriteSuccess );
     BOOST_CHECK_EQUAL( wp1.write(20), WriteSuccess );
@@ -671,7 +671,7 @@ BOOST_AUTO_TEST_CASE(testSharedBufferConnection)
 
 BOOST_AUTO_TEST_CASE(testSharedDataConnection)
 {
-    ConnPolicy cp = ConnPolicy::buffer(10);
+    ConnPolicy cp = ConnPolicy::data();
     cp.write_policy = WriteShared;
     cp.read_policy = ReadShared;
 
@@ -706,45 +706,60 @@ BOOST_AUTO_TEST_CASE(testSharedDataConnection)
 }
 
 
-BOOST_AUTO_TEST_CASE(testInvalidPrivateConnections)
+BOOST_AUTO_TEST_CASE(testInvalidReadPolicyConnections)
 {
     OutputPort<int> wp1("W1");
     OutputPort<int> wp2("W2");
     InputPort<int> rp("R1");
 
-    // mix push and pull
-    BOOST_CHECK( wp1.connectTo(&rp, ConnPolicy::data(ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PUSH)) );
+    // mix read policies
+    ConnPolicy cp_ReadUnordered, cp_ReadShared;
+    cp_ReadUnordered.read_policy = ReadUnordered;
+    cp_ReadShared.read_policy = ReadShared;
+    BOOST_CHECK( wp1.connectTo(&rp, cp_ReadUnordered) );
 #ifndef RTT_V2_DATAFLOW_COMPATIBILITY_MODE
-    BOOST_CHECK( !wp2.connectTo(&rp, ConnPolicy::data(ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PULL)) );
+    BOOST_CHECK( !wp2.connectTo(&rp, cp_ReadShared) );
 #else
-    BOOST_CHECK(  wp2.connectTo(&rp, ConnPolicy::data(ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PULL)) );
+    BOOST_CHECK(  wp2.connectTo(&rp, cp_ReadShared) );
 #endif
     rp.disconnect();
 
-    // mix data and buffer connections
-    BOOST_CHECK( wp1.connectTo(&rp, ConnPolicy::data(ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PUSH)) );
+    // mix data and buffer connections with ReadShared read policy
+    ConnPolicy cp_DATA = ConnPolicy::data();
+    ConnPolicy cp_BUFFER = ConnPolicy::buffer(10);
+    cp_DATA.read_policy = ReadShared;
+    cp_BUFFER.read_policy = ReadShared;
+    BOOST_CHECK( wp1.connectTo(&rp, cp_DATA) );
 #ifndef RTT_V2_DATAFLOW_COMPATIBILITY_MODE
-    BOOST_CHECK( !wp2.connectTo(&rp, ConnPolicy::buffer(10, ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PUSH)) );
+    BOOST_CHECK( !wp2.connectTo(&rp, cp_BUFFER) );
 #else
-    BOOST_CHECK(  wp2.connectTo(&rp, ConnPolicy::buffer(10, ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PUSH)) );
+    BOOST_CHECK(  wp2.connectTo(&rp, cp_BUFFER) );
 #endif
     rp.disconnect();
 
-    // mix different locking policies
-    BOOST_CHECK( wp1.connectTo(&rp, ConnPolicy::data(ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PUSH)) );
+    // mix different locking policies with ReadShared read policy
+    ConnPolicy cp_LOCK_FREE = ConnPolicy::buffer(10, ConnPolicy::LOCK_FREE);
+    ConnPolicy cp_LOCKED = ConnPolicy::buffer(10, ConnPolicy::LOCKED);
+    cp_LOCK_FREE.read_policy = ReadShared;
+    cp_LOCKED.read_policy = ReadShared;
+    BOOST_CHECK( wp1.connectTo(&rp, cp_LOCK_FREE) );
 #ifndef RTT_V2_DATAFLOW_COMPATIBILITY_MODE
-    BOOST_CHECK( !wp2.connectTo(&rp, ConnPolicy::data(ConnPolicy::LOCKED, /* init_connection = */ false, ConnPolicy::PUSH)) );
+    BOOST_CHECK( !wp2.connectTo(&rp, cp_LOCKED) );
 #else
-    BOOST_CHECK(  wp2.connectTo(&rp, ConnPolicy::data(ConnPolicy::LOCKED, /* init_connection = */ false, ConnPolicy::PUSH)) );
+    BOOST_CHECK(  wp2.connectTo(&rp, cp_LOCKED) );
 #endif
     rp.disconnect();
 
-    // mix different buffer sizes
-    BOOST_CHECK( wp1.connectTo(&rp, ConnPolicy::buffer(5, ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PUSH)) );
+    // mix different buffer sizes with ReadShared read policy
+    ConnPolicy cp_BUFFER5 = ConnPolicy::buffer(5);
+    ConnPolicy cp_BUFFER10 = ConnPolicy::buffer(10);
+    cp_BUFFER5.read_policy = ReadShared;
+    cp_BUFFER10.read_policy = ReadShared;
+    BOOST_CHECK( wp1.connectTo(&rp, cp_BUFFER5) );
 #ifndef RTT_V2_DATAFLOW_COMPATIBILITY_MODE
-    BOOST_CHECK( !wp1.connectTo(&rp, ConnPolicy::buffer(10, ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PUSH)) );
+    BOOST_CHECK( !wp1.connectTo(&rp, cp_BUFFER10) );
 #else
-    BOOST_CHECK(  wp1.connectTo(&rp, ConnPolicy::buffer(10, ConnPolicy::LOCK_FREE, /* init_connection = */ false, ConnPolicy::PUSH)) );
+    BOOST_CHECK(  wp1.connectTo(&rp, cp_BUFFER10) );
 #endif
     rp.disconnect();
 }

@@ -219,23 +219,23 @@ namespace RTT
         virtual internal::ConnectionManager* getManager() { return &cmanager; }
 
         /**
+         * Returns the input or output endpoint of this port (if any).
+         * This method provides access to the internals of this port
+         * in order to access connected channel objects directly.
+         */
+        virtual ChannelElementBase* getEndpoint() const = 0;
+
+        /**
+         * Returns the shared input or output buffer of this port (if any).
+         * This method provides access to the internals of this port
+         * in order to access connected channel objects directly.
+         */
+        virtual ChannelElementBase* getSharedBuffer() const = 0;
+
+        /**
          * Returns a pointer to the shared connection element this port may be connected to.
          */
         virtual internal::SharedConnectionBase::shared_ptr getSharedConnection() const;
-
-        /**
-         * Returns the input or output endpoint of this port (if any).
-         * This method provides access to the internals of this port
-         * in order to access connected channel objects directly.
-         */
-        virtual ChannelElementBase* getConnEndpoint() const = 0;
-
-        /**
-         * Returns the input or output endpoint of this port (if any).
-         * This method provides access to the internals of this port
-         * in order to access connected channel objects directly.
-         */
-        virtual ChannelElementBase* getBuffer() const = 0;
     };
 
 }}

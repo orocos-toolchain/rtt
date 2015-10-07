@@ -139,6 +139,8 @@ template <typename T, PortTypes> struct Adaptor;
     using RTT::ConnPolicy;
 
 #if RTT_VERSION_GTE(2,8,99)
+    using RTT::ReadPolicy;
+    using RTT::WritePolicy;
     using RTT::FlowStatus;
     using RTT::WriteSuccess;
     using RTT::WriteFailure;
@@ -146,6 +148,8 @@ template <typename T, PortTypes> struct Adaptor;
 #else
     typedef int FlowStatus;
     enum { WriteSuccess = 3, WriteFailure = 4, NotConnected = 5 };
+    struct ReadPolicy { typedef enum { UnspecifiedReadPolicy = 0, ReadUnordered, ReadShared } value_type; value_type value; }
+    struct WritePolicy { typedef enum { UnspecifiedWritePolicy = 0, WritePrivate, WriteShared } value_type; value_type value; }
 #endif
     using RTT::NoData;
     using RTT::OldData;
@@ -876,7 +880,7 @@ BOOST_AUTO_TEST_CASE( dataConnection )
     {
         options.NumberOfWriters = 10;
         options.NumberOfReaders = 1;
-        options.policy.pull = ConnPolicy::PUSH;
+        options.policy.read_policy = ReadShared;
         std::cout << options;
 
         typename RunnerType::shared_ptr runner(new RunnerType("data", options));
@@ -891,7 +895,7 @@ BOOST_AUTO_TEST_CASE( dataConnection )
     {
         options.NumberOfWriters = 10;
         options.NumberOfReaders = 1;
-        options.policy.pull = ConnPolicy::PULL;
+        options.policy.read_policy = ReadUnordered;
         std::cout << options;
 
         typename RunnerType::shared_ptr runner(new RunnerType("data", options));
@@ -906,7 +910,7 @@ BOOST_AUTO_TEST_CASE( dataConnection )
     {
         options.NumberOfWriters = 1;
         options.NumberOfReaders = 10;
-        options.policy.pull = ConnPolicy::PUSH;
+        options.policy.read_policy = ReadShared;
         std::cout << options;
 
         typename RunnerType::shared_ptr runner(new RunnerType("data", options));
@@ -921,7 +925,7 @@ BOOST_AUTO_TEST_CASE( dataConnection )
     {
         options.NumberOfWriters = 1;
         options.NumberOfReaders = 10;
-        options.policy.pull = ConnPolicy::PULL;
+        options.policy.read_policy = ReadUnordered;
         std::cout << options;
 
         typename RunnerType::shared_ptr runner(new RunnerType("data", options));
@@ -936,7 +940,7 @@ BOOST_AUTO_TEST_CASE( dataConnection )
     {
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
-        options.policy.pull = ConnPolicy::PUSH;
+        options.policy.read_policy = ReadShared;
         std::cout << options;
 
         typename RunnerType::shared_ptr runner(new RunnerType("data", options));
@@ -951,7 +955,7 @@ BOOST_AUTO_TEST_CASE( dataConnection )
     {
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
-        options.policy.pull = ConnPolicy::PULL;
+        options.policy.read_policy = ReadUnordered;
         std::cout << options;
 
         typename RunnerType::shared_ptr runner(new RunnerType("data", options));
@@ -972,11 +976,11 @@ BOOST_AUTO_TEST_CASE( emptyReads )
     options.WriteMode = TestOptions::NoWrite;
     options.ReadMode = TestOptions::ReadSynchronous;
 
-    // 10 writers, 1 reader, push
+    // 10 writers, 1 reader, ReadShared
     {
         options.NumberOfWriters = 10;
         options.NumberOfReaders = 1;
-        options.policy.pull = ConnPolicy::PUSH;
+        options.policy.read_policy = ReadShared;
         std::cout << options;
 
         typename RunnerType::shared_ptr runner(new RunnerType("no", options));
@@ -991,7 +995,7 @@ BOOST_AUTO_TEST_CASE( emptyReads )
     {
         options.NumberOfWriters = 10;
         options.NumberOfReaders = 1;
-        options.policy.pull = ConnPolicy::PULL;
+        options.policy.read_policy = ReadUnordered;
         std::cout << options;
 
         typename RunnerType::shared_ptr runner(new RunnerType("empty", options));

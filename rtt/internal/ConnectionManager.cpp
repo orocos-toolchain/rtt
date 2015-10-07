@@ -92,7 +92,7 @@ namespace RTT
                 if ( dynamic_cast<InputPortInterface*>(mport) )
                     is_forward = false; // disconnect on input port = backward.
 
-                mport->getConnEndpoint()->disconnect(channel, is_forward);
+                mport->getEndpoint()->disconnect(channel, is_forward);
             }
 
             return next;

@@ -163,6 +163,28 @@ namespace RTT
         {
             return this;
         }
+
+        virtual base::ChannelElement<T>* getSharedBuffer()
+        {
+            return this->getOutput().get();
+        }
+
+        typename base::ChannelElement<T>::shared_ptr getReadEndpoint()
+        {
+            if (this->getReadPolicy() == ReadShared) {
+                typename base::ChannelElement<T>::shared_ptr buffer = getSharedBuffer();
+                assert(buffer);
+
+                // This is a bit hacky: For WritePrivate data connections we read with ReadShared policy from this element.
+                // The shared buffer is never written in this case as ConnFactory::buildChannelOutput() installed per-connection buffers.
+                if (buffer && buffer->getConnPolicy() && buffer->getConnPolicy()->type == ConnPolicy::DATA) {
+                    return this;
+                }
+                return buffer;
+            } else {
+                return this;
+            }
+        }
     };
 
 }}
