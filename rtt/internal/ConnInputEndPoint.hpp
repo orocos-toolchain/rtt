@@ -107,9 +107,9 @@ namespace RTT
 
         typename base::ChannelElement<T>::shared_ptr getWriteEndpoint()
         {
-            if (this->getWritePolicy() == WriteShared) {
-                assert(getSharedBuffer());
-                return getSharedBuffer();
+            typename base::ChannelElement<T>::shared_ptr buffer = getSharedBuffer();
+            if (buffer) {
+                return buffer;
             } else {
                 return this;
             }

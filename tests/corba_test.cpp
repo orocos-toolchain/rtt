@@ -638,42 +638,6 @@ BOOST_AUTO_TEST_CASE( testSharedConnections )
     BOOST_CHECK( !mi2->connected() );
     BOOST_CHECK( !mi3->connected() );
 
-//    // ReadUnorderered push connection...
-//    policy.read_policy = RTT::corba::CReadUnordered;
-//    policy.pull = false;
-//    BOOST_CHECK( ports->createConnection("mo", ports2, "mi", policy) );
-//    BOOST_CHECK( ports->createConnection("mo", ports2, "mi3", policy) );
-//    BOOST_CHECK( ports2->createConnection("mo", ports2, "mi", policy) ); // cannot use the DataFlowInterface CORBA API here, as it will find the local SharedConnection instance and fail.
-//    BOOST_CHECK( mi3->connected() );
-//    BOOST_CHECK( mo2->connected() );
-//    BOOST_CHECK( mo1->getSharedBuffer() );
-//    BOOST_CHECK( mo2->getSharedBuffer() );
-//    BOOST_CHECK_EQUAL( mi3->read(value), NoData );
-//    testPortDataConnection(); // communication between mo and mi should work the same as for private connections
-//    BOOST_CHECK_EQUAL( mi3->read(value), OldData );
-//    BOOST_CHECK_EQUAL( value, 2.0 );
-//    BOOST_CHECK_EQUAL( mo1->write(3.0), WriteSuccess );
-//    BOOST_CHECK_EQUAL( mo2->write(4.0), WriteSuccess );
-//    value = 0.0;
-//    BOOST_CHECK_EQUAL( mi3->read(value), NewData );
-//    BOOST_CHECK_EQUAL( value, 3.0 );
-//    value = 0.0;
-//    BOOST_CHECK_EQUAL( mi2->read(value), NewData );
-//    BOOST_CHECK_EQUAL( value, 4.0 );
-//    value = 0.0;
-//    BOOST_CHECK_EQUAL( mi3->read(value), OldData );
-//    BOOST_CHECK_EQUAL( value, 3.0 );
-//    value = 0.0;
-//    BOOST_CHECK_EQUAL( mi2->read(value), OldData );
-//    BOOST_CHECK_EQUAL( value, 4.0 );
-
-//    ports2->disconnectPort("mi"); // disconnect from the input side
-//    ports2->disconnectPort("mi3"); // disconnect from the input side
-//    BOOST_CHECK( !mo1->connected() );
-//    BOOST_CHECK( !mo2->connected() );
-//    BOOST_CHECK( !mi2->connected() );
-//    BOOST_CHECK( !mi3->connected() );
-
     // ReadUnorderered pull connection...
     policy.read_policy = RTT::corba::CReadUnordered;
     policy.pull = true;

@@ -135,25 +135,14 @@ template <typename T, PortTypes> struct Adaptor;
     #include <rtt/OutputPort.hpp>
     #include <rtt/extras/SlaveActivity.hpp>
 
-    using RTT::TaskContext;
-    using RTT::ConnPolicy;
+    using namespace RTT;
 
-#if RTT_VERSION_GTE(2,8,99)
-    using RTT::ReadPolicy;
-    using RTT::WritePolicy;
-    using RTT::FlowStatus;
-    using RTT::WriteSuccess;
-    using RTT::WriteFailure;
-    using RTT::NotConnected;
-#else
+#if !RTT_VERSION_GTE(2,8,99)
     typedef int FlowStatus;
     enum { WriteSuccess = 3, WriteFailure = 4, NotConnected = 5 };
-    struct ReadPolicy { typedef enum { UnspecifiedReadPolicy = 0, ReadUnordered, ReadShared } value_type; value_type value; }
-    struct WritePolicy { typedef enum { UnspecifiedWritePolicy = 0, WritePrivate, WriteShared } value_type; value_type value; }
+    typedef enum { UnspecifiedReadPolicy, ReadUnordered, ReadShared } ReadPolicy;
+    typedef enum { UnspecifiedWritePolicy, WritePrivate, WriteShared } WritePolicy;
 #endif
-    using RTT::NoData;
-    using RTT::OldData;
-    using RTT::NewData;
 
     using RTT::os::Mutex;
     using RTT::os::MutexLock;
