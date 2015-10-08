@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE(testPortOneWriterThreeReaders)
     BOOST_CHECK_EQUAL( wp.write(15), WriteSuccess );
     BOOST_CHECK_EQUAL( wp.write(20), WriteSuccess );
     BOOST_CHECK_EQUAL( wp.write(25), WriteSuccess );
-    BOOST_CHECK_EQUAL( wp.write(30), WriteFailure ); // buffer full
+    BOOST_CHECK_EQUAL( wp.write(30), WriteFailure ); // input buffer for R2 is full, but write to R1 and R3 was successful
 
     int value = 0;
     BOOST_CHECK( rp1.read(value));
@@ -325,6 +325,7 @@ BOOST_AUTO_TEST_CASE(testPortOneWriterThreeReaders)
     BOOST_CHECK( rp2.read(value));
     BOOST_CHECK_EQUAL(25, value);
     BOOST_CHECK_EQUAL( rp2.read(value), OldData);
+    BOOST_CHECK_EQUAL(25, value);
 
     BOOST_CHECK( rp3.read(value));
     BOOST_CHECK_EQUAL(30, value);
@@ -355,9 +356,82 @@ BOOST_AUTO_TEST_CASE(testPortOneWriterThreeReaders)
     BOOST_CHECK_EQUAL( rp3.read(value), NoData );
 }
 
-BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithReadShared)
+BOOST_AUTO_TEST_CASE(testPortOneWriterThreeReadersWithSharedOutputBuffer)
 {
-    ConnPolicy cp = ConnPolicy::buffer(4, /* int lock_policy = */ ConnPolicy::LOCK_FREE, /* bool init_connection = */ true, /* bool pull = */ false);
+    ConnPolicy cp = ConnPolicy::buffer(4);
+    cp.write_policy = WriteShared;
+    OutputPort<int> wp("W");
+    InputPort<int> rp1("R1", cp);
+    InputPort<int> rp2("R2", cp);
+    InputPort<int> rp3("R3", cp);
+
+    wp.createConnection(rp1);
+    BOOST_CHECK( wp.connected() );
+    BOOST_CHECK( rp1.connected() );
+    BOOST_CHECK( !rp2.connected() );
+    BOOST_CHECK( !rp3.connected() );
+    wp.createConnection(rp2);
+    BOOST_CHECK( wp.connected() );
+    BOOST_CHECK( rp1.connected() );
+    BOOST_CHECK( rp2.connected() );
+    BOOST_CHECK( !rp3.connected() );
+    wp.createConnection(rp3);
+    BOOST_CHECK( wp.connected() );
+    BOOST_CHECK( rp1.connected() );
+    BOOST_CHECK( rp2.connected() );
+    BOOST_CHECK( rp3.connected() );
+
+    BOOST_CHECK_EQUAL( wp.write(10), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp.write(15), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp.write(20), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp.write(25), WriteSuccess );
+    BOOST_CHECK_EQUAL( wp.write(30), WriteFailure ); // buffer full
+
+    int value = 0;
+    BOOST_CHECK( rp1.read(value));
+    BOOST_CHECK_EQUAL(10, value);
+    BOOST_CHECK( rp2.read(value));
+    BOOST_CHECK_EQUAL(15, value);
+    BOOST_CHECK( rp3.read(value));
+    BOOST_CHECK_EQUAL(20, value);
+    BOOST_CHECK( rp3.read(value));
+    BOOST_CHECK_EQUAL(25, value);
+    BOOST_CHECK_EQUAL(rp1.read(value), OldData);
+    BOOST_CHECK_EQUAL(25, value);
+    BOOST_CHECK_EQUAL(rp2.read(value), OldData);
+    BOOST_CHECK_EQUAL(25, value);
+    BOOST_CHECK_EQUAL(rp3.read(value), OldData);
+    BOOST_CHECK_EQUAL(25, value);
+
+    // Now removes only the R2
+    wp.disconnect(&rp2);
+    BOOST_CHECK_EQUAL( rp2.read(value), NoData );
+    BOOST_CHECK( wp.connected() );
+    BOOST_CHECK( rp1.connected() );
+    BOOST_CHECK( !rp2.connected() );
+    BOOST_CHECK( rp3.connected() );
+
+    BOOST_CHECK_EQUAL( wp.write(10), WriteSuccess );
+    BOOST_CHECK( rp1.read(value));
+    BOOST_CHECK_EQUAL(10, value);
+    BOOST_CHECK_EQUAL( rp3.read(value), OldData );
+    BOOST_CHECK_EQUAL(10, value);
+
+    // And finally the other ports as well
+    wp.disconnect(&rp1);
+    wp.disconnect(&rp3);
+    BOOST_CHECK( !wp.connected() );
+    BOOST_CHECK( !rp1.connected() );
+    BOOST_CHECK( !rp2.connected() );
+    BOOST_CHECK( !rp3.connected() );
+    BOOST_CHECK_EQUAL( rp1.read(value), NoData );
+    BOOST_CHECK_EQUAL( rp2.read(value), NoData );
+    BOOST_CHECK_EQUAL( rp3.read(value), NoData );
+}
+
+BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithSharedInputBuffer)
+{
+    ConnPolicy cp = ConnPolicy::buffer(4);
     cp.read_policy = ReadShared;
     OutputPort<int> wp1("W1");
     OutputPort<int> wp2("W2");

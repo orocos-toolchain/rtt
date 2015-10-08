@@ -326,6 +326,11 @@ timespec operator/(const timespec &a, unsigned long divider)
     return result;
 }
 
+bool operator<(const timespec &a, const timespec &b)
+{
+    return (a.tv_sec < b.tv_sec) || (a.tv_sec == b.tv_sec && a.tv_nsec < b.tv_nsec);
+}
+
 std::ostream &operator<<(std::ostream &stream, const timespec &tp)
 {
     std::ostringstream seconds;
@@ -359,6 +364,8 @@ public:
     }
 
     const Data &total() const { return total_; }
+    const Data &min() const { return min_; }
+    const Data &max() const { return max_; }
     const Data &last() const { return last_delta_; }
     std::size_t count() const { return count_; }
 
@@ -371,6 +378,10 @@ public:
     Timer &operator+=(const Timer &other) {
         total_ += other.last_delta_;
         last_delta_ = other.last_delta_;
+        if (!(min_.monotonic.tv_sec || min_.monotonic.tv_nsec) || (other.last_delta_.monotonic < min_.monotonic)) min_.monotonic = other.last_delta_.monotonic;
+        if (!(min_.cputime.tv_sec || min_.cputime.tv_nsec)     || (other.last_delta_.cputime < min_.cputime))     min_.cputime   = other.last_delta_.cputime;
+        if (!(max_.monotonic.tv_sec || max_.monotonic.tv_nsec) || (max_.monotonic < other.last_delta_.monotonic)) max_.monotonic = other.last_delta_.monotonic;
+        if (!(max_.cputime.tv_sec || max_.cputime.tv_nsec)     || (max_.cputime < other.last_delta_.cputime))     max_.cputime   = other.last_delta_.cputime;
         count_++;
         return *this;
     }
@@ -378,6 +389,8 @@ public:
     void reset()
     {
         total_.reset();
+        min_.reset();
+        max_.reset();
         tic_.reset();
         last_delta_.reset();
         count_ = 0;
@@ -404,6 +417,10 @@ public:
         last_delta_.cputime   = toc.cputime   - tic_.cputime;
         total_.monotonic = total_.monotonic + last_delta_.monotonic;
         total_.cputime   = total_.cputime   + last_delta_.cputime;
+        if (!(min_.monotonic.tv_sec || min_.monotonic.tv_nsec) || (last_delta_.monotonic < min_.monotonic)) min_.monotonic = last_delta_.monotonic;
+        if (!(min_.cputime.tv_sec || min_.cputime.tv_nsec)     || (last_delta_.cputime < min_.cputime))     min_.cputime   = last_delta_.cputime;
+        if (!(max_.monotonic.tv_sec || max_.monotonic.tv_nsec) || (max_.monotonic < last_delta_.monotonic)) max_.monotonic = last_delta_.monotonic;
+        if (!(max_.cputime.tv_sec || max_.cputime.tv_nsec)     || (max_.cputime < last_delta_.cputime))     max_.cputime   = last_delta_.cputime;
 
         tic_.reset();
         return *this;
@@ -418,7 +435,7 @@ public:
     };
 
 private:
-    Data total_;
+    Data total_, min_, max_;
     Data tic_;
     Data last_delta_;
     std::string name_;
@@ -497,11 +514,12 @@ public:
     typename AdaptorType::OutputPort output_port;
     SampleType sample;
     Timer timer;
+    std::map<FlowStatus, Timer> timer_by_status;
 
     Writer(const std::string &name, std::size_t index, std::size_t sample_size = 1, bool keep_last_written_value = false)
         : ReaderWriterTaskContextBase(name, index)
         , output_port("out")
-        , timer(getName() + "::read()")
+        , timer(getName() + "::write()")
     {
 #if RTT_VERSION_MAJOR == 2
         output_port.keepLastWrittenValue(keep_last_written_value);
@@ -509,6 +527,10 @@ public:
         AdaptorType::addPort(this, output_port);
         GenerateOrderedSample(sample, sample_size);
         AdaptorType::setDataSample(output_port, sample.detachedCopy());
+
+        timer_by_status[WriteSuccess] = Timer(timer.getName() + "[WriteSuccess]");
+        timer_by_status[WriteFailure] = Timer(timer.getName() + "[WriteFailure]");
+        timer_by_status[NotConnected] = Timer(timer.getName() + "[NotConnected]");
     }
 
     ~Writer()
@@ -519,10 +541,12 @@ public:
 
     void updateHook()
     {
+        FlowStatus fs = WriteSuccess;
         {
             Timer::Section section(timer);
-            AdaptorType::write(output_port, sample);
+            fs = AdaptorType::write(output_port, sample);
         }
+        timer_by_status[fs] += timer;
         this->afterUpdateHook(/* trigger = */ true);
     }
 };
@@ -783,9 +807,9 @@ public:
     }
 
     void printStats() {
-        std::cout << " Writer                                                       Monotonic Time [s]           CPU Time [s]                               " << std::endl;
-        std::cout << " Task                           #Cycles          #Writes   Total        Average      Total        Average      #Copies   #Assignments " << std::endl;
-        std::cout << "--------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+        std::cout << " Writer                                                              Monotonic Time [s]                       CPU Time [s]                                                        " << std::endl;
+        std::cout << " Task                           #Cycles          #Writes   Total        Average      Max          Total        Average      Max          #Copies   #Assign    #WSuccess #WFailure " << std::endl;
+        std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
         for(typename Writers::const_iterator task = writers.begin(); task != writers.end(); ++task) {
             std::cout << std::left
                       << " " << std::setw(30) << (*task)->getName()
@@ -794,17 +818,47 @@ public:
                       << " " << std::setw(9)  << (*task)->timer.count()
                       << " " << std::setw(12) << (*task)->timer.total().monotonic
                       << " " << std::setw(12) << ((*task)->timer.total().monotonic / (*task)->timer.count())
+                      << " " << std::setw(12) << (*task)->timer.max().monotonic
                       << " " << std::setw(12) << (*task)->timer.total().cputime
                       << " " << std::setw(12) << ((*task)->timer.total().cputime / (*task)->timer.count())
+                      << " " << std::setw(12) << (*task)->timer.max().cputime
                       << " " << std::setw(9) << (*task)->sample.getCopyCount()
                       << " " << std::setw(9) << (*task)->sample.getAssignmentCount()
+                      << "  " << std::setw(9) << (*task)->timer_by_status[WriteSuccess].count()
+                      << " " << std::setw(9) << (*task)->timer_by_status[WriteFailure].count()
                       << std::endl;
+            if ((*task)->timer_by_status[WriteSuccess].count()) {
+                std::cout << std::left
+                          << " " << std::setw(30) << "  (WriteSuccess)"
+                          << " " << std::setw(16) << ""
+                          << " " << std::setw(9)  << (*task)->timer_by_status[WriteSuccess].count()
+                          << " " << std::setw(12) << (*task)->timer_by_status[WriteSuccess].total().monotonic
+                          << " " << std::setw(12) << ((*task)->timer_by_status[WriteSuccess].total().monotonic / (*task)->timer_by_status[WriteSuccess].count())
+                          << " " << std::setw(12) << (*task)->timer_by_status[WriteSuccess].max().monotonic
+                          << " " << std::setw(12) << (*task)->timer_by_status[WriteSuccess].total().cputime
+                          << " " << std::setw(12) << ((*task)->timer_by_status[WriteSuccess].total().cputime / (*task)->timer_by_status[WriteSuccess].count())
+                          << " " << std::setw(12) << (*task)->timer_by_status[WriteSuccess].max().cputime
+                          << std::endl;
+            }
+            if ((*task)->timer_by_status[WriteFailure].count()) {
+                std::cout << std::left
+                          << " " << std::setw(30) << "  (WriteFailure)"
+                          << " " << std::setw(16) << ""
+                          << " " << std::setw(9)  << (*task)->timer_by_status[WriteFailure].count()
+                          << " " << std::setw(12) << (*task)->timer_by_status[WriteFailure].total().monotonic
+                          << " " << std::setw(12) << ((*task)->timer_by_status[WriteFailure].total().monotonic / (*task)->timer_by_status[WriteFailure].count())
+                          << " " << std::setw(12) << (*task)->timer_by_status[WriteFailure].max().monotonic
+                          << " " << std::setw(12) << (*task)->timer_by_status[WriteFailure].total().cputime
+                          << " " << std::setw(12) << ((*task)->timer_by_status[WriteFailure].total().cputime / (*task)->timer_by_status[WriteFailure].count())
+                          << " " << std::setw(12) << (*task)->timer_by_status[WriteFailure].max().cputime
+                          << std::endl;
+            }
         }
         std::cout << std::endl;
 
-        std::cout << " Reader                                                       Monotonic Time [s]           CPU Time [s]                                    " << std::endl;
-        std::cout << " Task                           #Cycles          #Reads    Total        Average      Total        Average      #NewData  #OldData  #NoData " << std::endl;
-        std::cout << "-------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+        std::cout << " Reader                                                              Monotonic Time [s]                       CPU Time [s]                                           " << std::endl;
+        std::cout << " Task                           #Cycles          #Reads    Total        Average      Max          Total        Average      Max          #NewData  #OldData  #NoData " << std::endl;
+        std::cout << "---------------------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
         for(typename Readers::const_iterator task = readers.begin(); task != readers.end(); ++task) {
             std::cout << std::left
                       << " " << std::setw(30) << (*task)->getName()
@@ -813,39 +867,53 @@ public:
                       << " " << std::setw(9)  << (*task)->timer.count()
                       << " " << std::setw(12) << (*task)->timer.total().monotonic
                       << " " << std::setw(12) << ((*task)->timer.total().monotonic / (*task)->timer.count())
+                      << " " << std::setw(12) << (*task)->timer.max().monotonic
                       << " " << std::setw(12) << (*task)->timer.total().cputime
                       << " " << std::setw(12) << ((*task)->timer.total().cputime / (*task)->timer.count())
+                      << " " << std::setw(12) << (*task)->timer.max().cputime
                       << " " << std::setw(9) << (*task)->timer_by_status[NewData].count()
                       << " " << std::setw(9) << (*task)->timer_by_status[OldData].count()
                       << " " << std::setw(9) << (*task)->timer_by_status[NoData].count()
                       << std::endl;
-            std::cout << std::left
-                      << " " << std::setw(30) << "  (NewData)"
-                      << " " << std::setw(16) << ""
-                      << " " << std::setw(9)  << (*task)->timer_by_status[NewData].count()
-                      << " " << std::setw(12) << (*task)->timer_by_status[NewData].total().monotonic
-                      << " " << std::setw(12) << ((*task)->timer_by_status[NewData].total().monotonic / (*task)->timer_by_status[NewData].count())
-                      << " " << std::setw(12) << (*task)->timer_by_status[NewData].total().cputime
-                      << " " << std::setw(12) << ((*task)->timer_by_status[NewData].total().cputime / (*task)->timer_by_status[NewData].count())
-                      << std::endl;
-            std::cout << std::left
-                      << " " << std::setw(30) << "  (OldData)"
-                      << " " << std::setw(16) << ""
-                      << " " << std::setw(9)  << (*task)->timer_by_status[OldData].count()
-                      << " " << std::setw(12) << (*task)->timer_by_status[OldData].total().monotonic
-                      << " " << std::setw(12) << ((*task)->timer_by_status[OldData].total().monotonic / (*task)->timer_by_status[OldData].count())
-                      << " " << std::setw(12) << (*task)->timer_by_status[OldData].total().cputime
-                      << " " << std::setw(12) << ((*task)->timer_by_status[OldData].total().cputime / (*task)->timer_by_status[OldData].count())
-                      << std::endl;
-            std::cout << std::left
-                      << " " << std::setw(30) << "  (NoData)"
-                      << " " << std::setw(16) << ""
-                      << " " << std::setw(9)  << (*task)->timer_by_status[NoData].count()
-                      << " " << std::setw(12) << (*task)->timer_by_status[NoData].total().monotonic
-                      << " " << std::setw(12) << ((*task)->timer_by_status[NoData].total().monotonic / (*task)->timer_by_status[NoData].count())
-                      << " " << std::setw(12) << (*task)->timer_by_status[NoData].total().cputime
-                      << " " << std::setw(12) << ((*task)->timer_by_status[NoData].total().cputime / (*task)->timer_by_status[NoData].count())
-                      << std::endl;
+            if ((*task)->timer_by_status[NewData].count()) {
+                std::cout << std::left
+                          << " " << std::setw(30) << "  (NewData)"
+                          << " " << std::setw(16) << ""
+                          << " " << std::setw(9)  << (*task)->timer_by_status[NewData].count()
+                          << " " << std::setw(12) << (*task)->timer_by_status[NewData].total().monotonic
+                          << " " << std::setw(12) << ((*task)->timer_by_status[NewData].total().monotonic / (*task)->timer_by_status[NewData].count())
+                          << " " << std::setw(12) << (*task)->timer_by_status[NewData].max().monotonic
+                          << " " << std::setw(12) << (*task)->timer_by_status[NewData].total().cputime
+                          << " " << std::setw(12) << ((*task)->timer_by_status[NewData].total().cputime / (*task)->timer_by_status[NewData].count())
+                          << " " << std::setw(12) << (*task)->timer_by_status[NewData].max().cputime
+                          << std::endl;
+            }
+            if ((*task)->timer_by_status[OldData].count()) {
+                std::cout << std::left
+                          << " " << std::setw(30) << "  (OldData)"
+                          << " " << std::setw(16) << ""
+                          << " " << std::setw(9)  << (*task)->timer_by_status[OldData].count()
+                          << " " << std::setw(12) << (*task)->timer_by_status[OldData].total().monotonic
+                          << " " << std::setw(12) << ((*task)->timer_by_status[OldData].total().monotonic / (*task)->timer_by_status[OldData].count())
+                          << " " << std::setw(12) << (*task)->timer_by_status[OldData].max().monotonic
+                          << " " << std::setw(12) << (*task)->timer_by_status[OldData].total().cputime
+                          << " " << std::setw(12) << ((*task)->timer_by_status[OldData].total().cputime / (*task)->timer_by_status[OldData].count())
+                          << " " << std::setw(12) << (*task)->timer_by_status[OldData].max().cputime
+                          << std::endl;
+            }
+            if ((*task)->timer_by_status[NoData].count()) {
+                std::cout << std::left
+                          << " " << std::setw(30) << "  (NoData)"
+                          << " " << std::setw(16) << ""
+                          << " " << std::setw(9)  << (*task)->timer_by_status[NoData].count()
+                          << " " << std::setw(12) << (*task)->timer_by_status[NoData].total().monotonic
+                          << " " << std::setw(12) << ((*task)->timer_by_status[NoData].total().monotonic / (*task)->timer_by_status[NoData].count())
+                          << " " << std::setw(12) << (*task)->timer_by_status[NoData].max().monotonic
+                          << " " << std::setw(12) << (*task)->timer_by_status[NoData].total().cputime
+                          << " " << std::setw(12) << ((*task)->timer_by_status[NoData].total().cputime / (*task)->timer_by_status[NoData].count())
+                          << " " << std::setw(12) << (*task)->timer_by_status[NoData].max().cputime
+                          << std::endl;
+            }
         }
         std::cout << std::endl;
     }
@@ -864,6 +932,8 @@ BOOST_AUTO_TEST_CASE( dataConnection )
     TestOptions options;
     const PortTypes PortType = DataPortType;
     typedef TestRunner<SampleType,PortType> RunnerType;
+
+//    options.policy.lock_policy = ConnPolicy::LOCKED;
 
     // 10 writers, 1 reader, push
     {
@@ -962,6 +1032,7 @@ BOOST_AUTO_TEST_CASE( emptyReads )
     const PortTypes PortType = DataPortType;
     typedef TestRunner<SampleType,PortType> RunnerType;
 
+//    options.policy.lock_policy = ConnPolicy::LOCKED;
     options.WriteMode = TestOptions::NoWrite;
     options.ReadMode = TestOptions::ReadSynchronous;
 
