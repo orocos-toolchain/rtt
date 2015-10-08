@@ -96,10 +96,10 @@ namespace RTT
                 return false;
             }
 
-            virtual FlowStatus data_sample(typename base::ChannelElement<T>::param_t sample)
+            virtual FlowStatus data_sample(typename base::ChannelElement<T>::param_t sample, bool reset = true)
             {
                 // send initial data sample to the other side using a plain write.
-                if (mis_sender) {
+                if (mis_sender && (!write_sample->getRawDataConst() || reset)) {
                     write_sample->setPointer(&sample);
                     // update MQSendRecv buffer:
                     mqNewSample(write_sample);
