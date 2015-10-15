@@ -83,9 +83,9 @@ namespace RTT
             if (has_initial_sample)
             {
                 T const& initial_sample = sample->Get();
-                if ( channel_el_input->data_sample(initial_sample, /* reset = */ false) ) {
+                if ( channel_el_input->data_sample(initial_sample, /* reset = */ false) != NotConnected ) {
                     if ( has_last_written_value && policy.init )
-                        return channel_el_input->write(initial_sample);
+                        return ( channel_el_input->write(initial_sample) != NotConnected );
                     return true;
                 } else {
                     Logger::In in("OutputPort");
@@ -95,7 +95,7 @@ namespace RTT
             }
 
             // even if we're not written, test the connection with a default sample.
-            return channel_el_input->data_sample( T() );
+            return ( channel_el_input->data_sample( T() ) != NotConnected );
         }
 
         /// True if \c sample has been set at least once by a call to write()
@@ -213,7 +213,7 @@ namespace RTT
             has_last_written_value = false;
 
             if (connected()) {
-                FlowStatus result = getEndpoint()->getWriteEndpoint()->data_sample(sample, /* reset = */ true);
+                WriteStatus result = getEndpoint()->getWriteEndpoint()->data_sample(sample, /* reset = */ true);
                 if (result == NotConnected) {
                     log(Error) << "A channel of port " << getName() << " has been invalidated during setDataSample(), it will be removed" << endlog();
                 }
@@ -240,7 +240,7 @@ namespace RTT
          * Writes a new sample to all receivers (if any).
          * @param sample The new sample to send out.
          */
-        FlowStatus write(const T& sample)
+        WriteStatus write(const T& sample)
         {
             if (keeps_last_written_value || keeps_next_written_value)
             {
@@ -250,7 +250,7 @@ namespace RTT
             }
             has_last_written_value = keeps_last_written_value;
 
-            FlowStatus result = NotConnected;
+            WriteStatus result = NotConnected;
             if (connected()) {
                 result = getEndpoint()->getWriteEndpoint()->write(sample);
                 if (result == NotConnected) {
@@ -261,7 +261,7 @@ namespace RTT
             return result;
         }
 
-        FlowStatus write(base::DataSourceBase::shared_ptr source)
+        WriteStatus write(base::DataSourceBase::shared_ptr source)
         {
             typename internal::AssignableDataSource<T>::shared_ptr ds =
                 boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >(source);
@@ -320,7 +320,7 @@ namespace RTT
         {
             Service* object = base::OutputPortInterface::createPortObject();
             // Force resolution on the overloaded write method
-            typedef FlowStatus (OutputPort<T>::*WriteSample)(T const&);
+            typedef WriteStatus (OutputPort<T>::*WriteSample)(T const&);
             WriteSample write_m = &OutputPort::write;
             typedef T (OutputPort<T>::*LastSample)() const;
             LastSample last_m = &OutputPort::getLastWrittenValue;

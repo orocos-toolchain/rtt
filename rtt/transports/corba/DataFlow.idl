@@ -11,6 +11,7 @@ module RTT
   module corba
   {
     enum CFlowStatus { CNoData, COldData, CNewData };
+    enum CWriteStatus { CWriteSuccess, CWriteFailure, CNotConnected };
     enum CConnectionModel { CData, CBuffer, CCircularBuffer };
     enum CLockPolicy { CUnsync, CLocked, CLockFree };
     enum CReadPolicy { CReadPolicyUnspecified, CReadShared, CReadUnordered };
@@ -76,7 +77,7 @@ module RTT
          * Writes into this Channel Element.
          * @return NotConnected if the channel became invalid
          */
-        CFlowStatus write(in any sample);
+        CWriteStatus write(in any sample);
 
         /**
          * Disconnect and dispose this object.

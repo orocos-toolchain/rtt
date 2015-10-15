@@ -68,6 +68,7 @@ namespace RTT
          // load the Orocos specific types:
          void loadOrocosTypes( TypeInfoRepository::shared_ptr ti ) {
              ti->addType( new StdTypeInfo<FlowStatus>("FlowStatus"));
+             ti->addType( new StdTypeInfo<WriteStatus>("WriteStatus"));
              ti->addType( new StdTypeInfo<SendStatus>("SendStatus"));
              ti->addType( new TemplateTypeInfo<PropertyBag, true>("PropertyBag") );
              ti->addType( new StructTypeInfo<ConnPolicy>("ConnPolicy") );

@@ -72,7 +72,7 @@ namespace RTT { namespace internal {
          *
          * @return true if there was room in the FIFO for the new sample, and false otherwise.
          */
-        virtual FlowStatus write(param_t sample)
+        virtual WriteStatus write(param_t sample)
         {
             if (!buffer->Push(sample)) return WriteFailure;
             return this->signal() ? WriteSuccess : WriteFailure;
@@ -114,7 +114,7 @@ namespace RTT { namespace internal {
             base::ChannelElement<T>::clear();
         }
 
-        virtual FlowStatus data_sample(param_t sample)
+        virtual WriteStatus data_sample(param_t sample)
         {
             if (!buffer->data_sample(sample)) return WriteFailure;
             return base::ChannelElement<T>::data_sample(sample);

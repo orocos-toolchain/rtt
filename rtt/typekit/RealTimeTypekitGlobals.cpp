@@ -55,16 +55,17 @@ namespace RTT
         GlobalsRepository::shared_ptr globals = GlobalsRepository::Instance();
 
         // Data Flow enums:
-        globals->setValue( new Constant<FlowStatus>("NoData",NoData) );
-        globals->setValue( new Constant<FlowStatus>("OldData",OldData) );
-        globals->setValue( new Constant<FlowStatus>("NewData",NewData) );
-        globals->setValue( new Constant<FlowStatus>("WriteSuccess",WriteSuccess) );
-        globals->setValue( new Constant<FlowStatus>("WriteFailure",WriteFailure) );
-        globals->setValue( new Constant<FlowStatus>("NotConnected",NotConnected) );
-        globals->setValue( new Constant<SendStatus>("SendFailure",SendFailure) );
-        globals->setValue( new Constant<SendStatus>("SendNotReady",SendNotReady) );
-        globals->setValue( new Constant<SendStatus>("SendSuccess",SendSuccess) );
+        globals->setValue( new Constant<FlowStatus>("NoData", NoData) );
+        globals->setValue( new Constant<FlowStatus>("OldData", OldData) );
+        globals->setValue( new Constant<FlowStatus>("NewData", NewData) );
+        globals->setValue( new Constant<WriteStatus>("WriteSuccess", WriteSuccess) );
+        globals->setValue( new Constant<WriteStatus>("WriteFailure", WriteFailure) );
+        globals->setValue( new Constant<WriteStatus>("NotConnected", NotConnected) );
+        globals->setValue( new Constant<SendStatus>("SendFailure", SendFailure) );
+        globals->setValue( new Constant<SendStatus>("SendNotReady", SendNotReady) );
+        globals->setValue( new Constant<SendStatus>("SendSuccess", SendSuccess) );
 #ifndef ORO_EMBEDDED
+        globals->addAttribute( "DefaultConnPolicy", ConnPolicy::Default() );
         globals->setValue( new Constant<int>("DATA", ConnPolicy::DATA) );
         globals->setValue( new Constant<int>("BUFFER", ConnPolicy::BUFFER) );
         globals->setValue( new Constant<int>("CIRCULAR_BUFFER", ConnPolicy::CIRCULAR_BUFFER) );

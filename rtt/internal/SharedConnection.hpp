@@ -159,9 +159,9 @@ namespace internal {
          *
          * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
          */
-        virtual FlowStatus write(param_t sample)
+        virtual WriteStatus write(param_t sample)
         {
-            FlowStatus result = mstorage->write(sample);
+            WriteStatus result = mstorage->write(sample);
             if (result == WriteSuccess) {
                 if (!this->signal()) {
                     return WriteFailure;
@@ -198,7 +198,7 @@ namespace internal {
          *
          * @returns false if an error occured that requires the channel to be invalidated.
          */
-        virtual FlowStatus data_sample(param_t sample)
+        virtual WriteStatus data_sample(param_t sample)
         {
             if (!mstorage_initialized) {
                 mstorage->data_sample(sample);

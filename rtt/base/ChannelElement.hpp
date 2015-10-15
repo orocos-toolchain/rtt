@@ -85,7 +85,7 @@ namespace RTT { namespace base {
          *
          * @returns false if an error occured that requires the channel to be invalidated.
          */
-        virtual FlowStatus data_sample(param_t sample, bool reset = true)
+        virtual WriteStatus data_sample(param_t sample, bool reset = true)
         {
             typename ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< ChannelElement<T> >(getOutput());
             if (output)
@@ -106,7 +106,7 @@ namespace RTT { namespace base {
          *
          * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
          */
-        virtual FlowStatus write(param_t sample)
+        virtual WriteStatus write(param_t sample)
         {
             typename ChannelElement<T>::shared_ptr output = getOutput();
             if (output)
@@ -278,9 +278,9 @@ namespace RTT { namespace base {
         using typename ChannelElement<T>::param_t;
         using typename ChannelElement<T>::reference_t;
 
-        virtual FlowStatus data_sample(param_t sample, bool reset = true)
+        virtual WriteStatus data_sample(param_t sample, bool reset = true)
         {
-            FlowStatus result = WriteSuccess;
+            WriteStatus result = WriteSuccess;
             bool at_least_one_output_is_disconnected = false;
             bool at_least_one_output_is_connected = false;
             assert((write_policy != WriteShared) || (outputs.size() <= 1));
@@ -291,7 +291,7 @@ namespace RTT { namespace base {
                 for(Outputs::iterator it = outputs.begin(); it != outputs.end(); ++it)
                 {
                     typename ChannelElement<T>::shared_ptr output = it->channel->narrow<T>();
-                    FlowStatus fs = output->data_sample(sample, reset);
+                    WriteStatus fs = output->data_sample(sample, reset);
                     if (result < fs) result = fs;
                     if (fs == NotConnected) {
                         it->disconnected = true;
@@ -315,9 +315,9 @@ namespace RTT { namespace base {
          *
          * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
          */
-        virtual FlowStatus write(param_t sample)
+        virtual WriteStatus write(param_t sample)
         {
-            FlowStatus result = WriteSuccess;
+            WriteStatus result = WriteSuccess;
             bool at_least_one_output_is_disconnected = false;
             bool at_least_one_output_is_connected = false;
             assert((write_policy != WriteShared) || (outputs.size() <= 1));
@@ -328,7 +328,7 @@ namespace RTT { namespace base {
                 for(Outputs::iterator it = outputs.begin(); it != outputs.end(); ++it)
                 {
                     typename ChannelElement<T>::shared_ptr output = it->channel->narrow<T>();
-                    FlowStatus fs = output->write(sample);
+                    WriteStatus fs = output->write(sample);
                     if (it->mandatory && (result < fs)) result = fs;
                     if (fs == NotConnected) {
                         it->disconnected = true;

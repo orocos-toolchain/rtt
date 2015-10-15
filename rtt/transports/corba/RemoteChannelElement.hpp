@@ -162,7 +162,7 @@ namespace RTT {
                     //log(Debug) <<"...read..."<<endlog();
                     while ( this->read(sample, false) == NewData && valid) {
                         //log(Debug) <<"...write..."<<endlog();
-                        if ( this->write(sample) == false )
+                        if ( this->write(sample) == NotConnected )
                             valid = false;
                         //log(Debug) <<"...next read?..."<<endlog();
                     }
@@ -308,9 +308,9 @@ namespace RTT {
                 return (CFlowStatus)fs;
             }
 
-            FlowStatus write(typename base::ChannelElement<T>::param_t sample)
+            WriteStatus write(typename base::ChannelElement<T>::param_t sample)
             {
-                FlowStatus result;
+                WriteStatus result;
 
                 // try to write locally first
                 result = base::ChannelElement<T>::write(sample);
@@ -339,8 +339,8 @@ namespace RTT {
                     transport.updateAny(&const_ref_data_source, write_any);
 
                     if (mandatory) {
-                        CFlowStatus cfs = remote_side->write(write_any);
-                        return (FlowStatus)cfs;
+                        CWriteStatus cfs = remote_side->write(write_any);
+                        return (WriteStatus)cfs;
                     } else {
                         remote_side->write(write_any);
                         return WriteSuccess;
@@ -363,18 +363,18 @@ namespace RTT {
             /**
              * CORBA IDL function.
              */
-            CFlowStatus write(const ::CORBA::Any& sample) ACE_THROW_SPEC ((
+            CWriteStatus write(const ::CORBA::Any& sample) ACE_THROW_SPEC ((
                     CORBA::SystemException
                   ))
             {
                 typename internal::ValueDataSource<T> value_data_source;
                 value_data_source.ref();
                 transport.updateFromAny(&sample, &value_data_source);
-                FlowStatus fs = base::ChannelElement<T>::write(value_data_source.rvalue());
-                return (CFlowStatus)fs;
+                WriteStatus fs = base::ChannelElement<T>::write(value_data_source.rvalue());
+                return (CWriteStatus)fs;
             }
 
-            virtual FlowStatus data_sample(typename base::ChannelElement<T>::param_t sample)
+            virtual WriteStatus data_sample(typename base::ChannelElement<T>::param_t sample)
             {
                 // we don't pass it on through CORBA (yet).
                 // If an oob transport is used, that one will send it through.

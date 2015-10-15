@@ -39,7 +39,8 @@ template <typename T, PortTypes> struct Adaptor;
 
     using RTT::TaskContext;
     using RTT::ConnPolicy;
-    enum FlowStatus { NoData, OldData, NewData, WriteSuccess, WriteFailure, NotConnected };
+    enum FlowStatus { NoData, OldData, NewData };
+    enum WriteStatus { WriteSuccess, WriteFailure, NotConnected };
 
     using RTT::OS::Mutex;
     using RTT::OS::MutexLock;
@@ -73,7 +74,7 @@ template <typename T, PortTypes> struct Adaptor;
 
         }
 
-        static FlowStatus write(OutputPort &port, const T &sample) {
+        static WriteStatus write(OutputPort &port, const T &sample) {
 
         }
 
@@ -105,7 +106,7 @@ template <typename T, PortTypes> struct Adaptor;
 
         }
 
-        static FlowStatus write(OutputPort &port, const T &sample) {
+        static WriteStatus write(OutputPort &port, const T &sample) {
 
         }
 
@@ -170,11 +171,11 @@ template <typename T, PortTypes> struct Adaptor;
         }
 
 #if RTT_VERSION_GTE(2,8,99)
-        static FlowStatus write(OutputPort &port, const T &sample) {
+        static WriteStatus write(OutputPort &port, const T &sample) {
             return port.write(sample);
         }
 #else
-        static FlowStatus write(OutputPort &port, const T &sample) {
+        static WriteStatus write(OutputPort &port, const T &sample) {
             port.write(sample);
             return WriteSuccess;
         }
@@ -514,7 +515,7 @@ public:
     typename AdaptorType::OutputPort output_port;
     SampleType sample;
     Timer timer;
-    std::map<FlowStatus, Timer> timer_by_status;
+    std::map<WriteStatus, Timer> timer_by_status;
 
     Writer(const std::string &name, std::size_t index, std::size_t sample_size = 1, bool keep_last_written_value = false)
         : ReaderWriterTaskContextBase(name, index)
@@ -541,7 +542,7 @@ public:
 
     void updateHook()
     {
-        FlowStatus fs = WriteSuccess;
+        WriteStatus fs = WriteSuccess;
         {
             Timer::Section section(timer);
             fs = AdaptorType::write(output_port, sample);

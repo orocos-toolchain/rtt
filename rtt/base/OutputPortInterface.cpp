@@ -78,7 +78,7 @@ bool OutputPortInterface::addConnection(ConnID* port_id, ChannelElementBase::sha
     return false;
 }
 
-FlowStatus OutputPortInterface::write(DataSourceBase::shared_ptr source)
+WriteStatus OutputPortInterface::write(DataSourceBase::shared_ptr source)
 { throw std::runtime_error("calling default OutputPortInterface::write(datasource) implementation"); }
 
 bool OutputPortInterface::createDataConnection( InputPortInterface& input, int lock_policy )

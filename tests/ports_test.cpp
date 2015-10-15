@@ -874,7 +874,7 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
     wp1.createConnection( rp1 );
 
     // Test OperationCallers set/get
-    OperationCaller<FlowStatus(double const&)> mset;
+    OperationCaller<WriteStatus(double const&)> mset;
     OperationCaller<FlowStatus(double&)> mget;
 
     mset = tc->provides("Write")->getOperation("write");

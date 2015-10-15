@@ -96,7 +96,7 @@ namespace RTT
                 return false;
             }
 
-            virtual FlowStatus data_sample(typename base::ChannelElement<T>::param_t sample, bool reset = true)
+            virtual WriteStatus data_sample(typename base::ChannelElement<T>::param_t sample, bool reset = true)
             {
                 // send initial data sample to the other side using a plain write.
                 if (mis_sender && (!write_sample->getRawDataConst() || reset)) {
@@ -159,7 +159,7 @@ namespace RTT
              * @param sample the data sample to write
              * @return true if it could be sent.
              */
-            FlowStatus write(typename base::ChannelElement<T>::param_t sample)
+            WriteStatus write(typename base::ChannelElement<T>::param_t sample)
             {
                 write_sample->setPointer(&sample);
                 if (!mqWrite(write_sample)) {
