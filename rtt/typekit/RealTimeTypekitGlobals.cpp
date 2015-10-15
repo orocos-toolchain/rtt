@@ -63,6 +63,7 @@ namespace RTT
         globals->setValue( new Constant<SendStatus>("SendSuccess", SendSuccess) );
 
 #ifndef ORO_EMBEDDED
+        globals->addAttribute( "DefaultConnPolicy", ConnPolicy::Default() );
         globals->setValue( new Constant<int>("DATA", ConnPolicy::DATA) );
         globals->setValue( new Constant<int>("BUFFER", ConnPolicy::BUFFER) );
         globals->setValue( new Constant<int>("CIRCULAR_BUFFER", ConnPolicy::CIRCULAR_BUFFER) );

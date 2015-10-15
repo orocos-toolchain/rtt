@@ -31,15 +31,13 @@
 
 namespace RTT {
 
-ReadPolicy ReadPolicyDefault = ReadUnordered;
-
 std::ostream &operator<<(std::ostream &os, const ReadPolicy &rp)
 {
     switch(rp) {
         case UnspecifiedReadPolicy: os << "(unspecified read policy)"; break;
         case ReadShared:            os << "ReadShared"; break;
         case ReadUnordered:         os << "ReadUnordered"; break;
-        default:                                  os << "(unknown read policy)"; break;
+        default:                    os << "(unknown read policy)"; break;
     }
     return os;
 }

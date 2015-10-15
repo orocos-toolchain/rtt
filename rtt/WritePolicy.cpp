@@ -31,15 +31,13 @@
 
 namespace RTT {
 
-WritePolicy WritePolicyDefault = WritePrivate;
-
 std::ostream &operator<<(std::ostream &os, const WritePolicy &wp)
 {
     switch(wp) {
         case UnspecifiedWritePolicy: os << "(unspecified write policy)"; break;
         case WritePrivate:           os << "WritePrivate"; break;
         case WriteShared:            os << "WriteShared"; break;
-        default:                                  os << "(unknown write policy)"; break;
+        default:                     os << "(unknown write policy)"; break;
     }
     return os;
 }

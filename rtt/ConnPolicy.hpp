@@ -126,6 +126,15 @@ namespace RTT {
         static const bool PULL = true;
 
         /**
+         * Returns the process-wide default ConnPolicy that serves as a template for new ConnPolicy instances.
+         *
+         * This method returns a non-const reference and you can change the defaults. This is not thread-safe
+         * and should only be done very early in the deployment phase, before the first component is loaded and
+         * before connecting ports.
+         */
+        static ConnPolicy &Default();
+
+        /**
          * Create a policy for a (lock-free) fifo buffer connection of a given size.
          * @param size The size of the buffer in this connection
          * @param lock_policy The locking policy
@@ -155,14 +164,33 @@ namespace RTT {
         static ConnPolicy data(int lock_policy = LOCK_FREE, bool init_connection = true, bool pull = false);
 
         /**
-         * The default policy is data driven, lock-free and local.
-         * It is unsafe to rely on these defaults. It is prefered
-         * to use the above buffer() and data() functions.
+         * Constructs a new ConnPolicy instance based on the current
+         * default settings as returned by ConnPolicy::Default().
+         */
+        ConnPolicy();
+
+        /**
+         * Constructs a new ConnPolicy instance based on the current
+         * default settings as returned by ConnPolicy::Default(), but
+         * overrides the type.
+         * You should not use this contructor anymore and prefer the static
+         * methods \ref ConnPolicy::data(), \ref ConnPolicy::buffer(), etc. instead.
+         * @param type
+         * @deprecated
+         */
+        explicit ConnPolicy(int type);
+
+        /**
+         * Constructs a new ConnPolicy instance based on the current
+         * default settings as returned by ConnPolicy::Default(), but
+         * overrides the type and lock_policy.
+         * You should not use this contructor anymore and prefer the static
+         * methods \ref ConnPolicy::data(), \ref ConnPolicy::buffer(), etc. instead.
          * @param type
          * @param lock_policy
-         * @return
+         * @deprecated
          */
-        explicit ConnPolicy(int type = DATA, int lock_policy = LOCK_FREE);
+        explicit ConnPolicy(int type, int lock_policy);
 
         /** DATA, BUFFER or CIRCULAR_BUFFER */
         int    type;
@@ -227,6 +255,10 @@ namespace RTT {
          * work around name clashes or if the transport protocol documents to do so.
          */
         mutable std::string name_id;
+
+    private:
+        struct ConnPolicyDefault;
+        ConnPolicy(const ConnPolicyDefault &);
     };
 
     std::ostream &operator<<(std::ostream &os, const ConnPolicy &cp);

@@ -54,10 +54,32 @@ using namespace std;
 
 namespace RTT
 {
+    struct ConnPolicy::ConnPolicyDefault {};
+    ConnPolicy::ConnPolicy(const ConnPolicyDefault &)
+        : type(DATA)
+        , size(0)
+        , lock_policy(LOCK_FREE)
+        , init(false)
+        , pull(false)
+        , read_policy(ReadUnordered)
+        , write_policy(WritePrivate)
+        , mandatory(true)
+        , transport(0)
+        , data_size(0)
+    {}
+
+    ConnPolicy &ConnPolicy::Default()
+    {
+        static ConnPolicy *s_default_policy = new ConnPolicy(ConnPolicyDefault());
+        return *s_default_policy;
+    }
+
     ConnPolicy ConnPolicy::buffer(int size, int lock_policy /*= LOCK_FREE*/, bool init_connection /*= false*/, bool pull /*= false*/)
     {
-        ConnPolicy result(BUFFER, lock_policy);
+        ConnPolicy result;
+        result.type = BUFFER;
         result.size = size;
+        result.lock_policy = lock_policy;
         result.init = init_connection;
         result.pull = pull;
         return result;
@@ -65,8 +87,10 @@ namespace RTT
 
     ConnPolicy ConnPolicy::circularBuffer(int size, int lock_policy /*= LOCK_FREE*/, bool init_connection /*= false*/, bool pull /*= false*/)
     {
-        ConnPolicy result(CIRCULAR_BUFFER, lock_policy);
+        ConnPolicy result;
+        result.type = CIRCULAR_BUFFER;
         result.size = size;
+        result.lock_policy = lock_policy;
         result.init = init_connection;
         result.pull = pull;
         return result;
@@ -74,23 +98,51 @@ namespace RTT
 
     ConnPolicy ConnPolicy::data(int lock_policy /*= LOCK_FREE*/, bool init_connection /*= true*/, bool pull /*= false*/)
     {
-        ConnPolicy result(DATA, lock_policy);
+        ConnPolicy result;
+        result.type = DATA;
+        result.lock_policy = lock_policy;
         result.init = init_connection;
         result.pull = pull;
         return result;
     }
 
-    ConnPolicy::ConnPolicy(int type /* = DATA*/, int lock_policy /*= LOCK_FREE*/)
+    ConnPolicy::ConnPolicy()
+        : type(Default().type)
+        , size(Default().size)
+        , lock_policy(Default().lock_policy)
+        , init(Default().init)
+        , pull(Default().pull)
+        , read_policy(Default().read_policy)
+        , write_policy(Default().write_policy)
+        , mandatory(Default().mandatory)
+        , transport(Default().transport)
+        , data_size(Default().data_size)
+    {}
+
+    ConnPolicy::ConnPolicy(int type)
         : type(type)
-        , size(0)
+        , size(Default().size)
+        , lock_policy(Default().lock_policy)
+        , init(Default().init)
+        , pull(Default().pull)
+        , read_policy(Default().read_policy)
+        , write_policy(Default().write_policy)
+        , mandatory(Default().mandatory)
+        , transport(Default().transport)
+        , data_size(Default().data_size)
+    {}
+
+    ConnPolicy::ConnPolicy(int type, int lock_policy)
+        : type(type)
+        , size(Default().size)
         , lock_policy(lock_policy)
-        , init(false)
-        , pull(false)
-        , read_policy(ReadPolicyDefault)
-        , write_policy(WritePolicyDefault)
-        , mandatory(true)
-        , transport(0)
-        , data_size(0)
+        , init(Default().init)
+        , pull(Default().pull)
+        , read_policy(Default().read_policy)
+        , write_policy(Default().write_policy)
+        , mandatory(Default().mandatory)
+        , transport(Default().transport)
+        , data_size(Default().data_size)
     {}
 
     std::ostream &operator<<(std::ostream &os, const ConnPolicy &cp)
