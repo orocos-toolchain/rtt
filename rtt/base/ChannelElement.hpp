@@ -43,6 +43,7 @@
 #include <boost/call_traits.hpp>
 #include "ChannelElementBase.hpp"
 #include "../ReadPolicy.hpp"
+#include "../ConnPolicy.hpp"
 #include "../FlowStatus.hpp"
 #include "../os/MutexLock.hpp"
 
@@ -175,7 +176,7 @@ namespace RTT { namespace base {
         typename ChannelElement<T>::shared_ptr currentInput() {
             typename ChannelElement<T>::shared_ptr last;
             ReadPolicy read_policy = getReadPolicy();
-            if (!read_policy) read_policy = ReadPolicyDefault;
+            if (!read_policy) read_policy = ConnPolicy::Default().read_policy;
             switch(read_policy) {
             case ReadUnordered:
                 last = last_read;

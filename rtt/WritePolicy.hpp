@@ -57,8 +57,6 @@ namespace RTT {
         WriteShared
     } WritePolicy;
 
-    extern WritePolicy WritePolicyDefault;
-
     std::ostream &operator<<(std::ostream &os, const WritePolicy &wp);
     std::istream &operator>>(std::istream &is, WritePolicy &wp);
 }

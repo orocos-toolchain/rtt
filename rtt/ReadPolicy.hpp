@@ -58,8 +58,6 @@ namespace RTT {
         ReadUnordered,
     } ReadPolicy;
 
-    extern ReadPolicy ReadPolicyDefault;
-
     std::ostream &operator<<(std::ostream &os, const ReadPolicy &rp);
     std::istream &operator>>(std::istream &is, ReadPolicy &rp);
 }
