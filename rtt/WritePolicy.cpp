@@ -1,13 +1,4 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 22 11:59:07 CEST 2009  CorbaConnPolicy.cpp
-
-                        CorbaConnPolicy.cpp -  description
-                           -------------------
-    begin                : Thu October 22 2009
-    copyright            : (C) 2009 Peter Soetens
-    email                : peter@thesourcworks.com
-
- ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
  *   License as published by the Free Software Foundation;                 *
@@ -35,46 +26,32 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "WritePolicy.hpp"
+#include <iostream>
 
-/*
- * CorbaConnPolicy.cpp
- *
- *  Created on: Oct 16, 2009
- *      Author: kaltan
- */
+namespace RTT {
 
-#include "CorbaConnPolicy.hpp"
+WritePolicy WritePolicyDefault = WritePrivate;
 
-RTT::corba::CConnPolicy toCORBA(RTT::ConnPolicy const& policy)
+std::ostream &operator<<(std::ostream &os, const WritePolicy &wp)
 {
-    RTT::corba::CConnPolicy corba_policy;
-    corba_policy.type         = RTT::corba::CConnectionModel(policy.type);
-    corba_policy.size         = policy.size;
-    corba_policy.lock_policy  = RTT::corba::CLockPolicy(policy.lock_policy);
-    corba_policy.init         = policy.init;
-    corba_policy.pull         = policy.pull;
-    corba_policy.read_policy  = RTT::corba::CReadPolicy(policy.read_policy);
-    corba_policy.write_policy = RTT::corba::CWritePolicy(policy.write_policy);
-    corba_policy.mandatory    = policy.mandatory;
-    corba_policy.data_size    = policy.data_size;
-    corba_policy.transport    = policy.transport;
-    corba_policy.name_id      = CORBA::string_dup( policy.name_id.c_str() );
-    return corba_policy;
+    switch(wp) {
+        case UnspecifiedWritePolicy: os << "(unspecified write policy)"; break;
+        case WritePrivate:           os << "WritePrivate"; break;
+        case WriteShared:            os << "WriteShared"; break;
+        default:                                  os << "(unknown write policy)"; break;
+    }
+    return os;
 }
 
-RTT::ConnPolicy toRTT(RTT::corba::CConnPolicy const& corba_policy)
+std::istream &operator>>(std::istream &is, WritePolicy &wp)
 {
-    RTT::ConnPolicy policy;
-    policy.type         = corba_policy.type;
-    policy.size         = corba_policy.size;
-    policy.lock_policy  = corba_policy.lock_policy;
-    policy.init         = corba_policy.init;
-    policy.pull         = corba_policy.pull;
-    policy.read_policy  = RTT::ReadPolicy(corba_policy.read_policy);
-    policy.write_policy = RTT::WritePolicy(corba_policy.write_policy);
-    policy.mandatory    = corba_policy.mandatory;
-    policy.data_size    = corba_policy.data_size;
-    policy.transport    = corba_policy.transport;
-    policy.name_id      = corba_policy.name_id;
-    return policy;
+    std::string s;
+    is >> s;
+    if (s == "WritePrivate")     wp = WritePrivate;
+    else if (s == "WriteShared") wp = WriteShared;
+    else                         wp = UnspecifiedWritePolicy;
+    return is;
 }
+
+} // namespace RTT

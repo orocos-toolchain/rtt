@@ -43,6 +43,8 @@
 #include <iosfwd>
 #include "rtt-fwd.hpp"
 #include "rtt-config.h"
+#include "ReadPolicy.hpp"
+#include "WritePolicy.hpp"
 
 namespace RTT {
 
@@ -56,6 +58,7 @@ namespace RTT {
      *       \a size number of elements can be stored until the reader reads
      *       them. BUFFER drops newer samples on full, CIRCULAR_BUFFER drops older samples on full.
      *       UNBUFFERED is only valid for output streaming connections.
+     *
      *  <li> the locking policy: LOCKED, LOCK_FREE or UNSYNC. This defines how locking is done in the
      *       connection. For now, only three policies are available. LOCKED uses
      *       mutexes, LOCK_FREE uses a lock free method and UNSYNC means there's no
@@ -68,16 +71,21 @@ namespace RTT {
      *       keepsLastWrittenValue() set to true (see
      *       OutputPortInterface::keepLastWrittenValue()).
      *
-     *  <li> if the data is pushed or pulled on the connection. In the pushed case (the
-     *       default), new data is actively pushed to an input buffer (at the reader's
-     *       process in case of multi-process communication). In the pulled case, data
-     *       must be requested by the reader.
+     *  <li> if the data is pushed or pulled on the connection. This has an
+     *       effect only on multi-process communication. In the pushed case (the
+     *       default), new data is actively pushed to the reader's process. In
+     *       the pulled case, data must be requested by the reader.
      *
-     *  <li> if the connection is shared. For shared connections input ports in the
-     *       same process read from the same data or buffer element. Every written
-     *       value will be read by exactly one reader as new data. The default
-     *       connection type is private, in which case every reader will receive written
-     *       values independently.
+     *  <li> the read policy, which influences in what way multiple connections to the
+     *       same input port are read. The default is PreferLastRead, where the input
+     *       port first checks the connection where it read the last sample from and only
+     *       then starts to iterate over all others. See \ref ReadPolicy to see all available options.
+     *       Not all combinations of read policy and the pull flag are valid and non-standard transports
+     *       can have additional restrictions.
+     *
+     *  <li> the write policy, which influences how an output port serves multiple connections.
+     *       By default, all connections are written independently (WritePrivate). See \ref WritePolicy
+     *       to see all available options.
      *
      *  <li> if the connection is mandatory. Mandatory connections will let the write()
      *       call fail if the new sample cannot be successfully written. Default connections
@@ -88,10 +96,12 @@ namespace RTT {
      *       local in-process communication is used, unless one of the ports is
      *       remote. If the transport type deviates from the default remote transport
      *       of one of the ports, an out-of-band transport is setup using that type.
+     *
      *  <li> the data size. Some protocols require a hint on big the data will be,
      *       especially if the data is dynamically sized (like std::vector<double>).
      *       If you leave this empty (recommended), the protocol will try to guess it.
      *       The unit of data size is protocol dependent.
+     *
      *  <li> the name of the connection. Can be used to coordinate out of band
      *       transport such that they can find each other by name. In practice,
      *       the name contains a port number or file descriptor to be opened.
@@ -115,40 +125,34 @@ namespace RTT {
         static const bool PUSH = false;
         static const bool PULL = true;
 
-        static const bool PRIVATE = false;
-        static const bool SHARED  = true;
-
         /**
          * Create a policy for a (lock-free) fifo buffer connection of a given size.
          * @param size The size of the buffer in this connection
          * @param lock_policy The locking policy
          * @param init_connection If an initial sample should be pushed into the buffer upon creation.
-         * @param pull should the consumer pull itself ?
-         * @param shared If multiple readers share the same buffer element ?
+         * @param pull In inter-process cases, should the consumer pull itself ?
          * @return the specified policy.
          */
-        static ConnPolicy buffer(int size, int lock_policy = LOCK_FREE, bool init_connection = false, bool pull = false, bool shared = false);
+        static ConnPolicy buffer(int size, int lock_policy = LOCK_FREE, bool init_connection = false, bool pull = false);
 
         /**
          * Create a policy for a (lock-free) \b circular fifo buffer connection of a given size.
          * @param size The size of the buffer in this connection
          * @param lock_policy The locking policy
          * @param init_connection If an initial sample should be pushed into the buffer upon creation.
-         * @param pull should the consumer pull itself ?
-         * @param shared If multiple readers share the same buffer element ?
+         * @param pull In inter-process cases, should the consumer pull itself ?
          * @return the specified policy.
          */
-        static ConnPolicy circularBuffer(int size, int lock_policy = LOCK_FREE, bool init_connection = false, bool pull = false, bool shared = false);
+        static ConnPolicy circularBuffer(int size, int lock_policy = LOCK_FREE, bool init_connection = false, bool pull = false);
 
         /**
-         * Create a policy for a (lock-free) data connection.
+         * Create a policy for a (lock-free) shared data connection of a given size.
          * @param lock_policy The locking policy
          * @param init_connection If the data object should be initialised with the last value of the OutputPort upon creation.
-         * @param pull should the consumer pull data itself ?
-         * @param shared If multiple readers share the same data element ?
+         * @param pull In inter-process cases, should the consumer pull data itself ?
          * @return the specified policy.
          */
-        static ConnPolicy data(int lock_policy = LOCK_FREE, bool init_connection = true, bool pull = false, bool shared = false);
+        static ConnPolicy data(int lock_policy = LOCK_FREE, bool init_connection = true, bool pull = false);
 
         /**
          * The default policy is data driven, lock-free and local.
@@ -163,6 +167,12 @@ namespace RTT {
         /** DATA, BUFFER or CIRCULAR_BUFFER */
         int    type;
 
+        /** If the connection is a buffered connection, the size of the buffer */
+        int    size;
+
+        /** This is the locking policy on the connection */
+        int    lock_policy;
+
         /** If true, one should initialize the connection's value with the last
          * value written on the writer port. This is only possible if the writer
          * port has the keepsLastWrittenValue() flag set (i.e. if it remembers
@@ -170,29 +180,29 @@ namespace RTT {
          */
         bool   init;
 
-        /** This is the locking policy on the connection */
-        int    lock_policy;
-
         /** If true, then the sink will have to pull data. Otherwise, it is pushed
          * from the source. In both cases, the reader side is notified that new
          * data is available by base::ChannelElementBase::signal()
          */
         bool   pull;
 
-        /** If true, the connection is shared and all readers read from the same
-         * data or buffer. Otherwise, every reader will have its own data or buffer
-         * element.
+        /**
+         * The policy on how to read from this connection. See \ref ReadPolicy for possible options.
          */
-        bool   shared;
+        ReadPolicy read_policy;
+
+        /**
+         * The policy on how to write to this connection. See \ref WritePolicy for possible options.
+         */
+        WritePolicy write_policy;
 
         /**
          * Whether the connection described by this connection policy is mandatory, which
-         * means that write operations fail if
+         * means that write operations will fail if the connection could not be served, e.g. due
+         * to a full input buffer or because of a broken remote connection.
+         * By default, all connections are mandatory.
          */
         bool mandatory;
-
-        /** If the connection is a buffered connection, the size of the buffer */
-        int    size;
 
         /**
          * The prefered transport used. 0 is local (in process), a higher number
@@ -217,16 +227,10 @@ namespace RTT {
          * work around name clashes or if the transport protocol documents to do so.
          */
         mutable std::string name_id;
-
-        static std::string typeToString(int type, int size);
-        static std::string lock_policyToString(int lock_policy);
-        static std::string pullToString(bool pull);
-        static std::string sharedToString(bool shared);
-        std::string toString() const;
     };
-}
 
-std::ostream &operator<<(std::ostream &os, const RTT::ConnPolicy &cp);
+    std::ostream &operator<<(std::ostream &os, const ConnPolicy &cp);
+}
 
 #endif
 

@@ -10,18 +10,21 @@ module RTT
 {
   module corba
   {
-    enum CFlowStatus { CNoData, COldData, CNewData, CWriteSuccess, CWriteFailure, CNotConnected };
-    enum CConnectionModel { CData, CBuffer };
+    enum CFlowStatus { CNoData, COldData, CNewData };
+    enum CConnectionModel { CData, CBuffer, CCircularBuffer };
     enum CLockPolicy { CUnsync, CLocked, CLockFree };
+    enum CReadPolicy { CReadPolicyUnspecified, CReadShared, CReadUnordered };
+    enum CWritePolicy { CWritePolicyUnspecified, CWritePrivate, CWriteShared };
     struct CConnPolicy
     {
         CConnectionModel type;
-        boolean init;
-        CLockPolicy lock_policy;
-        boolean pull;
-        boolean shared;
-        boolean mandatory;
         long size;
+        CLockPolicy lock_policy;
+        boolean init;
+        boolean pull;
+        CReadPolicy read_policy;
+        CWritePolicy write_policy;
+        boolean mandatory;
         long transport;
         long data_size;
         string name_id;

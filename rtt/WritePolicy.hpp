@@ -1,13 +1,4 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 22 11:59:07 CEST 2009  CorbaConnPolicy.cpp
-
-                        CorbaConnPolicy.cpp -  description
-                           -------------------
-    begin                : Thu October 22 2009
-    copyright            : (C) 2009 Peter Soetens
-    email                : peter@thesourcworks.com
-
- ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
  *   License as published by the Free Software Foundation;                 *
@@ -36,45 +27,40 @@
  ***************************************************************************/
 
 
-/*
- * CorbaConnPolicy.cpp
- *
- *  Created on: Oct 16, 2009
- *      Author: kaltan
- */
+#ifndef ORO_WRITE_POLICY_HPP
+#define ORO_WRITE_POLICY_HPP
 
-#include "CorbaConnPolicy.hpp"
+#include "rtt-config.h"
+#include <iosfwd>
 
-RTT::corba::CConnPolicy toCORBA(RTT::ConnPolicy const& policy)
-{
-    RTT::corba::CConnPolicy corba_policy;
-    corba_policy.type         = RTT::corba::CConnectionModel(policy.type);
-    corba_policy.size         = policy.size;
-    corba_policy.lock_policy  = RTT::corba::CLockPolicy(policy.lock_policy);
-    corba_policy.init         = policy.init;
-    corba_policy.pull         = policy.pull;
-    corba_policy.read_policy  = RTT::corba::CReadPolicy(policy.read_policy);
-    corba_policy.write_policy = RTT::corba::CWritePolicy(policy.write_policy);
-    corba_policy.mandatory    = policy.mandatory;
-    corba_policy.data_size    = policy.data_size;
-    corba_policy.transport    = policy.transport;
-    corba_policy.name_id      = CORBA::string_dup( policy.name_id.c_str() );
-    return corba_policy;
+namespace RTT {
+
+    /**
+     * A WritePolicy describes how a write operation serves multiple outgoing
+     * connections.
+     *
+     * Possible values:
+     * - WritePrivate: Every connection will receive its own private copy of the written data sample. Read operations
+     *                 have no influence on each other.
+     * - WriteShared:  The output buffer is shared among all connections, so read operations can influence the outcome
+     *                 of another.
+     *
+     * Special values:
+     * - UnspecifiedWritePolicy: No specific WritePolicy was set yet. This is the default WritePolicy for an
+     *                           unconnected OutputPort. Do not use this value in \ref ConnPolicy.
+     *
+     * @ingroup Ports
+     */
+    typedef enum {
+        UnspecifiedWritePolicy,
+        WritePrivate,
+        WriteShared
+    } WritePolicy;
+
+    extern WritePolicy WritePolicyDefault;
+
+    std::ostream &operator<<(std::ostream &os, const WritePolicy &wp);
+    std::istream &operator>>(std::istream &is, WritePolicy &wp);
 }
 
-RTT::ConnPolicy toRTT(RTT::corba::CConnPolicy const& corba_policy)
-{
-    RTT::ConnPolicy policy;
-    policy.type         = corba_policy.type;
-    policy.size         = corba_policy.size;
-    policy.lock_policy  = corba_policy.lock_policy;
-    policy.init         = corba_policy.init;
-    policy.pull         = corba_policy.pull;
-    policy.read_policy  = RTT::ReadPolicy(corba_policy.read_policy);
-    policy.write_policy = RTT::WritePolicy(corba_policy.write_policy);
-    policy.mandatory    = corba_policy.mandatory;
-    policy.data_size    = corba_policy.data_size;
-    policy.transport    = corba_policy.transport;
-    policy.name_id      = corba_policy.name_id;
-    return policy;
-}
+#endif
