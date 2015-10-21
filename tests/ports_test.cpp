@@ -396,11 +396,14 @@ BOOST_AUTO_TEST_CASE(testPortOneWriterThreeReadersWithSharedOutputBuffer)
     BOOST_CHECK_EQUAL(20, value);
     BOOST_CHECK( rp3.read(value));
     BOOST_CHECK_EQUAL(25, value);
-    BOOST_CHECK_EQUAL(rp1.read(value), OldData);
+    // BOOST_CHECK_EQUAL(rp1.read(value), OldData); // WriteShared buffer connections never return OldData
+    BOOST_CHECK_EQUAL(rp1.read(value), NoData);
     BOOST_CHECK_EQUAL(25, value);
-    BOOST_CHECK_EQUAL(rp2.read(value), OldData);
+    // BOOST_CHECK_EQUAL(rp2.read(value), OldData); // WriteShared buffer connections never return OldData
+    BOOST_CHECK_EQUAL(rp2.read(value), NoData);
     BOOST_CHECK_EQUAL(25, value);
-    BOOST_CHECK_EQUAL(rp3.read(value), OldData);
+    // BOOST_CHECK_EQUAL(rp3.read(value), OldData); // WriteShared buffer connections never return OldData
+    BOOST_CHECK_EQUAL(rp3.read(value), NoData);
     BOOST_CHECK_EQUAL(25, value);
 
     // Now removes only the R2
@@ -412,9 +415,10 @@ BOOST_AUTO_TEST_CASE(testPortOneWriterThreeReadersWithSharedOutputBuffer)
     BOOST_CHECK( rp3.connected() );
 
     BOOST_CHECK_EQUAL( wp.write(10), WriteSuccess );
-    BOOST_CHECK( rp1.read(value));
+    BOOST_CHECK( rp1.read(value) );
     BOOST_CHECK_EQUAL(10, value);
-    BOOST_CHECK_EQUAL( rp3.read(value), OldData );
+    // BOOST_CHECK_EQUAL( rp3.read(value), OldData ); // WriteShared buffer connections never return OldData
+    BOOST_CHECK_EQUAL( rp3.read(value), NoData );
     BOOST_CHECK_EQUAL(10, value);
 
     // And finally the other ports as well
@@ -704,25 +708,25 @@ BOOST_AUTO_TEST_CASE(testSharedBufferConnection)
     BOOST_CHECK_EQUAL( wp1.write(11), WriteSuccess );;
     BOOST_CHECK_EQUAL( rp1.read(value), NewData );
     BOOST_CHECK_EQUAL(11, value);
-    BOOST_CHECK_EQUAL( rp2.read(value), OldData );
+    BOOST_CHECK_EQUAL( rp2.read(value), NoData );
     BOOST_CHECK_EQUAL(11, value);
 
     BOOST_CHECK_EQUAL( wp1.write(12), WriteSuccess );;
     BOOST_CHECK_EQUAL( rp2.read(value), NewData );
     BOOST_CHECK_EQUAL(12, value);
-    BOOST_CHECK_EQUAL( rp1.read(value), OldData );
+    BOOST_CHECK_EQUAL( rp1.read(value), NoData );
     BOOST_CHECK_EQUAL(12, value);
 
     BOOST_CHECK_EQUAL( wp2.write(21), WriteSuccess );;
     BOOST_CHECK_EQUAL( rp1.read(value), NewData );
     BOOST_CHECK_EQUAL(21, value);
-    BOOST_CHECK_EQUAL( rp2.read(value), OldData );
+    BOOST_CHECK_EQUAL( rp2.read(value), NoData );
     BOOST_CHECK_EQUAL(21, value);
 
     BOOST_CHECK_EQUAL( wp2.write(22), WriteSuccess );;
     BOOST_CHECK_EQUAL( rp2.read(value), NewData );
     BOOST_CHECK_EQUAL(22, value);
-    BOOST_CHECK_EQUAL( rp1.read(value), OldData );
+    BOOST_CHECK_EQUAL( rp1.read(value), NoData );
     BOOST_CHECK_EQUAL(22, value);
 
     BOOST_CHECK_EQUAL( wp1.write(31), WriteSuccess );;
@@ -737,9 +741,9 @@ BOOST_AUTO_TEST_CASE(testSharedBufferConnection)
     BOOST_CHECK_EQUAL(33, value);
     BOOST_CHECK_EQUAL( rp1.read(value), NewData );
     BOOST_CHECK_EQUAL(34, value);
-    BOOST_CHECK_EQUAL( rp1.read(value), OldData );
+    BOOST_CHECK_EQUAL( rp1.read(value), NoData );
     BOOST_CHECK_EQUAL(34, value);
-    BOOST_CHECK_EQUAL( rp2.read(value), OldData );
+    BOOST_CHECK_EQUAL( rp2.read(value), NoData );
     BOOST_CHECK_EQUAL(34, value);
 }
 

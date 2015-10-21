@@ -88,9 +88,14 @@ namespace RTT { namespace internal {
             if ( (new_sample_p = buffer->PopWithoutRelease()) ) {
                 if(last_sample_p)
                     buffer->Release(last_sample_p);
-		
-                last_sample_p = new_sample_p;
+
                 sample = *new_sample_p;
+
+                if (policy.write_policy != WriteShared)
+                    last_sample_p = new_sample_p;
+                else
+                    buffer->Release(new_sample_p);
+
                 return NewData;
             }
             if (last_sample_p) {
