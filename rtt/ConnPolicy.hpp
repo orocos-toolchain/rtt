@@ -225,6 +225,14 @@ namespace RTT {
         WritePolicy write_policy;
 
         /**
+         * The maximum number of threads that will access the connection data or buffer object.
+         * This only needs to be specified for lock-free data structures.
+         * If 0, the number of threads will be determined by a simple heuristic depending on the
+         * read and write policies of the connection.
+         */
+        int max_threads;
+
+        /**
          * Whether the connection described by this connection policy is mandatory, which
          * means that write operations will fail if the connection could not be served, e.g. due
          * to a full input buffer or because of a broken remote connection.

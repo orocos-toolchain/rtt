@@ -63,6 +63,7 @@ namespace RTT
         , pull(false)
         , read_policy(ReadUnordered)
         , write_policy(WritePrivate)
+        , max_threads(0)
         , mandatory(true)
         , transport(0)
         , data_size(0)
@@ -114,6 +115,7 @@ namespace RTT
         , pull(Default().pull)
         , read_policy(Default().read_policy)
         , write_policy(Default().write_policy)
+        , max_threads(Default().max_threads)
         , mandatory(Default().mandatory)
         , transport(Default().transport)
         , data_size(Default().data_size)
@@ -127,6 +129,7 @@ namespace RTT
         , pull(Default().pull)
         , read_policy(Default().read_policy)
         , write_policy(Default().write_policy)
+        , max_threads(Default().max_threads)
         , mandatory(Default().mandatory)
         , transport(Default().transport)
         , data_size(Default().data_size)
@@ -140,6 +143,7 @@ namespace RTT
         , pull(Default().pull)
         , read_policy(Default().read_policy)
         , write_policy(Default().write_policy)
+        , max_threads(Default().max_threads)
         , mandatory(Default().mandatory)
         , transport(Default().transport)
         , data_size(Default().data_size)
@@ -179,6 +183,7 @@ namespace RTT
         os << lock_policy << " ";
         os << type;
         if (!cp.name_id.empty()) os << " (name_id=" << cp.name_id << ")";
+        if (cp.max_threads > 0) os << " (max_threads=" << cp.max_threads << ")";
 
         return os;
     }
