@@ -277,7 +277,7 @@ namespace RTT
                 initialized = true;
                 return true;
             } else {
-                return false;
+                return initialized;
             }
         }
 

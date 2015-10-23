@@ -89,7 +89,7 @@ namespace RTT
                 buf.resize(0);
                 return true;
             } else {
-                return false;
+                return initialized;
             }
         }
 
