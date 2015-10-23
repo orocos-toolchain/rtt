@@ -122,9 +122,9 @@ namespace RTT { namespace internal {
             base::ChannelElement<T>::clear();
         }
 
-        virtual WriteStatus data_sample(param_t sample)
+        virtual WriteStatus data_sample(param_t sample, bool reset = true)
         {
-            if (!buffer->data_sample(sample)) return WriteFailure;
+            if (!buffer->data_sample(sample, reset)) return WriteFailure;
             return base::ChannelElement<T>::data_sample(sample);
         }
 
