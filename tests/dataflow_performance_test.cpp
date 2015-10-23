@@ -377,6 +377,16 @@ public:
     }
 
     Timer &operator+=(const Timer &other) {
+        total_ += other.total_;
+        count_ += other.count_;
+        if (!(min_.monotonic.tv_sec || min_.monotonic.tv_nsec) || (other.min_.monotonic < min_.monotonic)) min_.monotonic = other.min_.monotonic;
+        if (!(min_.cputime.tv_sec || min_.cputime.tv_nsec)     || (other.min_.cputime < min_.cputime))     min_.cputime   = other.min_.cputime;
+        if (!(max_.monotonic.tv_sec || max_.monotonic.tv_nsec) || (max_.monotonic < other.max_.monotonic)) max_.monotonic = other.max_.monotonic;
+        if (!(max_.cputime.tv_sec || max_.cputime.tv_nsec)     || (max_.cputime < other.max_.cputime))     max_.cputime   = other.max_.cputime;
+        return *this;
+    }
+
+    Timer &updateFrom(const Timer &other) {
         total_ += other.last_delta_;
         last_delta_ = other.last_delta_;
         if (!(min_.monotonic.tv_sec || min_.monotonic.tv_nsec) || (other.last_delta_.monotonic < min_.monotonic)) min_.monotonic = other.last_delta_.monotonic;
@@ -547,7 +557,7 @@ public:
             Timer::Section section(timer);
             fs = AdaptorType::write(output_port, sample);
         }
-        timer_by_status[fs] += timer;
+        timer_by_status[fs].updateFrom(timer);
         this->afterUpdateHook(/* trigger = */ true);
     }
 };
@@ -591,7 +601,7 @@ public:
                 Timer::Section section(timer);
                 fs = Adaptor<SampleType,PortType>::read(input_port, sample, copy_old_data_);
             }
-            timer_by_status[fs] += timer;
+            timer_by_status[fs].updateFrom(timer);
             if (!read_loop_) break;
         }
 
@@ -626,7 +636,7 @@ struct TestOptions {
           NumberOfWriters(1),
           NumberOfReaders(1),
           NumberOfCycles(NUMBER_OF_CYCLES),
-          WriteMode(WriteSynchronous),
+          WriteMode(WriteAsynchronous),
           ReadMode(ReadAsynchronous),
           KeepLastWrittenValue(false),
           ReadLoop(false),
@@ -808,6 +818,9 @@ public:
     }
 
     void printStats() {
+        Timer total_write_timer;
+        std::map<WriteStatus, Timer> total_write_timer_by_status;
+
         std::cout << " Writer                                                              Monotonic Time [s]                       CPU Time [s]                                                        " << std::endl;
         std::cout << " Task                           #Cycles          #Writes   Total        Average      Max          Total        Average      Max          #Copies   #Assign    #WSuccess #WFailure " << std::endl;
         std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
@@ -854,8 +867,32 @@ public:
                           << " " << std::setw(12) << (*task)->timer_by_status[WriteFailure].max().cputime
                           << std::endl;
             }
+
+            total_write_timer += (*task)->timer;
+            total_write_timer_by_status[WriteSuccess] += (*task)->timer_by_status[WriteSuccess];
+            total_write_timer_by_status[WriteFailure] += (*task)->timer_by_status[WriteFailure];
+            total_write_timer_by_status[NotConnected] += (*task)->timer_by_status[NotConnected];
         }
+        std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+        std::cout << std::left
+                  << " " << std::setw(30) << "Total"
+                  << " " << std::setw(16) << ""
+                  << " " << std::setw(9)  << total_write_timer.count()
+                  << " " << std::setw(12) << total_write_timer.total().monotonic
+                  << " " << std::setw(12) << (total_write_timer.total().monotonic / total_write_timer.count())
+                  << " " << std::setw(12) << total_write_timer.max().monotonic
+                  << " " << std::setw(12) << total_write_timer.total().cputime
+                  << " " << std::setw(12) << (total_write_timer.total().cputime / total_write_timer.count())
+                  << " " << std::setw(12) << total_write_timer.max().cputime
+                  << " " << std::setw(9) << ""
+                  << " " << std::setw(9) << ""
+                  << "  " << std::setw(9) << total_write_timer_by_status[WriteSuccess].count()
+                  << " " << std::setw(9) << total_write_timer_by_status[WriteFailure].count()
+                  << std::endl;
         std::cout << std::endl;
+
+        Timer total_read_timer;
+        std::map<FlowStatus, Timer> total_read_timer_by_status;
 
         std::cout << " Reader                                                              Monotonic Time [s]                       CPU Time [s]                                           " << std::endl;
         std::cout << " Task                           #Cycles          #Reads    Total        Average      Max          Total        Average      Max          #NewData  #OldData  #NoData " << std::endl;
@@ -915,7 +952,27 @@ public:
                           << " " << std::setw(12) << (*task)->timer_by_status[NoData].max().cputime
                           << std::endl;
             }
+
+            total_read_timer += (*task)->timer;
+            total_read_timer_by_status[NewData] += (*task)->timer_by_status[NewData];
+            total_read_timer_by_status[OldData] += (*task)->timer_by_status[OldData];
+            total_read_timer_by_status[NoData] += (*task)->timer_by_status[NoData];
         }
+        std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+        std::cout << std::left
+                  << " " << std::setw(30) << "Total"
+                  << " " << std::setw(16) << ""
+                  << " " << std::setw(9)  << total_read_timer.count()
+                  << " " << std::setw(12) << total_read_timer.total().monotonic
+                  << " " << std::setw(12) << (total_read_timer.total().monotonic / total_read_timer.count())
+                  << " " << std::setw(12) << total_read_timer.max().monotonic
+                  << " " << std::setw(12) << total_read_timer.total().cputime
+                  << " " << std::setw(12) << (total_read_timer.total().cputime / total_read_timer.count())
+                  << " " << std::setw(12) << total_read_timer.max().cputime
+                  << " " << std::setw(9) << total_read_timer_by_status[NewData].count()
+                  << " " << std::setw(9) << total_read_timer_by_status[OldData].count()
+                  << " " << std::setw(9) << total_read_timer_by_status[NoData].count()
+                  << std::endl;
         std::cout << std::endl;
     }
 
@@ -928,22 +985,24 @@ private:
 // Registers the test suite into the 'registry'
 BOOST_AUTO_TEST_SUITE( DataFlowPerformanceTest )
 
-BOOST_AUTO_TEST_CASE( dataConnection )
+BOOST_AUTO_TEST_CASE( lockedDataConnection )
 {
     TestOptions options;
     const PortTypes PortType = DataPortType;
     typedef TestRunner<SampleType,PortType> RunnerType;
 
-//    options.policy.lock_policy = ConnPolicy::LOCKED;
+    options.policy.type = ConnPolicy::DATA;
+    options.policy.lock_policy = ConnPolicy::LOCKED;
 
-    // 10 writers, 1 reader, push
+    // 10 writers, 1 reader, ReadUnordered
     {
         options.NumberOfWriters = 10;
         options.NumberOfReaders = 1;
-        options.policy.read_policy = ReadShared;
+        options.policy.write_policy = WritePrivate;
+        options.policy.read_policy = ReadUnordered;
         std::cout << options;
 
-        typename RunnerType::shared_ptr runner(new RunnerType("data", options));
+        typename RunnerType::shared_ptr runner(new RunnerType("dataReadUnordered", options));
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -951,29 +1010,16 @@ BOOST_AUTO_TEST_CASE( dataConnection )
         std::cout << std::endl;
     }
 
-    // 10 writers, 1 reader, pull
+#if RTT_VERSION_GTE(2,8,99)
+    // 10 writers, 1 reader, ReadShared
     {
         options.NumberOfWriters = 10;
         options.NumberOfReaders = 1;
-        options.policy.read_policy = ReadUnordered;
-        std::cout << options;
-
-        typename RunnerType::shared_ptr runner(new RunnerType("data", options));
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-
-    // 1 writer, 10 readers, push
-    {
-        options.NumberOfWriters = 1;
-        options.NumberOfReaders = 10;
+        options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadShared;
         std::cout << options;
 
-        typename RunnerType::shared_ptr runner(new RunnerType("data", options));
+        typename RunnerType::shared_ptr runner(new RunnerType("dataReadShared", options));
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -981,50 +1027,315 @@ BOOST_AUTO_TEST_CASE( dataConnection )
         std::cout << std::endl;
     }
 
-    // 1 writer, 10 readers, pull
+    // 10 writers, 1 reader, shared connection
     {
-        options.NumberOfWriters = 1;
-        options.NumberOfReaders = 10;
-        options.policy.read_policy = ReadUnordered;
-        std::cout << options;
-
-        typename RunnerType::shared_ptr runner(new RunnerType("data", options));
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-
-    // 4 writers, 4 readers, push
-    {
-        options.NumberOfWriters = 4;
-        options.NumberOfReaders = 4;
+        options.NumberOfWriters = 10;
+        options.NumberOfReaders = 1;
+        options.policy.write_policy = WriteShared;
         options.policy.read_policy = ReadShared;
         std::cout << options;
 
-        typename RunnerType::shared_ptr runner(new RunnerType("data", options));
+        typename RunnerType::shared_ptr runner(new RunnerType("dataShared", options));
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
         runner->printStats();
         std::cout << std::endl;
     }
+#endif
 
-    // 4 writers, 4 readers, pull
+    // 1 writer, 10 readers, ReadUnordered
     {
-        options.NumberOfWriters = 4;
-        options.NumberOfReaders = 4;
+        options.NumberOfWriters = 1;
+        options.NumberOfReaders = 10;
+        options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadUnordered;
         std::cout << options;
 
-        typename RunnerType::shared_ptr runner(new RunnerType("data", options));
+        typename RunnerType::shared_ptr runner(new RunnerType("dataReadUnordered", options));
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
         runner->printStats();
         std::cout << std::endl;
     }
+
+#if RTT_VERSION_GTE(2,8,99)
+    // 1 writer, 10 readers, WriteShared
+    {
+        options.NumberOfWriters = 1;
+        options.NumberOfReaders = 10;
+        options.policy.write_policy = WriteShared;
+        options.policy.read_policy = ReadUnordered;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("dataWriteShared", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+
+    // 1 writer, 10 readers, shared connection
+    {
+        options.NumberOfWriters = 1;
+        options.NumberOfReaders = 10;
+        options.policy.write_policy = WriteShared;
+        options.policy.read_policy = ReadShared;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("dataShared", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+#endif
+
+    // 4 writers, 4 readers, ReadUnordered
+    {
+        options.NumberOfWriters = 4;
+        options.NumberOfReaders = 4;
+        options.policy.write_policy = WritePrivate;
+        options.policy.read_policy = ReadUnordered;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("dataReadUnordered", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+
+#if RTT_VERSION_GTE(2,8,99)
+    // 4 writers, 4 readers, ReadShared
+    {
+        options.NumberOfWriters = 4;
+        options.NumberOfReaders = 4;
+        options.policy.write_policy = WritePrivate;
+        options.policy.read_policy = ReadShared;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("dataReadShared", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+
+    // 4 writers, 4 readers, WriteShared
+    {
+        options.NumberOfWriters = 4;
+        options.NumberOfReaders = 4;
+        options.policy.write_policy = WriteShared;
+        options.policy.read_policy = ReadUnordered;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("dataWriteShared", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+
+    // 4 writers, 4 readers, shared connection
+    {
+        options.NumberOfWriters = 4;
+        options.NumberOfReaders = 4;
+        options.policy.write_policy = WriteShared;
+        options.policy.read_policy = ReadShared;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("dataShared", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+#endif
+}
+
+BOOST_AUTO_TEST_CASE( lockFreeBufferConnection )
+{
+    TestOptions options;
+    const PortTypes PortType = DataPortType;
+    typedef TestRunner<SampleType,PortType> RunnerType;
+
+    options.policy.type = ConnPolicy::BUFFER;
+    options.policy.size = 100;
+    options.policy.lock_policy = ConnPolicy::LOCK_FREE;
+
+    // 10 writers, 1 reader, ReadUnordered
+    {
+        options.NumberOfWriters = 10;
+        options.NumberOfReaders = 1;
+        options.policy.write_policy = WritePrivate;
+        options.policy.read_policy = ReadUnordered;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferReadUnordered", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+
+#if RTT_VERSION_GTE(2,8,99)
+    // 10 writers, 1 reader, ReadShared
+    {
+        options.NumberOfWriters = 10;
+        options.NumberOfReaders = 1;
+        options.policy.write_policy = WritePrivate;
+        options.policy.read_policy = ReadShared;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferReadShared", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+
+    // 10 writers, 1 reader, shared connection
+    {
+        options.NumberOfWriters = 10;
+        options.NumberOfReaders = 1;
+        options.policy.write_policy = WriteShared;
+        options.policy.read_policy = ReadShared;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferShared", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+#endif
+
+    // 1 writer, 10 readers, ReadUnordered
+    {
+        options.NumberOfWriters = 1;
+        options.NumberOfReaders = 10;
+        options.policy.write_policy = WritePrivate;
+        options.policy.read_policy = ReadUnordered;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferReadUnordered", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+
+#if RTT_VERSION_GTE(2,8,99)
+    // 1 writer, 10 readers, WriteShared
+    {
+        options.NumberOfWriters = 1;
+        options.NumberOfReaders = 10;
+        options.policy.write_policy = WriteShared;
+        options.policy.read_policy = ReadUnordered;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferWriteShared", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+
+    // 1 writer, 10 readers, shared connection
+    {
+        options.NumberOfWriters = 1;
+        options.NumberOfReaders = 10;
+        options.policy.write_policy = WriteShared;
+        options.policy.read_policy = ReadShared;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferShared", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+#endif
+
+    // 4 writers, 4 readers, ReadUnordered
+    {
+        options.NumberOfWriters = 4;
+        options.NumberOfReaders = 4;
+        options.policy.write_policy = WritePrivate;
+        options.policy.read_policy = ReadUnordered;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferReadUnordered", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+
+#if RTT_VERSION_GTE(2,8,99)
+    // 4 writers, 4 readers, ReadShared
+    {
+        options.NumberOfWriters = 4;
+        options.NumberOfReaders = 4;
+        options.policy.write_policy = WritePrivate;
+        options.policy.read_policy = ReadShared;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferReadShared", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+
+    // 4 writers, 4 readers, WriteShared
+    {
+        options.NumberOfWriters = 4;
+        options.NumberOfReaders = 4;
+        options.policy.write_policy = WriteShared;
+        options.policy.read_policy = ReadUnordered;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferWriteShared", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+
+    // 4 writers, 4 readers, shared connection
+    {
+        options.NumberOfWriters = 4;
+        options.NumberOfReaders = 4;
+        options.policy.write_policy = WriteShared;
+        options.policy.read_policy = ReadShared;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferShared", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+#endif
 }
 
 BOOST_AUTO_TEST_CASE( emptyReads )
@@ -1033,10 +1344,26 @@ BOOST_AUTO_TEST_CASE( emptyReads )
     const PortTypes PortType = DataPortType;
     typedef TestRunner<SampleType,PortType> RunnerType;
 
-//    options.policy.lock_policy = ConnPolicy::LOCKED;
+    options.policy.lock_policy = ConnPolicy::LOCKED;
     options.WriteMode = TestOptions::NoWrite;
     options.ReadMode = TestOptions::ReadSynchronous;
 
+    // 10 writers, 1 reader, ReadUnordered
+    {
+        options.NumberOfWriters = 10;
+        options.NumberOfReaders = 1;
+        options.policy.read_policy = ReadUnordered;
+        std::cout << options;
+
+        typename RunnerType::shared_ptr runner(new RunnerType("no", options));
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+
+#if RTT_VERSION_GTE(2,8,99)
     // 10 writers, 1 reader, ReadShared
     {
         options.NumberOfWriters = 10;
@@ -1051,21 +1378,7 @@ BOOST_AUTO_TEST_CASE( emptyReads )
         runner->printStats();
         std::cout << std::endl;
     }
-
-    // 10 writers, 1 reader, pull
-    {
-        options.NumberOfWriters = 10;
-        options.NumberOfReaders = 1;
-        options.policy.read_policy = ReadUnordered;
-        std::cout << options;
-
-        typename RunnerType::shared_ptr runner(new RunnerType("empty", options));
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
+#endif
 }
 
 

@@ -1,13 +1,4 @@
 /***************************************************************************
-  tag: The SourceWorks  Tue Sep 7 00:55:18 CEST 2010  BufferBase.cpp
-
-                        BufferBase.cpp -  description
-                           -------------------
-    begin                : Tue September 07 2010
-    copyright            : (C) 2010 The SourceWorks
-    email                : peter@thesourceworks.com
-
- ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
  *   License as published by the Free Software Foundation;                 *
@@ -36,32 +27,26 @@
  ***************************************************************************/
 
 
-
-#include "BufferBase.hpp"
+#include "DataObjectBase.hpp"
 #include "../ConnPolicy.hpp"
 
 using namespace RTT;
 using namespace RTT::base;
 
-BufferBase::~BufferBase() {}
-
-BufferBase::Options::Options()
-    : circular_(false)
-    , max_threads_(2)
+DataObjectBase::Options::Options()
+    : max_threads_(2)
     , multiple_writers_(false)
     , multiple_readers_(false)
 {}
 
-BufferBase::Options::Options(bool circular)
-    : circular_(circular)
-    , max_threads_(2)
+DataObjectBase::Options::Options(unsigned int max_threads)
+    : max_threads_(max_threads)
     , multiple_writers_(false)
-    , multiple_readers_(false)
+    , multiple_readers_(true)
 {}
 
-BufferBase::Options::Options(const ConnPolicy &policy)
-    : circular_(policy.type == ConnPolicy::CIRCULAR_BUFFER)
-    , max_threads_(2)
+DataObjectBase::Options::Options(const ConnPolicy &policy)
+    : max_threads_(2)
     , multiple_writers_(policy.read_policy == ReadShared)
     , multiple_readers_(policy.write_policy == WriteShared)
 {

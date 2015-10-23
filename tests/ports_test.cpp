@@ -749,7 +749,7 @@ BOOST_AUTO_TEST_CASE(testSharedBufferConnection)
 
 BOOST_AUTO_TEST_CASE(testSharedDataConnection)
 {
-    ConnPolicy cp = ConnPolicy::data();
+    ConnPolicy cp = ConnPolicy::data(ConnPolicy::LOCKED);
     cp.write_policy = WriteShared;
     cp.read_policy = ReadShared;
 
@@ -803,8 +803,8 @@ BOOST_AUTO_TEST_CASE(testInvalidReadPolicyConnections)
     rp.disconnect();
 
     // mix data and buffer connections with ReadShared read policy
-    ConnPolicy cp_DATA = ConnPolicy::data();
-    ConnPolicy cp_BUFFER = ConnPolicy::buffer(10);
+    ConnPolicy cp_DATA = ConnPolicy::data(ConnPolicy::LOCKED);
+    ConnPolicy cp_BUFFER = ConnPolicy::buffer(10, ConnPolicy::LOCKED);
     cp_DATA.read_policy = ReadShared;
     cp_BUFFER.read_policy = ReadShared;
     BOOST_CHECK( wp1.connectTo(&rp, cp_DATA) );
@@ -844,7 +844,7 @@ BOOST_AUTO_TEST_CASE(testInvalidReadPolicyConnections)
 
 BOOST_AUTO_TEST_CASE(testInvalidSharedConnection)
 {
-    ConnPolicy cp = ConnPolicy::data();
+    ConnPolicy cp = ConnPolicy::data(ConnPolicy::LOCKED);
     cp.write_policy = WriteShared;
     cp.read_policy = ReadShared;
 

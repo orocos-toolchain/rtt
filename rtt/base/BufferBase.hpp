@@ -59,6 +59,8 @@ namespace RTT
         class Options {
         private:
             bool circular_;
+            int max_threads_;
+            bool multiple_writers_;
             bool multiple_readers_;
         public:
             Options();
@@ -66,6 +68,10 @@ namespace RTT
             Options(const ConnPolicy &policy);
             bool circular() const { return circular_; }
             Options &circular(bool value) { circular_ = value; return *this; }
+            unsigned int max_threads() const { return max_threads_; }
+            Options &max_threads(unsigned int value) { max_threads_ = value; return *this; }
+            bool multiple_writers() const { return multiple_writers_; }
+            Options &multiple_writers(bool value) { multiple_writers_ = value; return *this; }
             bool multiple_readers() const { return multiple_readers_; }
             Options &multiple_readers(bool value) { multiple_readers_ = value; return *this; }
         };

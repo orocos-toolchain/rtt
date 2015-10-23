@@ -163,13 +163,12 @@ namespace RTT
                 {
 #ifndef OROBLD_OS_NO_ASM
                 case ConnPolicy::LOCK_FREE:
-                    if (policy.read_policy != ReadShared) {
-                        data_object.reset( new base::DataObjectLockFree<T>(initial_value) );
-                    } else {
-                        // DataObjectLockFree does not support concurrent writes. We install a circular buffer of size 1 instead...
-                        typename base::BufferInterface<T>::shared_ptr buffer_object(new base::BufferLockFree<T>(1, base::BufferBase::Options(policy).circular(true)));
-                        return new ChannelBufferElement<T>(buffer_object, policy);
+                    // DataObjectLockFree does not support multiple writers. We have to enforce lock policy LOCKED in this case.
+                    if (policy.read_policy == ReadShared) {
+                        RTT::log(Error) << "Lock-free data objects do not allow multiple writers at this moment and therefore cannot be used in connection with the ReadShared read policy." << endlog();
+                        return NULL;
                     }
+                    data_object.reset( new base::DataObjectLockFree<T>(initial_value, policy) );
                     break;
 #else
                 case ConnPolicy::LOCK_FREE:
@@ -478,7 +477,9 @@ namespace RTT
             // create a new shared connection instance
             if (!shared_connection) {
                 RTT::OutputPort<T> *output_p = dynamic_cast<RTT::OutputPort<T> *>(output_port);
-                shared_connection.reset(new SharedConnection<T>(buildDataStorage<T>(policy, (output_p ? output_p->getLastWrittenValue() : T())), policy));
+                typename base::ChannelElementBase::shared_ptr buffer = buildDataStorage<T>(policy, (output_p ? output_p->getLastWrittenValue() : T()));
+                if (!buffer) return SharedConnectionBase::shared_ptr();
+                shared_connection.reset(new SharedConnection<T>(buffer.get(), policy));
             }
 
             return shared_connection;

@@ -91,6 +91,9 @@ namespace RTT { namespace internal {
 
                 sample = *new_sample_p;
 
+                // In the WriteShared case this buffer element may be read by multiple readers.
+                // ==> We cannot store the last_sample and release immediately.
+                // ==> WriteShared buffer connections will never return OldData.
                 if (policy.write_policy != WriteShared)
                     last_sample_p = new_sample_p;
                 else

@@ -39,7 +39,6 @@
 #define ORO_BUFFER_LOCK_FREE_HPP
 
 #include "../os/oro_arch.h"
-#include "../os/CAS.hpp"
 #include "BufferInterface.hpp"
 #include "../internal/AtomicMWSRQueue.hpp"
 #include "../internal/AtomicMWMRQueue.hpp"
@@ -53,8 +52,6 @@
 namespace RTT
 { namespace base {
 
-
-    using os::CAS;
 
     /**
      * A Lock-free buffer implementation to read and write
@@ -78,6 +75,11 @@ namespace RTT
         typedef typename BufferInterface<T>::size_type size_type;
         typedef T value_t;
 
+        /**
+         * @brief The maximum number of threads.
+         */
+        const unsigned int MAX_THREADS;
+
     private:
         typedef T Item;
         const bool mcircular;
@@ -92,11 +94,12 @@ namespace RTT
          * @param bufsize the capacity of the buffer.
 '         */
         BufferLockFree( unsigned int bufsize, const Options &options = Options() )
-            : mcircular(options.circular()), initialized(false)
+            : MAX_THREADS(options.max_threads())
+            , mcircular(options.circular()), initialized(false)
             , bufs((!options.circular() && !options.multiple_readers()) ?
                        static_cast<internal::AtomicQueue<Item*> *>(new internal::AtomicMWSRQueue<Item*>(bufsize)) :
                        static_cast<internal::AtomicQueue<Item*> *>(new internal::AtomicMWMRQueue<Item*>(bufsize)))
-            , mpool(new internal::TsPool<Item>(bufsize + 1))
+            , mpool(new internal::TsPool<Item>(bufsize + options.max_threads()))
         {
         }
 
@@ -106,11 +109,12 @@ namespace RTT
          * @param initial_value A data sample with which each preallocated data element is initialized.
          */
         BufferLockFree( unsigned int bufsize, const T& initial_value, const Options &options = Options() )
-            : mcircular(options.circular()), initialized(false)
+            : MAX_THREADS(options.max_threads())
+            , mcircular(options.circular()), initialized(false)
             , bufs((!options.circular() && !options.multiple_readers()) ?
                        static_cast<internal::AtomicQueue<Item*> *>(new internal::AtomicMWSRQueue<Item*>(bufsize)) :
                        static_cast<internal::AtomicQueue<Item*> *>(new internal::AtomicMWMRQueue<Item*>(bufsize)))
-            , mpool(new internal::TsPool<Item>(bufsize + 1))
+            , mpool(new internal::TsPool<Item>(bufsize + options.max_threads()))
         {
             data_sample( initial_value );
         }

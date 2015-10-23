@@ -47,22 +47,6 @@
 namespace RTT
 { namespace base {
 
-    namespace {
-        /**
-         * A helper class to pass optional arguments to the constructor of \ref DataObjectLockFree<T>
-         * in order to avoid ambiguity.
-         */
-        class DataObjectLockFreeOptions {
-        private:
-            unsigned int max_threads_;
-        public:
-            DataObjectLockFreeOptions() : max_threads_(2) {}
-            DataObjectLockFreeOptions(unsigned int max_threads) : max_threads_(max_threads) {}
-            unsigned int max_threads() const { return max_threads_; }
-            DataObjectLockFreeOptions &max_threads(unsigned int value) { max_threads_ = value; return *this; }
-        };
-    }
-
     /**
      * @brief This DataObject is a Lock-Free implementation,
      * such that reads and writes can happen concurrently without priority
@@ -96,16 +80,8 @@ namespace RTT
         : public DataObjectInterface<T>
     {
     public:
-        /**
-         * The type of the data.
-         */
-        typedef T DataType;
-
-        /**
-         * A helper class to pass optional arguments to the constructor of \ref DataObjectLockFree<T>
-         * in order to avoid ambiguity.
-         */
-        typedef DataObjectLockFreeOptions Options;
+        using typename DataObjectBase::Options;
+        using typename DataObjectInterface<T>::DataType;
 
         /**
          * @brief The maximum number of threads.
@@ -335,4 +311,3 @@ namespace RTT
 }}
 
 #endif
-
