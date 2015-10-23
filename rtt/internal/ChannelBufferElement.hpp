@@ -75,7 +75,7 @@ namespace RTT { namespace internal {
         virtual WriteStatus write(param_t sample)
         {
             if (!buffer->Push(sample)) return WriteFailure;
-            return this->signal() ? WriteSuccess : WriteFailure;
+            return this->signal() ? WriteSuccess : NotConnected;
         }
 
         /** Pops and returns the first element of the FIFO

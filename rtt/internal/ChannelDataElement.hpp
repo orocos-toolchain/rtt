@@ -65,7 +65,7 @@ namespace RTT { namespace internal {
         virtual WriteStatus write(param_t sample)
         {
             if (!data->Set(sample)) return WriteFailure;
-            return this->signal() ? WriteSuccess : WriteFailure;
+            return this->signal() ? WriteSuccess : NotConnected;
         }
 
         /** Reads the last sample given to write()
