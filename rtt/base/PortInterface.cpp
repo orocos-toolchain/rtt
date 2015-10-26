@@ -46,7 +46,7 @@ using namespace RTT::detail;
 using namespace std;
 
 PortInterface::PortInterface(const std::string& name)
-    : name(name), iface(0) {}
+    : name(name), iface(0), cmanager(this) {}
 
 bool PortInterface::setName(const std::string& name)
 {
@@ -88,6 +88,11 @@ Service* PortInterface::createPortObject()
 #endif
 }
 
+bool PortInterface::removeConnection(ConnID* conn)
+{
+    return cmanager.removeConnection(conn);
+}
+
 void PortInterface::setInterface(DataFlowInterface* dfi) {
     iface = dfi;
 }
@@ -97,3 +102,7 @@ DataFlowInterface* PortInterface::getInterface() const
     return iface;
 }
 
+internal::SharedConnectionBase::shared_ptr PortInterface::getSharedConnection() const
+{
+    return cmanager.getSharedConnection();
+}

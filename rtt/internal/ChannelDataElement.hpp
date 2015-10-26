@@ -62,12 +62,10 @@ namespace RTT { namespace internal {
 
         /** Update the data sample stored in this element.
          * It always returns true. */
-        virtual bool write(param_t sample)
+        virtual WriteStatus write(param_t sample)
         {
-            if (data->Set(sample))
-                return this->signal();
-            else
-                return true; // false would disconnect the channel
+            if (!data->Set(sample)) return WriteFailure;
+            return this->signal() ? WriteSuccess : NotConnected;
         }
 
         /** Reads the last sample given to write()
@@ -88,9 +86,9 @@ namespace RTT { namespace internal {
             base::ChannelElement<T>::clear();
         }
 
-        virtual bool data_sample(param_t sample)
+        virtual WriteStatus data_sample(param_t sample, bool reset = true)
         {
-            if (!data->data_sample(sample)) return false;
+            if (!data->data_sample(sample, reset)) return WriteFailure;
             return base::ChannelElement<T>::data_sample(sample);
         }
 

@@ -182,25 +182,24 @@ namespace RTT {
             	      CORBA::SystemException
             	      ,::RTT::corba::CNoSuchPortException
             	    ));
-            ::CORBA::Boolean channelReady(const char* port_name, RTT::corba::CChannelElement_ptr channel, RTT::corba::CConnPolicy const& policy) ACE_THROW_SPEC ((
-            	      CORBA::SystemException
-            	      ,::RTT::corba::CNoSuchPortException
-            	    ));
             void disconnectPort(const char* port_name) ACE_THROW_SPEC ((
             	      CORBA::SystemException
             	      ,::RTT::corba::CNoSuchPortException
             	    ));
 
-            CChannelElement_ptr buildChannelOutput(const char* reader_port, RTT::corba::CConnPolicy& policy) ACE_THROW_SPEC ((
+            CChannelElement_ptr buildChannelOutput(const char* input_port, RTT::corba::CConnPolicy& policy) ACE_THROW_SPEC ((
             	      CORBA::SystemException
             	      ,::RTT::corba::CNoCorbaTransport
                       ,::RTT::corba::CNoSuchPortException
-            	    ));
-            CChannelElement_ptr buildChannelInput(const char* writer_port, RTT::corba::CConnPolicy& policy) ACE_THROW_SPEC ((
-          	      CORBA::SystemException
-          	      ,::RTT::corba::CNoCorbaTransport
-                  ,::RTT::corba::CNoSuchPortException
-          	    ));
+                      ,::RTT::corba::CInvalidArgument
+                    ));
+
+            CChannelElement_ptr buildChannelInput(const char* output_port, RTT::corba::CConnPolicy& policy) ACE_THROW_SPEC ((
+                      CORBA::SystemException
+                      ,::RTT::corba::CNoCorbaTransport
+                      ,::RTT::corba::CNoSuchPortException
+                      ,::RTT::corba::CInvalidArgument
+                    ));
 
             ::CORBA::Boolean createConnection( const char* writer_port,
                                                CDataFlowInterface_ptr reader_interface,
@@ -209,6 +208,13 @@ namespace RTT {
                                              	      CORBA::SystemException
                                              	      ,::RTT::corba::CNoSuchPortException
                                              	    ));
+
+            ::CORBA::Boolean createSharedConnection(const char *input_port, RTT::corba::CConnPolicy& policy) ACE_THROW_SPEC ((
+                      CORBA::SystemException
+                      ,::RTT::corba::CNoSuchPortException
+                      ,::RTT::corba::CInvalidArgument
+                    ));
+
             bool removeConnection( const char* writer_port,
                                                CDataFlowInterface_ptr reader_interface,
                                                const char* reader_port) ACE_THROW_SPEC ((

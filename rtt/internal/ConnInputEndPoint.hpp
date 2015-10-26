@@ -48,54 +48,72 @@ namespace RTT
      * connection, i.e. the part that is connected to the OutputPort
      */
     template<typename T>
-    class ConnInputEndpoint : public base::ChannelElement<T>
+    class ConnInputEndpoint : public base::MultipleOutputsChannelElement<T>
     {
+    private:
         OutputPort<T>* port;
-        ConnID* cid;
 
     public:
-        ConnInputEndpoint(OutputPort<T>* port, ConnID* id)
-            : port(port), cid(id) { }
+        typedef base::MultipleOutputsChannelElement<T> Base;
+        typedef boost::intrusive_ptr<ConnInputEndpoint<T> > shared_ptr;
+
+        ConnInputEndpoint(OutputPort<T>* port)
+            : port(port) { }
 
         ~ConnInputEndpoint()
-        {
-            //this->disconnect(false); // inform port (if any) we're gone.
-            delete cid;
-        }
+        {}
 
-        using base::ChannelElement<T>::read;
-
-        /** Reads a new sample from this connection
-         * This should never be called, as all connections are supposed to have
-         * a data storage element */
-        virtual FlowStatus read(typename base::ChannelElement<T>::reference_t sample)
-        { return NoData; }
-
-        virtual bool inputReady() {
+        virtual bool inputReady(base::ChannelElementBase::shared_ptr const&) {
             return true;
         }
 
-        virtual void disconnect(bool forward)
-        {
-            // Call the base class first
-            base::ChannelElement<T>::disconnect(forward);
+        using Base::disconnect;
 
+        virtual bool disconnect(const base::ChannelElementBase::shared_ptr& channel, bool forward)
+        {
             OutputPort<T>* port = this->port;
-            if (port && !forward)
+            if (port && channel && !forward)
             {
-                this->port   = 0;
-                port->removeConnection( cid );
+                port->getManager()->removeConnection(channel.get(), /* disconnect = */ false);
             }
+
+            // Call the base class: it does the common cleanup
+            if (!Base::disconnect(channel, forward)) {
+                return false;
+            }
+
+            // If this was the last connection, remove the buffer, too.
+            // For forward == false this was already done by the base class.
+            if (!this->connected() && forward) {
+                this->disconnect(false);
+            }
+
+            return true;
         }
 
         virtual base::PortInterface* getPort() const {
             return this->port;
         }
 
-        virtual ConnID* getConnID() const { 
-            return this->cid; 
+        virtual base::ChannelElementBase::shared_ptr getInputEndPoint()
+        {
+            return this;
         }
 
+        virtual base::ChannelElement<T>* getSharedBuffer()
+        {
+            return this->getInput().get();
+        }
+
+        typename base::ChannelElement<T>::shared_ptr getWriteEndpoint()
+        {
+            typename base::ChannelElement<T>::shared_ptr buffer = getSharedBuffer();
+            if (buffer) {
+                return buffer;
+            } else {
+                return this;
+            }
+        }
     };
 
 }}

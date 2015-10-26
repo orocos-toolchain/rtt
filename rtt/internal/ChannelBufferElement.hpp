@@ -72,12 +72,10 @@ namespace RTT { namespace internal {
          *
          * @return true if there was room in the FIFO for the new sample, and false otherwise.
          */
-        virtual bool write(param_t sample)
+        virtual WriteStatus write(param_t sample)
         {
-            if (buffer->Push(sample))
-                return this->signal();
-            else
-                return true; // false would disconnect the channel
+            if (!buffer->Push(sample)) return WriteFailure;
+            return this->signal() ? WriteSuccess : NotConnected;
         }
 
         /** Pops and returns the first element of the FIFO
@@ -90,9 +88,17 @@ namespace RTT { namespace internal {
             if ( (new_sample_p = buffer->PopWithoutRelease()) ) {
                 if(last_sample_p)
                     buffer->Release(last_sample_p);
-		
-                last_sample_p = new_sample_p;
+
                 sample = *new_sample_p;
+
+                // In the WriteShared case this buffer element may be read by multiple readers.
+                // ==> We cannot store the last_sample and release immediately.
+                // ==> WriteShared buffer connections will never return OldData.
+                if (policy.write_policy != WriteShared)
+                    last_sample_p = new_sample_p;
+                else
+                    buffer->Release(new_sample_p);
+
                 return NewData;
             }
             if (last_sample_p) {
@@ -116,9 +122,9 @@ namespace RTT { namespace internal {
             base::ChannelElement<T>::clear();
         }
 
-        virtual bool data_sample(param_t sample)
+        virtual WriteStatus data_sample(param_t sample, bool reset = true)
         {
-            if (!buffer->data_sample(sample)) return false;
+            if (!buffer->data_sample(sample, reset)) return WriteFailure;
             return base::ChannelElement<T>::data_sample(sample);
         }
 
