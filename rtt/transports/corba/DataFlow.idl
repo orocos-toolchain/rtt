@@ -11,6 +11,7 @@ module RTT
   module corba
   {
     enum CFlowStatus { CNoData, COldData, CNewData };
+    enum CWriteStatus { CWriteSuccess, CWriteFailure, CNotConnected };
     enum CConnectionModel { CData, CBuffer, CCircularBuffer };
     enum CLockPolicy { CUnsync, CLocked, CLockFree };
     enum CReadPolicy { CReadPolicyUnspecified, CReadShared, CReadUnordered };

@@ -48,6 +48,17 @@ template class RTT_EXPORT RTT::InputPort< RTT::FlowStatus >;
 template class RTT_EXPORT RTT::Property< RTT::FlowStatus >;
 template class RTT_EXPORT RTT::Attribute< RTT::FlowStatus >;
 
+template class RTT_EXPORT RTT::internal::DataSource< RTT::WriteStatus >;
+template class RTT_EXPORT RTT::internal::AssignableDataSource< RTT::WriteStatus >;
+template class RTT_EXPORT RTT::internal::ValueDataSource< RTT::WriteStatus >;
+template class RTT_EXPORT RTT::internal::ConstantDataSource< RTT::WriteStatus >;
+template class RTT_EXPORT RTT::internal::ReferenceDataSource< RTT::WriteStatus >;
+
+template class RTT_EXPORT RTT::OutputPort< RTT::WriteStatus >;
+template class RTT_EXPORT RTT::InputPort< RTT::WriteStatus >;
+template class RTT_EXPORT RTT::Property< RTT::WriteStatus >;
+template class RTT_EXPORT RTT::Attribute< RTT::WriteStatus >;
+
 template class RTT_EXPORT RTT::internal::AssignableDataSource< RTT::SendStatus >;
 template class RTT_EXPORT RTT::internal::ValueDataSource< RTT::SendStatus >;
 template class RTT_EXPORT RTT::internal::ConstantDataSource< RTT::SendStatus >;

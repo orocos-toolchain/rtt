@@ -58,10 +58,12 @@ namespace RTT
         globals->setValue( new Constant<FlowStatus>("NoData", NoData) );
         globals->setValue( new Constant<FlowStatus>("OldData", OldData) );
         globals->setValue( new Constant<FlowStatus>("NewData", NewData) );
+        globals->setValue( new Constant<WriteStatus>("WriteSuccess", WriteSuccess) );
+        globals->setValue( new Constant<WriteStatus>("WriteFailure", WriteFailure) );
+        globals->setValue( new Constant<WriteStatus>("NotConnected", NotConnected) );
         globals->setValue( new Constant<SendStatus>("SendFailure", SendFailure) );
         globals->setValue( new Constant<SendStatus>("SendNotReady", SendNotReady) );
         globals->setValue( new Constant<SendStatus>("SendSuccess", SendSuccess) );
-
 #ifndef ORO_EMBEDDED
         globals->addAttribute( "DefaultConnPolicy", ConnPolicy::Default() );
         globals->setValue( new Constant<int>("DATA", ConnPolicy::DATA) );
