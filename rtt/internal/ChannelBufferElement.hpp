@@ -41,6 +41,7 @@
 
 #include "../base/ChannelElement.hpp"
 #include "../base/BufferInterface.hpp"
+#include "../ConnPolicy.hpp"
 
 namespace RTT { namespace internal {
 
@@ -51,19 +52,21 @@ namespace RTT { namespace internal {
     {
         typename base::BufferInterface<T>::shared_ptr buffer;
         typename base::ChannelElement<T>::value_t *last_sample_p;
+        const ConnPolicy policy;
+
     public:
         typedef typename base::ChannelElement<T>::param_t param_t;
         typedef typename base::ChannelElement<T>::reference_t reference_t;
-	typedef typename base::ChannelElement<T>::value_t value_t;
+        typedef typename base::ChannelElement<T>::value_t value_t;
 
-        ChannelBufferElement(typename base::BufferInterface<T>::shared_ptr buffer)
-            : buffer(buffer), last_sample_p(0) {}
+        ChannelBufferElement(typename base::BufferInterface<T>::shared_ptr buffer, const ConnPolicy& policy = ConnPolicy())
+            : buffer(buffer), last_sample_p(0), policy(policy) {}
             
-	virtual ~ChannelBufferElement()
-	{
-	    if(last_sample_p)
-		buffer->Release(last_sample_p);
-	}
+        virtual ~ChannelBufferElement()
+        {
+            if(last_sample_p)
+                buffer->Release(last_sample_p);
+        }
  
         /** Appends a sample at the end of the FIFO
          *
@@ -73,7 +76,8 @@ namespace RTT { namespace internal {
         {
             if (buffer->Push(sample))
                 return this->signal();
-            return true;
+            else
+                return true; // false would disconnect the channel
         }
 
         /** Pops and returns the first element of the FIFO
@@ -82,18 +86,18 @@ namespace RTT { namespace internal {
          */
         virtual FlowStatus read(reference_t sample, bool copy_old_data)
         {
-	    value_t *new_sample_p;
+            value_t *new_sample_p;
             if ( (new_sample_p = buffer->PopWithoutRelease()) ) {
-		if(last_sample_p)
-		    buffer->Release(last_sample_p);
+                if(last_sample_p)
+                    buffer->Release(last_sample_p);
 		
-		last_sample_p = new_sample_p;
-		sample = *new_sample_p;
+                last_sample_p = new_sample_p;
+                sample = *new_sample_p;
                 return NewData;
             }
             if (last_sample_p) {
-		if(copy_old_data)
-		    sample = *(last_sample_p);
+                if(copy_old_data)
+                    sample = *(last_sample_p);
                 return OldData;
             }
             return NoData;
@@ -105,22 +109,29 @@ namespace RTT { namespace internal {
          */
         virtual void clear()
         {
-	    if(last_sample_p)
-		buffer->Release(last_sample_p);
-	    last_sample_p = 0;
+            if(last_sample_p)
+                buffer->Release(last_sample_p);
+            last_sample_p = 0;
             buffer->clear();
             base::ChannelElement<T>::clear();
         }
 
         virtual bool data_sample(param_t sample)
         {
-            buffer->data_sample(sample);
+            if (!buffer->data_sample(sample)) return false;
             return base::ChannelElement<T>::data_sample(sample);
         }
 
         virtual T data_sample()
         {
             return buffer->data_sample();
+        }
+
+        /** Returns a pointer to the ConnPolicy that has been used to construct the underlying buffer.
+        */
+        virtual const ConnPolicy* getConnPolicy() const
+        {
+            return &policy;
         }
     };
 }}
