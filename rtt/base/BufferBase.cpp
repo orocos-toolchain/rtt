@@ -62,19 +62,17 @@ BufferBase::Options::Options(bool circular)
 BufferBase::Options::Options(const ConnPolicy &policy)
     : circular_(policy.type == ConnPolicy::CIRCULAR_BUFFER)
     , max_threads_(2)
-//    , multiple_writers_(policy.read_policy == ReadShared)
-//    , multiple_readers_(policy.write_policy == WriteShared)
-    , multiple_writers_(false)
-    , multiple_readers_(false)
+    , multiple_writers_(policy.read_policy == ReadShared)
+    , multiple_readers_(policy.write_policy == WriteShared)
 {
-//    if (policy.max_threads == 0) {
-//        if (policy.read_policy == ReadShared) {
-//            max_threads_ += 10;
-//        }
-//        if (policy.write_policy == WriteShared) {
-//            max_threads_ += 10;
-//        }
-//    } else {
-//        max_threads_ = policy.max_threads;
-//    }
+    if (policy.max_threads == 0) {
+        if (policy.read_policy == ReadShared) {
+            max_threads_ += 10;
+        }
+        if (policy.write_policy == WriteShared) {
+            max_threads_ += 10;
+        }
+    } else {
+        max_threads_ = policy.max_threads;
+    }
 }

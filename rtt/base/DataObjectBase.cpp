@@ -47,19 +47,17 @@ DataObjectBase::Options::Options(unsigned int max_threads)
 
 DataObjectBase::Options::Options(const ConnPolicy &policy)
     : max_threads_(2)
-//    , multiple_writers_(policy.read_policy == ReadShared)
-//    , multiple_readers_(policy.write_policy == WriteShared)
-    , multiple_writers_(false)
-    , multiple_readers_(true)
+    , multiple_writers_(policy.read_policy == ReadShared)
+    , multiple_readers_(policy.write_policy == WriteShared)
 {
-//    if (policy.max_threads == 0) {
-//        if (policy.read_policy == ReadShared) {
-//            max_threads_ += 10;
-//        }
-//        if (policy.write_policy == WriteShared) {
-//            max_threads_ += 10;
-//        }
-//    } else {
-//        max_threads_ = policy.max_threads;
-//    }
+    if (policy.max_threads == 0) {
+        if (policy.read_policy == ReadShared) {
+            max_threads_ += 10;
+        }
+        if (policy.write_policy == WriteShared) {
+            max_threads_ += 10;
+        }
+    } else {
+        max_threads_ = policy.max_threads;
+    }
 }
