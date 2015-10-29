@@ -72,15 +72,7 @@ namespace RTT {
 	     */
 	    bool pull;
 
-            /** This is used on to read the channel */
-            typename base::ChannelElement<T>::value_t sample;
-
 	    DataFlowInterface* msender;
-
-            /** This is used on the writing side, to avoid allocating an Any for
-             * each write
-             */
-            CORBA::Any* write_any;
 
             PortableServer::ObjectId_var oid;
 
@@ -100,10 +92,9 @@ namespace RTT {
 	      value_data_source(new internal::ValueDataSource<T>),
 	      ref_data_source(new internal::LateReferenceDataSource<T>),
 	      const_ref_data_source(new internal::LateConstReferenceDataSource<T>),
-              valid(true), pull(is_pull),
+          valid(true), pull(is_pull),
 	      msender(sender),
-              write_any(new CORBA::Any),
-              signalling(is_signalling)
+          signalling(is_signalling)
             {
                 // Big note about cleanup: The RTT will dispose this object through
 	            // the ChannelElement<T> refcounting. So we only need to inform the
@@ -114,11 +105,6 @@ namespace RTT {
                 oid = mpoa->activate_object(this);
                 // Force creation of dispatcher.
                 CorbaDispatcher::Instance(msender);
-            }
-
-            ~RemoteChannelElement()
-            {
-                delete write_any;
             }
 
             /** Increase the reference count, called from the CORBA side */
@@ -177,6 +163,7 @@ namespace RTT {
                         valid = false;
                     }
                 } else {
+                    typename base::ChannelElement<T>::value_t sample; // Not RT.
                     //log(Debug) <<"...read..."<<endlog();
                     while ( this->read(sample, false) == NewData && valid) {
                         //log(Debug) <<"...write..."<<endlog();
@@ -326,8 +313,8 @@ namespace RTT {
                     // provide shared pointers. Manually increment refence count
                     // (the stack "owns" the object)
                     const_ref_data_source->setPointer(&sample);
-                    transport.updateAny(const_ref_data_source, *write_any);
-                    remote_side->write(*write_any); 
+                    CORBA::Any_var ret = transport.createAny(const_ref_data_source);
+                    remote_side->write(ret); 
                     return true;
                 }
 #ifdef CORBA_IS_OMNIORB
