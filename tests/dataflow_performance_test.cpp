@@ -20,6 +20,8 @@
 #include <vector>
 #include <boost/array.hpp>
 
+#include <boost/test/unit_test.hpp>
+
 #define SAMPLE_SIZE 10000
 // #define SAMPLE_TYPE boost::array<double,SAMPLE_SIZE>
 #define SAMPLE_TYPE std::vector<double>
@@ -40,9 +42,11 @@ template <typename T, PortTypes> struct Adaptor;
     #include "DataPort.hpp"
     #include "BufferPort.hpp"
     #include "ConnPolicy.hpp"
+    #include "Activity.hpp"
     #include "SlaveActivity.hpp"
 
     using RTT::TaskContext;
+    using RTT::OS::HighestPriority;
     typedef enum { NoData, OldData, NewData } FlowStatus;
     typedef enum { WriteSuccess, WriteFailure, NotConnected } WriteStatus;
     typedef enum { UnspecifiedReadPolicy, ReadUnordered, ReadShared } ReadPolicy;
@@ -108,15 +112,52 @@ template <typename T, PortTypes> struct Adaptor;
     };
 
     using RTT::SlaveActivity;
+    using RTT::OS::ThreadInterface;
 
+    #include <pthread.h>
     namespace adaptor
     {
         static bool trigger(TaskContext *tc) {
             return tc->getActivity()->trigger();
         }
 
+        static void yield(TaskContext *tc) {
+            tc->getActivity()->thread()->yield();
+        }
+
         static bool update(TaskContext *tc) {
             return tc->getActivity()->execute();
+        }
+
+        static bool setCpuAffinity(ThreadInterface *thread, std::bitset<16> cpu_affinity) {
+            if ( cpu_affinity.none() )
+                cpu_affinity = ~cpu_affinity;
+            RTOS_TASK *task = thread->getTask();
+            if( task && task->thread != 0 ) {
+                cpu_set_t cs;
+                CPU_ZERO(&cs);
+                for(std::size_t i = 0; i < cpu_affinity.size(); i++)
+                    {
+                        if(cpu_affinity[i]) { CPU_SET(i, &cs); }
+                    }
+                return 0 == pthread_setaffinity_np(task->thread, sizeof(cs), &cs);
+            }
+            return false;
+        }
+
+        static std::bitset<16> getCpuAffinity(ThreadInterface *thread) {
+            RTOS_TASK *task = thread->getTask();
+            if( task && task->thread != 0) {
+                std::bitset<16> cpu_affinity;
+                cpu_set_t cs;
+                pthread_getaffinity_np(task->thread, sizeof(cs), &cs);
+                for(std::size_t i = 0; i < cpu_affinity.size(); i++)
+                {
+                    if(CPU_ISSET(i, &cs)) { cpu_affinity[i] = true; }
+                }
+                return cpu_affinity;
+            }
+            return ~std::bitset<16>();
         }
 
         static RTT::ConnectionInterface::shared_ptr getOrCreateConnection(RTT::PortInterface &output_port, RTT::PortInterface &input_port, const ConnPolicy &cp) {
@@ -224,17 +265,32 @@ template <typename T, PortTypes> struct Adaptor;
         }
     };
 
+    class Activity : public RTT::Activity
+    {
+    public:
+        Activity() {}
+        Activity(int scheduler, int priority, RTT::Seconds period, unsigned cpu_affinity, RTT::RunnableInterface *r, const std::string &name)
+            : RTT::Activity(scheduler, priority, period, r, name)
+        {
+            adaptor::setCpuAffinity(this->thread(), cpu_affinity);
+            usleep(1000); // getScheduler() and getPriority() may return wrong values if called directly after construction!
+        }
+    };
+
 #else
     #include <rtt/TaskContext.hpp>
     #include <rtt/InputPort.hpp>
     #include <rtt/OutputPort.hpp>
     #include <rtt/extras/SlaveActivity.hpp>
+    #include <rtt/Activity.hpp>
 
     using RTT::TaskContext;
     using RTT::FlowStatus;
     using RTT::NoData;
     using RTT::OldData;
     using RTT::NewData;
+    using RTT::Activity;
+    using RTT::os::HighestPriority;
 
 #if !RTT_VERSION_GTE(2,8,99)
     typedef enum { WriteSuccess, WriteFailure, NotConnected } WriteStatus;
@@ -259,6 +315,7 @@ template <typename T, PortTypes> struct Adaptor;
     using RTT::os::Mutex;
     using RTT::os::MutexLock;
     using RTT::os::Condition;
+    using RTT::os::ThreadInterface;
 
     using RTT::extras::SlaveActivity;
 
@@ -268,9 +325,26 @@ template <typename T, PortTypes> struct Adaptor;
             return tc->trigger();
         }
 
+        static void yield(TaskContext *tc) {
+            tc->getActivity()->thread()->yield();
+        }
+
         static bool update(TaskContext *tc) {
             return tc->update();
         }
+
+        static bool setCpuAffinity(ThreadInterface *thread, const std::bitset<16> &cpu_affinity) {
+            RTT::os::Thread *t = dynamic_cast<RTT::os::Thread *>(thread);
+            if (!t) return false;
+            return t->setCpuAffinity(cpu_affinity.to_ulong());
+        }
+
+        static std::bitset<16> getCpuAffinity(ThreadInterface *thread) {
+            RTT::os::Thread *t = dynamic_cast<RTT::os::Thread *>(thread);
+            if (!t) return ~std::bitset<16>();
+            return std::bitset<16>(t->getCpuAffinity());
+        }
+
     }
 
     template <typename T, PortTypes>
@@ -628,7 +702,10 @@ public:
             if ((desired_number_of_cycles_ > 0) && (number_of_cycles_ >= desired_number_of_cycles_)) finished = true;
             finished_.broadcast();
         }
-        if (trigger && !finished) adaptor::trigger(this);
+        if (trigger && !finished) {
+            adaptor::trigger(this);
+            adaptor::yield(this);
+        }
         if (finished) this->stop();
     }
 
@@ -709,6 +786,11 @@ public:
         timer_by_status[fs].updateFrom(timer);
         this->afterUpdateHook(/* trigger = */ true);
     }
+
+    bool breakUpdateHook()
+    {
+        return true;
+    }
 };
 
 template <typename T, PortTypes PortType>
@@ -757,6 +839,11 @@ public:
         this->afterUpdateHook(/* trigger = */ false);
     }
 
+    bool breakUpdateHook()
+    {
+        return true;
+    }
+
 private:
     bool read_loop_;
     bool copy_old_data_;
@@ -780,7 +867,9 @@ struct TestOptions {
     bool ReadLoop;
     bool CopyOldData;
 
-    unsigned CpuAffinity;
+    int SchedulerType;
+    int ThreadPriority;
+    std::bitset<16> CpuAffinity;
 
     TestOptions()
         : SampleSize(SAMPLE_SIZE),
@@ -792,14 +881,36 @@ struct TestOptions {
           KeepLastWrittenValue(false),
           ReadLoop(false),
           CopyOldData(false),
-          CpuAffinity(0xffff)
+          SchedulerType(ORO_SCHED_RT),
+          ThreadPriority(HighestPriority),
+          CpuAffinity(getDefaultCpuAffinity())
     {
         policy.init = false;
     }
+
+    static std::bitset<16> getDefaultCpuAffinity()
+    {
+        static std::bitset<16> default_cpu_affinity(0);
+        if (default_cpu_affinity.none()) {
+            Activity temp;
+            default_cpu_affinity = adaptor::getCpuAffinity(temp.thread());
+        }
+        return default_cpu_affinity;
+    }
 };
+
+const char *schedulerTypeToString(int scheduler) {
+    static std::map<int, const char *> map;
+    if (map.empty()) {
+        map[ORO_SCHED_OTHER] = "ORO_SCHED_OTHER";
+        map[ORO_SCHED_RT]    = "ORO_SCHED_RT";
+    }
+    return map.at(scheduler);
+}
 
 std::ostream &operator<<(std::ostream &os, const TestOptions &options)
 {
+
     os << "***************************************************************************************************************************" << std::endl;
     os << " * RTT version:             " << _stringify(RTT_VERSION) << std::endl;
     os << " *" << std::endl;
@@ -810,11 +921,9 @@ std::ostream &operator<<(std::ostream &os, const TestOptions &options)
     os << " * Writers:                 " << options.NumberOfWriters << std::endl;
     os << " * Readers:                 " << options.NumberOfReaders << std::endl;
     os << " * Cycles:                  " << options.NumberOfCycles << std::endl;
-#if RTT_VERSION_MAJOR >= 2
-    os << " * CPU affinity:            " << std::bitset<16>(options.CpuAffinity) << std::endl;
-#else
-    os << " * CPU affinity:            (not supported by this version of RTT)" << std::endl;
-#endif
+    os << " * Scheduler:               " << schedulerTypeToString(options.SchedulerType) << std::endl;
+    os << " * Priority:                " << options.ThreadPriority << std::endl;
+    os << " * CPU affinity:            " << options.CpuAffinity << " (" << options.CpuAffinity.count() << " cores)" << std::endl;
 
     os << " *" << std::endl;
     switch(options.WriteMode) {
@@ -874,9 +983,11 @@ public:
                 writer->setDesiredNumberOfCycles(options_.NumberOfCycles);
                 break;
             case TestOptions::WriteAsynchronous:
-#if RTT_VERSION_MAJOR >= 2
-                writer->getActivity()->setCpuAffinity(options_.CpuAffinity);
-#endif
+                writer->setActivity(new Activity(options.SchedulerType, options.ThreadPriority, 0.0, options.CpuAffinity.to_ulong(), 0, writer->getName()));
+                // adaptor::setCpuAffinity(writer.get(), options_.CpuAffinity);
+                BOOST_CHECK_EQUAL(writer->getActivity()->thread()->getScheduler(), options_.SchedulerType);
+                BOOST_CHECK_EQUAL(writer->getActivity()->thread()->getPriority(), options_.ThreadPriority);
+                BOOST_CHECK_EQUAL(adaptor::getCpuAffinity(writer->getActivity()->thread()), options_.CpuAffinity);
                 writer->setDesiredNumberOfCycles(options_.NumberOfCycles);
                 break;
             default:
@@ -894,9 +1005,11 @@ public:
                 reader->setDesiredNumberOfCycles(options_.NumberOfCycles);
                 break;
             case TestOptions::ReadAsynchronous:
-#if RTT_VERSION_MAJOR >= 2
-                reader->getActivity()->setCpuAffinity(options_.CpuAffinity);
-#endif
+                reader->setActivity(new Activity(options.SchedulerType, options.ThreadPriority, 0.0, options.CpuAffinity.to_ulong(), 0, reader->getName()));
+                // adaptor::setCpuAffinity(reader.get(), options_.CpuAffinity);
+                BOOST_CHECK_EQUAL(reader->getActivity()->thread()->getScheduler(), options_.SchedulerType);
+                BOOST_CHECK_EQUAL(reader->getActivity()->thread()->getPriority(), options_.ThreadPriority);
+                BOOST_CHECK_EQUAL(adaptor::getCpuAffinity(reader->getActivity()->thread()), options_.CpuAffinity);
                 break;
             default:
                 break;
@@ -946,7 +1059,7 @@ public:
     }
 
     bool startAll() {
-        return startReaders() && startWriters();
+        return startWriters() && startReaders();
     }
 
     void stopAll() {
@@ -1146,8 +1259,6 @@ private:
     TestOptions options_;
 };
 
-#include <boost/test/unit_test.hpp>
-
 // Registers the test suite into the 'registry'
 BOOST_AUTO_TEST_SUITE( DataFlowPerformanceTest )
 
@@ -1161,9 +1272,9 @@ BOOST_AUTO_TEST_CASE( lockedDataConnection )
     options.policy.lock_policy = ConnPolicy::LOCKED;
 
 #if (RTT_VERSION_MAJOR >= 2)
-    // 10 writers, 1 reader, ReadUnordered
+    // 7 writers, 1 reader, ReadUnordered
     {
-        options.NumberOfWriters = 10;
+        options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
         options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadUnordered;
@@ -1179,9 +1290,9 @@ BOOST_AUTO_TEST_CASE( lockedDataConnection )
 #endif
 
 #if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 10 writers, 1 reader, ReadShared
+    // 7 writers, 1 reader, ReadShared
     {
-        options.NumberOfWriters = 10;
+        options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
         options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadShared;
@@ -1197,10 +1308,10 @@ BOOST_AUTO_TEST_CASE( lockedDataConnection )
 #endif
 
 #if (RTT_VERSION_MAJOR >= 2)
-    // 1 writer, 10 readers, ReadUnordered
+    // 1 writer, 7 readers, ReadUnordered
     {
         options.NumberOfWriters = 1;
-        options.NumberOfReaders = 10;
+        options.NumberOfReaders = 7;
         options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadUnordered;
         std::cout << options;
@@ -1215,10 +1326,10 @@ BOOST_AUTO_TEST_CASE( lockedDataConnection )
 #endif
 
 #if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 1 writer, 10 readers, WriteShared
+    // 1 writer, 7 readers, WriteShared
     {
         options.NumberOfWriters = 1;
-        options.NumberOfReaders = 10;
+        options.NumberOfReaders = 7;
         options.policy.write_policy = WriteShared;
         options.policy.read_policy = ReadUnordered;
         std::cout << options;
@@ -1314,9 +1425,9 @@ BOOST_AUTO_TEST_CASE( lockFreeBufferConnection )
     options.policy.lock_policy = ConnPolicy::LOCK_FREE;
 
 #if (RTT_VERSION_MAJOR >= 2)
-    // 10 writers, 1 reader, ReadUnordered
+    // 7 writers, 1 reader, ReadUnordered
     {
-        options.NumberOfWriters = 10;
+        options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
         options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadUnordered;
@@ -1332,9 +1443,9 @@ BOOST_AUTO_TEST_CASE( lockFreeBufferConnection )
 #endif
 
 #if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 10 writers, 1 reader, ReadShared
+    // 7 writers, 1 reader, ReadShared
     {
-        options.NumberOfWriters = 10;
+        options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
         options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadShared;
@@ -1350,10 +1461,10 @@ BOOST_AUTO_TEST_CASE( lockFreeBufferConnection )
 #endif
 
 #if (RTT_VERSION_MAJOR >= 2)
-    // 1 writer, 10 readers, ReadUnordered
+    // 1 writer, 7 readers, ReadUnordered
     {
         options.NumberOfWriters = 1;
-        options.NumberOfReaders = 10;
+        options.NumberOfReaders = 7;
         options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadUnordered;
         std::cout << options;
@@ -1368,10 +1479,10 @@ BOOST_AUTO_TEST_CASE( lockFreeBufferConnection )
 #endif
 
 #if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 1 writer, 10 readers, WriteShared
+    // 1 writer, 7 readers, WriteShared
     {
         options.NumberOfWriters = 1;
-        options.NumberOfReaders = 10;
+        options.NumberOfReaders = 7;
         options.policy.write_policy = WriteShared;
         options.policy.read_policy = ReadUnordered;
         std::cout << options;
@@ -1467,9 +1578,9 @@ BOOST_AUTO_TEST_CASE( emptyReads )
     options.ReadMode = TestOptions::ReadSynchronous;
 
 #if (RTT_VERSION_MAJOR >= 2)
-    // 10 writers, 1 reader, ReadUnordered
+    // 7 writers, 1 reader, ReadUnordered
     {
-        options.NumberOfWriters = 10;
+        options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
         options.policy.read_policy = ReadUnordered;
         std::cout << options;
@@ -1484,9 +1595,9 @@ BOOST_AUTO_TEST_CASE( emptyReads )
 #endif
 
 #if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 10 writers, 1 reader, shared connection
+    // 7 writers, 1 reader, shared connection
     {
-        options.NumberOfWriters = 10;
+        options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
         options.policy.write_policy = WriteShared;
         options.policy.read_policy = ReadShared;
