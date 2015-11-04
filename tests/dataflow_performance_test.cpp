@@ -23,9 +23,9 @@
 #include <boost/test/unit_test.hpp>
 
 #define SAMPLE_SIZE 10000
-// #define SAMPLE_TYPE boost::array<double,SAMPLE_SIZE>
-#define SAMPLE_TYPE std::vector<double>
-#define NUMBER_OF_CYCLES 1000
+#define SAMPLE_TYPE boost::array<double,SAMPLE_SIZE>
+// #define SAMPLE_TYPE std::vector<double>
+#define NUMBER_OF_CYCLES 10000
 
 enum PortTypes { DataPortType = 1, BufferPortType = 2 };
 template <typename T, PortTypes> struct Adaptor;
@@ -883,7 +883,7 @@ struct TestOptions {
           CopyOldData(false),
           SchedulerType(ORO_SCHED_RT),
           ThreadPriority(HighestPriority),
-          CpuAffinity(getDefaultCpuAffinity())
+          CpuAffinity(getDefaultCpuAffinity() & std::bitset<16>(0x000f)) // run with at most 4 cores
     {
         policy.init = false;
     }
@@ -973,6 +973,13 @@ public:
     TestRunner(const std::string &name, const TestOptions &options)
         : options_(options)
     {
+#if RTT_VERSION_GTE(2,8,99)
+        if (options_.policy.read_policy == ReadShared && options_.policy.type == ConnPolicy::DATA && options_.policy.lock_policy == ConnPolicy::LOCK_FREE) {
+            options_.policy.lock_policy = ConnPolicy::LOCKED;
+            log(Warning) << "Falling back to locking policy LOCKED for a ReadShared data connection!" << endlog();
+        }
+#endif
+
         for(std::size_t index = 0; index < options_.NumberOfWriters; ++index) {
             WriterPtr writer(new Writer<T,PortType>(name + "Writer", index, options_.SampleSize, options_.KeepLastWrittenValue));
             writers.push_back(writer);
@@ -983,7 +990,7 @@ public:
                 writer->setDesiredNumberOfCycles(options_.NumberOfCycles);
                 break;
             case TestOptions::WriteAsynchronous:
-                writer->setActivity(new Activity(options.SchedulerType, options.ThreadPriority, 0.0, options.CpuAffinity.to_ulong(), 0, writer->getName()));
+                writer->setActivity(new Activity(options_.SchedulerType, options_.ThreadPriority, 0.0, options_.CpuAffinity.to_ulong(), 0, writer->getName()));
                 // adaptor::setCpuAffinity(writer.get(), options_.CpuAffinity);
                 BOOST_CHECK_EQUAL(writer->getActivity()->thread()->getScheduler(), options_.SchedulerType);
                 BOOST_CHECK_EQUAL(writer->getActivity()->thread()->getPriority(), options_.ThreadPriority);
@@ -1005,7 +1012,7 @@ public:
                 reader->setDesiredNumberOfCycles(options_.NumberOfCycles);
                 break;
             case TestOptions::ReadAsynchronous:
-                reader->setActivity(new Activity(options.SchedulerType, options.ThreadPriority, 0.0, options.CpuAffinity.to_ulong(), 0, reader->getName()));
+                reader->setActivity(new Activity(options_.SchedulerType, options_.ThreadPriority, 0.0, options_.CpuAffinity.to_ulong(), 0, reader->getName()));
                 // adaptor::setCpuAffinity(reader.get(), options_.CpuAffinity);
                 BOOST_CHECK_EQUAL(reader->getActivity()->thread()->getScheduler(), options_.SchedulerType);
                 BOOST_CHECK_EQUAL(reader->getActivity()->thread()->getPriority(), options_.ThreadPriority);
@@ -1255,6 +1262,8 @@ public:
         std::cout << std::endl;
     }
 
+    const TestOptions &getOptions() const { return options_; }
+
 private:
     TestOptions options_;
 };
@@ -1262,14 +1271,14 @@ private:
 // Registers the test suite into the 'registry'
 BOOST_AUTO_TEST_SUITE( DataFlowPerformanceTest )
 
-BOOST_AUTO_TEST_CASE( lockedDataConnection )
+BOOST_AUTO_TEST_CASE( dataConnections )
 {
     TestOptions options;
     const PortTypes PortType = DataPortType;
     typedef TestRunner<SampleType,PortType> RunnerType;
 
     options.policy.type = ConnPolicy::DATA;
-    options.policy.lock_policy = ConnPolicy::LOCKED;
+    options.policy.lock_policy = ConnPolicy::LOCK_FREE;
 
 #if (RTT_VERSION_MAJOR >= 2)
     // 7 writers, 1 reader, ReadUnordered
@@ -1278,9 +1287,9 @@ BOOST_AUTO_TEST_CASE( lockedDataConnection )
         options.NumberOfReaders = 1;
         options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadUnordered;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("dataReadUnordered", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1296,9 +1305,9 @@ BOOST_AUTO_TEST_CASE( lockedDataConnection )
         options.NumberOfReaders = 1;
         options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadShared;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("dataReadShared", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1314,9 +1323,9 @@ BOOST_AUTO_TEST_CASE( lockedDataConnection )
         options.NumberOfReaders = 7;
         options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadUnordered;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("dataReadUnordered", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1332,9 +1341,9 @@ BOOST_AUTO_TEST_CASE( lockedDataConnection )
         options.NumberOfReaders = 7;
         options.policy.write_policy = WriteShared;
         options.policy.read_policy = ReadUnordered;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("dataWriteShared", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1350,9 +1359,9 @@ BOOST_AUTO_TEST_CASE( lockedDataConnection )
         options.NumberOfReaders = 4;
         options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadUnordered;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("dataReadUnordered", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1367,9 +1376,9 @@ BOOST_AUTO_TEST_CASE( lockedDataConnection )
         options.NumberOfReaders = 4;
         options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadShared;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("dataReadShared", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1383,9 +1392,9 @@ BOOST_AUTO_TEST_CASE( lockedDataConnection )
         options.NumberOfReaders = 4;
         options.policy.write_policy = WriteShared;
         options.policy.read_policy = ReadUnordered;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("dataWriteShared", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1402,9 +1411,9 @@ BOOST_AUTO_TEST_CASE( lockedDataConnection )
         options.NumberOfReaders = 4;
         options.policy.write_policy = WriteShared;
         options.policy.read_policy = ReadShared;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("dataShared", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1414,7 +1423,7 @@ BOOST_AUTO_TEST_CASE( lockedDataConnection )
 #endif
 }
 
-BOOST_AUTO_TEST_CASE( lockFreeBufferConnection )
+BOOST_AUTO_TEST_CASE( bufferConnections )
 {
     TestOptions options;
     const PortTypes PortType = BufferPortType;
@@ -1431,9 +1440,9 @@ BOOST_AUTO_TEST_CASE( lockFreeBufferConnection )
         options.NumberOfReaders = 1;
         options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadUnordered;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("bufferReadUnordered", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1449,9 +1458,9 @@ BOOST_AUTO_TEST_CASE( lockFreeBufferConnection )
         options.NumberOfReaders = 1;
         options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadShared;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("bufferReadShared", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1467,9 +1476,9 @@ BOOST_AUTO_TEST_CASE( lockFreeBufferConnection )
         options.NumberOfReaders = 7;
         options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadUnordered;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("bufferReadUnordered", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1485,9 +1494,9 @@ BOOST_AUTO_TEST_CASE( lockFreeBufferConnection )
         options.NumberOfReaders = 7;
         options.policy.write_policy = WriteShared;
         options.policy.read_policy = ReadUnordered;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("bufferWriteShared", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1503,9 +1512,9 @@ BOOST_AUTO_TEST_CASE( lockFreeBufferConnection )
         options.NumberOfReaders = 4;
         options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadUnordered;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("bufferReadUnordered", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1520,9 +1529,9 @@ BOOST_AUTO_TEST_CASE( lockFreeBufferConnection )
         options.NumberOfReaders = 4;
         options.policy.write_policy = WritePrivate;
         options.policy.read_policy = ReadShared;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("bufferReadShared", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1536,9 +1545,9 @@ BOOST_AUTO_TEST_CASE( lockFreeBufferConnection )
         options.NumberOfReaders = 4;
         options.policy.write_policy = WriteShared;
         options.policy.read_policy = ReadUnordered;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("bufferWriteShared", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1555,9 +1564,9 @@ BOOST_AUTO_TEST_CASE( lockFreeBufferConnection )
         options.NumberOfReaders = 4;
         options.policy.write_policy = WriteShared;
         options.policy.read_policy = ReadShared;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("bufferShared", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1583,9 +1592,9 @@ BOOST_AUTO_TEST_CASE( emptyReads )
         options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
         options.policy.read_policy = ReadUnordered;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("no", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
@@ -1601,9 +1610,9 @@ BOOST_AUTO_TEST_CASE( emptyReads )
         options.NumberOfReaders = 1;
         options.policy.write_policy = WriteShared;
         options.policy.read_policy = ReadShared;
-        std::cout << options;
-
         typename RunnerType::shared_ptr runner(new RunnerType("no", options));
+
+        std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
         BOOST_CHECK( runner->run() );
 
