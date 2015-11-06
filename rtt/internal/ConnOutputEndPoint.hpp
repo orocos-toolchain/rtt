@@ -114,6 +114,12 @@ namespace RTT
                 if (!signal()) {
                     return WriteFailure;
                 }
+            } else if (result == NotConnected) {
+                // A ConnOutputEndPoint is always connected: If Base::write(sample) returned NotConnected the port
+                // does not have a shared input buffer and you cannot write into this ChannelElement, but it still
+                // should be considered as connected.
+                // @sa OutputPort::connectionAdded()
+                result = WriteFailure;
             }
             return result;
         }
