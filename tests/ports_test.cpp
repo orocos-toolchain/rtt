@@ -1000,3 +1000,247 @@ BOOST_AUTO_TEST_CASE(testPortDataSource)
 
 BOOST_AUTO_TEST_SUITE_END()
 
+/**
+ * Another fixture for concurrency test.
+ */
+class ConcurrencyPortsTestFixture
+{
+public:
+    template <typename T>
+    class PortWriterThread : public Activity
+    {
+    public:
+        PortWriterThread(const T& sample = T())
+            : port("writer"), sample(sample), step_counter(0), write_counter(0)
+        {}
+        void step() {
+            if (port.write(sample) == WriteSuccess) {
+                ++write_counter;
+            }
+            this->trigger();
+            this->yield();
+            ++step_counter;
+        }
+        bool breakLoop() { return true; }
+    public:
+        OutputPort<T> port;
+        T sample;
+        unsigned step_counter;
+        unsigned write_counter;
+    };
+
+    template <typename T>
+    class PortReaderThread : public Activity
+    {
+    public:
+        PortReaderThread()
+            : port("reader"), step_counter(0), read_counter(0)
+        {}
+        void step() {
+            if (port.read(sample) == NewData) {
+                ++read_counter;
+            }
+            this->trigger();
+            this->yield();
+            ++step_counter;
+        }
+        bool breakLoop() { return true; }
+    public:
+        InputPort<T> port;
+        T sample;
+        unsigned step_counter;
+        unsigned read_counter;
+    };
+
+    class PortConnectorThread : public Activity
+    {
+    public:
+        PortConnectorThread(PortInterface &connect_port, PortInterface &other_port, const ConnPolicy &policy = ConnPolicy())
+            : connect_port(connect_port), other_port(other_port), policy(policy), step_counter(0), connect_counter(0), disconnect_counter(0), connected(false)
+        {}
+        void step() {
+            if (!connected) {
+                if (connect_port.connectTo(&other_port, policy)) {
+                    ++connect_counter;
+                    connected = true;
+                } else {
+                    (void)0;
+                }
+            } else {
+                if (!shared_connection) {
+                    connect_port.disconnect();
+                } else {
+                    connect_port.getManager()->removeConnection(shared_connection.get());
+                }
+                ++disconnect_counter;
+                connected = false;
+            }
+            this->trigger();
+            this->yield();
+            ++step_counter;
+        }
+        bool breakLoop() { return true; }
+    public:
+        PortInterface &connect_port;
+        PortInterface &other_port;
+        RTT::internal::SharedConnectionBase::shared_ptr shared_connection;
+        ConnPolicy policy;
+        unsigned step_counter;
+        unsigned connect_counter;
+        unsigned disconnect_counter;
+
+    private:
+        bool connected;
+    };
+
+    typedef double T;
+    PortWriterThread<T> writer;
+    PortReaderThread<T> reader;
+    OutputPort<T> another_output_port;
+    InputPort<T> another_input_port;
+    PortConnectorThread another_output_connector, another_input_connector;
+
+public:
+    ConcurrencyPortsTestFixture()
+        : writer()
+        , reader()
+        , another_output_port("another_output_port")
+        , another_input_port("another_input_port")
+        , another_output_connector(another_output_port, reader.port)
+        , another_input_connector(another_input_port, writer.port)
+    {}
+
+    ~ConcurrencyPortsTestFixture()
+    {
+        stop();
+        disconnect();
+    }
+
+    bool connect(const ConnPolicy &policy) {
+        another_output_connector.policy = policy;
+        another_input_connector.policy = policy;
+        return writer.port.connectTo(&reader.port, policy);
+    }
+
+    void disconnect() {
+        writer.port.disconnect();
+        reader.port.disconnect();
+        another_output_port.disconnect();
+        another_input_port.disconnect();
+    }
+
+    bool start()
+    {
+        bool result = true;
+        result = writer.start() && result;
+        result = reader.start() && result;
+        result = another_output_connector.start() && result;
+        result = another_input_connector.start() && result;
+        return true;
+    }
+
+    bool stop()
+    {
+        bool result = true;
+        result = writer.stop() && result;
+        result = reader.stop() && result;
+        result = another_output_connector.stop() && result;
+        result = another_input_connector.stop() && result;
+        return true;
+    }
+};
+
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE(  ConcurrencyPortsTestSuite,  ConcurrencyPortsTestFixture )
+
+BOOST_AUTO_TEST_CASE( testConcurrencyWritePrivateReadUnordered )
+{
+    ConnPolicy policy = ConnPolicy::data(ConnPolicy::LOCK_FREE);
+    policy.write_policy = WritePrivate;
+    policy.read_policy = ReadUnordered;
+
+    BOOST_REQUIRE( connect(policy) );
+    BOOST_REQUIRE( start() );
+    sleep(1);
+    BOOST_REQUIRE( stop() );
+    disconnect();
+
+    BOOST_TEST_MESSAGE("Number of writes:                  " << writer.write_counter);
+    BOOST_CHECK_GE( writer.write_counter, 100 );
+    BOOST_TEST_MESSAGE("Number of reads:                   " << reader.read_counter);
+    BOOST_CHECK_GE( reader.read_counter, 100 );
+    BOOST_TEST_MESSAGE("Number of connects to input port:  " << another_output_connector.connect_counter);
+    BOOST_CHECK_GE( another_output_connector.connect_counter, 100 );
+    BOOST_TEST_MESSAGE("Number of connects to output port: " << another_input_connector.connect_counter);
+    BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
+}
+
+BOOST_AUTO_TEST_CASE( testConcurrencyWritePrivateReadShared )
+{
+    ConnPolicy policy = ConnPolicy::data(ConnPolicy::LOCKED);
+    policy.write_policy = WritePrivate;
+    policy.read_policy = ReadShared;
+
+    BOOST_REQUIRE( connect(policy) );
+    BOOST_REQUIRE( start() );
+    sleep(1);
+    BOOST_REQUIRE( stop() );
+    disconnect();
+
+    BOOST_TEST_MESSAGE("Number of writes:                  " << writer.write_counter);
+    BOOST_CHECK_GE( writer.write_counter, 100 );
+    BOOST_TEST_MESSAGE("Number of reads:                   " << reader.read_counter);
+    BOOST_CHECK_GE( reader.read_counter, 100 );
+    BOOST_TEST_MESSAGE("Number of connects to input port:  " << another_output_connector.connect_counter);
+    BOOST_CHECK_GE( another_output_connector.connect_counter, 100 );
+    BOOST_TEST_MESSAGE("Number of connects to output port: " << another_input_connector.connect_counter);
+    BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
+}
+
+BOOST_AUTO_TEST_CASE( testConcurrencyWriteSharedReadUnordered )
+{
+    ConnPolicy policy = ConnPolicy::data(ConnPolicy::LOCK_FREE);
+    policy.write_policy = WriteShared;
+    policy.read_policy = ReadUnordered;
+
+    BOOST_REQUIRE( connect(policy) );
+    BOOST_REQUIRE( start() );
+    sleep(1);
+    BOOST_REQUIRE( stop() );
+    disconnect();
+
+    BOOST_TEST_MESSAGE("Number of writes:                  " << writer.write_counter);
+    BOOST_CHECK_GE( writer.write_counter, 100 );
+    BOOST_TEST_MESSAGE("Number of reads:                   " << reader.read_counter);
+    BOOST_CHECK_GE( reader.read_counter, 100 );
+    BOOST_TEST_MESSAGE("Number of connects to input port:  " << another_output_connector.connect_counter);
+    BOOST_CHECK_GE( another_output_connector.connect_counter, 100 );
+    BOOST_TEST_MESSAGE("Number of connects to output port: " << another_input_connector.connect_counter);
+    BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
+}
+
+BOOST_AUTO_TEST_CASE( testConcurrencySharedConnection )
+{
+    ConnPolicy policy = ConnPolicy::data(ConnPolicy::LOCKED);
+    policy.write_policy = WriteShared;
+    policy.read_policy = ReadShared;
+
+    BOOST_REQUIRE( connect(policy) );
+    another_output_connector.shared_connection = writer.port.getSharedConnection();
+    another_input_connector.shared_connection = reader.port.getSharedConnection();
+    BOOST_REQUIRE( start() );
+    sleep(1);
+    BOOST_REQUIRE( stop() );
+    disconnect();
+
+    BOOST_TEST_MESSAGE("Number of writes:                  " << writer.write_counter);
+    BOOST_CHECK_GE( writer.write_counter, 100 );
+    BOOST_TEST_MESSAGE("Number of reads:                   " << reader.read_counter);
+    BOOST_CHECK_GE( reader.read_counter, 100 );
+    BOOST_TEST_MESSAGE("Number of connects to input port:  " << another_output_connector.connect_counter);
+    BOOST_CHECK_GE( another_output_connector.connect_counter, 100 );
+    BOOST_TEST_MESSAGE("Number of connects to output port: " << another_input_connector.connect_counter);
+    BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
+}
+
+BOOST_AUTO_TEST_SUITE_END()
