@@ -99,7 +99,11 @@ base::ChannelElementBase::shared_ptr RTT::internal::ConnFactory::buildRemoteChan
 
 bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, base::ChannelElementBase::shared_ptr channel_input, base::ChannelElementBase::shared_ptr channel_output, ConnPolicy const& policy) {
     // connect channel input to channel output
-    channel_input->connectTo(channel_output, policy.mandatory);
+    if (!channel_input->connectTo(channel_output, policy.mandatory)) {
+        channel_input->disconnect(channel_output, true);
+        channel_output->disconnect(channel_input, false);
+        return false;
+    }
 
     // Register the channel's input to the output port.
     // This is a bit hacky. We have to find the next channel element in the pipeline as seen from the ConnOutputEndpoint:
@@ -123,6 +127,7 @@ bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_por
         log(Error) << "The input port "<< input_port.getName()
                    << " could not successfully read from the connection from output port " << output_port.getName() <<endlog();
         output_port.disconnect( &input_port );
+        channel_output->disconnect(channel_input, false);
         return false;
     }
 
