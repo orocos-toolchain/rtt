@@ -746,7 +746,7 @@ BOOST_AUTO_TEST_CASE(testInvalidReadPolicyConnections)
     cp_BUFFER5.read_policy = ReadShared;
     cp_BUFFER10.read_policy = ReadShared;
     BOOST_CHECK( wp1.connectTo(&rp, cp_BUFFER5) );
-    BOOST_CHECK( !wp1.connectTo(&rp, cp_BUFFER10) );
+    BOOST_CHECK( !wp2.connectTo(&rp, cp_BUFFER10) );
     rp.disconnect();
 }
 
