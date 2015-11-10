@@ -1060,20 +1060,17 @@ public:
         {}
         void step() {
             if (!connected) {
-                if (connect_port.connectTo(&other_port, policy)) {
-                    ++connect_counter;
+                if ((!shared_connection && connect_port.connectTo(&other_port, policy)) ||
+                    (shared_connection && connect_port.createConnection(shared_connection, policy))) {
                     connected = true;
-                } else {
-                    (void)0;
+                    ++connect_counter;
                 }
             } else {
-                if (!shared_connection) {
-                    connect_port.disconnect();
-                } else {
-                    connect_port.getManager()->removeConnection(shared_connection.get());
+                if ((!shared_connection && connect_port.disconnect(&other_port)) ||
+                    (shared_connection && !connect_port.getManager()->removeConnection(shared_connection.get()))) {
+                    connected = false;
+                    ++disconnect_counter;
                 }
-                ++disconnect_counter;
-                connected = false;
             }
             this->trigger();
             this->yield();
@@ -1088,14 +1085,13 @@ public:
         unsigned step_counter;
         unsigned connect_counter;
         unsigned disconnect_counter;
-
-    private:
         bool connected;
     };
 
     typedef double T;
     PortWriterThread<T> writer;
     PortReaderThread<T> reader;
+    PortConnectorThread connector;
     OutputPort<T> another_output_port;
     InputPort<T> another_input_port;
     PortConnectorThread another_output_connector, another_input_connector;
@@ -1104,6 +1100,7 @@ public:
     ConcurrencyPortsTestFixture()
         : writer()
         , reader()
+        , connector(writer.port, reader.port)
         , another_output_port("another_output_port")
         , another_input_port("another_input_port")
         , another_output_connector(another_output_port, reader.port)
@@ -1117,6 +1114,7 @@ public:
     }
 
     bool connect(const ConnPolicy &policy) {
+        connector.policy = policy;
         another_output_connector.policy = policy;
         another_input_connector.policy = policy;
         return writer.port.connectTo(&reader.port, policy);
@@ -1134,6 +1132,7 @@ public:
         bool result = true;
         result = writer.start() && result;
         result = reader.start() && result;
+        result = connector.start() && result;
         result = another_output_connector.start() && result;
         result = another_input_connector.start() && result;
         return true;
@@ -1144,6 +1143,7 @@ public:
         bool result = true;
         result = writer.stop() && result;
         result = reader.stop() && result;
+        result = connector.stop() && result;
         result = another_output_connector.stop() && result;
         result = another_input_connector.stop() && result;
         return true;
@@ -1159,19 +1159,21 @@ BOOST_AUTO_TEST_CASE( testConcurrencyWritePrivateReadUnordered )
     policy.write_policy = WritePrivate;
     policy.read_policy = ReadUnordered;
 
-    BOOST_REQUIRE( connect(policy) );
+    BOOST_REQUIRE( connector.connected = connect(policy) );
     BOOST_REQUIRE( start() );
     sleep(1);
     BOOST_REQUIRE( stop() );
     disconnect();
 
-    BOOST_TEST_MESSAGE("Number of writes:                  " << writer.write_counter);
+    BOOST_TEST_MESSAGE("Number of successful writes:                  " << writer.write_counter);
     BOOST_CHECK_GE( writer.write_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of reads:                   " << reader.read_counter);
+    BOOST_TEST_MESSAGE("Number of successful reads (NewData):         " << reader.read_counter);
     BOOST_CHECK_GE( reader.read_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects to input port:  " << another_output_connector.connect_counter);
+    BOOST_TEST_MESSAGE("Number of connects/disconnects:               " << connector.connect_counter);
+    BOOST_CHECK_GE( connector.connect_counter, 100 );
+    BOOST_TEST_MESSAGE("Number of connects from another output port:  " << another_output_connector.connect_counter);
     BOOST_CHECK_GE( another_output_connector.connect_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects to output port: " << another_input_connector.connect_counter);
+    BOOST_TEST_MESSAGE("Number of connects to another input port:     " << another_input_connector.connect_counter);
     BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
 }
 
@@ -1181,19 +1183,21 @@ BOOST_AUTO_TEST_CASE( testConcurrencyWritePrivateReadShared )
     policy.write_policy = WritePrivate;
     policy.read_policy = ReadShared;
 
-    BOOST_REQUIRE( connect(policy) );
+    BOOST_REQUIRE( connector.connected = connect(policy) );
     BOOST_REQUIRE( start() );
     sleep(1);
     BOOST_REQUIRE( stop() );
     disconnect();
 
-    BOOST_TEST_MESSAGE("Number of writes:                  " << writer.write_counter);
+    BOOST_TEST_MESSAGE("Number of successful writes:                  " << writer.write_counter);
     BOOST_CHECK_GE( writer.write_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of reads:                   " << reader.read_counter);
+    BOOST_TEST_MESSAGE("Number of successful reads (NewData):         " << reader.read_counter);
     BOOST_CHECK_GE( reader.read_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects to input port:  " << another_output_connector.connect_counter);
+    BOOST_TEST_MESSAGE("Number of connects/disconnects:               " << connector.connect_counter);
+    BOOST_CHECK_GE( connector.connect_counter, 100 );
+    BOOST_TEST_MESSAGE("Number of connects from another output port:  " << another_output_connector.connect_counter);
     BOOST_CHECK_GE( another_output_connector.connect_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects to output port: " << another_input_connector.connect_counter);
+    BOOST_TEST_MESSAGE("Number of connects to another input port:     " << another_input_connector.connect_counter);
     BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
 }
 
@@ -1203,19 +1207,21 @@ BOOST_AUTO_TEST_CASE( testConcurrencyWriteSharedReadUnordered )
     policy.write_policy = WriteShared;
     policy.read_policy = ReadUnordered;
 
-    BOOST_REQUIRE( connect(policy) );
+    BOOST_REQUIRE( connector.connected = connect(policy) );
     BOOST_REQUIRE( start() );
     sleep(1);
     BOOST_REQUIRE( stop() );
     disconnect();
 
-    BOOST_TEST_MESSAGE("Number of writes:                  " << writer.write_counter);
+    BOOST_TEST_MESSAGE("Number of successful writes:                  " << writer.write_counter);
     BOOST_CHECK_GE( writer.write_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of reads:                   " << reader.read_counter);
+    BOOST_TEST_MESSAGE("Number of successful reads (NewData):         " << reader.read_counter);
     BOOST_CHECK_GE( reader.read_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects to input port:  " << another_output_connector.connect_counter);
+    BOOST_TEST_MESSAGE("Number of connects/disconnects:               " << connector.connect_counter);
+    BOOST_CHECK_GE( connector.connect_counter, 100 );
+    BOOST_TEST_MESSAGE("Number of connects from another output port:  " << another_output_connector.connect_counter);
     BOOST_CHECK_GE( another_output_connector.connect_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects to output port: " << another_input_connector.connect_counter);
+    BOOST_TEST_MESSAGE("Number of connects to another input port:     " << another_input_connector.connect_counter);
     BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
 }
 
@@ -1225,21 +1231,29 @@ BOOST_AUTO_TEST_CASE( testConcurrencySharedConnection )
     policy.write_policy = WriteShared;
     policy.read_policy = ReadShared;
 
-    BOOST_REQUIRE( connect(policy) );
+    BOOST_REQUIRE( connector.connected = connect(policy) );
+    connector.shared_connection = writer.port.getSharedConnection();
     another_output_connector.shared_connection = writer.port.getSharedConnection();
     another_input_connector.shared_connection = reader.port.getSharedConnection();
+
+    // Add another fake writer connection so that the shared connection is not cleaned up if writer.port and another_output_port disconnect.
+    RTT::OutputPort<T> yet_another_output_port("yet_another_output_port");
+    yet_another_output_port.createConnection(writer.port.getSharedConnection(), policy);
+
     BOOST_REQUIRE( start() );
     sleep(1);
     BOOST_REQUIRE( stop() );
     disconnect();
 
-    BOOST_TEST_MESSAGE("Number of writes:                  " << writer.write_counter);
+    BOOST_TEST_MESSAGE("Number of successful writes:                  " << writer.write_counter);
     BOOST_CHECK_GE( writer.write_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of reads:                   " << reader.read_counter);
+    BOOST_TEST_MESSAGE("Number of successful reads (NewData):         " << reader.read_counter);
     BOOST_CHECK_GE( reader.read_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects to input port:  " << another_output_connector.connect_counter);
+    BOOST_TEST_MESSAGE("Number of connects/disconnects:               " << connector.connect_counter);
+    BOOST_CHECK_GE( connector.connect_counter, 100 );
+    BOOST_TEST_MESSAGE("Number of connects from another output port:  " << another_output_connector.connect_counter);
     BOOST_CHECK_GE( another_output_connector.connect_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects to output port: " << another_input_connector.connect_counter);
+    BOOST_TEST_MESSAGE("Number of connects to another input port:     " << another_input_connector.connect_counter);
     BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
 }
 
