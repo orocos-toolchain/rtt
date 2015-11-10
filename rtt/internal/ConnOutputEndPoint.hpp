@@ -170,9 +170,9 @@ namespace RTT
             return this;
         }
 
-        virtual base::ChannelElement<T>* getSharedBuffer()
+        virtual typename base::ChannelElement<T>::shared_ptr getSharedBuffer()
         {
-            return this->getOutput().get();
+            return this->getOutput();
         }
 
         typename base::ChannelElement<T>::shared_ptr getReadEndpoint()

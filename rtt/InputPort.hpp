@@ -224,16 +224,15 @@ namespace RTT
         }
 #endif
 
-        internal::ConnOutputEndpoint<T>* getEndpoint() const
+        virtual internal::ConnOutputEndpoint<T>* getEndpoint() const
         {
             assert(endpoint);
             return endpoint.get();
         }
 
-        base::ChannelElement<T>* getSharedBuffer() const
+        virtual typename base::ChannelElement<T>::shared_ptr getSharedBuffer() const
         {
-            assert(endpoint);
-            return endpoint->getSharedBuffer();
+            return getEndpoint()->getSharedBuffer();
         }
     };
 }

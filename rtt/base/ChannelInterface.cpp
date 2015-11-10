@@ -151,8 +151,8 @@ bool ChannelElementBase::disconnect(ChannelElementBase::shared_ptr const&, bool 
                 return false;
     }
 
-    removeOutput(shared_ptr());
-    removeInput(shared_ptr());
+    ChannelElementBase::removeOutput(shared_ptr());
+    ChannelElementBase::removeInput(shared_ptr());
     return true;
 }
 

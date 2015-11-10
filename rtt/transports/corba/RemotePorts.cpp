@@ -113,12 +113,6 @@ RTT::base::ChannelElementBase* RemotePort<BaseClass>::getEndpoint() const
     return 0;
 }
 
-template<typename BaseClass>
-RTT::base::ChannelElementBase* RemotePort<BaseClass>::getSharedBuffer() const
-{
-    return 0;
-}
-
 RemoteInputPort::RemoteInputPort(RTT::types::TypeInfo const* type_info,
         CDataFlowInterface_ptr dataflow, std::string const& reader_port,
         PortableServer::POA_ptr poa)
