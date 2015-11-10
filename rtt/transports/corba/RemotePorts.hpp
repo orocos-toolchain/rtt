@@ -87,7 +87,6 @@ namespace RTT {
             void disconnect();
             bool disconnect(base::PortInterface* p);
             base::ChannelElementBase* getEndpoint() const;
-            base::ChannelElementBase* getSharedBuffer() const;
         };
 
         /**

@@ -151,8 +151,8 @@ bool ChannelElementBase::disconnect(ChannelElementBase::shared_ptr const&, bool 
                 return false;
     }
 
-    removeOutput(shared_ptr());
-    removeInput(shared_ptr());
+    ChannelElementBase::removeOutput(shared_ptr());
+    ChannelElementBase::removeInput(shared_ptr());
     return true;
 }
 
@@ -339,7 +339,7 @@ bool MultipleOutputsChannelElementBase::addOutput(ChannelElementBase::shared_ptr
 {
     if (!output) return false;
     RTT::os::MutexLock lock(outputs_lock);
-    assert(std::find(outputs.begin(), outputs.end(), output) == outputs.end());
+    // assert(std::find(outputs.begin(), outputs.end(), output) == outputs.end());
     if (std::find(outputs.begin(), outputs.end(), output) != outputs.end()) return false;
     outputs.push_back(Output(output, mandatory));
     return true;
