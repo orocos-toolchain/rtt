@@ -347,8 +347,59 @@ namespace RTT
 
     result_type operator()( int a, int b ) const
       {
-          //integer division by zero will throw a fatal
-          //exception, aborting the program (SIGFPE). This is
+          // integer division by zero will throw a fatal
+          // exception, aborting the program (SIGFPE). This is
+          // unacceptable, the problem is however that
+          // we can not signal an erronous expression in Orocos.
+          // we propagate zero instead.
+        return b == 0 ? 0 : a/b;
+      }
+  };
+  template<>
+  struct divides3<unsigned int, unsigned int, unsigned int>
+  {
+    typedef unsigned int result_type;
+    typedef unsigned int first_argument_type;
+    typedef unsigned int second_argument_type;
+
+    result_type operator()( unsigned int a, unsigned int b ) const
+      {
+          // integer division by zero will throw a fatal
+          // exception, aborting the program (SIGFPE). This is
+          // unacceptable, the problem is however that
+          // we can not signal an erronous expression in Orocos.
+          // we propagate zero instead.
+        return b == 0 ? 0 : a/b;
+      }
+  };
+  template<>
+  struct divides3<long long, long long, long long>
+  {
+    typedef long long result_type;
+    typedef long long first_argument_type;
+    typedef long long second_argument_type;
+
+    result_type operator()( long long a, long long b ) const
+      {
+          // integer division by zero will throw a fatal
+          // exception, aborting the program (SIGFPE). This is
+          // unacceptable, the problem is however that
+          // we can not signal an erronous expression in Orocos.
+          // we propagate zero instead.
+        return b == 0 ? 0 : a/b;
+      }
+  };
+  template<>
+  struct divides3<unsigned long long, unsigned long long, unsigned long long>
+  {
+    typedef unsigned long long result_type;
+    typedef unsigned long long first_argument_type;
+    typedef unsigned long long second_argument_type;
+
+    result_type operator()( unsigned long long a, unsigned long long b ) const
+      {
+          // integer division by zero will throw a fatal
+          // exception, aborting the program (SIGFPE). This is
           // unacceptable, the problem is however that
           // we can not signal an erronous expression in Orocos.
           // we propagate zero instead.
