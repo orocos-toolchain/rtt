@@ -392,8 +392,13 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
     ConnPolicy policy2 = toRTT(corba_policy);
 
     ChannelElementBase::shared_ptr end = type_info->buildChannelOutput(*port);
+#ifndef CORBA_PORTS_DISABLE_SIGNAL
+    bool is_signalling = true;
+#else
+    bool is_signalling = false;
+#endif
     CRemoteChannelElement_i* this_element =
-        transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull);
+        transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull, is_signalling);
     this_element->setCDataFlowInterface(this);
 
     /*
@@ -480,7 +485,12 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
 
     // The channel element that exposes our channel in CORBA
     CRemoteChannelElement_i* this_element;
-    PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull);
+#ifndef CORBA_PORTS_DISABLE_SIGNAL
+    bool is_signalling = true;
+#else
+    bool is_signalling = false;
+#endif
+    PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull, is_signalling);
     this_element->setCDataFlowInterface(this);
 
     // Attach the corba channel element first (so OOB is after corba).

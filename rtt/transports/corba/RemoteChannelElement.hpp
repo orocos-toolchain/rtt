@@ -73,16 +73,22 @@ namespace RTT {
 
             PortableServer::ObjectId_var oid;
 
+        /**
+         * If signalling is false, no remoteSignal() calls will be forwarded to remote channel elements.
+         */
+        bool signalling;
+
 	public:
 	    /**
 	     * Create a channel element for remote data exchange.
 	     * @param transport The type specific object that will be used to marshal the data.
 	     * @param poa The POA that manages the underlying CRemoteChannelElement_i.
 	     */
-	    RemoteChannelElement(CorbaTypeTransporter const& transport, DataFlowInterface* sender, PortableServer::POA_ptr poa, bool is_pull)
+        RemoteChannelElement(CorbaTypeTransporter const& transport, DataFlowInterface* sender, PortableServer::POA_ptr poa, bool is_pull, bool is_signalling)
         : CRemoteChannelElement_i(transport, poa)
         , valid(true), pull(is_pull)
         , msender(sender)
+        , signalling(is_signalling)
             {
                 // Big note about cleanup: The RTT will dispose this object through
 	            // the ChannelElement<T> refcounting. So we only need to inform the
@@ -138,9 +144,9 @@ namespace RTT {
                 if ( pull ) {
                     try
                     {
-#ifndef CORBA_PORTS_DISABLE_SIGNAL
-                        remote_side->remoteSignal();
-#endif
+                        if (signalling) {
+                            remote_side->remoteSignal();
+                        }
                     }
 #ifdef CORBA_IS_OMNIORB
                     catch(CORBA::SystemException& e)
