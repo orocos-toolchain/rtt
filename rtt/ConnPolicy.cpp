@@ -61,8 +61,7 @@ namespace RTT
         , lock_policy(LOCK_FREE)
         , init(false)
         , pull(false)
-        , read_policy(ReadUnordered)
-        , write_policy(WritePrivate)
+        , buffer_policy(PerConnection)
         , max_threads(0)
         , mandatory(true)
         , transport(0)
@@ -113,8 +112,7 @@ namespace RTT
         , lock_policy(Default().lock_policy)
         , init(Default().init)
         , pull(Default().pull)
-        , read_policy(Default().read_policy)
-        , write_policy(Default().write_policy)
+        , buffer_policy(Default().buffer_policy)
         , max_threads(Default().max_threads)
         , mandatory(Default().mandatory)
         , transport(Default().transport)
@@ -127,8 +125,7 @@ namespace RTT
         , lock_policy(Default().lock_policy)
         , init(Default().init)
         , pull(Default().pull)
-        , read_policy(Default().read_policy)
-        , write_policy(Default().write_policy)
+        , buffer_policy(Default().buffer_policy)
         , max_threads(Default().max_threads)
         , mandatory(Default().mandatory)
         , transport(Default().transport)
@@ -141,8 +138,7 @@ namespace RTT
         , lock_policy(lock_policy)
         , init(Default().init)
         , pull(Default().pull)
-        , read_policy(Default().read_policy)
-        , write_policy(Default().write_policy)
+        , buffer_policy(Default().buffer_policy)
         , max_threads(Default().max_threads)
         , mandatory(Default().mandatory)
         , transport(Default().transport)
@@ -178,8 +174,7 @@ namespace RTT
         }
 
         os << pull << " ";
-        os << cp.write_policy << " ";
-        os << cp.read_policy << " ";
+        os << cp.buffer_policy << " ";
         os << lock_policy << " ";
         os << type;
         if (!cp.name_id.empty()) os << " (name_id=" << cp.name_id << ")";

@@ -27,8 +27,8 @@
  ***************************************************************************/
 
 
-#ifndef ORO_READ_POLICY_HPP
-#define ORO_READ_POLICY_HPP
+#ifndef ORO_BUFFER_POLICY_HPP
+#define ORO_BUFFER_POLICY_HPP
 
 #include "rtt-config.h"
 #include <iosfwd>
@@ -36,30 +36,51 @@
 namespace RTT {
 
     /**
-     * A read policy describes how a read operation should select from
-     * which channel/connection it reads if multiple channels are available.
+     * The BufferPolicy controls how multiple connections to the
+     * same input or output port are handled in case of concurrent or subsequent read
+     * and write operations.
      *
      * Possible values:
-     * - ReadShared:              The input buffer is shared among all connections.
-     * - ReadUnordered:           The InputPort polls all connections in the order the connections have been
-     *                            established, but it prefers the last connection where data has been successfully
-     *                            read from. In fact there are no guarantees for the order in which samples from
-     *                            different connections are read.
      *
-     * Special values:
-     * - UnspecifiedReadPolicy:   No specific ReadPolicy was set yet. This is the default ReadPolicy for an
-     *                            unconnected InputPort. Do not use this value in \ref ConnPolicy.
+     * - PerConnection:
+     *   Buffers (or data objects) will be installed per connection
+     *   (per pair of output and input port/stream). Input ports with multiple
+     *   connections first try to read from the last read channel first, then
+     *   poll all connections in the order they have been made (which in practice
+     *   means there are no guarantees on the order if multiple writers write
+     *   concurrently). This is the default buffer policy.
+     *
+     * - PerInputPort:
+     *   Every input port has a single input buffer (or data object) and all
+     *   connected output ports/streams will write to the same buffer. This
+     *   policy requires that pull == false for remote connections or input streams.
+     *
+     * - PerOutputPort:
+     *   Every output has a single output buffer (or data object) and all connected
+     *   readers "consume" elements from this buffer. Exactly one connected input port
+     *   or output stream will see every written sample as NewData. This policy
+     *   requires that pull == true for remote connections or output streams.
+     *
+     * - Shared:
+     *   The buffer (or data object) is shared between all connected input and output
+     *   ports. It can have an arbitrary number of writers and readers. Ports can be
+     *   connected to an existing shared connection instance either by connecting it
+     *   to a port that is already part of the shared connection group, or with a special
+     *   createConnection() method. This was the default buffer policy in the days of
+     *   RTT v1.
      *
      * @ingroup Ports
      */
     typedef enum {
-        UnspecifiedReadPolicy,
-        ReadShared,
-        ReadUnordered,
-    } ReadPolicy;
+        UnspecifiedBufferPolicy,
+        PerConnection,
+        PerInputPort,
+        PerOutputPort,
+        Shared,
+    } BufferPolicy;
 
-    std::ostream &operator<<(std::ostream &os, const ReadPolicy &rp);
-    std::istream &operator>>(std::istream &is, ReadPolicy &rp);
+    std::ostream &operator<<(std::ostream &os, const BufferPolicy &bp);
+    std::istream &operator>>(std::istream &is, BufferPolicy &bp);
 }
 
 #endif

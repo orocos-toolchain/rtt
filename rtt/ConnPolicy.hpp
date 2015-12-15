@@ -43,8 +43,7 @@
 #include <iosfwd>
 #include "rtt-fwd.hpp"
 #include "rtt-config.h"
-#include "ReadPolicy.hpp"
-#include "WritePolicy.hpp"
+#include "BufferPolicy.hpp"
 
 namespace RTT {
 
@@ -76,16 +75,11 @@ namespace RTT {
      *       default), new data is actively pushed to the reader's process. In
      *       the pulled case, data must be requested by the reader.
      *
-     *  <li> the read policy, which influences in what way multiple connections to the
-     *       same input port are read. The default is PreferLastRead, where the input
-     *       port first checks the connection where it read the last sample from and only
-     *       then starts to iterate over all others. See \ref ReadPolicy to see all available options.
-     *       Not all combinations of read policy and the pull flag are valid and non-standard transports
+     *  <li> the buffer policy, which controls how multiple connections to the
+     *       same input or output port are handled in case of concurrent or subsequent read
+     *       and write operations. See \ref BufferPolicy to see all available options.
+     *       Not all combinations of buffer policies and the pull flag are valid and non-standard transports
      *       can have additional restrictions.
-     *
-     *  <li> the write policy, which influences how an output port serves multiple connections.
-     *       By default, all connections are written independently (WritePrivate). See \ref WritePolicy
-     *       to see all available options.
      *
      *  <li> if the connection is mandatory. Mandatory connections will let the write()
      *       call fail if the new sample cannot be successfully written. Default connections
@@ -215,14 +209,11 @@ namespace RTT {
         bool   pull;
 
         /**
-         * The policy on how to read from this connection. See \ref ReadPolicy for possible options.
+         * The policy on how buffer elements will be installed for this connection, which influences
+         * the behavior of reads and writes if the port has muliple connections.
+         * See \ref BufferPolicy enum for possible options.
          */
-        ReadPolicy read_policy;
-
-        /**
-         * The policy on how to write to this connection. See \ref WritePolicy for possible options.
-         */
-        WritePolicy write_policy;
+        BufferPolicy buffer_policy;
 
         /**
          * The maximum number of threads that will access the connection data or buffer object.

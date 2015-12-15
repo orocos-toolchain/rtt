@@ -71,8 +71,7 @@ namespace RTT
              ti->addType( new StdTypeInfo<SendStatus>("SendStatus"));
              ti->addType( new TemplateTypeInfo<PropertyBag, true>("PropertyBag") );
              ti->addType( new StructTypeInfo<ConnPolicy>("ConnPolicy") );
-             ti->addType( new StdTypeInfo<ReadPolicy>("ReadPolicy") );
-             ti->addType( new StdTypeInfo<WritePolicy>("WritePolicy") );
+             ti->addType( new StdTypeInfo<BufferPolicy>("BufferPolicy") );
              ti->addType( new TemplateTypeInfo<EmptySendHandle>("SendHandle") ); //dummy, replaced by real stuff when seen by parser.
              ti->addType( new TemplateTypeInfo<TaskContext*>("TaskContext"));
          }

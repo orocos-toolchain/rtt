@@ -26,29 +26,33 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "WritePolicy.hpp"
+#include "BufferPolicy.hpp"
 #include <iostream>
 
 namespace RTT {
 
-std::ostream &operator<<(std::ostream &os, const WritePolicy &wp)
+std::ostream &operator<<(std::ostream &os, const BufferPolicy &bp)
 {
-    switch(wp) {
-        case UnspecifiedWritePolicy: os << "(unspecified write policy)"; break;
-        case WritePrivate:           os << "WritePrivate"; break;
-        case WriteShared:            os << "WriteShared"; break;
-        default:                     os << "(unknown write policy)"; break;
+    switch(bp) {
+        case UnspecifiedBufferPolicy: os << "(unspecified buffer policy)"; break;
+        case PerConnection:           os << "PerConnection"; break;
+        case PerInputPort:            os << "PerInputPort"; break;
+        case PerOutputPort:           os << "PerOutputPort"; break;
+        case Shared:                  os << "Shared"; break;
+        default:                      os << "(unknown buffer policy)"; break;
     }
     return os;
 }
 
-std::istream &operator>>(std::istream &is, WritePolicy &wp)
+std::istream &operator>>(std::istream &is, BufferPolicy &bp)
 {
     std::string s;
     is >> s;
-    if (s == "WritePrivate")     wp = WritePrivate;
-    else if (s == "WriteShared") wp = WriteShared;
-    else                         wp = UnspecifiedWritePolicy;
+    if (s == "PerConnection")      bp = PerConnection;
+    else if (s == "PerInputPort")  bp = PerInputPort;
+    else if (s == "PerOutputPort") bp = PerOutputPort;
+    else if (s == "Shared")        bp = Shared;
+    else                           bp = UnspecifiedBufferPolicy;
     return is;
 }
 
