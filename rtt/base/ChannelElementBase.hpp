@@ -47,8 +47,7 @@
 #include "../rtt-fwd.hpp"
 #include "rtt-base-fwd.hpp"
 #include "../internal/rtt-internal-fwd.hpp"
-#include "../ReadPolicy.hpp"
-#include "../WritePolicy.hpp"
+#include "../BufferPolicy.hpp"
 #include "../os/Mutex.hpp"
 
 #include <list>
@@ -76,9 +75,11 @@ namespace RTT { namespace base {
     protected:
         shared_ptr input;
         shared_ptr output;
+        BufferPolicy buffer_policy;
 
         mutable RTT::os::SharedMutex input_lock;
         mutable RTT::os::SharedMutex output_lock;
+        mutable RTT::os::SharedMutex buffer_policy_lock;
 
     protected:
         /** Increases the reference count */
@@ -236,6 +237,21 @@ namespace RTT { namespace base {
          */
         virtual const ConnPolicy* getConnPolicy() const;
 
+        /**
+         * Set the \ref BufferPolicy of this channel element.
+         * The BufferPolicy controls how reads and writes are handled for channel elements which have multiple connections.
+         * The policy can only be set once unless the force argument is set to true.
+         * @param policy the new buffer policy
+         * @param force overwrite a buffer policy set previously
+         * @return true if the given policy was successfully applied
+         */
+        virtual bool setBufferPolicy(BufferPolicy policy, bool force = false);
+
+        /**
+         * Returns the current \ref BufferPolicy of this channel element.
+         * @return a BufferPolicy instance
+         */
+        virtual BufferPolicy getBufferPolicy() const;
 
         RTT_DEPRECATED void setOutput(const ChannelElementBase::shared_ptr &output)
         {
@@ -301,8 +317,6 @@ namespace RTT { namespace base {
     protected:
         Inputs inputs;
         mutable RTT::os::SharedMutex inputs_lock;
-
-        ReadPolicy read_policy;
         ChannelElementBase *last_signalled;
 
     public:
@@ -339,9 +353,6 @@ namespace RTT { namespace base {
         bool signal(ChannelElementBase *caller);
         using ChannelElementBase::signal;
 
-        virtual bool setReadPolicy(ReadPolicy policy, bool force = false);
-        virtual ReadPolicy getReadPolicy() const;
-
     protected:
         /**
          * Sets the new input channel element of this element or adds a channel to the inputs list.
@@ -377,8 +388,6 @@ namespace RTT { namespace base {
         Outputs outputs;
         mutable RTT::os::SharedMutex outputs_lock;
 
-        WritePolicy write_policy;
-
     public:
         MultipleOutputsChannelElementBase();
 
@@ -407,9 +416,6 @@ namespace RTT { namespace base {
          * Overwritten implementation of \ref ChannelElementBase::disconnect(forward, channel).
          */
         virtual bool disconnect(ChannelElementBase::shared_ptr const& channel, bool forward = false);
-
-        virtual bool setWritePolicy(WritePolicy policy, bool force = false);
-        virtual WritePolicy getWritePolicy() const;
 
     protected:
         /**

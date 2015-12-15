@@ -571,15 +571,14 @@ BOOST_AUTO_TEST_CASE( testSharedConnections )
     // Create a CORBA policy specification
     RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::data(ConnPolicy::LOCKED));
     policy.init = false;
-    policy.write_policy = RTT::corba::CWriteShared;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = ts->server()->ports();
     corba::CDataFlowInterface_var ports2 = ts2->server()->ports();
     double value = 0.0;
 
-    // ReadShared push connection...
-    policy.read_policy = RTT::corba::CReadShared;
+    // Shared push connection...
+    policy.buffer_policy = RTT::corba::CShared;
     policy.pull = false;
     BOOST_CHECK( ports->createConnection("mo", ports2, "mi", policy) );
     BOOST_CHECK( ports->createConnection("mo", ports2, "mi3", policy) );
@@ -608,8 +607,8 @@ BOOST_AUTO_TEST_CASE( testSharedConnections )
     BOOST_CHECK( !mi2->connected() );
     BOOST_CHECK( !mi3->connected() );
 
-    // ReadShared pull connection...
-    policy.read_policy = RTT::corba::CReadShared;
+    // Shared pull connection...
+    policy.buffer_policy = RTT::corba::CShared;
     policy.pull = true;
     BOOST_CHECK( ports->createConnection("mo", ports2, "mi", policy) );
     BOOST_CHECK( ports->createConnection("mo", ports2, "mi3", policy) );
@@ -638,8 +637,8 @@ BOOST_AUTO_TEST_CASE( testSharedConnections )
     BOOST_CHECK( !mi2->connected() );
     BOOST_CHECK( !mi3->connected() );
 
-    // ReadUnorderered pull connection...
-    policy.read_policy = RTT::corba::CReadUnordered;
+    // PerOutputPort pull connection...
+    policy.buffer_policy = RTT::corba::CPerOutputPort;
     policy.pull = true;
     BOOST_CHECK( ports->createConnection("mo", ports2, "mi", policy) );
     BOOST_CHECK( ports->createConnection("mo", ports2, "mi3", policy) );

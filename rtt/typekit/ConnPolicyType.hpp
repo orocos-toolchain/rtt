@@ -56,8 +56,7 @@ namespace boost {
             a & boost::serialization::make_nvp("lock_policy", c.lock_policy );
             a & boost::serialization::make_nvp("init", c.init );
             a & boost::serialization::make_nvp("pull", c.pull );
-            a & boost::serialization::make_nvp("read_policy", c.read_policy );
-            a & boost::serialization::make_nvp("write_policy", c.write_policy );
+            a & boost::serialization::make_nvp("buffer_policy", c.buffer_policy );
             a & boost::serialization::make_nvp("mandatory", c.mandatory );
             a & boost::serialization::make_nvp("transport", c.transport );
             a & boost::serialization::make_nvp("data_size", c.data_size );

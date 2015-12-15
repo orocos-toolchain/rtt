@@ -217,8 +217,7 @@ bool ConnFactory::createAndCheckSharedConnection(base::OutputPortInterface* outp
 
     // check if the found connection is compatible to the requested policy
     if (
-        (policy.read_policy != ReadShared) ||
-        (policy.write_policy != WriteShared) ||
+        (policy.buffer_policy != Shared) ||
         (shared_connection->getConnPolicy()->type != policy.type) ||
         (shared_connection->getConnPolicy()->size != policy.size) ||
         (shared_connection->getConnPolicy()->lock_policy != policy.lock_policy)

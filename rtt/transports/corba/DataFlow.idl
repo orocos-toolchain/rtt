@@ -14,8 +14,7 @@ module RTT
     enum CWriteStatus { CWriteSuccess, CWriteFailure, CNotConnected };
     enum CConnectionModel { CData, CBuffer, CCircularBuffer };
     enum CLockPolicy { CUnsync, CLocked, CLockFree };
-    enum CReadPolicy { CReadPolicyUnspecified, CReadShared, CReadUnordered };
-    enum CWritePolicy { CWritePolicyUnspecified, CWritePrivate, CWriteShared };
+    enum CBufferPolicy { CBufferPolicyUnspecified, CPerConnection, CPerInputPort, CPerOutputPort, CShared };
     struct CConnPolicy
     {
         CConnectionModel type;
@@ -23,8 +22,7 @@ module RTT
         CLockPolicy lock_policy;
         boolean init;
         boolean pull;
-        CReadPolicy read_policy;
-        CWritePolicy write_policy;
+        CBufferPolicy buffer_policy;
         boolean mandatory;
         long transport;
         long data_size;

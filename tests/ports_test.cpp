@@ -359,7 +359,7 @@ BOOST_AUTO_TEST_CASE(testPortOneWriterThreeReaders)
 BOOST_AUTO_TEST_CASE(testPortOneWriterThreeReadersWithSharedOutputBuffer)
 {
     ConnPolicy cp = ConnPolicy::buffer(4);
-    cp.write_policy = WriteShared;
+    cp.buffer_policy = PerOutputPort;
     OutputPort<int> wp("W");
     InputPort<int> rp1("R1", cp);
     InputPort<int> rp2("R2", cp);
@@ -436,7 +436,7 @@ BOOST_AUTO_TEST_CASE(testPortOneWriterThreeReadersWithSharedOutputBuffer)
 BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReaderWithSharedInputBuffer)
 {
     ConnPolicy cp = ConnPolicy::buffer(4);
-    cp.read_policy = ReadShared;
+    cp.buffer_policy = PerInputPort;
     OutputPort<int> wp1("W1");
     OutputPort<int> wp2("W2");
     OutputPort<int> wp3("W3");
@@ -615,8 +615,7 @@ BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReader)
 BOOST_AUTO_TEST_CASE(testSharedBufferConnection)
 {
     ConnPolicy cp = ConnPolicy::buffer(10);
-    cp.write_policy = WriteShared;
-    cp.read_policy = ReadShared;
+    cp.buffer_policy = Shared;
 
     OutputPort<int> wp1("W1");
     OutputPort<int> wp2("W1");
@@ -674,8 +673,7 @@ BOOST_AUTO_TEST_CASE(testSharedBufferConnection)
 BOOST_AUTO_TEST_CASE(testSharedDataConnection)
 {
     ConnPolicy cp = ConnPolicy::data(ConnPolicy::LOCKED);
-    cp.write_policy = WriteShared;
-    cp.read_policy = ReadShared;
+    cp.buffer_policy = Shared;
 
     OutputPort<int> wp1("W1");
     OutputPort<int> wp2("W1");
@@ -714,37 +712,37 @@ BOOST_AUTO_TEST_CASE(testInvalidReadPolicyConnections)
     OutputPort<int> wp2("W2");
     InputPort<int> rp("R1");
 
-    // mix read policies
-    ConnPolicy cp_ReadUnordered, cp_ReadShared;
-    cp_ReadUnordered.read_policy = ReadUnordered;
-    cp_ReadShared.read_policy = ReadShared;
-    BOOST_CHECK( wp1.connectTo(&rp, cp_ReadUnordered) );
-    BOOST_CHECK( !wp2.connectTo(&rp, cp_ReadShared) );
+    // mix buffer policies
+    ConnPolicy cp_PerConnection, cp_PerInputPort;
+    cp_PerConnection.buffer_policy = PerConnection;
+    cp_PerInputPort.buffer_policy = PerInputPort;
+    BOOST_CHECK( wp1.connectTo(&rp, cp_PerConnection) );
+    BOOST_CHECK( !wp2.connectTo(&rp, cp_PerInputPort) );
     rp.disconnect();
 
-    // mix data and buffer connections with ReadShared read policy
+    // mix data and buffer connections with PerInputPort read policy
     ConnPolicy cp_DATA = ConnPolicy::data(ConnPolicy::LOCKED);
     ConnPolicy cp_BUFFER = ConnPolicy::buffer(10, ConnPolicy::LOCKED);
-    cp_DATA.read_policy = ReadShared;
-    cp_BUFFER.read_policy = ReadShared;
+    cp_DATA.buffer_policy = PerInputPort;
+    cp_BUFFER.buffer_policy = PerInputPort;
     BOOST_CHECK( wp1.connectTo(&rp, cp_DATA) );
     BOOST_CHECK( !wp2.connectTo(&rp, cp_BUFFER) );
     rp.disconnect();
 
-    // mix different locking policies with ReadShared read policy
+    // mix different locking policies with PerInputPort read policy
     ConnPolicy cp_LOCK_FREE = ConnPolicy::buffer(10, ConnPolicy::LOCK_FREE);
     ConnPolicy cp_LOCKED = ConnPolicy::buffer(10, ConnPolicy::LOCKED);
-    cp_LOCK_FREE.read_policy = ReadShared;
-    cp_LOCKED.read_policy = ReadShared;
+    cp_LOCK_FREE.buffer_policy = PerInputPort;
+    cp_LOCKED.buffer_policy = PerInputPort;
     BOOST_CHECK( wp1.connectTo(&rp, cp_LOCK_FREE) );
     BOOST_CHECK( !wp2.connectTo(&rp, cp_LOCKED) );
     rp.disconnect();
 
-    // mix different buffer sizes with ReadShared read policy
+    // mix different buffer sizes with PerInputPort read policy
     ConnPolicy cp_BUFFER5 = ConnPolicy::buffer(5);
     ConnPolicy cp_BUFFER10 = ConnPolicy::buffer(10);
-    cp_BUFFER5.read_policy = ReadShared;
-    cp_BUFFER10.read_policy = ReadShared;
+    cp_BUFFER5.buffer_policy = PerInputPort;
+    cp_BUFFER10.buffer_policy = PerInputPort;
     BOOST_CHECK( wp1.connectTo(&rp, cp_BUFFER5) );
     BOOST_CHECK( !wp2.connectTo(&rp, cp_BUFFER10) );
     rp.disconnect();
@@ -753,8 +751,7 @@ BOOST_AUTO_TEST_CASE(testInvalidReadPolicyConnections)
 BOOST_AUTO_TEST_CASE(testInvalidSharedConnection)
 {
     ConnPolicy cp = ConnPolicy::data(ConnPolicy::LOCKED);
-    cp.write_policy = WriteShared;
-    cp.read_policy = ReadShared;
+    cp.buffer_policy = Shared;
 
     OutputPort<int> wp1("W1");
     OutputPort<int> wp2("W1");
@@ -1153,11 +1150,10 @@ public:
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  ConcurrencyPortsTestSuite,  ConcurrencyPortsTestFixture )
 
-BOOST_AUTO_TEST_CASE( testConcurrencyWritePrivateReadUnordered )
+BOOST_AUTO_TEST_CASE( testConcurrencyPerConnection )
 {
     ConnPolicy policy = ConnPolicy::data(ConnPolicy::LOCK_FREE);
-    policy.write_policy = WritePrivate;
-    policy.read_policy = ReadUnordered;
+    policy.buffer_policy = PerConnection;
 
     BOOST_REQUIRE( connector.connected = connect(policy) );
     BOOST_REQUIRE( start() );
@@ -1177,11 +1173,10 @@ BOOST_AUTO_TEST_CASE( testConcurrencyWritePrivateReadUnordered )
     BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
 }
 
-BOOST_AUTO_TEST_CASE( testConcurrencyWritePrivateReadShared )
+BOOST_AUTO_TEST_CASE( testConcurrencyPerInputPort )
 {
     ConnPolicy policy = ConnPolicy::data(ConnPolicy::LOCKED);
-    policy.write_policy = WritePrivate;
-    policy.read_policy = ReadShared;
+    policy.buffer_policy = PerInputPort;
 
     BOOST_REQUIRE( connector.connected = connect(policy) );
     BOOST_REQUIRE( start() );
@@ -1201,11 +1196,10 @@ BOOST_AUTO_TEST_CASE( testConcurrencyWritePrivateReadShared )
     BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
 }
 
-BOOST_AUTO_TEST_CASE( testConcurrencyWriteSharedReadUnordered )
+BOOST_AUTO_TEST_CASE( testConcurrencyPerOutputPort )
 {
     ConnPolicy policy = ConnPolicy::data(ConnPolicy::LOCK_FREE);
-    policy.write_policy = WriteShared;
-    policy.read_policy = ReadUnordered;
+    policy.buffer_policy = PerOutputPort;
 
     BOOST_REQUIRE( connector.connected = connect(policy) );
     BOOST_REQUIRE( start() );
@@ -1228,8 +1222,7 @@ BOOST_AUTO_TEST_CASE( testConcurrencyWriteSharedReadUnordered )
 BOOST_AUTO_TEST_CASE( testConcurrencySharedConnection )
 {
     ConnPolicy policy = ConnPolicy::data(ConnPolicy::LOCKED);
-    policy.write_policy = WriteShared;
-    policy.read_policy = ReadShared;
+    policy.buffer_policy = Shared;
 
     BOOST_REQUIRE( connector.connected = connect(policy) );
     connector.shared_connection = writer.port.getSharedConnection();

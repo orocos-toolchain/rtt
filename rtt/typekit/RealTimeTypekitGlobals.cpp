@@ -43,8 +43,7 @@
 #include "../FlowStatus.hpp"
 #include "../SendStatus.hpp"
 #include "../ConnPolicy.hpp"
-#include "../ReadPolicy.hpp"
-#include "../WritePolicy.hpp"
+#include "../BufferPolicy.hpp"
 #include "../typekit/Types.hpp"
 #include "../os/fosi.h"
 
@@ -72,12 +71,11 @@ namespace RTT
         globals->setValue( new Constant<int>("LOCKED", ConnPolicy::LOCKED) );
         globals->setValue( new Constant<int>("LOCK_FREE", ConnPolicy::LOCK_FREE) );
         globals->setValue( new Constant<int>("UNSYNC", ConnPolicy::UNSYNC) );
-        globals->setValue( new Constant<WritePolicy>("UnspecifiedWritePolicy", UnspecifiedWritePolicy) );
-        globals->setValue( new Constant<WritePolicy>("WritePrivate", WritePrivate) );
-        globals->setValue( new Constant<WritePolicy>("WriteShared", WriteShared) );
-        globals->setValue( new Constant<ReadPolicy>("UnspecifiedReadPolicy", UnspecifiedReadPolicy) );
-        globals->setValue( new Constant<ReadPolicy>("ReadShared", ReadShared) );
-        globals->setValue( new Constant<ReadPolicy>("ReadUnordered", ReadUnordered) );
+        globals->setValue( new Constant<BufferPolicy>("UnspecifiedBufferPolicy", UnspecifiedBufferPolicy) );
+        globals->setValue( new Constant<BufferPolicy>("PerConnection", PerConnection) );
+        globals->setValue( new Constant<BufferPolicy>("PerInputPort", PerInputPort) );
+        globals->setValue( new Constant<BufferPolicy>("PerOutputPort", PerOutputPort) );
+        globals->setValue( new Constant<BufferPolicy>("Shared", Shared) );
         globals->setValue( new Constant<int>("ORO_SCHED_RT", ORO_SCHED_RT) );
         globals->setValue( new Constant<int>("ORO_SCHED_OTHER", ORO_SCHED_OTHER) );
         globals->setValue( new Constant<int>("ORO_WAIT_ABS", ORO_WAIT_ABS) );

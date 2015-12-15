@@ -45,8 +45,7 @@ using namespace RTT;
 using namespace RTT::detail;
 
 ChannelElementBase::ChannelElementBase()
-    : input(0)
-
+    : buffer_policy(UnspecifiedBufferPolicy)
 {
     ORO_ATOMIC_SETUP(&refcount,0);
 }
@@ -210,8 +209,24 @@ const ConnPolicy* ChannelElementBase::getConnPolicy() const {
     return 0;
 }
 
+bool ChannelElementBase::setBufferPolicy(BufferPolicy policy, bool force)
+{
+    RTT::os::MutexLock lock(buffer_policy_lock);
+    if (!buffer_policy || force) {
+        buffer_policy = policy;
+        return true;
+    }
+    return buffer_policy == policy;
+}
+
+BufferPolicy ChannelElementBase::getBufferPolicy() const
+{
+    RTT::os::SharedMutexLock lock(buffer_policy_lock);
+    return buffer_policy;
+}
+
 MultipleInputsChannelElementBase::MultipleInputsChannelElementBase()
-    : read_policy(UnspecifiedReadPolicy), last_signalled()
+    : last_signalled()
 {}
 
 bool MultipleInputsChannelElementBase::addInput(ChannelElementBase::shared_ptr const& input)
@@ -228,7 +243,7 @@ void MultipleInputsChannelElementBase::removeInput(ChannelElementBase::shared_pt
 {
     inputs.remove(input);
     os::CAS(&last_signalled, input.get(), 0);
-    if (inputs.empty()) read_policy = UnspecifiedReadPolicy;
+    if (inputs.empty()) setBufferPolicy(UnspecifiedBufferPolicy, true);
 }
 
 bool MultipleInputsChannelElementBase::connected()
@@ -304,24 +319,7 @@ bool MultipleInputsChannelElementBase::signal(ChannelElementBase *caller)
     return signal();
 }
 
-bool MultipleInputsChannelElementBase::setReadPolicy(ReadPolicy policy, bool force)
-{
-    RTT::os::MutexLock lock(inputs_lock);
-    if (!read_policy || force) {
-        read_policy = policy;
-        return true;
-    }
-    return read_policy == policy;
-}
-
-ReadPolicy MultipleInputsChannelElementBase::getReadPolicy() const
-{
-    RTT::os::SharedMutexLock lock(inputs_lock);
-    return read_policy;
-}
-
 MultipleOutputsChannelElementBase::MultipleOutputsChannelElementBase()
-    : write_policy(UnspecifiedWritePolicy)
 {}
 
 MultipleOutputsChannelElementBase::Output::Output(ChannelElementBase::shared_ptr const &channel, bool mandatory)
@@ -348,7 +346,7 @@ bool MultipleOutputsChannelElementBase::addOutput(ChannelElementBase::shared_ptr
 void MultipleOutputsChannelElementBase::removeOutput(ChannelElementBase::shared_ptr const& output)
 {
     outputs.remove_if(boost::bind(&Output::operator==, _1, output));
-    if (outputs.empty()) write_policy = UnspecifiedWritePolicy;
+    if (outputs.empty()) setBufferPolicy(UnspecifiedBufferPolicy, true);
 }
 
 bool MultipleOutputsChannelElementBase::connected()
@@ -430,22 +428,6 @@ void MultipleOutputsChannelElementBase::removeDisconnectedOutputs()
             removeOutput(output.channel.get()); // invalidates output
         }
     }
-}
-
-bool MultipleOutputsChannelElementBase::setWritePolicy(WritePolicy policy, bool force)
-{
-    RTT::os::MutexLock lock(outputs_lock);
-    if (!write_policy || force) {
-        write_policy = policy;
-        return true;
-    }
-    return write_policy == policy;
-}
-
-WritePolicy MultipleOutputsChannelElementBase::getWritePolicy() const
-{
-    RTT::os::SharedMutexLock lock(outputs_lock);
-    return write_policy;
 }
 
 bool MultipleInputsMultipleOutputsChannelElementBase::connected()

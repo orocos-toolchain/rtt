@@ -356,7 +356,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
 
     // For shared push connections, also build or check the local shared connection instance here
     ChannelElementBase::shared_ptr end;
-    if (policy2.write_policy == WriteShared && policy2.read_policy == ReadShared) {
+    if (policy2.buffer_policy == Shared) {
         internal::SharedConnectionBase::shared_ptr shared_connection = type_info->buildSharedConnection(0, port, policy2);
         if (!shared_connection) {
             throw CInvalidArgument();
@@ -526,7 +526,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
     if (!type_info)
         throw CNoCorbaTransport();
 
-    if (!(corba_policy.write_policy == CWriteShared && corba_policy.read_policy == CReadShared)) {
+    if (corba_policy.buffer_policy != CShared) {
         throw CInvalidArgument();
     }
 

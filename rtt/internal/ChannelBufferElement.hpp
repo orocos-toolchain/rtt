@@ -91,10 +91,10 @@ namespace RTT { namespace internal {
 
                 sample = *new_sample_p;
 
-                // In the WriteShared case this buffer element may be read by multiple readers.
+                // In the PerOutputPort or Shared buffer policy case this buffer element may be read by multiple readers.
                 // ==> We cannot store the last_sample and release immediately.
                 // ==> WriteShared buffer connections will never return OldData.
-                if (policy.write_policy != WriteShared)
+                if (policy.buffer_policy != PerOutputPort && policy.buffer_policy != Shared)
                     last_sample_p = new_sample_p;
                 else
                     buffer->Release(new_sample_p);

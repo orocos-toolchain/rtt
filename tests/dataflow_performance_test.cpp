@@ -974,9 +974,11 @@ public:
         : options_(options)
     {
 #if RTT_VERSION_GTE(2,8,99)
-        if (options_.policy.read_policy == ReadShared && options_.policy.type == ConnPolicy::DATA && options_.policy.lock_policy == ConnPolicy::LOCK_FREE) {
+        if ((options_.policy.buffer_policy == PerInputPort || options_.policy.buffer_policy == Shared) &&
+            options_.policy.type == ConnPolicy::DATA &&
+            options_.policy.lock_policy == ConnPolicy::LOCK_FREE) {
             options_.policy.lock_policy = ConnPolicy::LOCKED;
-            log(Warning) << "Falling back to locking policy LOCKED for a ReadShared data connection!" << endlog();
+            log(Warning) << "Falling back to locking policy LOCKED for a shared input data object connection!" << endlog();
         }
 #endif
 
@@ -1281,13 +1283,12 @@ BOOST_AUTO_TEST_CASE( dataConnections )
     options.policy.lock_policy = ConnPolicy::LOCK_FREE;
 
 #if (RTT_VERSION_MAJOR >= 2)
-    // 7 writers, 1 reader, ReadUnordered
+    // 7 writers, 1 reader, PerConnection
     {
         options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
-        options.policy.write_policy = WritePrivate;
-        options.policy.read_policy = ReadUnordered;
-        typename RunnerType::shared_ptr runner(new RunnerType("dataReadUnordered", options));
+        options.policy.buffer_policy = PerConnection;
+        typename RunnerType::shared_ptr runner(new RunnerType("dataPerConnection", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1299,13 +1300,12 @@ BOOST_AUTO_TEST_CASE( dataConnections )
 #endif
 
 #if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 7 writers, 1 reader, ReadShared
+    // 7 writers, 1 reader, PerInputPort
     {
         options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
-        options.policy.write_policy = WritePrivate;
-        options.policy.read_policy = ReadShared;
-        typename RunnerType::shared_ptr runner(new RunnerType("dataReadShared", options));
+        options.policy.buffer_policy = PerInputPort;
+        typename RunnerType::shared_ptr runner(new RunnerType("dataPerInputPort", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1317,13 +1317,12 @@ BOOST_AUTO_TEST_CASE( dataConnections )
 #endif
 
 #if (RTT_VERSION_MAJOR >= 2)
-    // 1 writer, 7 readers, ReadUnordered
+    // 1 writer, 7 readers, PerConnection
     {
         options.NumberOfWriters = 1;
         options.NumberOfReaders = 7;
-        options.policy.write_policy = WritePrivate;
-        options.policy.read_policy = ReadUnordered;
-        typename RunnerType::shared_ptr runner(new RunnerType("dataReadUnordered", options));
+        options.policy.buffer_policy = PerConnection;
+        typename RunnerType::shared_ptr runner(new RunnerType("dataPerConnection", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1335,13 +1334,12 @@ BOOST_AUTO_TEST_CASE( dataConnections )
 #endif
 
 #if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 1 writer, 7 readers, WriteShared
+    // 1 writer, 7 readers, PerOutputPort
     {
         options.NumberOfWriters = 1;
         options.NumberOfReaders = 7;
-        options.policy.write_policy = WriteShared;
-        options.policy.read_policy = ReadUnordered;
-        typename RunnerType::shared_ptr runner(new RunnerType("dataWriteShared", options));
+        options.policy.buffer_policy = PerOutputPort;
+        typename RunnerType::shared_ptr runner(new RunnerType("dataPerOutputPort", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1353,13 +1351,12 @@ BOOST_AUTO_TEST_CASE( dataConnections )
 #endif
 
 #if (RTT_VERSION_MAJOR >= 2)
-    // 4 writers, 4 readers, ReadUnordered
+    // 4 writers, 4 readers, PerConnection
     {
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
-        options.policy.write_policy = WritePrivate;
-        options.policy.read_policy = ReadUnordered;
-        typename RunnerType::shared_ptr runner(new RunnerType("dataReadUnordered", options));
+        options.policy.buffer_policy = PerConnection;
+        typename RunnerType::shared_ptr runner(new RunnerType("dataPerConnection", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1370,13 +1367,12 @@ BOOST_AUTO_TEST_CASE( dataConnections )
     }
 
 #if RTT_VERSION_GTE(2,8,99)
-    // 4 writers, 4 readers, ReadShared
+    // 4 writers, 4 readers, PerInputPort
     {
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
-        options.policy.write_policy = WritePrivate;
-        options.policy.read_policy = ReadShared;
-        typename RunnerType::shared_ptr runner(new RunnerType("dataReadShared", options));
+        options.policy.buffer_policy = PerInputPort;
+        typename RunnerType::shared_ptr runner(new RunnerType("dataPerInputPort", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1386,13 +1382,12 @@ BOOST_AUTO_TEST_CASE( dataConnections )
         std::cout << std::endl;
     }
 
-    // 4 writers, 4 readers, WriteShared
+    // 4 writers, 4 readers, PerOutputPort
     {
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
-        options.policy.write_policy = WriteShared;
-        options.policy.read_policy = ReadUnordered;
-        typename RunnerType::shared_ptr runner(new RunnerType("dataWriteShared", options));
+        options.policy.buffer_policy = PerOutputPort;
+        typename RunnerType::shared_ptr runner(new RunnerType("dataPerOutputPort", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1405,12 +1400,11 @@ BOOST_AUTO_TEST_CASE( dataConnections )
 #endif
 
 #if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 4 writers, 4 readers, shared connection
+    // 4 writers, 4 readers, Shared
     {
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
-        options.policy.write_policy = WriteShared;
-        options.policy.read_policy = ReadShared;
+        options.policy.buffer_policy = Shared;
         typename RunnerType::shared_ptr runner(new RunnerType("dataShared", options));
 
         std::cout << runner->getOptions();
@@ -1434,13 +1428,12 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
     options.policy.lock_policy = ConnPolicy::LOCK_FREE;
 
 #if (RTT_VERSION_MAJOR >= 2)
-    // 7 writers, 1 reader, ReadUnordered
+    // 7 writers, 1 reader, PerConnection
     {
         options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
-        options.policy.write_policy = WritePrivate;
-        options.policy.read_policy = ReadUnordered;
-        typename RunnerType::shared_ptr runner(new RunnerType("bufferReadUnordered", options));
+        options.policy.buffer_policy = PerConnection;
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferPerConnection", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1452,13 +1445,12 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
 #endif
 
 #if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 7 writers, 1 reader, ReadShared
+    // 7 writers, 1 reader, PerInputPort
     {
         options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
-        options.policy.write_policy = WritePrivate;
-        options.policy.read_policy = ReadShared;
-        typename RunnerType::shared_ptr runner(new RunnerType("bufferReadShared", options));
+        options.policy.buffer_policy = PerInputPort;
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferPerInputPort", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1470,13 +1462,12 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
 #endif
 
 #if (RTT_VERSION_MAJOR >= 2)
-    // 1 writer, 7 readers, ReadUnordered
+    // 1 writer, 7 readers, PerConnection
     {
         options.NumberOfWriters = 1;
         options.NumberOfReaders = 7;
-        options.policy.write_policy = WritePrivate;
-        options.policy.read_policy = ReadUnordered;
-        typename RunnerType::shared_ptr runner(new RunnerType("bufferReadUnordered", options));
+        options.policy.buffer_policy = PerConnection;
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferPerConnection", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1488,13 +1479,12 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
 #endif
 
 #if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 1 writer, 7 readers, WriteShared
+    // 1 writer, 7 readers, PerOutputPort
     {
         options.NumberOfWriters = 1;
         options.NumberOfReaders = 7;
-        options.policy.write_policy = WriteShared;
-        options.policy.read_policy = ReadUnordered;
-        typename RunnerType::shared_ptr runner(new RunnerType("bufferWriteShared", options));
+        options.policy.buffer_policy = PerOutputPort;
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferPerOutputPort", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1506,13 +1496,12 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
 #endif
 
 #if (RTT_VERSION_MAJOR >= 2)
-    // 4 writers, 4 readers, ReadUnordered
+    // 4 writers, 4 readers, PerConnection
     {
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
-        options.policy.write_policy = WritePrivate;
-        options.policy.read_policy = ReadUnordered;
-        typename RunnerType::shared_ptr runner(new RunnerType("bufferReadUnordered", options));
+        options.policy.buffer_policy = PerConnection;
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferPerConnection", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1523,13 +1512,12 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
     }
 
 #if RTT_VERSION_GTE(2,8,99)
-    // 4 writers, 4 readers, ReadShared
+    // 4 writers, 4 readers, PerInputPort
     {
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
-        options.policy.write_policy = WritePrivate;
-        options.policy.read_policy = ReadShared;
-        typename RunnerType::shared_ptr runner(new RunnerType("bufferReadShared", options));
+        options.policy.buffer_policy = PerInputPort;
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferPerInputPort", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1539,13 +1527,12 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
         std::cout << std::endl;
     }
 
-    // 4 writers, 4 readers, WriteShared
+    // 4 writers, 4 readers, PerOutputPort
     {
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
-        options.policy.write_policy = WriteShared;
-        options.policy.read_policy = ReadUnordered;
-        typename RunnerType::shared_ptr runner(new RunnerType("bufferWriteShared", options));
+        options.policy.buffer_policy = PerOutputPort;
+        typename RunnerType::shared_ptr runner(new RunnerType("bufferPerOutputPort", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1558,12 +1545,11 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
 #endif
 
 #if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 4 writers, 4 readers, shared connection
+    // 4 writers, 4 readers, Shared
     {
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
-        options.policy.write_policy = WriteShared;
-        options.policy.read_policy = ReadShared;
+        options.policy.buffer_policy = Shared;
         typename RunnerType::shared_ptr runner(new RunnerType("bufferShared", options));
 
         std::cout << runner->getOptions();
@@ -1587,12 +1573,12 @@ BOOST_AUTO_TEST_CASE( emptyReads )
     options.ReadMode = TestOptions::ReadSynchronous;
 
 #if (RTT_VERSION_MAJOR >= 2)
-    // 7 writers, 1 reader, ReadUnordered
+    // 7 writers, 1 reader, PerConnection
     {
         options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
-        options.policy.read_policy = ReadUnordered;
-        typename RunnerType::shared_ptr runner(new RunnerType("no", options));
+        options.policy.buffer_policy = PerConnection;
+        typename RunnerType::shared_ptr runner(new RunnerType("emptyPerConnection", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1604,13 +1590,12 @@ BOOST_AUTO_TEST_CASE( emptyReads )
 #endif
 
 #if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 7 writers, 1 reader, shared connection
+    // 7 writers, 1 reader, Shared
     {
         options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
-        options.policy.write_policy = WriteShared;
-        options.policy.read_policy = ReadShared;
-        typename RunnerType::shared_ptr runner(new RunnerType("no", options));
+        options.policy.buffer_policy = Shared;
+        typename RunnerType::shared_ptr runner(new RunnerType("emptyShared", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );

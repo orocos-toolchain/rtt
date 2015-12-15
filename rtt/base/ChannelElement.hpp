@@ -42,7 +42,6 @@
 #include <boost/intrusive_ptr.hpp>
 #include <boost/call_traits.hpp>
 #include "ChannelElementBase.hpp"
-#include "../ReadPolicy.hpp"
 #include "../ConnPolicy.hpp"
 #include "../FlowStatus.hpp"
 #include "../os/MutexLock.hpp"
@@ -149,6 +148,7 @@ namespace RTT { namespace base {
          */
         virtual value_t data_sample()
         {
+            RTT::os::SharedMutexLock lock(inputs_lock);
             typename ChannelElement<T>::shared_ptr input = currentInput();
             if (input) {
                 return input->data_sample();
@@ -175,14 +175,16 @@ namespace RTT { namespace base {
 
         typename ChannelElement<T>::shared_ptr currentInput() {
             typename ChannelElement<T>::shared_ptr last;
-            ReadPolicy read_policy = getReadPolicy();
-            if (!read_policy) read_policy = ConnPolicy::Default().read_policy;
-            switch(read_policy) {
-            case ReadUnordered:
+            BufferPolicy buffer_policy = getBufferPolicy();
+            if (!buffer_policy) buffer_policy = ConnPolicy::Default().buffer_policy;
+            switch(buffer_policy) {
+            case PerConnection:
+            case PerOutputPort:
                 last = last_read;
                 if ( !last && !inputs.empty() ) last = inputs.front()->narrow<T>();
                 break;
-            case ReadShared:
+            case PerInputPort:
+            case Shared:
                 last = last_signalled->narrow<T>();
                 break;
             default:
@@ -243,7 +245,7 @@ namespace RTT { namespace base {
                 if ( pred( copy_old_data, current ) )
                     return current;
 
-            if (read_policy != ReadShared) {
+            if (buffer_policy == PerConnection || buffer_policy == PerOutputPort) {
                 for (Inputs::iterator it = inputs.begin(); it != inputs.end(); ++it) {
                     if (*it == current) continue;
                     typename ChannelElement<T>::shared_ptr input = (*it)->narrow<T>();
@@ -283,10 +285,14 @@ namespace RTT { namespace base {
             WriteStatus result = WriteSuccess;
             bool at_least_one_output_is_disconnected = false;
             bool at_least_one_output_is_connected = false;
-            assert((write_policy != WriteShared) || (outputs.size() <= 1));
 
             {
                 RTT::os::SharedMutexLock lock(outputs_lock);
+                {
+                    RTT::os::SharedMutexLock lock2(buffer_policy_lock);
+                    assert((buffer_policy != PerOutputPort && buffer_policy != Shared) || (outputs.size() <= 1));
+                }
+
                 if (outputs.empty()) return WriteSuccess;
                 for(Outputs::iterator it = outputs.begin(); it != outputs.end(); ++it)
                 {
@@ -320,10 +326,14 @@ namespace RTT { namespace base {
             WriteStatus result = WriteSuccess;
             bool at_least_one_output_is_disconnected = false;
             bool at_least_one_output_is_connected = false;
-            assert((write_policy != WriteShared) || (outputs.size() <= 1));
 
             {
                 RTT::os::SharedMutexLock lock(outputs_lock);
+                {
+                    RTT::os::SharedMutexLock lock2(buffer_policy_lock);
+                    assert((buffer_policy != PerOutputPort && buffer_policy != Shared) || (outputs.size() <= 1));
+                }
+
                 if (outputs.empty()) return NotConnected;
                 for(Outputs::iterator it = outputs.begin(); it != outputs.end(); ++it)
                 {
