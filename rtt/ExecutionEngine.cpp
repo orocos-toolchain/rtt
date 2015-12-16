@@ -360,9 +360,15 @@ namespace RTT
         if (reason == RunnableInterface::Trigger) {
             /* Callback step */
             processMessages();
+            if ( taskc ) {
+                taskc->prepareUpdateHook();
+            }
         } else if (reason == RunnableInterface::TimeOut || reason == RunnableInterface::IOReady) {
             /* Update step */
             processMessages();
+            if ( taskc ) {
+                taskc->prepareUpdateHook();
+            }
             processFunctions();
             processHooks();
         }
