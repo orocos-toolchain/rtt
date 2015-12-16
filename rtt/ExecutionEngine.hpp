@@ -106,6 +106,19 @@ namespace RTT
         virtual bool process(base::DisposableInterface* c);
 
         /**
+         * Queue and execute (process) a given message. The message is
+         * executed in step() or loop() directly after all other
+         * queued ActionInterface objects. The constructor parameter
+         * \a queue_size limits how many messages can be queued in
+         * between step()s or loop().
+         *
+         * @return true if the port callback got accepted, false otherwise.
+         * @return false when the MessageProcessor is not running or does not accept messages.
+         * @see acceptMessages
+         */
+        virtual bool process(base::PortInterface* port);
+
+        /**
          * Run a given function in step() or loop(). The function may only
          * be destroyed after the
          * ExecutionEngine is stopped or removeFunction() was invoked. The number of functions the Processor can
@@ -238,6 +251,11 @@ namespace RTT
         internal::MWSRQueue<base::DisposableInterface*>* mqueue;
 
         /**
+         * The port callback queue
+         */
+        internal::MWSRQueue<base::PortInterface*>* port_queue;
+
+        /**
          * Stores all functions we're executing.
          */
         internal::MWSRQueue<base::ExecutableInterface*>* f_queue;
@@ -252,6 +270,7 @@ namespace RTT
         ExecutionEngine *mmaster;
 
         void processMessages();
+        void processPortCallbacks();
         void processFunctions();
         void processHooks();
 
