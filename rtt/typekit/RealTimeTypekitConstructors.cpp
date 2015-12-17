@@ -142,7 +142,8 @@ namespace RTT
         unsigned int int_to_uint(int i) { return (unsigned int)(i); }
         int uint_to_int(unsigned int ui) { return int(ui); }
 #endif
-        bool flow_to_bool(FlowStatus fs) { return fs != NoData ; }
+        bool flowstatus_to_bool(FlowStatus fs) { return fs != NoData ; }
+        bool writestatus_to_bool(WriteStatus fs) { return fs == WriteSuccess ; }
         bool send_to_bool(SendStatus ss) { return ss == SendSuccess; }
         bool int_to_bool(int i) { return i != 0; }
         int bool_to_int(bool b) { return int(b); }
@@ -226,7 +227,8 @@ namespace RTT
         ti->type("rt_string")->addConstructor( newConstructor( rt_string_ctor_string() ) );
         ti->type("string")->addConstructor( newConstructor( string_ctor_rt_string() ) );
 #endif
-        ti->type("bool")->addConstructor( newConstructor( &flow_to_bool, true ) );
+        ti->type("bool")->addConstructor( newConstructor( &flowstatus_to_bool, true ) );
+        ti->type("bool")->addConstructor( newConstructor( &writestatus_to_bool, true ) );
         ti->type("bool")->addConstructor( newConstructor( &send_to_bool, true ) );
         ti->type("bool")->addConstructor( newConstructor( &int_to_bool, true ) );
 #endif

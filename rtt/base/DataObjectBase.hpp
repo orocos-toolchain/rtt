@@ -1,13 +1,4 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 22 11:59:08 CEST 2009  FlowStatus.hpp
-
-                        FlowStatus.hpp -  description
-                           -------------------
-    begin                : Thu October 22 2009
-    copyright            : (C) 2009 Peter Soetens
-    email                : peter@thesourcworks.com
-
- ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
  *   License as published by the Free Software Foundation;                 *
@@ -35,40 +26,54 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef CORELIB_DATAOBJECTBASE_HPP
+#define CORELIB_DATAOBJECTBASE_HPP
 
-#ifndef ORO_FLOW_STATUS_HPP
-#define ORO_FLOW_STATUS_HPP
+#include "../rtt-fwd.hpp"
 
-#include <ostream>
-#include <istream>
-
-#include "rtt-config.h"
-
-namespace RTT {
-    /**
-     * Returns the status of a data flow read operation.
-     * NoData means that the channel is disconnected or never written to.
-     * NewData means that the returned data is new data.
-     * OldData means that the returned data was already read.
-     *
-     * @note The CORBA transport enforces that FlowStatus values are in-order (no double assignments or negative values).
-     */
-    enum FlowStatus { NoData = 0, OldData = 1, NewData = 2 };
+namespace RTT
+{ namespace base {
 
     /**
-     * Returns the status of a data flow write operation.
-     * WriteSuccess means that the sample could be successfully written into the connection buffer of all (mandatory) channels.
-     * WriteFailure means that at least one (mandatory) connection reported an error, e.g. a full buffer.
-     * NotConnected means that at least one (mandatory) channel is not connected or the channel is not connected to any output.
+     * @brief Base class for all data object classes.
      *
-     * @note The CORBA transport enforces that FlowStatus values are in-order (no double assignments or negative values).
+     * @ingroup PortBuffers
      */
-    enum WriteStatus { WriteSuccess = 0, WriteFailure = 1, NotConnected = 2 };
+    class DataObjectBase
+    {
+    public:
+        /**
+         * A helper class to pass optional arguments to the constructor of \ref DataObjectLockFree<T>
+         * in order to avoid ambiguity.
+         */
+        class Options {
+        private:
+            unsigned int max_threads_;
+            bool multiple_writers_;
+            bool multiple_readers_;
 
-    RTT_API std::ostream& operator<<(std::ostream& os, FlowStatus fs);
-    RTT_API std::istream& operator>>(std::istream& os, FlowStatus& fs);
-    RTT_API std::ostream& operator<<(std::ostream& os, WriteStatus fs);
-    RTT_API std::istream& operator>>(std::istream& os, WriteStatus& fs);
-}
+        public:
+            Options();
+            Options(const ConnPolicy &policy);
+            Options(unsigned int max_threads);
+
+            unsigned int max_threads() const { return max_threads_; }
+            Options &max_threads(unsigned int value) { max_threads_ = value; return *this; }
+            bool multiple_writers() const { return multiple_writers_; }
+            Options &multiple_writers(bool value) { multiple_writers_ = value; return *this; }
+            bool multiple_readers() const { return multiple_readers_; }
+            Options &multiple_readers(bool value) { multiple_readers_ = value; return *this; }
+        };
+
+        virtual ~DataObjectBase() {}
+
+        /**
+         * Clears any data stored by this data object, so that any subsequent Get() without
+         * a new Set() will return NoData.
+         */
+        virtual void clear() = 0;
+    };
+}}
 
 #endif
+

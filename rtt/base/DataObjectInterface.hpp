@@ -38,7 +38,8 @@
 #ifndef CORELIB_DATAOBJECTINTERFACE_HPP
 #define CORELIB_DATAOBJECTINTERFACE_HPP
 
-
+#include "DataObjectBase.hpp"
+#include "../FlowStatus.hpp"
 #include <boost/shared_ptr.hpp>
 
 namespace RTT
@@ -53,7 +54,7 @@ namespace RTT
      * @ingroup PortBuffers
      */
     template <class T>
-    class DataObjectInterface
+    class DataObjectInterface : public DataObjectBase
     {
     public:
         /**
@@ -64,8 +65,7 @@ namespace RTT
         /**
          * Create a DataObject which is initially not reference counted.
          */
-        DataObjectInterface() {
-        }
+        DataObjectInterface() {}
 
         /**
          * Destructor.
@@ -82,7 +82,7 @@ namespace RTT
          *
          * @param pull A copy of the data.
          */
-        virtual void Get( DataType& pull ) const = 0;
+        virtual FlowStatus Get( DataType& pull, bool copy_old_data = true ) const = 0;
 
         /**
          * Get a copy of the data of this data object.
@@ -96,16 +96,24 @@ namespace RTT
          *
          * @param push The data which must be set.
          */
-        virtual void Set( const DataType& push ) = 0;
+        virtual bool Set( const DataType& push ) = 0;
 
         /**
          * Provides a data sample to initialize this data object.
          * As such enough storage
          * space can be allocated before the actual writing begins.
          *
-         * @param sample
+         * @param sample the data sample
+         * @param reset enforce reinitialization even if this operation clears the stored data.
+         * @return true if the data object was successfully (re)initialized.
          */
-        virtual void data_sample( const DataType& sample ) = 0;
+        virtual bool data_sample( const DataType& sample, bool reset = true ) = 0;
+
+        /**
+         * Clears any data stored by this data object, so that any subsequent Get() without
+         * a new Set() will return NoData.
+         */
+        virtual void clear() = 0;
     };
 }}
 

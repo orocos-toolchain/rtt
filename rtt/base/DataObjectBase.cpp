@@ -1,13 +1,4 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 22 11:59:08 CEST 2009  FlowStatus.hpp
-
-                        FlowStatus.hpp -  description
-                           -------------------
-    begin                : Thu October 22 2009
-    copyright            : (C) 2009 Peter Soetens
-    email                : peter@thesourcworks.com
-
- ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
  *   License as published by the Free Software Foundation;                 *
@@ -36,39 +27,37 @@
  ***************************************************************************/
 
 
-#ifndef ORO_FLOW_STATUS_HPP
-#define ORO_FLOW_STATUS_HPP
+#include "DataObjectBase.hpp"
+#include "../ConnPolicy.hpp"
 
-#include <ostream>
-#include <istream>
+using namespace RTT;
+using namespace RTT::base;
 
-#include "rtt-config.h"
+DataObjectBase::Options::Options()
+    : max_threads_(2)
+    , multiple_writers_(false)
+    , multiple_readers_(false)
+{}
 
-namespace RTT {
-    /**
-     * Returns the status of a data flow read operation.
-     * NoData means that the channel is disconnected or never written to.
-     * NewData means that the returned data is new data.
-     * OldData means that the returned data was already read.
-     *
-     * @note The CORBA transport enforces that FlowStatus values are in-order (no double assignments or negative values).
-     */
-    enum FlowStatus { NoData = 0, OldData = 1, NewData = 2 };
+DataObjectBase::Options::Options(unsigned int max_threads)
+    : max_threads_(max_threads)
+    , multiple_writers_(false)
+    , multiple_readers_(true)
+{}
 
-    /**
-     * Returns the status of a data flow write operation.
-     * WriteSuccess means that the sample could be successfully written into the connection buffer of all (mandatory) channels.
-     * WriteFailure means that at least one (mandatory) connection reported an error, e.g. a full buffer.
-     * NotConnected means that at least one (mandatory) channel is not connected or the channel is not connected to any output.
-     *
-     * @note The CORBA transport enforces that FlowStatus values are in-order (no double assignments or negative values).
-     */
-    enum WriteStatus { WriteSuccess = 0, WriteFailure = 1, NotConnected = 2 };
-
-    RTT_API std::ostream& operator<<(std::ostream& os, FlowStatus fs);
-    RTT_API std::istream& operator>>(std::istream& os, FlowStatus& fs);
-    RTT_API std::ostream& operator<<(std::ostream& os, WriteStatus fs);
-    RTT_API std::istream& operator>>(std::istream& os, WriteStatus& fs);
+DataObjectBase::Options::Options(const ConnPolicy &policy)
+    : max_threads_(2)
+    , multiple_writers_(policy.buffer_policy == PerInputPort || policy.buffer_policy == Shared)
+    , multiple_readers_(policy.buffer_policy == PerOutputPort || policy.buffer_policy == Shared)
+{
+    if (policy.max_threads == 0) {
+        if (multiple_writers_) {
+            max_threads_ += 10;
+        }
+        if (multiple_readers_) {
+            max_threads_ += 10;
+        }
+    } else {
+        max_threads_ = policy.max_threads;
+    }
 }
-
-#endif

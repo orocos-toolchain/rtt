@@ -19,6 +19,10 @@ namespace RTT {
         struct IntrusiveStorage;
         struct LocalConnID;
         struct StreamConnID;
+        struct SharedConnID;
+        struct SharedConnectionBase;
+        template <class T>
+        struct SharedConnection;
         struct UnknownType;
         template <typename function>
         class UnaryDataSource;
@@ -85,9 +89,11 @@ namespace RTT {
         template<class T, class Enable>
         struct DSWrap;
         template<class T>
-        class AtomicMWSRQueue;
-        template<class T>
         class AtomicQueue;
+        template<class T>
+        class AtomicMWMRQueue;
+        template<class T>
+        class AtomicMWSRQueue;
         template<class T>
         class MWSRQueue;
         template<class T>

@@ -23,16 +23,19 @@ namespace RTT
                 return ConnFactory::buildDataStorage<T>(policy);
             }
 
-            base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const
+            base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port, ConnPolicy const& policy) const
             {
-                return ConnFactory::buildChannelOutput(
-                                                                 static_cast<RTT::InputPort<T>&>(port), new internal::SimpleConnID());
+                return ConnFactory::buildChannelOutput(static_cast<RTT::InputPort<T>&>(port), policy);
             }
 
-            base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const
+            base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port, ConnPolicy const& policy) const
             {
-                return ConnFactory::buildChannelInput(
-                                                                static_cast<RTT::OutputPort<T>&>(port), new internal::SimpleConnID(), 0 );
+                return ConnFactory::buildChannelInput(static_cast<RTT::OutputPort<T>&>(port), policy);
+            }
+
+            internal::SharedConnectionBase::shared_ptr buildSharedConnection(base::OutputPortInterface *output_port, base::InputPortInterface *input_port, ConnPolicy const& policy) const
+            {
+                return ConnFactory::buildSharedConnection(static_cast<RTT::OutputPort<T> *>(output_port), input_port, policy);
             }
         };
 }

@@ -6,6 +6,11 @@
 #define RTT_VERSION_MINOR @RTT_VERSION_MINOR@
 #define RTT_VERSION_PATCH @RTT_VERSION_PATCH@
 
+#define RTT_VERSION_GTE(major,minor,patch) \
+    ((RTT_VERSION_MAJOR > major) || (RTT_VERSION_MAJOR == major && \
+     (RTT_VERSION_MINOR > minor) || (RTT_VERSION_MINOR == minor && \
+     (RTT_VERSION_PATCH >= patch))))
+
 #cmakedefine ORO_DISABLE_PORT_DATA_SCRIPTING
 
 // if not defined, show an error
@@ -82,6 +87,19 @@
 #  define RTT_EXPORT
 #  define RTT_HIDE
 # endif
+#endif
+
+//
+// Deprecation Macro
+// (copied from http://stackoverflow.com/questions/295120/c-mark-as-deprecated/21265197#21265197)
+//
+#ifdef __GNUC__
+#define RTT_DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#define RTT_DEPRECATED __declspec(deprecated)
+#else
+#pragma message("WARNING: You need to implement RTT_DEPRECATED for this compiler")
+#define RTT_DEPRECATED
 #endif
 
 #endif

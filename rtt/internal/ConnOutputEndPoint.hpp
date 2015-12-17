@@ -54,11 +54,15 @@ namespace RTT
      * moving along to the other side of the wall.
      */
     template<typename T>
-    class ConnOutputEndpoint : public base::ChannelElement<T>
+    class ConnOutputEndpoint : public base::MultipleInputsChannelElement<T>
     {
+    private:
         InputPort<T>* port;
-        ConnID* cid;
+
     public:
+        typedef base::MultipleInputsChannelElement<T> Base;
+        typedef boost::intrusive_ptr<ConnOutputEndpoint<T> > shared_ptr;
+
         /**
          * Creates the connection end that represents the output and attach
          * it to the input.
@@ -67,47 +71,81 @@ namespace RTT
          * represents the other end. This id is passed to the input port \a port.
          * @return
          */
-        ConnOutputEndpoint(InputPort<T>* port, ConnID* output_id )
-            : port(port), cid(output_id)
+        ConnOutputEndpoint(InputPort<T>* port)
+            : port(port)
         {
-            // cid is deleted/owned by the port's ConnectionManager.
         }
 
         ~ConnOutputEndpoint()
         {
         }
 
-        /** Called by the connection factory to check that the connection is
-         * properly set up. It is called when the channel is complete, so we can
-         * register ourselves on the port side now
-         *
-         * Before that, the channel might not be complete and therefore having
-         * the input port read on it would lead to crashes
+        /**
+         * Call this to indicate that a connection leading to this port
+         * is ready to use. The input port will check its channel elements
+         * by sending an inputReady() message. If this succeeds, this
+         * function returns true and the input port is ready to use (this->connected() == true).
+         * If sending inputReady() returns failure, this method returns
+         * false and the connection is aborted (this->connected() == false).
          */
-        bool inputReady()
+        bool channelReady(base::ChannelElementBase::shared_ptr const& channel, ConnPolicy const& policy, ConnID *conn_id)
         {
-            return base::ChannelElement<T>::inputReady();
+            // cid is deleted/owned by the ConnectionManager.
+            if ( channel ) {
+                if (!conn_id) conn_id = new internal::SimpleConnID();
+                if ( channel->inputReady(this) ) {
+                    port->addConnection(conn_id, channel, policy);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
-        using base::ChannelElement<T>::write;
-
         /** Writes a new sample on this connection
-         * This should never be called, as all connections are supposed to have
-         * a data storage element */
-        virtual bool write(typename base::ChannelElement<T>::param_t sample)
-        { return false; }
-
-        virtual void disconnect(bool forward)
+         * This should only be called if this endpoint has a buffer output,
+         * in which case the base class's write implementation will return true
+         * and the port is signalled. Otherwise, return false, as other type of
+         * connections are supposed to have a data storage element. */
+        virtual WriteStatus write(typename Base::param_t sample)
         {
-            // Call the base class: it does the common cleanup
-            base::ChannelElement<T>::disconnect(forward);
-
-            InputPort<T>* port = this->port;
-            if (port && forward)
-            {
-                this->port = 0;
-                port->removeConnection(cid);
+            WriteStatus result = Base::write(sample);
+            if (result == WriteSuccess) {
+                if (!signal()) {
+                    return WriteFailure;
+                }
+            } else if (result == NotConnected) {
+                // A ConnOutputEndPoint is always connected: If Base::write(sample) returned NotConnected the port
+                // does not have a shared input buffer and you cannot write into this ChannelElement, but it still
+                // should be considered as connected.
+                // @sa OutputPort::connectionAdded()
+                result = WriteFailure;
             }
+            return result;
+        }
+
+        using Base::disconnect;
+
+        virtual bool disconnect(const base::ChannelElementBase::shared_ptr& channel, bool forward = true)
+        {
+            InputPort<T>* port = this->port;
+            if (port && channel && forward)
+            {
+                port->getManager()->removeConnection(channel.get(), /* disconnect = */ false);
+            }
+
+            // Call the base class: it does the common cleanup
+            if (!Base::disconnect(channel, forward)) {
+                return false;
+            }
+
+            // If this was the last connection, remove the buffer, too.
+            // For forward == true this was already done by the base class.
+            if (!this->connected() && !forward) {
+                this->disconnect(true);
+            }
+
+            return true;
         }
 
         virtual bool signal()
@@ -123,17 +161,28 @@ namespace RTT
             return true;
         }
 
-        virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
-        {
-            return true;
-        }
-
         virtual base::PortInterface* getPort() const {
             return this->port;
         }
 
-        virtual ConnID* getConnID() const { 
-            return this->cid; 
+        virtual base::ChannelElementBase::shared_ptr getOutputEndPoint()
+        {
+            return this;
+        }
+
+        virtual typename base::ChannelElement<T>::shared_ptr getSharedBuffer()
+        {
+            return this->getOutput();
+        }
+
+        typename base::ChannelElement<T>::shared_ptr getReadEndpoint()
+        {
+            typename base::ChannelElement<T>::shared_ptr buffer = getSharedBuffer();
+            if (buffer) {
+                return buffer;
+            } else {
+                return this;
+            }
         }
     };
 
