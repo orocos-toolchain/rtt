@@ -100,21 +100,16 @@ namespace RTT
          * between step()s or loop().
          *
          * @return true if the message got accepted, false otherwise.
-         * @return false when the MessageProcessor is not running or does not accept messages.
-         * @see acceptMessages
+         * @return false if the engine does not accept messages.
          */
         virtual bool process(base::DisposableInterface* c);
 
         /**
-         * Queue and execute (process) a given message. The message is
-         * executed in step() or loop() directly after all other
-         * queued ActionInterface objects. The constructor parameter
-         * \a queue_size limits how many messages can be queued in
-         * between step()s or loop().
+         * Queue and execute (process) a given port callback. The port callback is
+         * executed in step() or loop() directly after the queued messages.
          *
          * @return true if the port callback got accepted, false otherwise.
-         * @return false when the MessageProcessor is not running or does not accept messages.
-         * @see acceptMessages
+         * @return false if the engine does not accept messages.
          */
         virtual bool process(base::PortInterface* port);
 
