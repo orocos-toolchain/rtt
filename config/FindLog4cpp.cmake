@@ -14,8 +14,8 @@
 include(FindPackageHandleStandardArgs)
 
 # Find headers and libraries
-find_path(LOG4CPP_INCLUDE_DIR NAMES log4cpp/Category.hh)
-find_library(LOG4CPP_LIBRARY NAMES log4cpp)
+find_path(LOG4CPP_INCLUDE_DIR NAMES log4cpp/Category.hh PATH_SUFFIXES orocos)
+find_library(LOG4CPP_LIBRARY NAMES orocos-log4cpp)
 
 # Set LOG4CPP_FOUND honoring the QUIET and REQUIRED arguments
 find_package_handle_standard_args(LOG4CPP DEFAULT_MSG LOG4CPP_LIBRARY LOG4CPP_INCLUDE_DIR)
