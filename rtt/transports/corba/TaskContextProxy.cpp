@@ -149,7 +149,7 @@ namespace RTT
             CORBA::String_var nm = mtask->getName(); // force connect to object.
             std::string newname( nm.in() );
             this->provides()->setName( newname );
-            Logger::log() << Logger::Info << "Successfully connected to TaskContextServer '"+newname+"'."<<endlog();
+            Logger::log() << Logger::Info << "Successfully connected to TaskContextServer '"+name+"'."<<endlog();
             proxies[this] = mtask.in();
         }
         catch (CORBA::Exception &e) {
