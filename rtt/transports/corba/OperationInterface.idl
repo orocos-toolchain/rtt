@@ -137,7 +137,6 @@ module RTT
      */
     interface COperationInterface
     {
-      typedef sequence<string> COperationList;
       typedef sequence<COperation> COperationDescriptions;
 
       /**
