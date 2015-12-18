@@ -157,9 +157,14 @@ RTT::base::ChannelElementBase::shared_ptr RemoteInputPort::buildRemoteChannelOut
 
     // Input side is now ok and waiting for us to complete. We build our corba channel element too
     // and connect it to the remote side and vice versa.
+#ifndef CORBA_PORTS_DISABLE_SIGNAL
+    bool is_signalling = true;
+#else
+    bool is_signalling = false;
+#endif
     CRemoteChannelElement_i*  local =
         static_cast<CorbaTypeTransporter*>(type->getProtocol(ORO_CORBA_PROTOCOL_ID))
-                            ->createChannelElement_i(output_port.getInterface(), mpoa, policy.pull, policy.mandatory);
+                            ->createChannelElement_i(output_port.getInterface(), mpoa, policy.pull, policy.mandatory, is_signalling);
 
     CRemoteChannelElement_var proxy = local->_this();
     local->setRemoteSide(remote);

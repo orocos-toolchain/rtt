@@ -466,7 +466,7 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
     corba::CDataFlowInterface_var ports = ts->server()->ports();
 
     corba::CDataFlowInterface::CPortNames_var names =
-	ports->getPorts();
+    ports->getPorts();
 
     BOOST_CHECK_EQUAL(CORBA::ULong(2), names->length());
     BOOST_CHECK_EQUAL(string("mi"), string(names[CORBA::ULong(0)]));
@@ -474,14 +474,14 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 
     // Now check directions
     BOOST_CHECK_EQUAL(RTT::corba::COutput,
-	    ports->getPortType("mo"));
+        ports->getPortType("mo"));
     BOOST_CHECK_EQUAL(RTT::corba::CInput,
-	    ports->getPortType("mi"));
+        ports->getPortType("mi"));
 
     // And check type names
-	CORBA::String_var cstr = ports->getDataType("mo");
+    CORBA::String_var cstr = ports->getDataType("mo");
     BOOST_CHECK_EQUAL(string("double"),
-	    string(cstr.in()));
+        string(cstr.in()));
 }
 
 BOOST_AUTO_TEST_CASE( testPortConnections )

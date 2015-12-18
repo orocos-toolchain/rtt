@@ -78,16 +78,22 @@ namespace RTT {
 
         PortableServer::ObjectId_var oid;
 
+        /**
+         * If signalling is false, no remoteSignal() calls will be forwarded to remote channel elements.
+         */
+        bool signalling;
+
         public:
             /**
              * Create a channel element for remote data exchange.
              * @param transport The type specific object that will be used to marshal the data.
              * @param poa The POA that manages the underlying CRemoteChannelElement_i.
              */
-            RemoteChannelElement(CorbaTypeTransporter const& transport, DataFlowInterface* sender, PortableServer::POA_ptr poa, bool is_pull, bool is_mandatory)
-            : CRemoteChannelElement_i(transport, poa),
-              valid(true), pull(is_pull), mandatory(is_mandatory),
-              msender(sender)
+            RemoteChannelElement(CorbaTypeTransporter const& transport, DataFlowInterface* sender, PortableServer::POA_ptr poa, bool is_pull, bool is_mandatory, bool is_signalling)
+            : CRemoteChannelElement_i(transport, poa)
+            , valid(true), pull(is_pull), mandatory(is_mandatory)
+            , msender(sender)
+            , signalling(is_signalling)
             {
                 // Big note about cleanup: The RTT will dispose this object through
 	            // the ChannelElement<T> refcounting. So we only need to inform the
@@ -115,10 +121,10 @@ namespace RTT {
             /**
              * CORBA IDL function.
              */
-            CORBA::Boolean remoteSignal() ACE_THROW_SPEC ((
-          	      CORBA::SystemException
-          	    ))
-            { return base::ChannelElement<T>::signal(); }
+            void remoteSignal() ACE_THROW_SPEC ((
+                    CORBA::SystemException
+                  ))
+            { base::ChannelElement<T>::signal(); }
 
             bool signal()
             {
@@ -142,7 +148,11 @@ namespace RTT {
                 // in push mode, transfer all data, in pull mode, only signal once for each sample.
                 if ( pull ) {
                     try
-                    { valid = remote_side->remoteSignal(); }
+                    {
+                        if (signalling) {
+                            remote_side->remoteSignal();
+                        }
+                    }
 #ifdef CORBA_IS_OMNIORB
                     catch(CORBA::SystemException& e)
                     {
@@ -287,8 +297,8 @@ namespace RTT {
              * CORBA IDL function.
              */
             CFlowStatus read(::CORBA::Any_out sample, bool copy_old_data) ACE_THROW_SPEC ((
-          	      CORBA::SystemException
-          	    ))
+                    CORBA::SystemException
+                  ))
             {
 
                 FlowStatus fs;
@@ -342,7 +352,7 @@ namespace RTT {
                         CWriteStatus cfs = remote_side->write(write_any);
                         return (WriteStatus)cfs;
                     } else {
-                        remote_side->write(write_any);
+                        remote_side->writeOneway(write_any);
                         return WriteSuccess;
                     }
                 }
@@ -372,6 +382,16 @@ namespace RTT {
                 transport.updateFromAny(&sample, &value_data_source);
                 WriteStatus fs = base::ChannelElement<T>::write(value_data_source.rvalue());
                 return (CWriteStatus)fs;
+            }
+
+            /**
+             * CORBA IDL function.
+             */
+            void writeOneway(const ::CORBA::Any& sample) ACE_THROW_SPEC ((
+          	      CORBA::SystemException
+          	    ))
+            {
+				(void) write(sample);
             }
 
             virtual WriteStatus data_sample(typename base::ChannelElement<T>::param_t sample)

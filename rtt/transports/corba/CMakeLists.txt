@@ -1,11 +1,29 @@
 # this option was set in global_rules.cmake
 IF(ENABLE_CORBA)
   MESSAGE( "Building CORBA Transport library.")
-  OPTION(PLUGINS_CORBA_TRANSPORT_TYPES "Enable corba transport for RTT typekit types." ON)
 
+  OPTION(PLUGINS_CORBA_TRANSPORT_TYPES "Enable corba transport for RTT typekit types." ON)
   if (NOT PLUGINS_STD_TYPES_SUPPORT)
     ADD_DEFINITIONS( -DRTT_NO_STD_TYPES )
   endif (NOT PLUGINS_STD_TYPES_SUPPORT)
+
+  OPTION(PLUGINS_CORBA_PORTS_DISABLE_SIGNAL "Do not send remote signals for ports to the client side." OFF)
+  if (PLUGINS_CORBA_PORTS_DISABLE_SIGNAL)
+    MESSAGE("Disabled remote signalling in CORBA Transport library.")
+    ADD_DEFINITIONS( -DCORBA_PORTS_DISABLE_SIGNAL )
+  endif (PLUGINS_CORBA_PORTS_DISABLE_SIGNAL)
+
+  OPTION(PLUGINS_CORBA_SEND_ONEWAY_OPERATIONS "Send oneway operations if collect arity is zero." OFF)
+  if (PLUGINS_CORBA_SEND_ONEWAY_OPERATIONS)
+    MESSAGE("Enabled oneway operation sending in CORBA Transport library.")
+    ADD_DEFINITIONS( -DCORBA_SEND_ONEWAY_OPERATIONS )
+  endif (PLUGINS_CORBA_SEND_ONEWAY_OPERATIONS)
+
+  OPTION(PLUGINS_CORBA_NO_CHECK_OPERATIONS "Check operation signature when constructing remote operation callers." OFF)
+  if (PLUGINS_CORBA_NO_CHECK_OPERATIONS)
+    MESSAGE("Disabled operation signature checking in CORBA Transport library.")
+    ADD_DEFINITIONS( -DCORBA_NO_CHECK_OPERATIONS )
+  endif (PLUGINS_CORBA_NO_CHECK_OPERATIONS)
 
   # Clang 2.9 needs this in order to get around undefined symbols of inlined operator>>= functions !
   GET_FILENAME_COMPONENT(CORBA_CXX_NAME "${CMAKE_CXX_COMPILER}" NAME)

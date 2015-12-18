@@ -171,6 +171,7 @@ CDataFlowInterface::CPortDescriptions* CDataFlowInterface_i::getPortDescriptions
 
         PortInterface* port = mdf->getPort(ports[i]);
         port_desc.name = CORBA::string_dup(ports[i].c_str());
+        port_desc.description = CORBA::string_dup(port->getDescription().c_str());
 
         TypeInfo const* type_info = port->getTypeInfo();
         if (!type_info || !type_info->getProtocol(ORO_CORBA_PROTOCOL_ID))
@@ -379,8 +380,14 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
         if (!end) throw CInvalidArgument();
     }
 
+#ifndef CORBA_PORTS_DISABLE_SIGNAL
+    bool is_signalling = true;
+#else
+    bool is_signalling = false;
+#endif
+
     CRemoteChannelElement_i* this_element =
-        transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull, corba_policy.mandatory);
+        transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull, corba_policy.mandatory, is_signalling);
     this_element->setCDataFlowInterface(this);
 
     /*
@@ -463,7 +470,12 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
 
     // The channel element that exposes our channel in CORBA
     CRemoteChannelElement_i* this_element;
-    PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull, corba_policy.mandatory);
+#ifndef CORBA_PORTS_DISABLE_SIGNAL
+    bool is_signalling = true;
+#else
+    bool is_signalling = false;
+#endif
+    PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull, corba_policy.mandatory, is_signalling);
     this_element->setCDataFlowInterface(this);
     assert( dynamic_cast<ChannelElementBase*>(this_element) );
 
