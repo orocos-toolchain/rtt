@@ -43,6 +43,7 @@
 #include "../FactoryExceptions.hpp"
 #include "../TaskContext.hpp"
 #include "../OperationCaller.hpp"
+#include "SendHandleAlias.hpp"
 
 namespace RTT
 {
@@ -98,6 +99,17 @@ namespace RTT
             // while future methods for the original will still call the original.
             StateMachineServicePtr tmp( new StateMachineService( newsc, this->mtc ) );
             replacements[ _this.get() ] = tmp->_this.get(); // put 'newsc' in map
+
+            if (instantiate) {
+                // Remove any remaining SendHandleAlias attributes, since they are not allowed for an instantiate...
+                // See SendHandleAlias::copy() for more details.
+                for ( ConfigurationInterface::map_t::iterator it = values.begin(); it != values.end(); ++it) {
+                    if (dynamic_cast<SendHandleAlias*>(*it)) {
+                        values.erase(it);
+                        it = values.begin();
+                    }
+                }
+            }
 
             ConfigurationInterface* dummy = ConfigurationInterface::copy( replacements, instantiate );
             tmp->loadValues( dummy->getValues());

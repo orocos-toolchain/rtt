@@ -42,6 +42,7 @@
 #include "CommonParser.hpp"
 #include "PeerParser.hpp"
 #include "ValueParser.hpp"
+#include "SendHandleAlias.hpp"
 #include "../internal/DataSource.hpp"
 #include "../types/Operators.hpp"
 #include "../Time.hpp"
@@ -65,11 +66,12 @@ namespace RTT { namespace scripting
   class DataCallParser
   {
     base::DataSourceBase::shared_ptr ret;
-    boost::shared_ptr<base::AttributeBase> mhandle;
+    boost::shared_ptr<SendHandleAlias> mhandle;
+    ConditionInterface* mcmdcnd;
     std::string mobject;
     std::string mmethod;
     ExecutionEngine* mcaller;
-    bool mis_send;
+    enum CallType { DEFAULT_CALLTYPE, CALLTYPE_CALL, CALLTYPE_SEND, CALLTYPE_CMD } mcalltype;
 
     rule_t datacall, arguments, peerpath, object, method;
 
@@ -77,7 +79,7 @@ namespace RTT { namespace scripting
     void seenobjectname( iter_t begin, iter_t end );
     void seendataname();
     void seendatacall();
-    void seensend();
+
     CommonParser& commonparser;
     ExpressionParser& expressionparser;
     PeerParser peerparser;
@@ -95,7 +97,11 @@ namespace RTT { namespace scripting
       {
         return ret.get();
       }
-    boost::shared_ptr<base::AttributeBase> getParseHandle()
+    ConditionInterface* getParseCmdResult()
+      {
+        return mcmdcnd;
+      }
+    boost::shared_ptr<SendHandleAlias> getParseHandle()
       {
         return mhandle;
       }
@@ -157,7 +163,9 @@ namespace RTT { namespace scripting
      * Contains the last SendHandle encountered, Will also be dropped
      * by dropResult().
      */
-    boost::shared_ptr<base::AttributeBase> mhandle;
+    boost::shared_ptr<SendHandleAlias> mhandle;
+
+    ConditionInterface* mcmdcnd;
 
     // the name that was parsed as the object to use a certain
     // data of..
@@ -201,6 +209,7 @@ namespace RTT { namespace scripting
     rule_t& parser();
 
     base::DataSourceBase::shared_ptr getResult();
+    ConditionInterface* getCmdResult();
 
     /**
      * In case the parsed result returns a SendHandle,

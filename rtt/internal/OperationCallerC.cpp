@@ -210,9 +210,10 @@ namespace RTT {
 
 
     bool OperationCallerC::call() {
-        if (m)
+        if (m) {
+            m->reset();
             return m->evaluate();
-        else {
+        } else {
             Logger::log() <<Logger::Error << "call() called on incomplete OperationCallerC."<<Logger::endl;
             if (d) {
                 size_t sz;
@@ -244,6 +245,7 @@ namespace RTT {
         }
         if (s) {
             // evaluate and copy result of s to handle and pass handle to SendHandleC.
+            s->reset();
 #ifndef NDEBUG
             bool result =
 #endif

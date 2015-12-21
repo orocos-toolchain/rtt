@@ -343,13 +343,14 @@ namespace RTT
               typename base::OperationCallerBase<Signature>::shared_ptr ff;
               DataSourceSequence args;
               mutable SendHandle<Signature> sh; // mutable because of get() const
+              mutable bool isqueued;
           public:
               typedef boost::intrusive_ptr<FusedMSendDataSource<Signature> >
                       shared_ptr;
 
               FusedMSendDataSource(typename base::OperationCallerBase<Signature>::shared_ptr g,
                                      const DataSourceSequence& s = DataSourceSequence() ) :
-                  ff(g), args(s)
+                  ff(g), args(s), sh(), isqueued(false)
               {
               }
 
@@ -370,9 +371,17 @@ namespace RTT
 
               value_t get() const
               {
+                  if (isqueued)
+                      return sh;
                   // put the member's object as first since SequenceFactory does not know about the OperationCallerBase type.
                   sh = bf::invoke(&base::OperationCallerBase<Signature>::send, bf::cons<base::OperationCallerBase<Signature>*, typename SequenceFactory::data_type>(ff.get(), SequenceFactory::data(args)));
+                  if ( sh.ready() ) // only queued if sh contains a collectable operation
+                      isqueued = true;
                   return sh;
+              }
+
+              void reset() {
+                  isqueued = false;
               }
 
               virtual FusedMSendDataSource<Signature>* clone() const
@@ -404,7 +413,7 @@ namespace RTT
               // push the SendHandle pointer in front.
               typedef typename CollectType<Signature>::type CollectSignature;
               typedef typename boost::function_types::parameter_types<CollectSignature>::type arg_types;
-              typedef typename mpl::push_front<arg_types, SendHandle<Signature>& >::type handle_and_arg_types;
+              typedef typename mpl::push_front<arg_types, SendHandle<Signature> >::type handle_and_arg_types;
               typedef create_sequence< handle_and_arg_types
                       > SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
@@ -447,6 +456,11 @@ namespace RTT
                   return ss;
               }
 
+              void reset() {
+                  // reset the SendHandle DataSource (may be a FusedMSendDataSource, which stores the queued flag).
+                  bf::front(args)->reset();
+              }
+
               virtual FusedMCollectDataSource<Signature>* clone() const
               {
                   return new FusedMCollectDataSource<Signature> ( args, isblocking);
@@ -456,13 +470,26 @@ namespace RTT
                                                                   const base::DataSourceBase*,
                                                                   base::DataSourceBase*>& alreadyCloned) const
               {
-                  return new FusedMCollectDataSource<Signature> ( SequenceFactory::copy(args, alreadyCloned), isblocking);
+                  // we need copy semantics because CmdCollectCondition tracks us.
+                  // WARNING: This is a tricky precedent... should all DataSources with state + multiple living references then implement this ? Should we assert on this ?
+                  if ( alreadyCloned[this] != 0 ) {
+                      assert ( dynamic_cast<FusedMCollectDataSource<Signature>*>( alreadyCloned[this] ) == static_cast<FusedMCollectDataSource<Signature>*>( alreadyCloned[this] ) );
+                      return static_cast<FusedMCollectDataSource<Signature>*>( alreadyCloned[this] );
+                  }
+                  // Other pieces in the code rely on insertion in the map :
+                  alreadyCloned[this] = new FusedMCollectDataSource<Signature>(SequenceFactory::copy(args, alreadyCloned), isblocking);
+                  // return copy
+                  return static_cast<FusedMCollectDataSource<Signature>*>( alreadyCloned[this] );
               }
           };
 
         /**
          * A Function object that reacts to a Signal by writing the arguments in
          * data sources and calling an action object.
+         *
+         * Implementation note: this class does not require copy/clone semantics because
+         * it is re-created for each SM instantiation, so it already gets the copy/cloned
+         * Data Sources in its constructor.
          */
         template<typename Signature>
         struct FusedMSignal : public base::DisposableInterface
