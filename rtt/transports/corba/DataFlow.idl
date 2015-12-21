@@ -73,14 +73,8 @@ module RTT
 
         /**
          * Writes into this Channel Element.
-         * @return NotConnected if the channel became invalid
          */
-        CWriteStatus write(in any sample);
-
-        /**
-         * Writes into this Channel Element (one-way)
-         */
-        oneway void writeOneway(in any sample);
+        oneway void write(in any sample);
 
         /**
          * Disconnect and dispose this object.
