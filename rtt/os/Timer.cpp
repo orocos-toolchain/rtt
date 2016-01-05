@@ -41,6 +41,7 @@
 #include "../Activity.hpp"
 #include "../Logger.hpp"
 #include "../os/fosi.h"
+#include <limits>
 
 namespace RTT {
     using namespace base;
@@ -71,7 +72,7 @@ namespace RTT {
                 MutexLock locker(m);
                 // We can't use infinite as the OS may internally use time_spec, which can not
                 // represent as much in the future (until 2038) // XXX Year-2038 Bug
-                wake_up_time = (TimeService::InfiniteNSecs/4)-1;
+                wake_up_time = 1000000000LL * std::numeric_limits<int32_t>::max();
                 for (TimerIds::iterator it = mtimers.begin(); it != mtimers.end(); ++it) {
                     if ( it->expires != 0 && it->expires < wake_up_time  ) {
                         wake_up_time = it->expires;
