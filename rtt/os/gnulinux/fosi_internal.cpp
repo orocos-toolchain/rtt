@@ -155,6 +155,16 @@ namespace RTT
 	    rv = pthread_create(&(task->thread), &(task->attr),
 	    		rtos_posix_thread_wrapper, xcookie);
 
+        // Set thread name to match task name, to help with debugging
+        {
+            // trim the name to fit 16 bytes restriction of pthread_setname_np
+            const int maxThreadNameSize = 16;
+            char threadName[maxThreadNameSize];
+            strncpy(threadName, task->name, maxThreadNameSize);
+            threadName[maxThreadNameSize-1] = 0;
+            pthread_setname_np(task->thread, threadName);
+        }
+
 	if ( cpu_affinity != (unsigned)~0 ) {
 	  log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
 	  if (0 != rtos_task_set_cpu_affinity(task, cpu_affinity))
