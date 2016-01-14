@@ -139,7 +139,7 @@ namespace RTT
                 ++itl;
             }
             // this is in any case the number of elements taken from items.
-            size_t writtenSamples = itl - items.begin(); 
+            size_type writtenSamples = itl - items.begin(); 
             
             if (mcircular)
                 assert( writtenSamples == (size_type)items.size() );
