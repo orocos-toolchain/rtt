@@ -39,8 +39,8 @@
 #include "../os/MutexLock.hpp"
 #include "../Logger.hpp"
 
-#include <cstdlib>
-#include <ctime>
+#include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 using namespace RTT;
 using namespace RTT::base;
@@ -59,28 +59,13 @@ ConnID* SharedConnID::clone() const
     return new SharedConnID(this->connection);
 }
 
-static std::string generateRandomName(std::size_t length = 6)
-{
-    std::string name;
-    static const char alphanum[] =
-        "0123456789"
-        "abcdefghijklmnopqrstuvwxyz";
-
-    name.resize(length);
-    std::srand(std::time(0));
-    for (std::string::iterator s = name.begin(); s != name.end(); ++s) {
-        *s = alphanum[std::rand() % (sizeof(alphanum) - 1)];
-    }
-
-    return name;
-}
-
+static boost::uuids::random_generator uuid_generator;
 SharedConnectionBase::SharedConnectionBase(const ConnPolicy &policy)
     : policy(policy)
 {
     // assign random name if none was given
     if (this->policy.name_id.empty()) {
-        this->policy.name_id = generateRandomName();
+        this->policy.name_id = boost::uuids::to_string(uuid_generator());
     }
 
     // register at SharedConnectionRepository
