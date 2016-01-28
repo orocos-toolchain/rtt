@@ -605,6 +605,22 @@ namespace RTT
          */
         virtual bool dataOnPortHook( base::PortInterface* port );
 
+        /**
+         * This method implements port callbacks. It will be called
+         * once per sample received on the port and is executed
+         * in the component's thread.
+         *
+         * The default implementation invokes the user callback
+         * if one was given in the addEventPort() call. It can be
+         * overwritten in a subclass to react on incoming data
+         * for all event ports. This is equivalent to adding this
+         * function as a user callback on each of the ports individually.
+         */
+        virtual void dataOnPortCallback( base::PortInterface* port );
+
+        // Required to invoke dataOnPortCallback() from the ExecutionEngine.
+        friend class ExecutionEngine;
+
     private:
 
         typedef std::map< std::string, TaskContext* > PeerMap;
@@ -632,40 +648,24 @@ namespace RTT
         void setup();
 
         friend class DataFlowInterface;
-        /**
-         * Helper class to store port callbacks
-         */
-        struct PortCallback : public base::DisposableInterface {
-            boost::function<void(void)> msf;
-            virtual void executeAndDispose() {
-                msf();
-            }
-            virtual void dispose() {}
-            virtual bool isError() const { return false;}
-        };
-        typedef std::map<base::PortInterface*, PortCallback > UserCallbacks;
+        typedef std::map<base::PortInterface*, SlotFunction > UserCallbacks;
         UserCallbacks user_callbacks;
 
         /**
          * This callback is called each time data arrived on an
          * event port.
-         * @param port The port for which data arrived
          */
         void dataOnPort(base::PortInterface* port);
-        /**
-         * Called to inform us of the number of possible
-         * ports that will trigger a dataOnPort event.
-         * @return false if this->isRunning().
-         */
-        bool dataOnPortSize(unsigned int max);
+
         /**
          * Function to call in the thread of this component if data on the given port arrives.
          */
-        void dataOnPortCallback(base::InputPortInterface* port, SlotFunction callback);
+        void setDataOnPortCallback(base::InputPortInterface* port, SlotFunction callback);
+
         /**
          * Inform that a given port will no longer raise dataOnPort() events.
          */
-        void dataOnPortRemoved(base::PortInterface* port);
+        void removeDataOnPortCallback(base::PortInterface* port);
 
         /**
          * Check if this component could provide a given service,

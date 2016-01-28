@@ -141,6 +141,7 @@ namespace RTT
                 _task_map.erase( _task_map.begin() );
             }
             // Do not call this->disconnect() !!!
+            // Ports are probably already destructed by user code.
         }
 
     bool TaskContext::connectPorts( TaskContext* peer )
@@ -419,21 +420,27 @@ namespace RTT
     void TaskContext::dataOnPort(PortInterface* port)
     {
         if ( this->dataOnPortHook(port) ) {
-            engine()->process(&user_callbacks[port]);
+            this->engine()->process(port);
         }
     }
 
-    bool TaskContext::dataOnPortHook( base::PortInterface* ) {
+    bool TaskContext::dataOnPortHook(PortInterface*) {
         return this->isRunning();
     }
 
-    void TaskContext::dataOnPortCallback(InputPortInterface* port, TaskContext::SlotFunction callback) {
-        // user_callbacks will only be emitted from updateHook().
-        MutexLock lock(mportlock);
-        user_callbacks[port].msf = boost::bind(callback,port);
+    void TaskContext::dataOnPortCallback(PortInterface* port) {
+        UserCallbacks::iterator it = user_callbacks.find(port);
+        if (it != user_callbacks.end() )
+            it->second(port); // fire the user callback
     }
 
-    void TaskContext::dataOnPortRemoved(PortInterface* port) {
+    void TaskContext::setDataOnPortCallback(InputPortInterface* port, TaskContext::SlotFunction callback) {
+        // user_callbacks will only be emitted from updateHook().
+        MutexLock lock(mportlock);
+        user_callbacks[port] = callback;
+    }
+
+    void TaskContext::removeDataOnPortCallback(PortInterface* port) {
         MutexLock lock(mportlock);
         UserCallbacks::iterator it = user_callbacks.find(port);
         if (it != user_callbacks.end() ) {

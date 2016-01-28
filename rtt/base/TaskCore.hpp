@@ -461,6 +461,7 @@ namespace RTT
         TaskCore( TaskCore& );
 
         friend class TaskContext;
+
     protected:
         /**
          * Set to false in order to not trigger() when calling start().
