@@ -59,19 +59,11 @@ namespace RTT
     /**
      * An execution engine serialises (executes one after the other)
      * the execution of all commands, programs, state machines and
-     * incomming events for a task.  Any function executing in the
+     * incoming events for a task.  Any function executing in the
      * same execution engine is guaranteed to be thread-safe with
      * respect to other functions executing in the same execution
      * engine.
      *
-     * The ExecutionEngine bundles a internal::CommandProcessor, scripting::ProgramProcessor,
-     * scripting::StateMachineProcessor and MessageProcessor.
-     *
-     * @par Changing the Execution Policy
-     * One can subclass this class in order to change the run-time
-     * behaviour. Use base::TaskCore::setExecutionEngine in order to
-     * install a new ExecutionEngine in a component. All Members of
-     * this class are protected and thus accessible in a subclass.
      * @ingroup Processor
      */
     class RTT_API ExecutionEngine
@@ -90,21 +82,13 @@ namespace RTT
 
         /**
          * The base::TaskCore which created this ExecutionEngine.
+         * Identical to getTaskCore().
          */
         base::TaskCore* getParent();
 
         /**
-         * Add a base::TaskCore to execute.
-         */
-        virtual void addChild(base::TaskCore* tc);
-
-        /**
-         * Remove a base::TaskCore from execution.
-         */
-        virtual void removeChild(base::TaskCore* tc);
-
-        /**
          * Returns the owner of this execution engine.
+         * Identical to getParent().
          */
         base::TaskCore* getTaskCore() const { return taskc; }
 
@@ -116,10 +100,18 @@ namespace RTT
          * between step()s or loop().
          *
          * @return true if the message got accepted, false otherwise.
-         * @return false when the MessageProcessor is not running or does not accept messages.
-         * @see acceptMessages
+         * @return false if the engine does not accept messages.
          */
         virtual bool process(base::DisposableInterface* c);
+
+        /**
+         * Queue and execute (process) a given port callback. The port callback is
+         * executed in step() or loop() directly after the queued messages.
+         *
+         * @return true if the port callback got accepted, false otherwise.
+         * @return false if the engine does not accept messages.
+         */
+        virtual bool process(base::PortInterface* port);
 
         /**
          * Run a given function in step() or loop(). The function may only
@@ -253,7 +245,10 @@ namespace RTT
          */
         internal::MWSRQueue<base::DisposableInterface*>* mqueue;
 
-        std::vector<base::TaskCore*> children;
+        /**
+         * The port callback queue
+         */
+        internal::MWSRQueue<base::PortInterface*>* port_queue;
 
         /**
          * Stores all functions we're executing.
@@ -270,8 +265,9 @@ namespace RTT
         ExecutionEngine *mmaster;
 
         void processMessages();
+        void processPortCallbacks();
         void processFunctions();
-        void processChildren();
+        void processHooks();
 
         virtual bool initialize();
 
@@ -280,6 +276,8 @@ namespace RTT
          * functions of this TaskContext and its children.
          */
         virtual void step();
+
+        virtual void work(RunnableInterface::WorkReason reason);
 
         virtual bool breakLoop();
 

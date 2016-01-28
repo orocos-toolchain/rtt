@@ -606,36 +606,5 @@ BOOST_AUTO_TEST_CASE( testFailingTCStates)
     BOOST_CHECK( stc->start() == false );
 }
 
-BOOST_AUTO_TEST_CASE( testExecutionEngine)
-{
-    // no owner:
-    ExecutionEngine ee1(0);
-    ExecutionEngine ee2(0);
-
-    // test setActivity:
-    BOOST_CHECK( tsim->stop() );
-    BOOST_CHECK( tsim->run(&ee1) );
-    BOOST_CHECK(tsim->start() );
-    BOOST_CHECK( SimulationThread::Instance()->run(5) );
-
-    // this also tests setActivity:
-    BOOST_CHECK( tsim->stop() );
-    BOOST_CHECK( tsim->run(&ee2) );
-    BOOST_CHECK(tsim->start() );
-    BOOST_CHECK( SimulationThread::Instance()->run(5) );
-
-    {
-        TaskCore tc1(&ee2);
-        TaskCore tc2(&ee2);
-
-        // run with two children.
-        BOOST_CHECK( SimulationThread::Instance()->run(5) );
-    }
-    // children removed again:
-    BOOST_CHECK( SimulationThread::Instance()->run(5) );
-    BOOST_CHECK(tsim->stop() );
-    tsim->run(0);
-}
-
 BOOST_AUTO_TEST_SUITE_END()
 

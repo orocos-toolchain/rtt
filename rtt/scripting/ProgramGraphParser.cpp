@@ -83,7 +83,7 @@ namespace RTT
 
 
   ProgramGraphParser::ProgramGraphParser( iter_t& positer, TaskContext* t, ExecutionEngine* caller, CommonParser& cp)
-      : rootc( t ),context(), fcontext(0), mpositer( positer ),
+      : rootc( t ),context(), fcontext(), mpositer( positer ),
         mcallfunc(),
         implcond(0), mcondition(0), try_cond(0),
         commonparser(cp),
@@ -365,8 +365,8 @@ namespace RTT
 
       // Connect the new function to the relevant contexts.
       // 'fun' acts as a stack for storing variables.
-      fcontext = new TaskContext(funcdef, rootc->engine() );
-      context = fcontext->provides();
+      fcontext.reset( new Service(funcdef) );
+      context = fcontext;
   }
 
   void ProgramGraphParser::seenfunctionarg()
@@ -411,9 +411,7 @@ namespace RTT
           Logger::log() << Logger::Debug << "Seen Function '" << mfunc->getName() << "' for scripting service of '"<< rootc->getName() << "'" <<Logger::endl;
       }
 
-
-      delete fcontext;
-      fcontext = 0;
+      fcontext.reset();
       context.reset();
 
       // reset
@@ -805,8 +803,7 @@ namespace RTT
           for_incr_command.pop();
       }
       // cleanup all functions :
-      delete fcontext;
-      fcontext = 0;
+      fcontext.reset();
       exportf = false; globalf = false;
       rettype.clear();
       if ( rootc == 0)

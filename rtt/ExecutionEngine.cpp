@@ -74,6 +74,7 @@ namespace RTT
     ExecutionEngine::ExecutionEngine( TaskCore* owner )
         : taskc(owner),
           mqueue(new MWSRQueue<DisposableInterface*>(ORONUM_EE_MQUEUE_SIZE) ),
+          port_queue(new MWSRQueue<PortInterface*>(ORONUM_EE_MQUEUE_SIZE) ),
           f_queue( new MWSRQueue<ExecutableInterface*>(ORONUM_EE_MQUEUE_SIZE) ),
           mmaster(0)
     {
@@ -82,13 +83,6 @@ namespace RTT
     ExecutionEngine::~ExecutionEngine()
     {
         Logger::In in("~ExecutionEngine");
-
-        // make a copy to avoid call-back troubles:
-        std::vector<TaskCore*> copy = children;
-        for (std::vector<TaskCore*>::iterator it = copy.begin(); it != copy.end();++it){
-            (*it)->setExecutionEngine( 0 );
-        }
-        assert( children.empty() );
 
         ExecutableInterface* foo;
         while ( f_queue->dequeue( foo ) )
@@ -99,21 +93,12 @@ namespace RTT
             dis->dispose();
 
         delete f_queue;
+        delete port_queue;
         delete mqueue;
     }
 
     TaskCore* ExecutionEngine::getParent() {
         return taskc;
-    }
-
-    void ExecutionEngine::addChild(TaskCore* tc) {
-        children.push_back( tc );
-    }
-
-    void ExecutionEngine::removeChild(TaskCore* tc) {
-        vector<TaskCore*>::iterator it = find (children.begin(), children.end(), tc );
-        if ( it != children.end() )
-            children.erase(it);
     }
 
     void ExecutionEngine::processFunctions()
@@ -126,6 +111,7 @@ namespace RTT
             assert(foo);
             if ( foo->execute() == false ){
                 foo->unloaded();
+                os::MutexLock lock(msg_lock);
                 msg_cond.broadcast(); // required for waitForFunctions() (3rd party thread)
             } else {
                 f_queue->enqueue( foo );
@@ -137,14 +123,12 @@ namespace RTT
 
     bool ExecutionEngine::runFunction( ExecutableInterface* f )
     {
-        if (this->getActivity() && f) {
+        if ( f && this->getActivity() ) {
             // We only reject running functions when we're in the FatalError state.
             if (taskc && taskc->mTaskState == TaskCore::FatalError )
                 return false;
             f->loaded(this);
             bool result = f_queue->enqueue( f );
-            // signal work is to be done:
-            this->getActivity()->trigger();
             return result;
         }
         return false;
@@ -175,7 +159,7 @@ namespace RTT
             return true;
 
         // When not running, just remove.
-        if ( getActivity() == 0 || !this->getActivity()->isActive() ) {
+        if ( !this->getActivity()->isActive() ) {
             if ( removeSelfFunction( f ) == false )
                 return false;
         } else {
@@ -215,7 +199,6 @@ namespace RTT
     }
 
     bool ExecutionEngine::initialize() {
-        // nop
         return true;
     }
 
@@ -226,6 +209,9 @@ namespace RTT
 
     void ExecutionEngine::processMessages()
     {
+        // Fast bail-out :
+        if ( mqueue->isEmpty() )
+            return;
         // execute all commands from the AtomicQueue.
         // msg_lock may not be held when entering this function !
         DisposableInterface* com(0);
@@ -234,16 +220,34 @@ namespace RTT
                 assert( com );
                 com->executeAndDispose();
             }
-            // there's no need to hold the lock during
-            // emptying the queue. But we must hold the
-            // lock once between excuteAndDispose and the
-            // broadcast to avoid the race condition in
-            // waitForMessages().
-            // This allows us to recurse into processMessages.
-            MutexLock locker( msg_lock );
         }
-        if ( com )
-            msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
+
+        // there's no need to hold the lock during
+        // emptying the queue. But we must hold the
+        // lock once between excuteAndDispose and the
+        // broadcast to avoid the race condition in
+        // waitForMessages().
+        // This allows us to recurse into processMessages.
+        MutexLock locker( msg_lock );
+        msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
+    }
+
+    void ExecutionEngine::processPortCallbacks()
+    {
+        // Fast bail-out :
+        if (port_queue->isEmpty())
+            return;
+
+        TaskContext* tc = dynamic_cast<TaskContext*>(taskc);
+        if (tc) {
+            PortInterface* port(0);
+            {
+                while ( port_queue->dequeue(port) ) {
+                    assert( port );
+                    tc->dataOnPortCallback(port);
+                }
+            }
+        }
     }
 
     bool ExecutionEngine::process( DisposableInterface* c )
@@ -260,7 +264,24 @@ namespace RTT
 
             bool result = mqueue->enqueue( c );
             this->getActivity()->trigger();
-            msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
+            {
+                os::MutexLock lock(msg_lock);
+                msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
+            }
+            return result;
+        }
+        return false;
+    }
+
+    bool ExecutionEngine::process( PortInterface* port )
+    {
+        if ( port && this->getActivity() ) {
+            // We only reject running port callbacks when we're in the FatalError state.
+            if (taskc && taskc->mTaskState == TaskCore::FatalError )
+                return false;
+
+            bool result = port_queue->enqueue( port );
+            this->getActivity()->trigger();
             return result;
         }
         return false;
@@ -355,18 +376,45 @@ namespace RTT
     }
 
     void ExecutionEngine::step() {
-        processMessages();
-        processFunctions();
-        processChildren(); // aren't these ExecutableInterfaces ie functions ?
+        // we use work() now
     }
 
-    void ExecutionEngine::processChildren() {
+    void ExecutionEngine::work(RunnableInterface::WorkReason reason) {
+        // Interprete work before calling into user code such that we are consistent at all times.
+        if (taskc) {
+            ++taskc->mCycleCounter;
+            switch(reason) {
+            case RunnableInterface::Trigger :
+                ++taskc->mTriggerCounter;
+                break;
+            case RunnableInterface::TimeOut :
+                ++taskc->mTimeOutCounter;
+                break;
+            case RunnableInterface::IOReady :
+                ++taskc->mIOCounter;
+                break;
+            default:
+                break;
+            }
+        }
+        if (reason == RunnableInterface::Trigger) {
+            /* Callback step */
+            processMessages();
+            processPortCallbacks();
+        } else if (reason == RunnableInterface::TimeOut || reason == RunnableInterface::IOReady) {
+            /* Update step */
+            processMessages();
+            processPortCallbacks();
+            processFunctions();
+            processHooks();
+        }
+    }
+    void ExecutionEngine::processHooks() {
         // only call updateHook in the Running state.
         if ( taskc ) {
             // A trigger() in startHook() will be ignored, we trigger in TaskCore after startHook finishes.
             if ( taskc->mTaskState == TaskCore::Running && taskc->mTargetState == TaskCore::Running ) {
                 TRY (
-                    taskc->prepareUpdateHook();
                     taskc->updateHook();
                 ) CATCH(std::exception const& e,
                     log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
@@ -391,46 +439,12 @@ namespace RTT
                 )
             }
         }
-        if ( !this->getActivity() || ! this->getActivity()->isRunning() ) return;
-
-        // call all children as well.
-        for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
-            if ( (*it)->mTaskState == TaskCore::Running  && (*it)->mTargetState == TaskCore::Running  ){
-                TRY (
-                    (*it)->prepareUpdateHook();
-                    (*it)->updateHook();
-                ) CATCH(std::exception const& e,
-                    log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
-                    log(Error) << "  " << e.what() << endlog();
-                    (*it)->exception();
-               ) CATCH_ALL (
-                    log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
-                    (*it)->exception(); // calls stopHook,cleanupHook
-                )
-            }
-            if (  (*it)->mTaskState == TaskCore::RunTimeError ){
-                TRY (
-                    (*it)->errorHook();
-                ) CATCH(std::exception const& e,
-                    log(Error) << "in errorHook(): switching to exception state because of unhandled exception" << endlog();
-                    log(Error) << "  " << e.what() << endlog();
-                    (*it)->exception();
-               ) CATCH_ALL (
-                    log(Error) << "in errorHook(): switching to exception state because of unhandled exception" << endlog();
-                    (*it)->exception(); // calls stopHook,cleanupHook
-                )
-            }
-            if ( !this->getActivity() || ! this->getActivity()->isRunning() ) return;
-        }
     }
 
     bool ExecutionEngine::breakLoop() {
         bool ok = true;
         if (taskc)
             ok = taskc->breakUpdateHook();
-        for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
-            ok = (*it)->breakUpdateHook() && ok;
-            }
         return ok;
     }
 
@@ -438,7 +452,7 @@ namespace RTT
         // stop and start where former will call breakLoop() in case of non-periodic.
         // this is a forced synchronization point, since stop() will only return when
         // step() returned.
-        if ( getActivity() && this->getActivity()->stop() ) {
+        if ( this->getActivity() && this->getActivity()->stop() ) {
             this->getActivity()->start();
             return true;
         }

@@ -71,8 +71,9 @@ namespace RTT
         /**
          * The Activityobject which owns this RunnableInterface.
          */
-        ActivityInterface* owner_task;
+        ActivityInterface* owner_act;
     public:
+        enum WorkReason { TimeOut = 0, Trigger, IOReady };
         /**
          * Create a runnable object. The optional constructor parameter
          * allows the object to attach directly to a thread. Otherwise,
@@ -96,14 +97,21 @@ namespace RTT
         virtual bool initialize() = 0;
 
         /**
-         * The method that will be periodically executed when this
-         * class is run in a periodic thread.
+         * The method that will be (periodically) executed when this
+         * object is run in an Activity.
          */
         virtual void step() = 0;
 
         /**
+         * Identical to step() but gives a reason why the function was called.
+         * Both step() and work() will be called an equal amount of times,
+         * so you need to use only one, but work gives you the reason why.
+         */
+        virtual void work(WorkReason reason);
+
+        /**
          * The method that will be executed once when this
-         * class is run in a non periodic thread. The default
+         * class is run in a non periodic Activity. The default
          * implementation calls step() once.
          */
         virtual void loop();
@@ -164,7 +172,7 @@ namespace RTT
     };
 
 
-    ActivityInterface* RunnableInterface::getActivity() const { return owner_task; }
+    ActivityInterface* RunnableInterface::getActivity() const { return owner_act; }
 }}
 
 #endif

@@ -53,25 +53,18 @@ namespace RTT {
            ,mTaskState(initial_state)
            ,mInitialState(initial_state)
            ,mTargetState(initial_state)
+           ,mTriggerOnStart(true)
+           ,mCycleCounter(0)
+           ,mIOCounter(0)
+           ,mTimeOutCounter(0)
+           ,mTriggerCounter(0)
     {
     }
-
-    TaskCore::TaskCore( ExecutionEngine* parent, TaskState initial_state /*= Stopped*/  )
-        :  ee( parent )
-           ,mTaskState(initial_state)
-           ,mInitialState(initial_state)
-           ,mTargetState(initial_state)
-    {
-        parent->addChild( this );
-    }
-
 
     TaskCore::~TaskCore()
     {
         if ( ee->getParent() == this ) {
             delete ee;
-        } else {
-            ee->removeChild(this);
         }
         // Note: calling cleanup() here has no use or even dangerous, as
         // cleanupHook() is a virtual function and the user code is already
@@ -89,16 +82,12 @@ namespace RTT {
 
     bool TaskCore::update()
     {
-        if ( !this->engine()->getActivity() )
-            return false;
-        return this->engine()->getActivity()->execute();
+        return this->engine()->getActivity() && this->engine()->getActivity()->execute();
     }
 
     bool TaskCore::trigger()
     {
-        if ( !this->engine()->getActivity() )
-            return false;
-        return this->engine()->getActivity()->trigger();
+        return this->engine()->getActivity() && this->engine()->getActivity()->timeout();
     }
 
     bool TaskCore::configure() {
@@ -145,8 +134,7 @@ namespace RTT {
 
     void TaskCore::fatal() {
         mTargetState = mTaskState = FatalError;
-        if ( engine()->getActivity() )
-            engine()->getActivity()->stop();
+        this->engine()->getActivity() && engine()->getActivity()->stop();
     }
 
     void TaskCore::error() {
@@ -195,7 +183,8 @@ namespace RTT {
                 mTargetState = Running;
                 if ( startHook() ) {
                     mTaskState = Running;
-                    trigger(); // triggers updateHook() in case of non periodic!
+                    if ( mTriggerOnStart )
+                        trigger(); // triggers updateHook() in case of non periodic!
                     return true;
                 }
                 mTargetState = Stopped;
@@ -237,7 +226,7 @@ namespace RTT {
     }
 
     bool TaskCore::activate() {
-        this->engine() && this->engine()->getActivity() && this->engine()->getActivity()->start();
+        this->engine()->getActivity() && this->engine()->getActivity()->start();
         return isActive();
     }
 
@@ -266,7 +255,7 @@ namespace RTT {
 
     bool TaskCore::isActive() const
     {
-        return this->engine() && this->engine()->getActivity() && this->engine()->getActivity()->isActive();
+        return this->engine()->getActivity() && this->engine()->getActivity()->isActive();
     }
 
     Seconds TaskCore::getPeriod() const
@@ -276,7 +265,7 @@ namespace RTT {
 
     bool TaskCore::setPeriod(Seconds s)
     {
-        return this->engine()->getActivity() ? this->engine()->getActivity()->setPeriod(s) : false;
+        return this->engine()->getActivity() && this->engine()->getActivity()->setPeriod(s);
     }
 
     unsigned TaskCore::getCpuAffinity() const
@@ -286,7 +275,7 @@ namespace RTT {
 
     bool TaskCore::setCpuAffinity(unsigned cpu)
     {
-        return this->engine()->getActivity() ? this->engine()->getActivity()->setCpuAffinity(cpu) : false;
+        return this->engine()->getActivity() && this->engine()->getActivity()->setCpuAffinity(cpu);
     }
 
     bool TaskCore::configureHook() {
@@ -299,9 +288,6 @@ namespace RTT {
     }
 
     void TaskCore::errorHook() {
-    }
-
-    void TaskCore::prepareUpdateHook() {
     }
 
     void TaskCore::updateHook()
@@ -319,23 +305,5 @@ namespace RTT {
     void TaskCore::stopHook()
     {
     }
-
-    void TaskCore::setExecutionEngine(ExecutionEngine* engine) {
-        if ( ee == engine )
-            return;
-        // cleanup:
-        if ( ee->getParent() == this )
-            delete ee;
-        else
-            ee->removeChild(this);
-        // set new:
-        if ( engine ) {
-            this->ee = engine;
-            engine->addChild(this);
-        } else {
-            this->ee = new ExecutionEngine(this);
-        }
-    }
-
 }
 

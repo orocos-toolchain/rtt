@@ -152,7 +152,9 @@ namespace RTT
         }
 #endif
         if (callback)
-            mservice->getOwner()->dataOnPortCallback(&port,callback); // the handle will be deleted when the port is removed.
+            mservice->getOwner()->setDataOnPortCallback(&port,callback); // the handle will be deleted when the port is removed.
+        else
+            mservice->getOwner()->setDataOnPortCallback(&port,boost::bind(&TaskCore::trigger, mservice->getOwner()) ); // default schedules an updateHook()
 
 #ifndef ORO_SIGNALLING_PORTS
         port.signalInterface(true);
@@ -165,6 +167,7 @@ namespace RTT
               it != mports.end();
               ++it)
             if ( (*it)->getName() == name ) {
+                (*it)->disconnect(); // remove all connections and callbacks.
                 Service::shared_ptr mservice_ref;
                 if (mservice && mservice->hasService(name) ) {
                     // Since there is at least one child service, mservice is ref counted. The danger here is that mservice is destructed during removeService()
@@ -172,9 +175,8 @@ namespace RTT
                     mservice_ref = mservice->provides(); // uses shared_from_this()
                     mservice->removeService( name );
                     if (mservice->getOwner())
-                        mservice->getOwner()->dataOnPortRemoved( *it );
+                        mservice->getOwner()->removeDataOnPortCallback( *it );
                 }
-                (*it)->disconnect(); // remove all connections and callbacks.
                 (*it)->setInterface(0);
                 mports.erase(it);
                 return;

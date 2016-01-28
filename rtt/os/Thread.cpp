@@ -457,7 +457,7 @@ namespace RTT {
 
         bool Thread::isRunning() const
         {
-            return period == 0 ? inloop : running;
+            return running;
         }
 
         bool Thread::isActive() const
@@ -626,6 +626,7 @@ namespace RTT {
             rtos_sem_signal(&sem);
 
             rtos_task_delete(&rtos_task); // this must join the thread.
+            active = false;
         }
 
         const char* Thread::getName() const

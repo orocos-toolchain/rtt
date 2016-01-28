@@ -595,7 +595,7 @@ namespace RTT {
                 // stepping == true ! We don't want to execute the whole state transition
                 changeState( to, p, true );              //  valid transition to 'to'.
                 // trigger EE in order to force execution of the remainder of the state transition:
-                this->getEngine()->getActivity()->trigger();
+                this->getEngine()->getActivity()->timeout();
             }
             else {
                 TRACE( "Rejected transition from " + from->getName() +

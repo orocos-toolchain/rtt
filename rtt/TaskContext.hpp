@@ -109,17 +109,6 @@ namespace RTT
          */
         TaskContext( const std::string& name, TaskState initial_state = Stopped );
 
-        /**
-         * Create a TaskContext.
-         * Its commands programs and state machines are processed by \a parent.
-         * Use this constructor to share execution engines among task contexts, such that
-         * the execution of their functionality is serialised (executed in the same thread).
-         * @param name The name of this component.
-         * @param initial_state Provide the \a PreOperational parameter flag here
-         * to force users in calling configure(), before they call start().
-         */
-        TaskContext(const std::string& name, ExecutionEngine* parent, TaskState initial_state = Stopped );
-
         virtual ~TaskContext();
 
         /**
@@ -616,6 +605,22 @@ namespace RTT
          */
         virtual bool dataOnPortHook( base::PortInterface* port );
 
+        /**
+         * This method implements port callbacks. It will be called
+         * once per sample received on the port and is executed
+         * in the component's thread.
+         *
+         * The default implementation invokes the user callback
+         * if one was given in the addEventPort() call. It can be
+         * overwritten in a subclass to react on incoming data
+         * for all event ports. This is equivalent to adding this
+         * function as a user callback on each of the ports individually.
+         */
+        virtual void dataOnPortCallback( base::PortInterface* port );
+
+        // Required to invoke dataOnPortCallback() from the ExecutionEngine.
+        friend class ExecutionEngine;
+
     private:
 
         typedef std::map< std::string, TaskContext* > PeerMap;
@@ -643,7 +648,6 @@ namespace RTT
         void setup();
 
         friend class DataFlowInterface;
-        internal::MWSRQueue<base::PortInterface*>* portqueue;
         typedef std::map<base::PortInterface*, SlotFunction > UserCallbacks;
         UserCallbacks user_callbacks;
 
@@ -652,26 +656,16 @@ namespace RTT
          * event port.
          */
         void dataOnPort(base::PortInterface* port);
-        /**
-         * Called to inform us of the number of possible
-         * ports that will trigger a dataOnPort event.
-         * @return false if this->isRunning().
-         */
-        bool dataOnPortSize(unsigned int max);
+
         /**
          * Function to call in the thread of this component if data on the given port arrives.
          */
-        void dataOnPortCallback(base::InputPortInterface* port, SlotFunction callback);
+        void setDataOnPortCallback(base::InputPortInterface* port, SlotFunction callback);
+
         /**
          * Inform that a given port will no longer raise dataOnPort() events.
          */
-        void dataOnPortRemoved(base::PortInterface* port);
-
-        /**
-         * Function that is called before updateHook, where the TC implementation
-         * can do bookkeeping with regard to event ports.
-         */
-        void prepareUpdateHook();
+        void removeDataOnPortCallback(base::PortInterface* port);
 
         /**
          * Check if this component could provide a given service,
