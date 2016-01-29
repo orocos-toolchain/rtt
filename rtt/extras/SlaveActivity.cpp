@@ -225,6 +225,7 @@ namespace RTT {
                 runner->work(RunnableInterface::TimeOut);
             } else {
                 this->step();
+                this->work(RunnableInterface::TimeOut);
             }
         }
         return running;
