@@ -39,7 +39,8 @@ FileDescriptorSimulationActivity::FileDescriptorSimulationActivity(int priority,
                                                                    const std::string& name) :
     base::ActivityInterface(_r),
     period(0),
-    running(false)
+    running(false),
+    lastReason(base::RunnableInterface::TimeOut)
 {
     // prevent compiler warnings
     (void)priority;
@@ -52,7 +53,8 @@ FileDescriptorSimulationActivity::FileDescriptorSimulationActivity(int scheduler
                                                                    const std::string& name) :
     base::ActivityInterface(_r),
     period(0),
-    running(false)
+    running(false),
+    lastReason(base::RunnableInterface::TimeOut)
 {
     // prevent compiler warnings
     (void)priority;
@@ -66,7 +68,8 @@ FileDescriptorSimulationActivity::FileDescriptorSimulationActivity(int scheduler
                                                                    const std::string& name) :
     base::ActivityInterface(_r),
     period(_p >= 0.0 ? _p : 0.0),
-    running(false)
+    running(false),
+    lastReason(base::RunnableInterface::TimeOut)
 {
     // prevent compiler warnings
     (void)scheduler;
@@ -82,7 +85,8 @@ FileDescriptorSimulationActivity::FileDescriptorSimulationActivity(int scheduler
                                                                    const std::string& name) :
     base::ActivityInterface(_r),
     period(_p >= 0.0 ? _p : 0.0),
-    running(false)
+    running(false),
+    lastReason(base::RunnableInterface::TimeOut)
 {
     // prevent compiler warnings
     (void)scheduler;
@@ -122,12 +126,12 @@ bool FileDescriptorSimulationActivity::isWatched(int fd) const
 
 bool FileDescriptorSimulationActivity::isUpdated(int fd) const
 {
-    return false;
+    return (base::RunnableInterface::IOReady == lastReason);
 }
 
 bool FileDescriptorSimulationActivity::hasTimeout() const
 {
-    return false;
+    return (base::RunnableInterface::TimeOut == lastReason);
 }
 
 bool FileDescriptorSimulationActivity::hasError() const
@@ -228,7 +232,20 @@ bool FileDescriptorSimulationActivity::trigger()
     return true;
 }
 
+bool FileDescriptorSimulationActivity::timeout()
+{
+    return true;
+}
+
 os::ThreadInterface* FileDescriptorSimulationActivity::thread()
 {
     return os::MainThread::Instance();
+}
+
+void FileDescriptorSimulationActivity::work(base::RunnableInterface::WorkReason reason)
+{
+    if (0 != runner) {
+        runner->work(reason);
+        lastReason = reason;
+    }
 }

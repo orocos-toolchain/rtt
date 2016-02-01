@@ -106,11 +106,11 @@ namespace RTT { namespace extras {
         /// Returns false always
         bool isWatched(int fd) const;
 
-        /// Return false
+        /// Return (IOReady == lastReason)
         /// \sa work()
         bool isUpdated(int fd) const;
 
-        /// Return false
+        /// Return (Timeout == lastReason)
         /// \sa work()
         bool hasTimeout() const;
 
@@ -154,15 +154,22 @@ namespace RTT { namespace extras {
         virtual bool execute();
         /// Returns true
         virtual bool trigger();
+        /// Returns true
+        virtual bool timeout() ;
         /// Returns os::MainThread::Instance()
         virtual os::ThreadInterface* thread();
 
+        /// If have a runner then pass the reason to the runner and store in lastReason
+        virtual void work(base::RunnableInterface::WorkReason reason);
     protected:
         /// Fake period - some classes require period!=0.
         /// Is initialized to 0
         Seconds                                 period;
         //// Must model running - simply is true after start() and before stop()
         bool                                    running;
+        /// Value passed to last work() call
+        /// Used to determine the return from isUpdated() and hasTimeout()
+        base::RunnableInterface::WorkReason     lastReason;
     };
 }}
 
