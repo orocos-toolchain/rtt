@@ -40,10 +40,8 @@ struct TestActivity
     : public T
 {
     bool result, _dothrow;
-    bool init, stepped, fini;
+    bool init, stepped, looped, fini;
     bool wasrunning, wasactive;
-
-    ActivityInterface* owner;
 
     TestActivity(int prio, double per, bool fail, bool dothrow = false)
         :T(prio,per), _dothrow(dothrow)
@@ -55,6 +53,7 @@ struct TestActivity
         init    = true;
         return result;
     }
+
     void step() {
         stepped = true;
         wasrunning = this->isRunning();
@@ -64,6 +63,9 @@ struct TestActivity
             throw A();
 #endif
     }
+
+    void loop();
+
     void finalize() {
         fini   = true;
     }
@@ -72,11 +74,23 @@ struct TestActivity
         result = fail;
         init = false;
         stepped = false;
+        looped = false;
         fini = false;
         wasrunning=false;
         wasactive=false;
     }
 };
+
+template <class T>
+void TestActivity<T>::loop() {
+    looped = true;
+    T::loop();
+}
+
+template <>
+void TestActivity<PeriodicActivity>::loop() {
+    looped = true;
+}
 
 struct TestRunner
     : public RunnableInterface
@@ -98,6 +112,7 @@ struct TestRunner
         BOOST_CHECK(!getActivity()->isRunning());
         return result;
     }
+
     void step() {
         stepped = true;
         wasrunning=getActivity()->isRunning();
@@ -163,11 +178,11 @@ ActivitiesThreadTest::tearDown()
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE( ActivitiesThreadTestSuite, ActivitiesThreadTest )
 
-BOOST_AUTO_TEST_CASE(testPeriodic )
+BOOST_AUTO_TEST_CASE( testPeriodicActivity )
 {
     // Test periodic task sequencing...
 
-    PeriodicActivity mtask( 15, 0.01 );
+    TestActivity<PeriodicActivity> mtask( 15, 0.01, true );
     BOOST_CHECK( mtask.isActive() == false );
     BOOST_CHECK( mtask.isRunning() == false );
     BOOST_CHECK( mtask.thread()->isRunning() == false );
@@ -180,7 +195,7 @@ BOOST_AUTO_TEST_CASE(testPeriodic )
     BOOST_CHECK_EQUAL( bprio, mtask.thread()->getPriority() );
     BOOST_CHECK_EQUAL( rtsched, mtask.thread()->getScheduler() );
 
-    PeriodicActivity m2task( 15, 0.01 );
+    TestActivity<PeriodicActivity> m2task( 15, 0.01, true );
     BOOST_CHECK( mtask.thread() == m2task.thread() );
 
     // starting...
@@ -199,6 +214,12 @@ BOOST_AUTO_TEST_CASE(testPeriodic )
     BOOST_CHECK( m2task.isRunning() == true );
     BOOST_CHECK( m2task.stop() == true );
     BOOST_CHECK( m2task.isRunning() == false );
+
+    // check if the activity actually ran
+    BOOST_CHECK( mtask.looped == false );
+    BOOST_CHECK( mtask.stepped == true );
+    BOOST_CHECK( m2task.looped == false );
+    BOOST_CHECK( m2task.stepped == true );
 
     // Different Scheduler (don't test if invalid priorities)
     bprio = 15;
@@ -221,11 +242,11 @@ BOOST_AUTO_TEST_CASE(testPeriodic )
     BOOST_CHECK( mtask.thread()->isRunning() == true);
 }
 
-BOOST_AUTO_TEST_CASE( testNonPeriodic )
+BOOST_AUTO_TEST_CASE( testActivityNonPeriodic )
 {
-    // Test periodic task sequencing...
+    // Test non-periodic task sequencing...
 
-    Activity mtask( 15 );
+    TestActivity<Activity> mtask( 15, 0.0, true );
     usleep(100000);
     // Adapt priority levels to OS.
     int bprio = 15, rtsched = ORO_SCHED_RT;
@@ -237,7 +258,7 @@ BOOST_AUTO_TEST_CASE( testNonPeriodic )
     BOOST_CHECK_EQUAL( bprio, mtask.thread()->getPriority() );
     BOOST_CHECK_EQUAL( rtsched, mtask.thread()->getScheduler() );
 
-    Activity m2task( 15 );
+    TestActivity<Activity> m2task( 15, 0.0, true );
     BOOST_CHECK( mtask.thread() != m2task.thread() );
 
     // starting...
@@ -256,14 +277,55 @@ BOOST_AUTO_TEST_CASE( testNonPeriodic )
     BOOST_CHECK( m2task.stop() == true );
     BOOST_CHECK( m2task.isActive() == false );
 
-    // Different Scheduler
-    bprio = 15;
-    rtsched = ORO_SCHED_OTHER;
-    if ( os::CheckPriority( rtsched, bprio ) ) {
-        Activity m3task(ORO_SCHED_OTHER, 15, 0.0);
-        BOOST_CHECK( mtask.thread() != m3task.thread() );
-        BOOST_CHECK_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
-    }
+    // check if the activity actually ran
+    BOOST_CHECK( mtask.looped == true );
+    BOOST_CHECK( mtask.stepped == true );
+    BOOST_CHECK( m2task.looped == true );
+    BOOST_CHECK( m2task.stepped == true );
+}
+
+BOOST_AUTO_TEST_CASE( testActivityPeriodic )
+{
+    // Test periodic task sequencing...
+
+    TestActivity<Activity> mtask( 15, 0.01, true );
+    BOOST_CHECK( mtask.isActive() == false );
+    BOOST_CHECK( mtask.isRunning() == false );
+    BOOST_CHECK( mtask.thread()->isRunning() == false );
+    BOOST_CHECK_EQUAL( 0.01, mtask.thread()->getPeriod() );
+
+    // Adapt priority levels to OS.
+    int bprio = 15, rtsched = ORO_SCHED_RT;
+    os::CheckPriority( rtsched, bprio );
+
+    BOOST_CHECK_EQUAL( bprio, mtask.thread()->getPriority() );
+    BOOST_CHECK_EQUAL( rtsched, mtask.thread()->getScheduler() );
+
+    TestActivity<Activity> m2task( 15, 0.01, true );
+    BOOST_CHECK( mtask.thread() != m2task.thread() );
+
+    // starting...
+    BOOST_CHECK( mtask.start() == true );
+    BOOST_CHECK( mtask.isRunning() == true );
+    BOOST_CHECK( mtask.thread()->isRunning() == true );
+    BOOST_CHECK( m2task.isRunning() == false );
+    BOOST_CHECK( m2task.start() == true );
+    BOOST_CHECK( m2task.isRunning() == true );
+
+    usleep(100000);
+
+    // stopping...
+    BOOST_CHECK( mtask.stop() == true );
+    BOOST_CHECK( mtask.isRunning() == false );
+    BOOST_CHECK( m2task.isRunning() == true );
+    BOOST_CHECK( m2task.stop() == true );
+    BOOST_CHECK( m2task.isRunning() == false );
+
+    // check if the activity actually ran
+    //BOOST_CHECK( mtask.looped == false );
+    BOOST_CHECK( mtask.stepped == true );
+    //BOOST_CHECK( m2task.looped == false );
+    BOOST_CHECK( m2task.stepped == true );
 }
 
 BOOST_AUTO_TEST_CASE( testSlave )
