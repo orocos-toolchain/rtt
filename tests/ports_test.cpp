@@ -968,7 +968,7 @@ BOOST_AUTO_TEST_CASE(testEventPortSignallingFromSlave)
 
     wp1.createConnection(rp1, ConnPolicy::data());
     signalled_port = 0;
-    wp1.write(0.1);
+    BOOST_CHECK_EQUAL( wp1.write(0.1), WriteSuccess );
 
     BOOST_CHECK( slsim->execute() );
     BOOST_CHECK(&rp1 == signalled_port);
@@ -979,14 +979,14 @@ BOOST_AUTO_TEST_CASE(testEventPortSignallingFromSlave)
     wp1.createConnection(rp1, ConnPolicy::buffer(2));
     // send two items into the buffer
     signalled_port = 0;
-    wp1.write(0.1);
+    BOOST_CHECK_EQUAL( wp1.write(0.1), WriteSuccess );
 
     BOOST_CHECK( slsim->execute() );
     BOOST_CHECK(&rp1 == signalled_port);
     BOOST_CHECK(tc3->had_event);
     tc3->resetStats();
     signalled_port = 0;
-    wp1.write(0.1);
+    BOOST_CHECK_EQUAL( wp1.write(0.1), WriteSuccess );
 
     BOOST_CHECK( slsim->execute() );
     BOOST_CHECK(&rp1 == signalled_port);
@@ -994,14 +994,14 @@ BOOST_AUTO_TEST_CASE(testEventPortSignallingFromSlave)
     tc3->resetStats();
     signalled_port = 0;
     // test buffer full (updateHook called due to execute, but no callback executed):
-    wp1.write(0.1);
+    BOOST_CHECK_EQUAL( wp1.write(0.1), WriteFailure );
     BOOST_CHECK( slsim->execute() );
     BOOST_CHECK(0 == signalled_port);
     BOOST_CHECK( tc3->had_event);
     // empty one element and try again:
     double d;
     rp1.read(d);
-    wp1.write(0.1);
+    BOOST_CHECK_EQUAL( wp1.write(0.1), WriteSuccess );
     BOOST_CHECK( slsim->execute() );
     BOOST_CHECK(&rp1 == signalled_port);
     tc3->resetStats();
