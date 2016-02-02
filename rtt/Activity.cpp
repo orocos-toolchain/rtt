@@ -184,7 +184,7 @@ namespace RTT
                 wakeup = 0;
             }
 
-            // periodic: we flag mtimeout below; non-periodic: we flag mtimeout in trigger()
+            // periodic: we flag mtimeout below; non-periodic: we flag mtimeout in timeout()
             if (mtimeout) {
                 // was a timeout() call, or internally generated after wakeup
                 mtimeout = false;
@@ -199,6 +199,9 @@ namespace RTT
                     if (runner) {
                         runner->loop();
                         runner->work(base::RunnableInterface::Trigger);
+                    } else {
+                        this->step();
+                        this->work(base::RunnableInterface::Trigger);
                     }
                 }
                 // if a timeout() was done during work(), we will re-enter
