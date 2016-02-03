@@ -697,10 +697,10 @@ BOOST_AUTO_TEST_CASE( testStateOperations)
      StateMachinePtr sm = sa->getStateMachine("x");
      BOOST_REQUIRE( sm );
      sm->trace(true);
-     OperationCaller<bool(StateMachine*)> act = tc->provides("x")->getOperation("activate");
-     OperationCaller<bool(StateMachine*)> autom = tc->provides("x")->getOperation("automatic");
-     BOOST_CHECK( act(sm.get()) );
-     BOOST_CHECK( autom(sm.get()) );
+     OperationCaller<bool(StateMachinePtr)> act = tc->provides("x")->getOperation("activate");
+     OperationCaller<bool(StateMachinePtr)> autom = tc->provides("x")->getOperation("automatic");
+     BOOST_CHECK( act(sm) );
+     BOOST_CHECK( autom(sm) );
 
      sleep(1); // we must allow the thread to transition...
 
@@ -1854,12 +1854,12 @@ void StateTest::runState(const std::string& name, TaskContext* tc, bool trace, b
     StateMachine::ChildList children = sm->getChildren();
     for( StateMachine::ChildList::iterator it = children.begin(); it != children.end(); ++it)
         (*it)->trace(trace);
-    OperationCaller<bool(StateMachine*)> act = tc->provides(name)->getOperation("activate");
-    OperationCaller<bool(StateMachine*)> autom = tc->provides(name)->getOperation("automatic");
-    BOOST_CHECK( act(sm.get()) );
+    OperationCaller<bool(StateMachinePtr)> act = tc->provides(name)->getOperation("activate");
+    OperationCaller<bool(StateMachinePtr)> autom = tc->provides(name)->getOperation("automatic");
+    BOOST_CHECK( act(sm) );
     BOOST_CHECK( SimulationThread::Instance()->run(1) );
     BOOST_CHECK_MESSAGE( sm->isActive(), "Error : Activate Command for '"+sm->getName()+"' did not have effect." );
-    BOOST_CHECK( autom(sm.get()) || !test  );
+    BOOST_CHECK( autom(sm) || !test  );
 
     BOOST_CHECK( SimulationThread::Instance()->run(runs) );
 }
