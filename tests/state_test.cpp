@@ -847,7 +847,7 @@ BOOST_AUTO_TEST_CASE( testStateYieldbySend )
         + "       do test.assert(false); }\n"
         + " transition o_event(d) select NEXT;\n"
         + " transitions {\n"
-        + "       select FINI\n"
+        + "       if test.i == 10 then select FINI\n"
         + " }\n"
         + " }\n"
         + " state NEXT {\n" // Success state.
