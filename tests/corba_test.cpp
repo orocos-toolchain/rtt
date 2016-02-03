@@ -48,7 +48,10 @@ public:
         pint1("pint1", "", 3), pdouble1(new Property<double>("pdouble1", "", -3.0)),
         aint1(3), adouble1(-3.0), wait(0)
     {
-    // connect DataPorts
+        // check operations (moved from OperationCallerComponent constructor for reuseability in corba-ipc-server)
+        BOOST_REQUIRE( caller->ready() );
+
+        // connect DataPorts
         mi1 = new InputPort<double> ("mi");
         mo1 = new OutputPort<double> ("mo");
 

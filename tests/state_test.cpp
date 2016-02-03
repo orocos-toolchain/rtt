@@ -15,7 +15,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-
+#define ORO_SIGNALLING_OPERATIONS
 #include "unit.hpp"
 
 #include <rtt-config.h>
@@ -709,10 +709,10 @@ BOOST_AUTO_TEST_CASE( testStateOperations)
      StateMachinePtr sm = sa->getStateMachine("x");
      BOOST_REQUIRE( sm );
      sm->trace(true);
-     OperationCaller<bool(StateMachine*)> act = tc->provides("x")->getOperation("activate");
-     OperationCaller<bool(StateMachine*)> autom = tc->provides("x")->getOperation("automatic");
-     BOOST_CHECK( act(sm.get()) );
-     BOOST_CHECK( autom(sm.get()) );
+     OperationCaller<bool(StateMachinePtr)> act = tc->provides("x")->getOperation("activate");
+     OperationCaller<bool(StateMachinePtr)> autom = tc->provides("x")->getOperation("automatic");
+     BOOST_CHECK( act(sm) );
+     BOOST_CHECK( autom(sm) );
 
      sleep(1); // we must allow the thread to transition...
 
@@ -839,12 +839,13 @@ BOOST_AUTO_TEST_CASE( testStateYieldbySend )
         + " initial state INIT {\n"
         + " var double d = 0.0\n"
         + " run { do o_event.send(1.0); test.i = 5; do test.assert(test.i == 5);\n" // asynchronous send on o_event, so signal must be processed when we return.
-        + "       do yield;\n"
+        + "       do yield;\n" // o_event still in the message queue
+        + "       do yield;\n" // o_event should have been processed.
         + "       test.i = 10;\n"
         + "       do test.assert(false); }\n"
         + " transition o_event(d) select NEXT;\n"
         + " transitions {\n"
-        + "       select FINI\n"
+        + "       if test.i == 10 then select FINI\n"
         + " }\n"
         + " }\n"
         + " state NEXT {\n" // Success state.
@@ -1101,7 +1102,7 @@ BOOST_AUTO_TEST_CASE( testStateSubStateVars)
         + "     set y1.t = -1.0 \n"
         + " }\n"
         + " exit {\n"
-        + "     do y1.start()\n"
+        + "     do test.assert( y1.start() )\n"
         + " }\n"
         + " transitions {\n"
         + "     select TEST\n"
@@ -1225,10 +1226,25 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition )
     // test event reception from own component
     string prog = string("StateMachine X {\n")
         + " var   double et = 0.0\n"
+        + " var   int cnt = 0, check_exit = 0, check_exit2 = 0, check_run = 0, check_entry = 0, check_trans = 0, check_trans2 = 0\n"
         + " initial state INIT {\n"
-        + "    transition o_event(et) select FINI\n" // test signal transition
+        + "    transition o_event(et) { cnt=cnt+1; check_trans = cnt; test.assert(et == 3.33); } select CHECKER\n" // test signal transition
+        + "    exit { cnt=cnt+1; check_exit = cnt; }\n"
         + " }\n"
-        + " final state FINI {} \n"
+        + " state CHECKER {\n"
+        + "    entry { cnt=cnt+1; check_entry = cnt; test.assert( et == 3.33); } \n"
+        + "    run { cnt=cnt+1; check_run = cnt; }\n"
+        + "    exit { cnt=cnt+1; check_exit2 = cnt; }\n"
+        + "    transition { cnt=cnt+1; check_trans2 = cnt; } select FINI\n"
+        + " }\n"
+        + "final state FINI { entry {\n"
+        + "        test.assertEqual( check_trans, 1 );\n"
+        + "        test.assertEqual( check_exit, 2 );\n"
+        + "        test.assertEqual( check_entry, 3 );\n"
+        + "        test.assertEqual( check_run, 4 );\n"
+        + "        test.assertEqual( check_trans2, 5 );\n"
+        + "        test.assertEqual( check_exit2, 6 );\n"
+        + "  } } \n"
         + "}\n"
         + "RootMachine X x()\n";
     this->parseState( prog, tc );
@@ -1583,6 +1599,7 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
 #ifdef ORO_SIGNALLING_OPERATIONS
         + "   transition o_event(et_local)\n"
         + "      if ( et_local == 3.0 ) then { do log(\"Local ISPOSITIVE->INIT Transition for o_event == \" + et_local);} select INIT\n"
+        + "         else { do log(\"Invalid et_local: \"+et_local); } \n"
 #endif
         + " }\n"
         + " state TESTSELF {\n"
@@ -1601,13 +1618,13 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + " }\n" // 40
         + string("StateMachine X {\n") // 1
         + " SubMachine Y y1()\n"
-        + " initial state INIT {\n"
+        + " initial state XINIT {\n"
         + " entry {\n"
         + "     do y1.trace(true)\n"
         + "     do y1.activate()\n"
         + "     do y1.start()\n"
         + "     do yield\n"
-        + " }"
+        + " }\n"
         + " run {\n"
 
         + "     do d_event_source.write(-1.0)\n" // 11
@@ -1618,8 +1635,8 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "     do b_event_source.write( true )\n" // go to INIT.
         + "     do yield\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
-
         + "     do d_event_source.write(+1.0)\n" // 21
+
         + "     do nothing\n"
         + "     do test.assert( !y1.inState(\"INIT\") )\n"
         + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
@@ -1629,11 +1646,11 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
         + "     do b_event_source.write( true )\n" // go to INIT.
         + "     do yield\n"
-
         + "     do test.assert( y1.inState(\"INIT\") )\n" // 31
 #ifdef ORO_SIGNALLING_OPERATIONS
         // test operation
         + "     do d_event_source.write(+1.0)\n"
+
         + "     do nothing\n"
         + "     do test.assert( !y1.inState(\"INIT\") )\n"
         + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
@@ -1666,16 +1683,16 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "     do test.assert( y1.inState(\"INIT\") ) /* last */\n"
         + " }\n"
         + " transitions {\n"
-        + "     select FINI\n"
+        + "     select XFINI\n"
         + " }\n"
         + " }\n"
-        + " final state FINI {\n"
+        + " final state XFINI {\n"
         + " entry {\n"
         + "     do y1.deactivate()\n"
         //+ "     do test.assert(false)\n"
         + " }\n"
         + " transitions {\n"
-        + "     select INIT\n"
+        + "     select XINIT\n"
         + " }\n"
         + " }\n"
         + " }\n"
@@ -1982,12 +1999,15 @@ void StateTest::runState(const std::string& name, TaskContext* tc, bool trace, b
     StateMachinePtr sm = sa->getStateMachine(name);
     BOOST_REQUIRE( sm );
     sm->trace(trace);
-    OperationCaller<bool(StateMachine*)> act = tc->provides(name)->getOperation("activate");
-    OperationCaller<bool(StateMachine*)> autom = tc->provides(name)->getOperation("automatic");
-    BOOST_CHECK( act(sm.get()) );
+    StateMachine::ChildList children = sm->getChildren();
+    for( StateMachine::ChildList::iterator it = children.begin(); it != children.end(); ++it)
+        (*it)->trace(trace);
+    OperationCaller<bool(StateMachinePtr)> act = tc->provides(name)->getOperation("activate");
+    OperationCaller<bool(StateMachinePtr)> autom = tc->provides(name)->getOperation("automatic");
+    BOOST_CHECK( act(sm) );
     BOOST_CHECK( SimulationThread::Instance()->run(1) );
     BOOST_CHECK_MESSAGE( sm->isActive(), "Error : Activate Command for '"+sm->getName()+"' did not have effect." );
-    BOOST_CHECK( autom(sm.get()) || !test  );
+    BOOST_CHECK( autom(sm) || !test  );
 
     BOOST_CHECK( SimulationThread::Instance()->run(runs) );
 }
