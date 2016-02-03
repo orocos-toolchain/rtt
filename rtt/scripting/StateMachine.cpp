@@ -1214,8 +1214,6 @@ namespace RTT {
 
         // execute the entry program of the initial state.
         if ( !inError() ) {
-            enableEvents(current);
-
             if ( this->executePending() ) {
                 smStatus = Status::active;
                 TRACE("Activated.");
