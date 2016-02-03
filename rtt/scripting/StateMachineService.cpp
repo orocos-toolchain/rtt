@@ -103,10 +103,11 @@ namespace RTT
             if (instantiate) {
                 // Remove any remaining SendHandleAlias attributes, since they are not allowed for an instantiate...
                 // See SendHandleAlias::copy() for more details.
-                for ( ConfigurationInterface::map_t::iterator it = values.begin(); it != values.end(); ++it) {
+                for ( ConfigurationInterface::map_t::iterator it = values.begin(); it != values.end(); ) {
                     if (dynamic_cast<SendHandleAlias*>(*it)) {
-                        values.erase(it);
-                        it = values.begin();
+                        it = values.erase(it);
+                    } else {
+                        ++it;
                     }
                 }
             }
