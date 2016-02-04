@@ -548,7 +548,7 @@ BOOST_AUTO_TEST_CASE( testThreadName )
     RTT::os::ThreadInterface *thread = activity.thread();
     char buffer[256];
     pthread_getname_np(thread->getTask()->thread, buffer, sizeof(buffer));
-    BOOST_CHECK_EQUAL(std::string(buffer), std::string("d_name_3456890"));
+    BOOST_CHECK_EQUAL(std::string(buffer), std::string("d_name_34567890"));
 }
 #endif
 
