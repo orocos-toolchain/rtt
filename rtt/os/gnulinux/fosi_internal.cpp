@@ -154,6 +154,29 @@ namespace RTT
 	    }
 	    rv = pthread_create(&(task->thread), &(task->attr),
 	    		rtos_posix_thread_wrapper, xcookie);
+        if (rv != 0) {
+            log(Error) << "Failed to create thread " << task->name << ": "
+                       << strerror(rv) << endlog();
+            return rv;
+        }
+
+        // Set thread name to match task name, to help with debugging
+        {
+            // trim the name to fit 16 bytes restriction (including terminating
+            // \0 character) of pthread_setname_np
+            static const int MAX_THREAD_NAME_SIZE = 15;
+            const char *thread_name = task->name;
+            std::size_t thread_name_len = strlen(thread_name);
+            if (thread_name_len > MAX_THREAD_NAME_SIZE) {
+                thread_name += thread_name_len - MAX_THREAD_NAME_SIZE;
+            }
+            rv = pthread_setname_np(task->thread, thread_name);
+            if (rv != 0) {
+                log(Error) << "Failed to set thread name for " << task->name << ": "
+                           << strerror(rv) << endlog();
+                return rv;
+            }
+        }
 
 	if ( cpu_affinity != (unsigned)~0 ) {
 	  log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
