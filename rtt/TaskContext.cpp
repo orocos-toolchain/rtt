@@ -99,6 +99,7 @@ namespace RTT
         // from Service
         provides()->doc("The interface of this TaskContext.");
 
+        this->addOperation("getName", &TaskContext::getName, this, ClientThread).doc("The name of this TaskContext.");
         this->addOperation("configure", &TaskContext::configure, this, ClientThread).doc("Configure this TaskContext (= configureHook() ).");
         this->addOperation("isConfigured", &TaskContext::isConfigured, this, ClientThread).doc("Is this TaskContext configured ?");
         this->addOperation("start", &TaskContext::start, this, ClientThread).doc("Start this TaskContext (= startHook() + updateHook() ).");
@@ -460,4 +461,3 @@ namespace RTT
         }
     }
 }
-
