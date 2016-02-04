@@ -953,7 +953,7 @@ std::ostream &operator<<(std::ostream &os, const TestOptions &options)
 }
 
 template <typename T, PortTypes PortType>
-struct TestRunner {
+class TestRunner {
 public:
     typedef TestRunner<T,PortType> TestRunnerType;
     typedef boost::shared_ptr<TestRunnerType> shared_ptr;
@@ -1288,7 +1288,7 @@ BOOST_AUTO_TEST_CASE( dataConnections )
         options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
         options.policy.buffer_policy = PerConnection;
-        typename RunnerType::shared_ptr runner(new RunnerType("dataPerConnection", options));
+        RunnerType::shared_ptr runner(new RunnerType("dataPerConnection", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1305,7 +1305,7 @@ BOOST_AUTO_TEST_CASE( dataConnections )
         options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
         options.policy.buffer_policy = PerInputPort;
-        typename RunnerType::shared_ptr runner(new RunnerType("dataPerInputPort", options));
+        RunnerType::shared_ptr runner(new RunnerType("dataPerInputPort", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1322,7 +1322,7 @@ BOOST_AUTO_TEST_CASE( dataConnections )
         options.NumberOfWriters = 1;
         options.NumberOfReaders = 7;
         options.policy.buffer_policy = PerConnection;
-        typename RunnerType::shared_ptr runner(new RunnerType("dataPerConnection", options));
+        RunnerType::shared_ptr runner(new RunnerType("dataPerConnection", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1339,7 +1339,7 @@ BOOST_AUTO_TEST_CASE( dataConnections )
         options.NumberOfWriters = 1;
         options.NumberOfReaders = 7;
         options.policy.buffer_policy = PerOutputPort;
-        typename RunnerType::shared_ptr runner(new RunnerType("dataPerOutputPort", options));
+        RunnerType::shared_ptr runner(new RunnerType("dataPerOutputPort", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1356,7 +1356,7 @@ BOOST_AUTO_TEST_CASE( dataConnections )
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
         options.policy.buffer_policy = PerConnection;
-        typename RunnerType::shared_ptr runner(new RunnerType("dataPerConnection", options));
+        RunnerType::shared_ptr runner(new RunnerType("dataPerConnection", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1372,7 +1372,7 @@ BOOST_AUTO_TEST_CASE( dataConnections )
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
         options.policy.buffer_policy = PerInputPort;
-        typename RunnerType::shared_ptr runner(new RunnerType("dataPerInputPort", options));
+        RunnerType::shared_ptr runner(new RunnerType("dataPerInputPort", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1387,7 +1387,7 @@ BOOST_AUTO_TEST_CASE( dataConnections )
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
         options.policy.buffer_policy = PerOutputPort;
-        typename RunnerType::shared_ptr runner(new RunnerType("dataPerOutputPort", options));
+        RunnerType::shared_ptr runner(new RunnerType("dataPerOutputPort", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1405,7 +1405,7 @@ BOOST_AUTO_TEST_CASE( dataConnections )
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
         options.policy.buffer_policy = Shared;
-        typename RunnerType::shared_ptr runner(new RunnerType("dataShared", options));
+        RunnerType::shared_ptr runner(new RunnerType("dataShared", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1433,7 +1433,7 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
         options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
         options.policy.buffer_policy = PerConnection;
-        typename RunnerType::shared_ptr runner(new RunnerType("bufferPerConnection", options));
+        RunnerType::shared_ptr runner(new RunnerType("bufferPerConnection", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1450,7 +1450,7 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
         options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
         options.policy.buffer_policy = PerInputPort;
-        typename RunnerType::shared_ptr runner(new RunnerType("bufferPerInputPort", options));
+        RunnerType::shared_ptr runner(new RunnerType("bufferPerInputPort", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1467,7 +1467,7 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
         options.NumberOfWriters = 1;
         options.NumberOfReaders = 7;
         options.policy.buffer_policy = PerConnection;
-        typename RunnerType::shared_ptr runner(new RunnerType("bufferPerConnection", options));
+        RunnerType::shared_ptr runner(new RunnerType("bufferPerConnection", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1484,7 +1484,7 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
         options.NumberOfWriters = 1;
         options.NumberOfReaders = 7;
         options.policy.buffer_policy = PerOutputPort;
-        typename RunnerType::shared_ptr runner(new RunnerType("bufferPerOutputPort", options));
+        RunnerType::shared_ptr runner(new RunnerType("bufferPerOutputPort", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1501,7 +1501,7 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
         options.policy.buffer_policy = PerConnection;
-        typename RunnerType::shared_ptr runner(new RunnerType("bufferPerConnection", options));
+        RunnerType::shared_ptr runner(new RunnerType("bufferPerConnection", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1517,7 +1517,7 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
         options.policy.buffer_policy = PerInputPort;
-        typename RunnerType::shared_ptr runner(new RunnerType("bufferPerInputPort", options));
+        RunnerType::shared_ptr runner(new RunnerType("bufferPerInputPort", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1532,7 +1532,7 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
         options.policy.buffer_policy = PerOutputPort;
-        typename RunnerType::shared_ptr runner(new RunnerType("bufferPerOutputPort", options));
+        RunnerType::shared_ptr runner(new RunnerType("bufferPerOutputPort", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1550,7 +1550,7 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
         options.NumberOfWriters = 4;
         options.NumberOfReaders = 4;
         options.policy.buffer_policy = Shared;
-        typename RunnerType::shared_ptr runner(new RunnerType("bufferShared", options));
+        RunnerType::shared_ptr runner(new RunnerType("bufferShared", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1578,7 +1578,7 @@ BOOST_AUTO_TEST_CASE( emptyReads )
         options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
         options.policy.buffer_policy = PerConnection;
-        typename RunnerType::shared_ptr runner(new RunnerType("emptyPerConnection", options));
+        RunnerType::shared_ptr runner(new RunnerType("emptyPerConnection", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );
@@ -1595,7 +1595,7 @@ BOOST_AUTO_TEST_CASE( emptyReads )
         options.NumberOfWriters = 7;
         options.NumberOfReaders = 1;
         options.policy.buffer_policy = Shared;
-        typename RunnerType::shared_ptr runner(new RunnerType("emptyShared", options));
+        RunnerType::shared_ptr runner(new RunnerType("emptyShared", options));
 
         std::cout << runner->getOptions();
         BOOST_CHECK( runner->connectAll() );

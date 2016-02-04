@@ -548,7 +548,7 @@ namespace RTT
             // Stream channel inputs are always unbuffered (push). It's the transport that has to add a buffer element if required.
             RTT::base::ChannelElementBase::shared_ptr chan = buildChannelInput( output_port, policy, /* force_unbuffered = */ true );
             if (!chan) return false;
-            return createAndCheckStream(output_port, policy, chan, sid);
+            return bool(createAndCheckStream(output_port, policy, chan, sid));
         }
 
         /**
@@ -564,7 +564,7 @@ namespace RTT
             StreamConnID *sid = new StreamConnID(policy.name_id);
             RTT::base::ChannelElementBase::shared_ptr outhalf = buildChannelOutput( input_port, policy );
             if (!outhalf) return false;
-            return createAndCheckStream(input_port, policy, outhalf, sid);
+            return bool(createAndCheckStream(input_port, policy, outhalf, sid));
         }
 
         static bool createAndCheckSharedConnection(base::OutputPortInterface* output_port, base::InputPortInterface* input_port, SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy);

@@ -53,7 +53,6 @@ namespace RTT
     class RTT_MARSH_API Marshalling
     : public ServiceRequester
     {
-        TaskContext* mparent;
     public:
         /**
          * This object is normally created by a TaskContext.
