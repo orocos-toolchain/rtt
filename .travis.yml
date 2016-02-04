@@ -17,4 +17,5 @@ install:
 
 script:
   # Run tests
+  - export ORO_LOGLEVEL=6
   - make -j1 check
