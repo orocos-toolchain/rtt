@@ -144,7 +144,7 @@ namespace RTT { namespace base {
         {}
 
         /**
-         * Overwritten implementation of MultipleInputsChannelElementBase::data_sample() that gets a sample from the currently selected input.
+         * Overridden implementation of MultipleInputsChannelElementBase::data_sample() that gets a sample from the currently selected input.
          */
         virtual value_t data_sample()
         {
@@ -181,7 +181,7 @@ namespace RTT { namespace base {
             case PerConnection:
             case PerOutputPort:
                 last = last_read;
-                if ( !last && !inputs.empty() ) last = inputs.front()->narrow<T>();
+                if ( !last && !inputs.empty() ) last = inputs.front()->template narrow<T>();
                 break;
             case PerInputPort:
             case Shared:

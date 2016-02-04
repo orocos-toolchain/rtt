@@ -198,13 +198,13 @@ namespace internal {
          *
          * @returns false if an error occured that requires the channel to be invalidated.
          */
-        virtual WriteStatus data_sample(param_t sample)
+        virtual WriteStatus data_sample(param_t sample, bool reset = true)
         {
             if (!mstorage_initialized) {
-                mstorage->data_sample(sample);
+                mstorage->data_sample(sample, reset);
                 mstorage_initialized = true;
             }
-            return base::MultipleInputsMultipleOutputsChannelElement<T>::data_sample(sample);
+            return base::MultipleInputsMultipleOutputsChannelElement<T>::data_sample(sample, reset);
         }
 
         virtual value_t data_sample()

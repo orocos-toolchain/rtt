@@ -20,9 +20,9 @@ namespace RTT {
         struct LocalConnID;
         struct StreamConnID;
         struct SharedConnID;
-        struct SharedConnectionBase;
+        class SharedConnectionBase;
         template <class T>
-        struct SharedConnection;
+        class SharedConnection;
         struct UnknownType;
         template <typename function>
         class UnaryDataSource;
