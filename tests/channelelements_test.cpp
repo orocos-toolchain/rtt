@@ -274,8 +274,8 @@ BOOST_AUTO_TEST_CASE( testDisconnectOnInvalidWrite )
     ChannelElement<int>::shared_ptr out(new MultipleOutputsChannelElement<int>());
     ChannelElement<int>::shared_ptr in1(new ChannelElement<int>());
     ChannelElement<int>::shared_ptr in2(new ChannelElement<int>());
-    ChannelElement<int>::shared_ptr data1(new internal::ChannelDataElement<int>(typename base::DataObjectInterface<int>::shared_ptr(new base::DataObject<int>())));
-    ChannelElement<int>::shared_ptr data2(new internal::ChannelDataElement<int>(typename base::DataObjectInterface<int>::shared_ptr(new base::DataObject<int>())));
+    ChannelElement<int>::shared_ptr data1(new internal::ChannelDataElement<int>(base::DataObjectInterface<int>::shared_ptr(new base::DataObject<int>())));
+    ChannelElement<int>::shared_ptr data2(new internal::ChannelDataElement<int>(base::DataObjectInterface<int>::shared_ptr(new base::DataObject<int>())));
     int x = 0;
 
     // 1. NON-MANDATORY connections: out->in1->data1 and out->in2->data2

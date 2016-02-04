@@ -172,7 +172,7 @@ namespace RTT { namespace base {
         /** Signals that there is new data available on this channel
          * Forwards to \ref signal() unless overwritten in a derived class.
          */
-        virtual bool signal(ChannelElementBase *caller) { return signal(); }
+        virtual bool signalFrom(ChannelElementBase *caller) { return signal(); }
 
         /**
          * This is called on the output half of a new connection by the connection
@@ -329,13 +329,13 @@ namespace RTT { namespace base {
         virtual bool connected();
 
         /**
-         * Overwritten implementation of \ref ChannelElementBase::inputReady().
+         * Overridden implementation of \ref ChannelElementBase::inputReady().
          * Forwards the inputReady() call to all inputs and only returns true if all inputs returned true.
          */
         virtual bool inputReady(ChannelElementBase::shared_ptr const& caller);
 
         /**
-         * Overwritten implementation of \ref ChannelElementBase::clear().
+         * Overridden implementation of \ref ChannelElementBase::clear().
          * Forwards the clear() call to all inputs.
          */
         virtual void clear();
@@ -343,15 +343,14 @@ namespace RTT { namespace base {
         using ChannelElementBase::disconnect;
 
         /**
-         * Overwritten implementation of \ref ChannelElementBase::disconnect(forward, channel).
+         * Overridden implementation of \ref ChannelElementBase::disconnect(forward, channel).
          */
         virtual bool disconnect(ChannelElementBase::shared_ptr const& channel, bool forward = true);
 
         /**
-         * Overwritten implementation of \ref ChannelElementBase::signal(caller) which remembers the caller who last signalled this channel element.
+         * Overridden implementation of \ref ChannelElementBase::signalFrom(caller) which remembers the caller who last signalled this channel element.
          */
-        bool signal(ChannelElementBase *caller);
-        using ChannelElementBase::signal;
+        bool signalFrom(ChannelElementBase *caller);
 
     protected:
         /**
@@ -398,14 +397,13 @@ namespace RTT { namespace base {
         virtual bool connected();
 
         /**
-         * Overwritten implementation of \ref ChannelElementBase::signal() which forwards the signal to all
+         * Overridden implementation of \ref ChannelElementBase::signal() which forwards the signal to all
          * outputs.
          */
         virtual bool signal();
-        using ChannelElementBase::signal;
 
         /**
-         * Overwritten implementation of \ref ChannelElementBase::channelReady() which forwards the signal to all
+         * Overridden implementation of \ref ChannelElementBase::channelReady() which forwards the signal to all
          * outputs.
          */
         virtual bool channelReady(ChannelElementBase::shared_ptr const& caller, ConnPolicy const& policy, internal::ConnID *conn_id = 0);
@@ -413,7 +411,7 @@ namespace RTT { namespace base {
         using ChannelElementBase::disconnect;
 
         /**
-         * Overwritten implementation of \ref ChannelElementBase::disconnect(forward, channel).
+         * Overridden implementation of \ref ChannelElementBase::disconnect(forward, channel).
          */
         virtual bool disconnect(ChannelElementBase::shared_ptr const& channel, bool forward = false);
 
@@ -455,12 +453,9 @@ namespace RTT { namespace base {
         using ChannelElementBase::disconnect;
 
         /**
-         * Overwritten implementation of \ref ChannelElementBase::disconnect(forward, channel).
+         * Overridden implementation of \ref ChannelElementBase::disconnect(forward, channel).
          */
         virtual bool disconnect(ChannelElementBase::shared_ptr const& channel, bool forward);
-
-        using MultipleInputsChannelElementBase::signal;
-        using MultipleOutputsChannelElementBase::signal;
     };
 
     void RTT_API intrusive_ptr_add_ref( ChannelElementBase* e );

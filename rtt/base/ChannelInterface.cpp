@@ -197,7 +197,7 @@ bool ChannelElementBase::signal()
 {
     shared_ptr output = getOutput();
     if (output)
-        return output->signal(this);
+        return output->signalFrom(this);
     return true;
 }
 
@@ -313,7 +313,7 @@ bool MultipleInputsChannelElementBase::disconnect(ChannelElementBase::shared_ptr
     return ChannelElementBase::disconnect(channel, forward);
 }
 
-bool MultipleInputsChannelElementBase::signal(ChannelElementBase *caller)
+bool MultipleInputsChannelElementBase::signalFrom(ChannelElementBase *caller)
 {
     last_signalled = caller;
     return signal();
@@ -359,7 +359,7 @@ bool MultipleOutputsChannelElementBase::signal()
 {
     RTT::os::SharedMutexLock lock(outputs_lock);
     for (Outputs::const_iterator output = outputs.begin(); output != outputs.end(); ++output) {
-        output->channel->signal(this);
+        output->channel->signalFrom(this);
     }
     return ChannelElementBase::signal();
 }

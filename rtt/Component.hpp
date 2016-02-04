@@ -106,6 +106,10 @@ namespace RTT
 #pragma warning (disable:4190)
 #endif
 
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
+#endif
+
 /**
  * Use this macro to register a single component in a shared library (plug-in).
  * You can only use this macro \b once in a .cpp file for the whole shared library \b and

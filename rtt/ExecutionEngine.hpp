@@ -192,7 +192,7 @@ namespace RTT
         void setMaster(ExecutionEngine *master);
 
         /**
-         * Overwritten version of RTT::base::RunnableInterface::setActivity().
+         * Overridden version of RTT::base::RunnableInterface::setActivity().
          * This version will also set the master ExecutionEngine if the new activity is a SlaveActivity that runs an ExecutionEngine.
          *
          * @param task The ActivityInterface running this interface.

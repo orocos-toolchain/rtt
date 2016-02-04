@@ -161,7 +161,7 @@ namespace RTT {
                     ConnPolicy const& policy);
 
             /**
-             * Overwritten version of \ref InputPortInterface::createConnection(internal::SharedConnectionBase::shared_ptr, ConnPolicy const&), which
+             * Overridden version of \ref InputPortInterface::createConnection(internal::SharedConnectionBase::shared_ptr, ConnPolicy const&), which
              * forwards the call to the remote data flow interface.
              */
             bool createConnection( internal::SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy = ConnPolicy() );
