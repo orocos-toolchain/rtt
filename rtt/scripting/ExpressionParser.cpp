@@ -108,7 +108,7 @@ namespace RTT
     {
       std::string name( begin, end );
       mobject = name.substr(0, name.length() - 1);
-    };
+    }
 
   void DataCallParser::seenmethodname( iter_t begin, iter_t end )
     {
@@ -130,7 +130,7 @@ namespace RTT
           mmethod = name;
       }
 //      cout << "seenmethodname "<< mobject << "." << mmethod<<endl;
-    };
+    }
 
   void DataCallParser::seendataname()
   {
@@ -221,7 +221,7 @@ namespace RTT
                         args.insert( args.begin(), sha->getDataSource() );
                         if (meth == "collect")
                             ret = sha->getFactory()->produceCollect(args, new ValueDataSource<bool>(true) );// blocking
-                        else
+                        else // (meth == "collectIfDone")
                             ret = sha->getFactory()->produceCollect(args, new ValueDataSource<bool>(false) );// non-blocking
                         return;
                     }
@@ -281,7 +281,7 @@ namespace RTT
     {
       delete argparsers.top();
       argparsers.pop();
-    };
+    }
   }
 
   ConstructorParser::ConstructorParser( ExpressionParser& p, CommonParser& cp)
@@ -303,7 +303,7 @@ namespace RTT
     {
       delete argparsers.top();
       argparsers.pop();
-    };
+    }
   }
 
 
@@ -518,7 +518,7 @@ namespace RTT
 //       ( str_p( "s" ) | "ms" | "us" | "ns" )[
 //         bind( &ExpressionParser::seentimeunit, this, _1, _2 ) ] ) | expression[bind(&ExpressionParser::seentimeexpr, this)];
 
-  };
+  }
 
     void ExpressionParser::inverttime()
     {
@@ -558,7 +558,7 @@ namespace RTT
     default:
         std::string arg(begin, end);
         throw parse_exception_semantic_error("Expected time expression 's', 'ms', 'us' or 'ns' after integer value, got "+arg);
-    };
+    }
 
     parsestack.push( new ConstantDataSource<double>( total ) );
 
