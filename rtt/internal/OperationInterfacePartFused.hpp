@@ -171,7 +171,7 @@ namespace RTT
                 assert( carity == collectArity() + 1 ); // check for arity functions. (this is actually a compile time assert).
                 if ( args.size() != carity ) throw wrong_number_of_args_exception(carity, args.size() );
                 // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
-                return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >::sources(args.begin()), blocking );
+                return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >::assignable(args.begin()), blocking );
             }
 
 #ifdef ORO_SIGNALLING_OPERATIONS

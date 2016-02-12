@@ -335,11 +335,13 @@ namespace RTT
          */
         template<typename Signature>
         struct FusedMSendDataSource
-        : public DataSource<SendHandle<Signature> >
+        : public AssignableDataSource<SendHandle<Signature> >
           {
               typedef SendHandle<Signature> result_type;
               typedef result_type value_t;
-              typedef typename DataSource<value_t>::const_reference_t const_reference_t;
+              typedef typename AssignableDataSource<value_t>::param_t param_t;
+              typedef typename AssignableDataSource<value_t>::const_reference_t const_reference_t;
+              typedef typename AssignableDataSource<value_t>::reference_t reference_t;
               typedef create_sequence<
                       typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
@@ -360,6 +362,14 @@ namespace RTT
               void setArguments(const DataSourceSequence& a1)
               {
                   args = a1;
+              }
+
+              virtual void set( param_t t ) {
+                  sh = t;
+              }
+
+              reference_t set() {
+                  return sh;
               }
 
               value_t value() const
@@ -391,12 +401,21 @@ namespace RTT
               {
                   return new FusedMSendDataSource<Signature> (ff, args);
               }
+
               virtual FusedMSendDataSource<Signature>* copy(
                                                           std::map<
                                                                   const base::DataSourceBase*,
                                                                   base::DataSourceBase*>& alreadyCloned) const
               {
-                  return new FusedMSendDataSource<Signature> (ff, SequenceFactory::copy(args, alreadyCloned));
+                  // we need copy semantics because FusedMCollectDataSource tracks us.
+                  if ( alreadyCloned[this] != 0 ) {
+                      assert( dynamic_cast<FusedMSendDataSource<Signature>*>( alreadyCloned[this] ) == static_cast<FusedMSendDataSource<Signature>*>( alreadyCloned[this] ) );
+                      return static_cast<FusedMSendDataSource<Signature>*>( alreadyCloned[this] );
+                  }
+                  // Other pieces in the code rely on insertion in the map :
+                  alreadyCloned[this] = new FusedMSendDataSource<Signature>(ff, SequenceFactory::copy(args, alreadyCloned));
+                  // return copy
+                  return static_cast<FusedMSendDataSource<Signature>*>( alreadyCloned[this] );
               }
           };
 
@@ -416,7 +435,7 @@ namespace RTT
               // push the SendHandle pointer in front.
               typedef typename CollectType<Signature>::type CollectSignature;
               typedef typename boost::function_types::parameter_types<CollectSignature>::type arg_types;
-              typedef typename mpl::push_front<arg_types, SendHandle<Signature> >::type handle_and_arg_types;
+              typedef typename mpl::push_front<arg_types, SendHandle<Signature>& >::type handle_and_arg_types;
               typedef create_sequence< handle_and_arg_types
                       > SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
@@ -459,15 +478,11 @@ namespace RTT
                   return ss;
               }
 
-              void reset() {
-                  // reset the SendHandle DataSource (may be a FusedMSendDataSource, which stores the queued flag).
-                  bf::front(args)->reset();
-              }
-
               virtual FusedMCollectDataSource<Signature>* clone() const
               {
                   return new FusedMCollectDataSource<Signature> ( args, isblocking);
               }
+
               virtual FusedMCollectDataSource<Signature>* copy(
                                                           std::map<
                                                                   const base::DataSourceBase*,
