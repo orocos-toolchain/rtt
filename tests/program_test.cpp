@@ -551,17 +551,23 @@ BOOST_AUTO_TEST_CASE(testSend)
         + "test.increaseCmd.send() \n"
         + "yield \n"
         + "test.assertEqual( test.i, 1 )\n"
+        + "yield \n" // make sure that increaseCmd is not evaluated twice!
+        + "test.assertEqual( test.i, 1 )\n"
+
         + "var SendHandle sh\n"
         + "set sh = test.increaseCmd.send()\n"
+        + "test.assertEqual( test.i, 1 )\n" // not yet send
         + "var int r = 0\n"
         //+ "sh.collect(r)\n" // hangs
         + "while (sh.collectIfDone(r) != SendSuccess)\n"
-        + "yield \n"
+        + "    yield \n"
         + "test.assertEqual( r , 2 )\n"
+        + "test.assertEqual( test.i, 2 )\n"
+
         + "set sh = test.increaseCmd.send()\n"
         //+ "sh.collect(tvar_i)\n" // hangs
         + "while (sh.collectIfDone(tvar_i) != SendSuccess)\n"
-        + "yield \n"
+        + "    yield \n"
         + "test.assertEqual( tvar_i, 3 )\n" // i is 3 but r isn't.
         + "}";
     this->doProgram( prog, tc );
