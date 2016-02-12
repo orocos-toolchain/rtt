@@ -900,7 +900,7 @@ BOOST_AUTO_TEST_CASE( testStateYieldbyCmd )
 
 BOOST_AUTO_TEST_CASE( testStateSendFunction )
 {
-    // test yielding and checking .cmd syntax
+    // test yielding and checking .send syntax
     string func = string("export function foo(int arg) {\n")
         + "  do test.assert( tvar_i == arg ) \n"
         + "  do test.assert( tvar_i != tconst_i ) \n"
@@ -926,11 +926,11 @@ BOOST_AUTO_TEST_CASE( testStateSendFunction )
         + "   test.assertEqual( tvar_i, 2 )\n"
 
         + "   sh2 = foo.send(tvar_i) \n"
-        + "   test.assert( sh2 == SendNotReady )\n"
+        + "   test.assert( sh2.collectIfDone() == SendNotReady )\n"
         + "   test.assertEqual( tvar_i, 2 )\n"
         + "   while ( sh2.collectIfDone() == SendNotReady) \n"
         + "      yield\n"
-        + "   test.assert( sh2 == SendSuccess )\n"
+        + "   test.assert( sh2.collectIfDone() == SendSuccess )\n"
         + "   test.assertEqual( tvar_i , 4 )\n"
 
         + " }\n"

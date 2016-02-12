@@ -40,6 +40,7 @@
 #include "../internal/DataSourceCommand.hpp"
 #include "CmdFunction.hpp"
 #include "../internal/GlobalService.hpp"
+#include "CommandDataSource.hpp"
 
 #include "DataSourceTime.hpp"
 #include "../TaskContext.hpp"
@@ -241,16 +242,21 @@ namespace RTT
                 mhandle.reset( new SendHandleAlias( meth, ops->produceHandle(meth), ops->getPart(meth)) );
                 break;
             case CALLTYPE_CMD:
-                ret = ops->produceSend( meth, args, mcaller );
+                DataSourceBase::shared_ptr sendds = ops->produceSend( meth, args, mcaller );
                 args.clear();
-                args.push_back( ret ); // store the produceSend DS for collecting:
+                args.push_back( sendds ); // store the produceSend DS for collecting:
                 for ( unsigned int i =0; i != arity; ++i) {
                     args.push_back( ops->getOperation(meth)->getCollectType( i + 1 )->buildValue() ); // this is only to satisfy produceCollect. We ignore the results...
                 }
-                ret = ops->produceCollect( meth, args, new ValueDataSource<bool>(false) ); // non-blocking, need extra condition:
-                DataSource<SendStatus>::shared_ptr dsss = boost::dynamic_pointer_cast<DataSource<SendStatus> >(ret);
-                assert(dsss);
-                mcmdcnd = new CmdCollectCondition( dsss ); // Replaces RTT 1.x completion condition.
+
+                DataSource<SendStatus>::shared_ptr collectds
+                        = boost::dynamic_pointer_cast<DataSource<SendStatus> >(
+                              ops->produceCollect( meth, args, new ValueDataSource<bool>(false) )
+                          ); // non-blocking, need extra condition
+                assert(collectds);
+
+                ret = new ActionAliasDataSource<SendStatus>(new CommandDataSource( sendds ), collectds.get() );
+                mcmdcnd = new CmdCollectCondition( collectds ); // Replaces RTT 1.x completion condition.
                 break;
             }
         }
