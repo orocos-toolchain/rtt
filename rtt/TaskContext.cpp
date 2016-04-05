@@ -354,7 +354,7 @@ namespace RTT
         if ( new_act == 0) {
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
             new_act = new SequentialActivity();
-#elseif defined(ORO_ACT_DEFAULT_ACTIVITY)
+#elif defined(ORO_ACT_DEFAULT_ACTIVITY)
             new_act = new Activity();
 #endif
         }
