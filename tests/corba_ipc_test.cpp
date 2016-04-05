@@ -77,7 +77,14 @@ public:
 
     void callBackPeer(TaskContext* peer, string const& opname) {
 	OperationCaller<void(TaskContext*, string const&)> op1( peer->getOperation(opname), this->engine());
+        OperationCaller<void()> resetCallBackPeer( peer->getOperation("resetCallBackPeer"), this->engine());
 	int count = ++cbcount;
+
+        if (!is_calling) {
+            log(Info) << "Test resets server." <<endlog();
+            resetCallBackPeer();
+        }
+
 	log(Info) << "Test executes callBackPeer():"<< count <<endlog();
 	if (!is_calling) {
 		is_calling = true;
@@ -289,6 +296,7 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCallback )
     sleep(1); //asyncronous processing...
     BOOST_CHECK( is_calling );
     BOOST_CHECK( is_sending );
+    BOOST_CHECK_EQUAL( cbcount, 3 );
     BOOST_CHECK( handle.ready() );
     BOOST_CHECK_EQUAL( handle.collectIfDone(), SendSuccess );
 }
@@ -639,7 +647,7 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     // Check read of new data
     mo->write( 6.33 );
     mo->write( 3.33 );
-    wait_for_equal( cce->read( sample.out(), true), CNewData, 5 );
+    wait_for_equal( cce->read( sample.out(), true), CNewData, 10 );
     sample >>= result;
     BOOST_CHECK_EQUAL( result, 6.33);
     wait_for_equal( cce->read( sample.out(), true ), CNewData, 10 );
