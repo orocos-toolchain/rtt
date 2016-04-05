@@ -106,6 +106,13 @@ public:
         callBackPeer_step = INITIAL;
     }
 
+    void resetCallBackPeer() {
+        log(Info) << "Server resets callBackPeer state." <<endlog();
+        cbcount = 0;
+        is_calling = false;
+        is_sending = false;
+    }
+
 };
 
 int ORO_main(int argc, char** argv)
