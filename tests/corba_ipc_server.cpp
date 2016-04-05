@@ -61,6 +61,7 @@ public:
         this->start();
         addOperation("callBackPeer", &TheServer::callBackPeer, this,ClientThread);
         addOperation("callBackPeerOwn", &TheServer::callBackPeer, this,OwnThread);
+        addOperation("resetCallBackPeer", &TheServer::resetCallBackPeer, this,OwnThread);
     }
     ~TheServer() {
         this->stop();
@@ -68,8 +69,10 @@ public:
 
     void updateHook(){
         double d = 123456.789;
-        mi1.read(d);
-        mo1.write(d);
+        FlowStatus fs = NoData;
+        while( (fs = mi1.read(d, false)) == NewData ) {
+            mo1.write(d);
+        }
     }
 
     corba::TaskContextServer* ts;
@@ -93,6 +96,13 @@ public:
 			log(Info) << "Server finishes send back peer:" << count << endlog();
 		}
 		log(Info) << "Server finishes callBackPeer():" << count << endlog();
+    }
+
+    void resetCallBackPeer() {
+        log(Info) << "Server resets callBackPeer state." <<endlog();
+        cbcount = 0;
+        is_calling = false;
+        is_sending = false;
     }
 
 };
