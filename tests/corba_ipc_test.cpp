@@ -296,10 +296,10 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCallback )
     BOOST_REQUIRE( RTT::internal::DataSourceTypeInfo<TaskContext*>::getTypeInfo() !=  RTT::internal::DataSourceTypeInfo<UnknownType>::getTypeInfo());
     BOOST_REQUIRE( RTT::internal::DataSourceTypeInfo<TaskContext*>::getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID) != 0 );
 
-    BOOST_REQUIRE_EQUAL( (int) callBackPeer_step, (int) INITIAL );
+    BOOST_REQUIRE_EQUAL( callBackPeer_step, INITIAL );
     this->callBackPeer(tp, "callBackPeer");
     sleep(1); //asyncronous processing...
-    BOOST_CHECK_EQUAL( (int) callBackPeer_step, (int) FINAL );
+    BOOST_CHECK_EQUAL( callBackPeer_step, FINAL );
     BOOST_CHECK_EQUAL( callBackPeer_count, 3 );
     BOOST_CHECK( handle.ready() );
     BOOST_CHECK_EQUAL( handle.collectIfDone(), SendSuccess );
