@@ -41,7 +41,6 @@
 #include "RealTimeTypekit.hpp"
 #include "../types/Types.hpp"
 #include "../FlowStatus.hpp"
-#include "../ConnPolicy.hpp"
 #include "../internal/DataSources.hpp"
 #include "../typekit/Types.hpp"
 #include "../rtt-fwd.hpp"

@@ -174,7 +174,7 @@ namespace RTT
         }
 
         os << pull << " ";
-        os << cp.buffer_policy << " ";
+        os << BufferPolicy(cp.buffer_policy) << " ";
         os << lock_policy << " ";
         os << type;
         if (!cp.name_id.empty()) os << " (name_id=" << cp.name_id << ")";
