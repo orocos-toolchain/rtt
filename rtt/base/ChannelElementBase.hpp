@@ -75,7 +75,7 @@ namespace RTT { namespace base {
     protected:
         shared_ptr input;
         shared_ptr output;
-        BufferPolicy buffer_policy;
+        int buffer_policy;
 
         mutable RTT::os::SharedMutex input_lock;
         mutable RTT::os::SharedMutex output_lock;
@@ -245,7 +245,7 @@ namespace RTT { namespace base {
          * @param force overwrite a buffer policy set previously
          * @return true if the given policy was successfully applied
          */
-        virtual bool setBufferPolicy(BufferPolicy policy, bool force = false);
+        virtual bool setBufferPolicy(int policy, bool force = false);
 
         /**
          * Returns the current \ref BufferPolicy of this channel element.

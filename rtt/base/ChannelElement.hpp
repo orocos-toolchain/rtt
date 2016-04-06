@@ -176,7 +176,7 @@ namespace RTT { namespace base {
         typename ChannelElement<T>::shared_ptr currentInput() {
             typename ChannelElement<T>::shared_ptr last;
             BufferPolicy buffer_policy = getBufferPolicy();
-            if (!buffer_policy) buffer_policy = ConnPolicy::Default().buffer_policy;
+            if (!buffer_policy) buffer_policy = BufferPolicy(ConnPolicy::Default().buffer_policy);
             switch(buffer_policy) {
             case PerConnection:
             case PerOutputPort:

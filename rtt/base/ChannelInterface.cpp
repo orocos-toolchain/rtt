@@ -209,7 +209,7 @@ const ConnPolicy* ChannelElementBase::getConnPolicy() const {
     return 0;
 }
 
-bool ChannelElementBase::setBufferPolicy(BufferPolicy policy, bool force)
+bool ChannelElementBase::setBufferPolicy(int policy, bool force)
 {
     RTT::os::MutexLock lock(buffer_policy_lock);
     if (!buffer_policy || force) {
@@ -222,7 +222,7 @@ bool ChannelElementBase::setBufferPolicy(BufferPolicy policy, bool force)
 BufferPolicy ChannelElementBase::getBufferPolicy() const
 {
     RTT::os::SharedMutexLock lock(buffer_policy_lock);
-    return buffer_policy;
+    return BufferPolicy(buffer_policy);
 }
 
 MultipleInputsChannelElementBase::MultipleInputsChannelElementBase()
