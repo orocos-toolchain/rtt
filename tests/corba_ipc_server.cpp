@@ -50,10 +50,10 @@ public:
     // Ports
     InputPort<double>  mi1;
     OutputPort<double> mo1;
-    bool is_calling, is_sending;
-    int cbcount;
+    enum { INITIAL, CALL, SEND, FINAL } callBackPeer_step;
+    int callBackPeer_count;
 
-    TheServer(string name) : TaskContext(name), mi1("mi"), mo1("mo"), is_calling(false), is_sending(false), cbcount(0) {
+    TheServer(string name) : TaskContext(name), mi1("mi"), mo1("mo"), callBackPeer_step(INITIAL), callBackPeer_count(0) {
         ports()->addEventPort( mi1 );
         ports()->addPort( mo1 );
         this->createOperationCallerFactories( this );
@@ -61,6 +61,7 @@ public:
         this->start();
         addOperation("callBackPeer", &TheServer::callBackPeer, this,ClientThread);
         addOperation("callBackPeerOwn", &TheServer::callBackPeer, this,OwnThread);
+        addOperation("resetCallBackPeer", &TheServer::resetCallBackPeer, this,OwnThread);
     }
     ~TheServer() {
         this->stop();
@@ -68,31 +69,41 @@ public:
 
     void updateHook(){
         double d = 123456.789;
-        mi1.read(d);
-        mo1.write(d);
+        FlowStatus fs = NoData;
+        while( (fs = mi1.read(d, false)) == NewData ) {
+            mo1.write(d);
+        }
     }
 
     corba::TaskContextServer* ts;
 
     void callBackPeer(TaskContext* peer, string const& opname) {
-    	int count = ++cbcount;
-    	log(Info) << "Server executes callBackPeer():"<< count <<endlog();
-    	OperationCaller<void(TaskContext*, string const&)> op1 (peer->getOperation(opname), this->engine());
-		if (!is_calling) {
-			is_calling = true;
-			log(Info) << "Server calls back peer:" << count << endlog();
-			op1(this, "callBackPeerOwn");
-			log(Info) << "Server finishes call back peer:" << count << endlog();
-		}
+        OperationCaller<void(TaskContext*, string const&)> op1(peer->getOperation(opname), this->engine());
+        int count = ++callBackPeer_count;
 
-		if (!is_sending) {
-			is_sending = true;
-			log(Info) << "Server sends back peer:" << count << endlog();
-			SendHandle<void(TaskContext*, string const&)> handle = op1.send(
-					this, "callBackPeer");
-			log(Info) << "Server finishes send back peer:" << count << endlog();
-		}
-		log(Info) << "Server finishes callBackPeer():" << count << endlog();
+        if (callBackPeer_step == INITIAL) callBackPeer_step = CALL;
+
+        log(Info) << "Server executes callBackPeer():"<< count <<endlog();
+        if (callBackPeer_step == CALL) {
+            callBackPeer_step = SEND;
+            log(Info) << "Server calls back peer:" << count << endlog();
+            op1(this, "callBackPeerOwn");
+            log(Info) << "Server finishes call back peer:" << count << endlog();
+        }
+        else if (callBackPeer_step == SEND) {
+            callBackPeer_step = FINAL;
+            log(Info) << "Server sends back peer:" << count << endlog();
+            SendHandle<void(TaskContext*, string const&)> handle = op1.send(
+                                                                       this, "callBackPeer");
+            log(Info) << "Server finishes send back peer:" << count << endlog();
+        }
+        log(Info) << "Server finishes callBackPeer():" << count << endlog();
+    }
+
+    void resetCallBackPeer() {
+        log(Info) << "Server resets callBackPeer state." <<endlog();
+        callBackPeer_count = 0;
+        callBackPeer_step = INITIAL;
     }
 
 };

@@ -199,33 +199,63 @@ bool MQSendRecv::mqReady(base::DataSourceBase::shared_ptr ds, base::ChannelEleme
         //
         // The output port implementation guarantees that there will be one
         // after the connection is ready
-        struct timespec abs_timeout;
-        clock_gettime(CLOCK_REALTIME, &abs_timeout);
-        abs_timeout.tv_nsec += Seconds_to_nsecs(0.5);
-        abs_timeout.tv_sec += abs_timeout.tv_nsec / (1000*1000*1000);
-        abs_timeout.tv_nsec = abs_timeout.tv_nsec % (1000*1000*1000);
-        //abs_timeout.tv_sec +=1;
-        ssize_t ret = mq_timedreceive(mqdes, buf, max_size, 0, &abs_timeout);
-        if (ret != -1)
-        {
-            if (mtransport.updateFromBlob((void*) buf, ret, ds, marshaller_cookie))
-            {
-                minit_done = true;
-                // ok, now we can add the dispatcher.
-                Dispatcher::Instance()->addQueue(mqdes, chan);
-                return true;
-            }
-            else
-            {
-                log(Error) << "Failed to initialize MQ Channel Element with initial data sample." << endlog();
+        struct timeval timeout;  /* Timeout for select */
+        fd_set socks;
+        FD_ZERO(&socks);
+        while (1) { /* select loop */
+            FD_SET(mqdes, &socks);
+            timeout.tv_sec = 0;
+            timeout.tv_usec = 500000;
+
+            /* The first argument to select is the highest file
+                descriptor value plus 1.*/
+
+            int readsocks = select(mqdes + 1, &socks, (fd_set *) 0,
+              (fd_set *) 0, &timeout);
+
+            /* select() returns the number of sockets that had
+                things going on with them -- i.e. they're readable. */
+
+            /* Once select() returns, the original fd_set has been
+                modified so it now reflects the state of why select()
+                woke up. i.e. If file descriptor 4 was originally in
+                the fd_set, and then it became readable, the fd_set
+                contains file descriptor 4 in it. */
+
+            if (readsocks < 0) {
+                log(Error) << "Failed to receive initial data sample for MQ Channel Element (select): " << strerror(errno) << endlog();
                 return false;
             }
-        }
-        else
-        {
-            log(Error) << "Failed to receive initial data sample for MQ Channel Element: " << strerror(errno) << endlog();
-            return false;
-        }
+            else if (readsocks == 0) {
+                log(Error) << "Failed to receive initial data sample for MQ Channel Element: timed out" << endlog();
+                return false;
+            } else { // readsocks > 0
+                ssize_t ret = mq_receive(mqdes, buf, max_size, 0);
+                if (ret != -1)
+                {
+                    if (mtransport.updateFromBlob((void*) buf, ret, ds, marshaller_cookie))
+                    {
+                        minit_done = true;
+                        // ok, now we can add the dispatcher.
+                        Dispatcher::Instance()->addQueue(mqdes, chan);
+                        return true;
+                    }
+                    else
+                    {
+                        log(Error) << "Failed to initialize MQ Channel Element with initial data sample." << endlog();
+                        return false;
+                    }
+                }
+                else if (errno == EAGAIN) {
+                    // nop
+                }
+                else
+                {
+                    log(Error) << "Failed to receive initial data sample for MQ Channel Element (mq_receive): " << strerror(errno) << endlog();
+                    return false;
+                }
+            }
+        } /* while(1) */
     }
     else
     {
@@ -239,7 +269,7 @@ bool MQSendRecv::mqReady(base::DataSourceBase::shared_ptr ds, base::ChannelEleme
 bool MQSendRecv::mqRead(RTT::base::DataSourceBase::shared_ptr ds)
 {
     int bytes = 0;
-    if ((bytes = mq_receive(mqdes, buf, max_size, 0)) == -1)
+    if ((bytes = mq_receive(mqdes, buf, max_size, 0)) <= 0)
     {
         //log(Debug) << "Tried read on empty mq!" <<endlog();
         return false;
