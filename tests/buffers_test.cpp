@@ -1119,29 +1119,63 @@ BOOST_AUTO_TEST_CASE( testDObjUnSync )
 
 BOOST_AUTO_TEST_CASE( testBufLockFree4Writers1Reader )
 {
-    buffer = lockfree;
+    buffer
+        = new BufferLockFree<Dummy>(QS, Dummy(), BufferBase::Options()
+                                                 .circular(false)
+                                                 .multiple_writers(true)
+                                                 .max_threads(5));
     testBufMultiThreaded(4, 1);
-    buffer = circular = clockfree;
+    delete buffer;
+
+    circular = buffer
+        = new BufferLockFree<Dummy>(QS, Dummy(), BufferBase::Options()
+                                                 .circular(true)
+                                                 .multiple_writers(true)
+                                                 .max_threads(5));
     testBufMultiThreaded(4, 1);
+    delete buffer;
 }
 
 BOOST_AUTO_TEST_CASE( testBufLockFree4Writers4Readers )
 {
-    buffer = new BufferLockFree<Dummy>(QS, Dummy(), BufferBase::Options().circular(false).multiple_readers(true));
+    buffer
+        = new BufferLockFree<Dummy>(QS, Dummy(), BufferBase::Options()
+                                                 .circular(false)
+                                                 .multiple_writers(true)
+                                                 .multiple_readers(true)
+                                                 .max_threads(8));
     testBufMultiThreaded(4, 4);
     delete buffer;
 
-    buffer = circular = new BufferLockFree<Dummy>(QS, Dummy(), BufferBase::Options().circular(true).multiple_readers(true));
+    circular = buffer
+        = new BufferLockFree<Dummy>(QS, Dummy(), BufferBase::Options()
+                                                 .circular(true)
+                                                 .multiple_writers(true)
+                                                 .multiple_readers(true)
+                                                 .max_threads(8));
     testBufMultiThreaded(4, 4);
     delete buffer;
 }
 
 BOOST_AUTO_TEST_CASE( testBufLocked4Writers4Readers )
 {
-    buffer = locked;
+    buffer
+        = new BufferLocked<Dummy>(QS, Dummy(), BufferBase::Options()
+                                               .circular(false)
+                                               .multiple_writers(true)
+                                               .multiple_readers(true)
+                                               .max_threads(8));
     testBufMultiThreaded(4, 4);
-    buffer = circular = clocked;
+    delete buffer;
+
+    circular = buffer
+        = new BufferLocked<Dummy>(QS, Dummy(), BufferBase::Options()
+                                               .circular(true)
+                                               .multiple_writers(true)
+                                               .multiple_readers(true)
+                                               .max_threads(8));
     testBufMultiThreaded(4, 4);
+    delete buffer;
 }
 
 BOOST_AUTO_TEST_CASE( testDObjLockFreeSingleWriter4Readers )
