@@ -213,7 +213,7 @@ namespace RTT {
          * the behavior of reads and writes if the port has muliple connections.
          * See \ref BufferPolicy enum for possible options.
          */
-        BufferPolicy buffer_policy;
+        int    buffer_policy;
 
         /**
          * The maximum number of threads that will access the connection data or buffer object.
@@ -221,7 +221,7 @@ namespace RTT {
          * If 0, the number of threads will be determined by a simple heuristic depending on the
          * read and write policies of the connection.
          */
-        int max_threads;
+        int    max_threads;
 
         /**
          * Whether the connection described by this connection policy is mandatory, which
@@ -229,7 +229,7 @@ namespace RTT {
          * to a full input buffer or because of a broken remote connection.
          * By default, all connections are mandatory.
          */
-        bool mandatory;
+        bool   mandatory;
 
         /**
          * The prefered transport used. 0 is local (in process), a higher number
