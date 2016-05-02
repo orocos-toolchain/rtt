@@ -53,7 +53,7 @@ namespace RTT
     using namespace detail;
 
     namespace {
-        static boost::shared_ptr<TypeInfoRepository> typerepos;
+        boost::shared_ptr<TypeInfoRepository> typerepos;
     }
 
     TypeInfoRepository::TypeInfoRepository()
