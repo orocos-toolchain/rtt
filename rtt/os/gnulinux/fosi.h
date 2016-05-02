@@ -110,6 +110,19 @@ extern "C"
 #endif
     }
 
+    static inline NANO_TIME rtos_get_time_monotonic_ns( void )
+    {
+
+        TIME_SPEC tv;
+        clock_gettime(CLOCK_MONOTONIC, &tv);
+        // we can not include the C++ Time.hpp header !
+#ifdef __cplusplus
+        return NANO_TIME( tv.tv_sec ) * 1000000000LL + NANO_TIME( tv.tv_nsec );
+#else
+        return ( NANO_TIME ) ( tv.tv_sec * 1000000000LL ) + ( NANO_TIME ) ( tv.tv_nsec );
+#endif
+    }
+
     /**
      * This function should return ticks,
      * but we use ticks == nsecs in userspace
