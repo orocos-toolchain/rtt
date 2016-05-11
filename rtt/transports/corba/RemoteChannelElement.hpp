@@ -336,17 +336,18 @@ namespace RTT {
                 assert( remote_side.in() != 0 && "Got write() without remote side. Need buffer OR remote side but neither was present.");
                 try
                 {
-                      /** This is used on the writing side, to avoid allocating an Any for
-                       * each write
-                       */
+                    // This is used on the writing side, to avoid allocating an Any for
+                    // each write
                     CORBA::Any write_any;
                     internal::LateConstReferenceDataSource<T> const_ref_data_source(&sample);
-                    const_ref_data_source.ref();
-
                     // There is a trick. We allocate on the stack, but need to
                     // provide shared pointers. Manually increment refence count
                     // (the stack "owns" the object)
-                    transport.updateAny(&const_ref_data_source, write_any);
+                    const_ref_data_source.ref();
+
+                    if (!transport.updateAny(&const_ref_data_source, write_any)) {
+                        return WriteFailure;
+                    }
 
                     remote_side->write(write_any);
                     return WriteSuccess;
@@ -355,13 +356,13 @@ namespace RTT {
                 catch(CORBA::SystemException& e)
                 {
                     log(Error) << "caught CORBA exception while marshalling: " << e._name() << " " << e.NP_minorString() << endlog();
-                    return WriteFailure;
+                    return NotConnected;
                 }
 #endif
                 catch(CORBA::Exception& e)
                 {
                     log(Error) << "caught CORBA exception while marshalling: " << e._name() << endlog();
-                    return WriteFailure;
+                    return NotConnected;
                 }
             }
 
@@ -374,7 +375,9 @@ namespace RTT {
             {
                 typename internal::ValueDataSource<T> value_data_source;
                 value_data_source.ref();
-                transport.updateFromAny(&sample, &value_data_source);
+                if (!transport.updateFromAny(&sample, &value_data_source)) {
+                    return;
+                }
                 base::ChannelElement<T>::write(value_data_source.rvalue());
             }
 
