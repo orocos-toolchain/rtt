@@ -24,6 +24,7 @@
 
 void signal_handler(int sig_num){
     if(sig_num == SIGABRT){
+        BOOST_TEST_MESSAGE("Catched SIGABRT. That is what is expected.");
         exit(0);
     }
 }
@@ -60,11 +61,12 @@ BOOST_AUTO_TEST_CASE(testInitAllocFree){
 }
 
 BOOST_AUTO_TEST_CASE(testAllocToBig){
-    void* a = 0;
-    a = oro_rt_malloc(20000);//Allocation bigger than memorypool should fail
-    BOOST_CHECK(!a);
+#if USE_MMAP || USE_SBRK
+    BOOST_CHECK(oro_rt_malloc(20000)); //Allocation bigger than memorypool should be successful
+#else
+    BOOST_CHECK(!oro_rt_malloc(20000)); //Allocation bigger than memorypool should fail
+#endif
 }
-
 
 BOOST_AUTO_TEST_CASE(testInitTwiceSameMemPool){
     BOOST_CHECK_LE(0,(int)(init_memory_pool(10000,rtMem)));//Allocation of the same memory pool should succeed
