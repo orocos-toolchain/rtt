@@ -407,6 +407,35 @@ BOOST_AUTO_TEST_CASE( testConversions )
 }
 
 /**
+ * Tests converting (unsigned) long long types to and from other types.
+ */
+BOOST_AUTO_TEST_CASE( testLongLong )
+{
+    string prog = string("program x {\n") +
+        "var llong ll = 9223372036854775807ll\n" +
+        "do test.assert( -(ll + 2) == 9223372036854775807ll )\n" +
+        "var ullong ull = 18446744073709551615ull\n" +
+        "do test.assert( ull + 1 == 0 )\n" +
+        "var double d = ll\n" +
+        "do test.assert( d == 9.223372036854775807e+18 )\n" +
+        "set ll = 3.0f\n" +
+        "do test.assert( ll == 3ll )\n" +
+        "set ll = -1.0\n" +
+        "do test.assert( ll == -1ll )\n" +
+        "set ll = int(-1000)\n" +
+        "do test.assert( ll == -1000ll )\n" +
+        "set ull = int(1000)\n" +
+        "do test.assert( ull == 1000ull )\n" +
+        "set ull = uint(1000)\n" +
+        "do test.assert( ull == 1000ull )\n" +
+        "set ull = llong(12345)\n" +
+        "do test.assert( ull == 12345ull )\n" +
+        "}";
+    // execute
+    executePrograms(prog);
+}
+
+/**
  * Tests hexadecimals
  */
 BOOST_AUTO_TEST_CASE( testHex )
