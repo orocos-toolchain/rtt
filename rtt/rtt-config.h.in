@@ -90,16 +90,27 @@
 #endif
 
 //
-// Deprecation Macro
+// Deprecation Macro RTT_DEPRECATED
 // (copied from http://stackoverflow.com/questions/295120/c-mark-as-deprecated/21265197#21265197)
 //
 #ifdef __GNUC__
-#define RTT_DEPRECATED __attribute__((deprecated))
+#define RTT_DEPRECATED __attribute__((__deprecated__))
 #elif defined(_MSC_VER)
 #define RTT_DEPRECATED __declspec(deprecated)
 #else
-#pragma message("WARNING: You need to implement RTT_DEPRECATED for this compiler")
+// #pragma message("WARNING: You need to implement RTT_DEPRECATED for this compiler")
 #define RTT_DEPRECATED
+#endif
+
+//
+// Macro RTT_UNUSED to mark unused functions or arguments and suppress
+// compiler warnings (GNUC only)
+//
+#ifdef __GNUC__
+#define RTT_UNUSED __attribute__((__unused__))
+#else
+// #pragma message("WARNING: You need to implement RTT_UNUSED for this compiler")
+#define RTT_UNUSED
 #endif
 
 #endif
