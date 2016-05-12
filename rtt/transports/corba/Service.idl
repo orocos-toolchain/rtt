@@ -17,6 +17,7 @@ module RTT
 
     interface CService;
     struct CServiceDescription;
+    typedef sequence<CService> CServices;
     typedef sequence<CServiceDescription> CServiceDescriptions;
 
     /**
@@ -32,7 +33,7 @@ module RTT
         CConfigurationInterface::CAttributeNames attributes;
         CDataFlowInterface::CPortDescriptions ports;
 
-        sequence<CService> children;
+        CServices children;
         CServiceDescriptions children_descriptions;
     };
 

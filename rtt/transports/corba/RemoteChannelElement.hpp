@@ -48,40 +48,29 @@ namespace RTT {
 
     namespace corba {
 
-	/**
-	 * Implements the CRemoteChannelElement of the CORBA IDL interface.
-	 * It converts the C++ calls into CORBA calls and vice versa.
-	 * A read will cause a call to the remote channel (which is of the
-	 * same type of this RemoteChannelElement) which returns an Any
-	 * with the data. A similar mechanism is in place for a write.
-	 */
-	template<typename T>
-	class RemoteChannelElement 
-	    : public CRemoteChannelElement_i
-	    , public base::ChannelElement<T>
-	{
+    /**
+     * Implements the CRemoteChannelElement of the CORBA IDL interface.
+     * It converts the C++ calls into CORBA calls and vice versa.
+     * A read will cause a call to the remote channel (which is of the
+     * same type of this RemoteChannelElement) which returns an Any
+     * with the data. A similar mechanism is in place for a write.
+     */
+    template<typename T>
+    class RemoteChannelElement
+        : public CRemoteChannelElement_i
+        , public base::ChannelElement<T>
+    {
 
-	    /**
-	     * Becomes false if we couldn't transfer data to remote
-	     */
-	    bool valid;
-	    /**
-	     * In pull mode, we don't send data, just signal it and remote must read it back.
-	     */
-	    bool pull;
         /**
-         * In mandatory mode, we wait for a return value in write(). Otherwise, write one-way.
+         * Becomes false if we couldn't transfer data to remote
          */
-        bool mandatory;
+        bool valid;
 
-	    DataFlowInterface* msender;
+        DataFlowInterface* msender;
 
         PortableServer::ObjectId_var oid;
 
-        /**
-         * If signalling is false, no remoteSignal() calls will be forwarded to remote channel elements.
-         */
-        bool signalling;
+        ConnPolicy policy;
 
         public:
             /**
@@ -89,11 +78,11 @@ namespace RTT {
              * @param transport The type specific object that will be used to marshal the data.
              * @param poa The POA that manages the underlying CRemoteChannelElement_i.
              */
-            RemoteChannelElement(CorbaTypeTransporter const& transport, DataFlowInterface* sender, PortableServer::POA_ptr poa, bool is_pull, bool is_mandatory, bool is_signalling)
+            RemoteChannelElement(CorbaTypeTransporter const& transport, DataFlowInterface* sender, PortableServer::POA_ptr poa, const ConnPolicy &policy)
             : CRemoteChannelElement_i(transport, poa)
-            , valid(true), pull(is_pull), mandatory(is_mandatory)
+            , valid(true)
             , msender(sender)
-            , signalling(is_signalling)
+            , policy(policy)
             {
                 // Big note about cleanup: The RTT will dispose this object through
 	            // the ChannelElement<T> refcounting. So we only need to inform the
@@ -146,12 +135,12 @@ namespace RTT {
                     return;
                 //log(Debug) <<"transfering..." <<endlog();
                 // in push mode, transfer all data, in pull mode, only signal once for each sample.
-                if ( pull ) {
+                if ( policy.pull == ConnPolicy::PULL ) {
                     try
                     {
-                        if (signalling) {
-                            remote_side->remoteSignal();
-                        }
+#ifndef RTT_CORBA_PORTS_DISABLE_SIGNAL
+                        remote_side->remoteSignal();
+#endif
                     }
 #ifdef CORBA_IS_OMNIORB
                     catch(CORBA::SystemException& e)
@@ -336,46 +325,65 @@ namespace RTT {
                 assert( remote_side.in() != 0 && "Got write() without remote side. Need buffer OR remote side but neither was present.");
                 try
                 {
-                      /** This is used on the writing side, to avoid allocating an Any for
-                       * each write
-                       */
+                    // This is used on the writing side, to avoid allocating an Any for
+                    // each write
                     CORBA::Any write_any;
                     internal::LateConstReferenceDataSource<T> const_ref_data_source(&sample);
-                    const_ref_data_source.ref();
-
                     // There is a trick. We allocate on the stack, but need to
                     // provide shared pointers. Manually increment refence count
                     // (the stack "owns" the object)
-                    transport.updateAny(&const_ref_data_source, write_any);
+                    const_ref_data_source.ref();
 
-                    remote_side->write(write_any);
+                    if (!transport.updateAny(&const_ref_data_source, write_any)) {
+                        return WriteFailure;
+                    }
+
+#ifndef RTT_CORBA_PORTS_WRITE_ONEWAY
+                    CWriteStatus cfs = remote_side->write(write_any);
+                    return (WriteStatus)cfs;
+#else
+                    remote_side->writeOneway(write_any);
                     return WriteSuccess;
+#endif
                 }
 #ifdef CORBA_IS_OMNIORB
                 catch(CORBA::SystemException& e)
                 {
                     log(Error) << "caught CORBA exception while marshalling: " << e._name() << " " << e.NP_minorString() << endlog();
-                    return WriteFailure;
+                    return NotConnected;
                 }
 #endif
                 catch(CORBA::Exception& e)
                 {
                     log(Error) << "caught CORBA exception while marshalling: " << e._name() << endlog();
-                    return WriteFailure;
+                    return NotConnected;
                 }
             }
 
             /**
              * CORBA IDL function.
              */
-            void write(const ::CORBA::Any& sample) ACE_THROW_SPEC ((
+            CWriteStatus write(const ::CORBA::Any& sample) ACE_THROW_SPEC ((
                     CORBA::SystemException
                   ))
             {
                 typename internal::ValueDataSource<T> value_data_source;
                 value_data_source.ref();
-                transport.updateFromAny(&sample, &value_data_source);
-                base::ChannelElement<T>::write(value_data_source.rvalue());
+                if (!transport.updateFromAny(&sample, &value_data_source)) {
+                    return CWriteFailure;
+                }
+                WriteStatus fs = base::ChannelElement<T>::write(value_data_source.rvalue());
+                return (CWriteStatus)fs;
+            }
+
+            /**
+             * CORBA IDL function.
+             */
+            void writeOneway(const ::CORBA::Any& sample) ACE_THROW_SPEC ((
+                    CORBA::SystemException
+                  ))
+            {
+                (void) write(sample);
             }
 
             virtual WriteStatus data_sample(typename base::ChannelElement<T>::param_t sample)

@@ -14,6 +14,13 @@
 
 #cmakedefine CORBA_TAO_HAS_MESSAGING
 
+// CORBA transport configuration
+#cmakedefine RTT_CORBA_PORTS_DISABLE_SIGNAL
+#cmakedefine RTT_CORBA_PORTS_WRITE_ONEWAY
+#cmakedefine RTT_CORBA_SEND_ONEWAY_OPERATIONS
+#cmakedefine RTT_CORBA_NO_CHECK_OPERATIONS
+
+
 //
 // See: <http://gcc.gnu.org/wiki/Visibility>
 //

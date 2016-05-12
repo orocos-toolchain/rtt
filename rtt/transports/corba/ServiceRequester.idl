@@ -17,6 +17,7 @@ module RTT
 
     interface CServiceRequester;
     struct CServiceRequesterDescription;
+    typedef sequence<CServiceRequester> CServiceRequesters;
     typedef sequence<CServiceRequesterDescription> CServiceRequesterDescriptions;
 
     /**
@@ -28,7 +29,7 @@ module RTT
         string name;
         COperationCallerNames operationcallernames;
 
-        sequence<CServiceRequester> children;
+        CServiceRequesters children;
         CServiceRequesterDescriptions children_descriptions;
     };
 
