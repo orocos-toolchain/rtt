@@ -7,10 +7,6 @@
 #include <rtt/plugin/PluginLoader.hpp>
 #include <rtt/types/TypekitRepository.hpp>
 
-#ifdef HAS_ROSLIB
-#include <rospack/rospack.h>
-#endif
-
 #ifndef _WIN32
 # include <dlfcn.h>
 #endif
