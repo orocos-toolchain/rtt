@@ -103,18 +103,6 @@ namespace RTT
     };
 
     /**
-     * Specialisation for std::string to keep capacity when set( ... ) is called.
-     */
-    template<>
-    RTT_API void ValueDataSource<std::string>::set(  AssignableDataSource<std::string>::param_t t );
-
-    /**
-     * Specialisation for std::string to keep capacity when clone() is called.
-     */
-    template<>
-    RTT_API ValueDataSource<std::string>::ValueDataSource(std::string t );
-
-    /**
      * A DataSource which holds a constant value and
      * returns it in its get() method. It can not be changed after creation.
      * @param T Any type of data, except being a non-const reference.
@@ -878,5 +866,15 @@ namespace RTT
 
 #include "DataSources.inl"
 
-#endif
+/*
+ * Extern template declarations for core data source types
+ * (instantiated in DataSources.cpp)
+ */
+RTT_EXT_IMPL template class RTT::internal::ValueDataSource< bool >;
+RTT_EXT_IMPL template class RTT::internal::ConstantDataSource< bool >;
+RTT_EXT_IMPL template class RTT::internal::ReferenceDataSource< bool >;
+RTT_EXT_IMPL template class RTT::internal::ValueDataSource< std::string >;
+RTT_EXT_IMPL template class RTT::internal::ConstantDataSource< std::string >;
+RTT_EXT_IMPL template class RTT::internal::ReferenceDataSource< std::string >;
 
+#endif

@@ -41,11 +41,6 @@
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Attribute< int >;
 #endif
 
-#ifdef ORO_CORELIB_DATASOURCES_HPP
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< bool >;
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< bool >;
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< bool >;
-#endif
 #ifdef ORO_OUTPUT_PORT_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< bool >;
 #endif
@@ -192,19 +187,6 @@
 #endif
 
 
-// Disable string for now, we have specilisations in DataSources.hpp which 
-// confuse our logic or our compiler:
-#if 0
-#ifdef CORELIB_DATASOURCE_HPP
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< std::string >;
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< std::string >;
-#endif
-#ifdef ORO_CORELIB_DATASOURCES_HPP
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< std::string >;
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< std::string >;
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< std::string >;
-#endif
-#endif
 #ifdef ORO_OUTPUT_PORT_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< std::string >;
 #endif
@@ -242,18 +224,12 @@
 #endif
 
 
-RTT_TYPEKIT_EXT_TMPL template class std::basic_string<char, std::char_traits<char>, RTT::os::rt_allocator<char> >;
-
 #ifdef CORELIB_DATASOURCE_HPP
-#if 0
-RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< RTT::rt_string >;
-#endif
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< RTT::rt_string >;
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< RTT::rt_string >;
 #endif
 #ifdef ORO_CORELIB_DATASOURCES_HPP
-#if 0
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< RTT::rt_string >;
-#endif
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< RTT::rt_string >;
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< RTT::rt_string >;
 #endif

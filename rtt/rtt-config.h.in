@@ -65,10 +65,13 @@
    // Use RTT_HIDE to explicitly hide a symbol
 #  define RTT_HIDE   __attribute__((visibility("hidden")))
 
+#  define RTT_EXT_IMPL extern
+
 # else
 #  define RTT_API
 #  define RTT_EXPORT __attribute__((visibility("default")))
 #  define RTT_HIDE   __attribute__((visibility("hidden")))
+#  define RTT_EXT_IMPL extern
 # endif
 #else
    // Win32 and NOT GNU
@@ -77,15 +80,18 @@
 #   define RTT_API    __declspec(dllexport)
 #   define RTT_EXPORT __declspec(dllexport)
 #   define RTT_HIDE   
+#   define RTT_EXT_IMPL extern
 #  else
 #   define RTT_API	 __declspec(dllimport)
 #   define RTT_EXPORT __declspec(dllexport)
 #   define RTT_HIDE 
+#   define RTT_EXT_IMPL extern
 #  endif
 # else
 #  define RTT_API
 #  define RTT_EXPORT
 #  define RTT_HIDE
+#  define RTT_EXT_IMPL
 # endif
 #endif
 
