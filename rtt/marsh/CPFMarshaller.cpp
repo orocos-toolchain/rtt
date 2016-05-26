@@ -169,6 +169,16 @@ namespace RTT {
         doWrite( v, "ushort");
     }
 
+    void CPFMarshaller<std::ostream>::introspect(Property<long long> &v)
+    {
+        doWrite( v, "llong");
+    }
+
+    void CPFMarshaller<std::ostream>::introspect(Property<unsigned long long> &v)
+    {
+        doWrite( v, "ullong");
+    }
+
     void CPFMarshaller<std::ostream>::introspect(Property<float> &v)
     {
         (this->s)->precision(15);
