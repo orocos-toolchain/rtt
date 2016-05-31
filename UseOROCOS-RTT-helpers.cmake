@@ -104,7 +104,7 @@ endfunction( orocos_get_manifest_deps RESULT)
 #   ${PACKAGE}_INCLUDE_DIRS     The include directories for this package.
 #   ${PACKAGE}_LIBRARY_DIRS     The library directories for this package.
 #   ${PACKAGE}_CFLAGS_OTHER     The compile flags other than -I for this package.
-#   ${PACKAGE}_LDFLAGS_OTHER    The linker flags other than -L and -l for thfully resolved link libraries for this package.
+#   ${PACKAGE}_LDFLAGS_OTHER    The linker flags other than -L and -l for this package.
 #   ${PACKAGE}_<LIB>_LIBRARY    Each fully resolved link library <LIB> in the above list.
 # 
 # Usage: orocos_find_package( pkg-name [OROCOS_ONLY] [REQUIRED] [VERBOSE]")
