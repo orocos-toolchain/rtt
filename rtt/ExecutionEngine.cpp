@@ -311,14 +311,8 @@ namespace RTT
     {
         if (this->getActivity()->thread()->isSelf())
             waitAndProcessFunctions(pred);
-        else {
-            // forward the call to the master ExecutionEngine which is processing messages for us...
-            if (mmaster) {
-                mmaster->waitForMessages(pred);
-            } else {
-                waitForMessagesInternal(pred); // same as for messages.
-            }
-        }
+        else
+            waitForMessagesInternal(pred); // NOT the same as for messages: functions signal the slave engine directly!
     }
 
     void ExecutionEngine::setMaster(ExecutionEngine *master)
@@ -340,7 +334,8 @@ namespace RTT
 
     void ExecutionEngine::waitForMessagesInternal(boost::function<bool(void)> const& pred)
     {
-        assert( mmaster == 0 );
+        // Note: waitForMessagesInternal() can be called from waitForFunctions even if this is a slave engine!
+        // assert( mmaster == 0 );
         if ( pred() )
             return;
         // only to be called from the thread not executing step().
