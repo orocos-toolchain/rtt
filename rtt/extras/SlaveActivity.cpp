@@ -178,6 +178,8 @@ namespace RTT {
 
     bool SlaveActivity::isPeriodic() const
     {
+        if (mmaster)
+            return mmaster->isPeriodic();
         return mperiod != 0.0;
     }
     bool SlaveActivity::isActive() const
@@ -202,7 +204,7 @@ namespace RTT {
     bool SlaveActivity::execute()
     {
         // non periodic case.
-        if ( mperiod == 0.0 ) {
+        if ( !isPeriodic() ) {
             if ( !active || running )
                 return false;
             running = true;
