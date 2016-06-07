@@ -54,6 +54,7 @@ namespace RTT
 
         ~CmdFunction() {
             this->reset();
+            delete minit;
         }
 
         virtual SendStatus get() const {
