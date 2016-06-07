@@ -90,6 +90,7 @@ namespace RTT
 
         ~CallFunction() {
             this->reset();
+            delete minit;
         }
 
         virtual bool execute() {
