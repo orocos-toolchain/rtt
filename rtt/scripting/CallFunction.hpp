@@ -58,7 +58,7 @@ namespace RTT
      * Script functions are always executed in the thread of the component.
      */
     class RTT_SCRIPTING_API CallFunction
-        : public base::ActionInterface
+        : public base::ActionInterface, public base::DisposableInterface
     {
         base::ActionInterface* minit;
         ExecutionEngine* mrunner;
@@ -70,7 +70,8 @@ namespace RTT
         bool fooDone() {
             return _foo->inError() || _foo->isStopped();
         }
-        public:
+
+    public:
         /**
          * Create a Command to send a function to a ExecutionEngine.
          * @param init_com  The command to execute before sending the
@@ -97,26 +98,37 @@ namespace RTT
             // this is asyn behaviour :
             if (isqueued == false ) {
                 isqueued = true;
-                maccept = minit->execute() && mrunner->runFunction( _foo.get() );
+                if (!minit->execute()) return false;
+                _foo->loaded(mrunner);
                 // we ignore the ret value of start(). It could have been auto-started during loading() of the function.
                 if ( _foo->needsStart() ) // _foo might be auto-started in runFunction()
                     _foo->start();
+                maccept = mrunner->process( this );
                 if ( maccept ) {
                     // block for the result: foo stopped or in error
-                    //mcaller->waitForFunctions(boost::bind(&CallFunction::fooDone,this) );
-                    mrunner->waitForFunctions(boost::bind(&CallFunction::fooDone,this) );
+                    mrunner->waitForMessages(boost::bind(&CallFunction::fooDone,this) );
                     if ( _foo->inError() ) {
                         throw false;
                     }
-                    return true;
                 }
-                return false;
+                return _foo->isStopped();
             }
             return true;
         }
 
+        // execute function in the thread of the caller
+        virtual void executeAndDispose() {
+            if ( _foo->execute() == false ){
+                _foo->unloaded();
+            } else {
+                mrunner->process( this );
+            }
+        }
+
+        // we do not want to be disposed
+        virtual void dispose() {}
+
         virtual void reset() {
-            if (_foo->isLoaded()) mrunner->removeFunction( _foo.get() );
             maccept = false;
             isqueued = false;
         }
