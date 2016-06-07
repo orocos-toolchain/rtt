@@ -43,6 +43,9 @@
 #include "../rtt-config.h"
 #include "rtt-os-fwd.hpp"
 #include "Time.hpp"
+
+#include <cassert>
+
 #ifdef ORO_OS_USE_BOOST_THREAD
 // BOOST_DATE_TIME_POSIX_TIME_STD_CONFIG is defined in rtt-config.h
 #include <boost/thread/mutex.hpp>
