@@ -45,4 +45,23 @@ namespace RTT {
 
     int CorbaDispatcher::defaultScheduler = ORO_SCHED_RT;
     int CorbaDispatcher::defaultPriority  = os::LowestPriority;
+
+CorbaDispatcher::CorbaDispatcher(const std::string& name) : Activity(defaultScheduler, defaultPriority, 0.0, 0, name),
+RClist(20,2),
+do_exit(false)
+{
+    
+}
+
+CorbaDispatcher::CorbaDispatcher(const std::string& name, int scheduler, int priority) : Activity(scheduler, priority, 0.0, 0, name),
+RClist(20,2),
+do_exit(false)
+{}
+
+CorbaDispatcher::~CorbaDispatcher()
+{
+    this->stop();
+}
+
+
 }

@@ -60,7 +60,7 @@ namespace RTT
         public:
             virtual bool isSameID(ConnID const& id) const = 0;
             virtual ConnID* clone() const = 0;
-            virtual ~ConnID() {}
+            virtual ~ConnID();
         };
 
         /**

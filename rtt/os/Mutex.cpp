@@ -35,3 +35,8 @@
  *                                                                         *
  ***************************************************************************/
 #include <os/Mutex.hpp>
+
+RTT::os::MutexInterface::~MutexInterface()
+{
+
+}

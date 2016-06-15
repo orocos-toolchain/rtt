@@ -46,6 +46,11 @@ using namespace std;
 using namespace RTT;
 using namespace RTT::internal;
 
+LocalConnID::LocalConnID(const base::PortInterface* obj) : ptr(obj)
+{    
+}
+
+
 bool LocalConnID::isSameID(ConnID const& id) const
 {
     LocalConnID const* real_id = dynamic_cast<LocalConnID const*>(&id);
@@ -58,6 +63,10 @@ ConnID* LocalConnID::clone() const {
     return new LocalConnID(this->ptr);
 }
 
+StreamConnID::StreamConnID(const string& name) : name_id(name) 
+{
+}
+
 bool StreamConnID::isSameID(ConnID const& id) const
 {
     StreamConnID const* real_id = dynamic_cast<StreamConnID const*>(&id);
@@ -68,6 +77,10 @@ bool StreamConnID::isSameID(ConnID const& id) const
 
 ConnID* StreamConnID::clone() const {
     return new StreamConnID(this->name_id);
+}
+
+ConnFactory::~ConnFactory()
+{
 }
 
 base::ChannelElementBase::shared_ptr RTT::internal::ConnFactory::createRemoteConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, const ConnPolicy& policy)

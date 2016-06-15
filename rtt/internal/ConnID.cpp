@@ -54,6 +54,12 @@ bool SimpleConnID::isSameID(ConnID const& id) const {
     return real_id->cid == this->cid;
 
 }
+
+ConnID::~ConnID()
+{
+
+}
+
 ConnID* SimpleConnID::clone() const {
     return new SimpleConnID( this->cid );
 }

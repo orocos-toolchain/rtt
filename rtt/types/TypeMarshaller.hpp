@@ -61,13 +61,15 @@ namespace RTT
         class TypeMarshaller: public RTT::types::TypeTransporter
         {
         public:
+            virtual ~TypeMarshaller();
+            
             /** Overload in subclasses for marshallers that need to allocate some
              * internal data. The protocol will call deleteCookie(void*)
              * accordingly
              */
-            virtual void* createCookie() const { return 0; }
+            virtual void* createCookie() const;
             /** Called to delete a cookie created with createCookie */
-            virtual void deleteCookie(void* cookie) const {}
+            virtual void deleteCookie(void* cookie) const;
             /**
              * Create an transportable object for a \a protocol which contains the value of \a source.
              * This must be a real-time function which does not allocate memory

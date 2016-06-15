@@ -20,7 +20,7 @@ namespace RTT
         class RTT_API TypeInfoGenerator
         {
         public:
-            virtual ~TypeInfoGenerator() {}
+            virtual ~TypeInfoGenerator();
 
             /**
              * Return the type name for which this generator

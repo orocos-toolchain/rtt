@@ -63,8 +63,7 @@ namespace RTT
     struct LocalConnID : public ConnID
     {
         base::PortInterface const* ptr;
-        LocalConnID(base::PortInterface const* obj)
-            : ptr(obj) {}
+        LocalConnID(base::PortInterface const* obj);
         virtual ConnID* clone() const;
         virtual bool isSameID(ConnID const& id) const;
     };
@@ -75,8 +74,7 @@ namespace RTT
     struct RTT_API StreamConnID : public ConnID
     {
         std::string name_id;
-        StreamConnID(const std::string& name)
-            : name_id(name) {}
+        StreamConnID(const std::string& name);
         virtual ConnID* clone() const;
         virtual bool isSameID(ConnID const& id) const;
     };
@@ -91,7 +89,7 @@ namespace RTT
     class RTT_API ConnFactory
     {
     public:
-        virtual ~ConnFactory() {}
+        virtual ~ConnFactory();
 
         /**
          * Returns a new InputPort<T> object where T is the type represented by

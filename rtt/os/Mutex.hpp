@@ -61,7 +61,7 @@ namespace RTT
 	class RTT_API MutexInterface
 	{
 	public:
-        virtual ~MutexInterface() {}
+                virtual ~MutexInterface();
 		virtual void lock() =0;
 		virtual void unlock() =0;
 		virtual bool trylock() = 0;

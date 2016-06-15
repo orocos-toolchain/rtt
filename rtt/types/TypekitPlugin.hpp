@@ -51,7 +51,7 @@ namespace RTT
     class RTT_API TypekitPlugin
     {
     public:
-        virtual ~TypekitPlugin() {}
+        virtual ~TypekitPlugin();
 
         /**
          * Implement this method to add types to the

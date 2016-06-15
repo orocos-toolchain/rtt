@@ -56,7 +56,7 @@ namespace RTT
     class RTT_API TransportPlugin
     {
     public:
-        virtual ~TransportPlugin() {}
+        virtual ~TransportPlugin();
 
         /**
          * Add a transport for the given type to the types::TypeInfo

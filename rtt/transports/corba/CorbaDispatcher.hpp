@@ -69,21 +69,11 @@ namespace RTT {
             RTT_CORBA_API static int defaultScheduler;
             RTT_CORBA_API static int defaultPriority;
 
-            CorbaDispatcher( const std::string& name)
-            : Activity(defaultScheduler, defaultPriority, 0.0, 0, name),
-              RClist(20,2),
-              do_exit(false)
-              {}
+            CorbaDispatcher( const std::string& name);
 
-            CorbaDispatcher( const std::string& name, int scheduler, int priority)
-            : Activity(scheduler, priority, 0.0, 0, name),
-              RClist(20,2),
-              do_exit(false)
-              {}
+            CorbaDispatcher( const std::string& name, int scheduler, int priority);
 
-            ~CorbaDispatcher() {
-                this->stop();
-            }
+            ~CorbaDispatcher();
 
         public:
             /**

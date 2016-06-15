@@ -59,8 +59,8 @@ namespace RTT
          */
         class RTT_API TypeTransporter
         {
-		public:
-            virtual ~TypeTransporter() {}
+        public:
+            virtual ~TypeTransporter();
 
             /**
              * Creates a streaming channel element for reading or writing over this transport.

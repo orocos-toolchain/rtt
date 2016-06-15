@@ -47,7 +47,7 @@ namespace RTT { namespace internal {
     class ChannelBufferElementBase
     {
     public:
-        virtual ~ChannelBufferElementBase() {};
+        virtual ~ChannelBufferElementBase();
         virtual size_t getBufferSize() const = 0;
         virtual size_t getBufferFillSize() const = 0;
         virtual size_t getNumDroppedSamples() const = 0;
