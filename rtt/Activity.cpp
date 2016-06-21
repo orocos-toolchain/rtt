@@ -285,7 +285,7 @@ namespace RTT
             msg_cond.broadcast();
         }
 
-        if ( update_period == 0)
+        if (update_period == 0)
         {
             if ( inloop ) {
                 if ( !this->breakLoop() ) {
@@ -328,7 +328,7 @@ namespace RTT
     }
 
     bool Activity::isPeriodic() const {
-        return Thread::isPeriodic();
+        return Thread::isPeriodic() || (update_period != 0.0);
     }
 
     unsigned Activity::getCpuAffinity() const
