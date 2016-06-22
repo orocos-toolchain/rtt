@@ -406,6 +406,30 @@ macro(orocos_set_install_rpath target)
   set_target_properties(${target} PROPERTIES
                         INSTALL_RPATH "${_install_rpath}")
 
+  if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+    message(STATUS "[UseOrocos] Setting INSTALL_RPATH of target '${target}' to '${_install_rpath}'.")
+  endif()
+  
+  # For non-DESTDIR installs, append directories in the linker search path to the INSTALL_RPATH.
+  # This was the default behavior of RTT before version 2.8.
+  if(DEFINED CMAKE_INSTALL_RPATH_USE_LINK_PATH)
+    option(ORO_INSTALL_RPATH_USE_LINK_PATH "Append directories in the linker search path and outside the project to the INSTALL_RPATH" ${CMAKE_INSTALL_RPATH_USE_LINK_PATH})
+  else()
+    option(ORO_INSTALL_RPATH_USE_LINK_PATH "Append directories in the linker search path and outside the project to the INSTALL_RPATH" ON)
+  endif()
+  if(ORO_INSTALL_RPATH_USE_LINK_PATH AND NOT DEFINED ENV{DESTDIR})
+    set_target_properties(${target} PROPERTIES
+                      INSTALL_RPATH_USE_LINK_PATH ON)
+
+    if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+      message(STATUS "[UseOrocos] Appending directories in the linker search path to the INSTALL_RPATH of target '${target}'.")
+    endif()
+  else()
+    set_target_properties(${target} PROPERTIES
+                      INSTALL_RPATH_USE_LINK_PATH OFF)
+  endif()
+
+  # Set INSTALL_NAME_DIR for MacOS X to tell users of this library how to find it:
   if(APPLE)
     if (CMAKE_VERSION VERSION_LESS "3.0.0")
       SET_TARGET_PROPERTIES( ${target} PROPERTIES
@@ -416,10 +440,6 @@ macro(orocos_set_install_rpath target)
       SET_TARGET_PROPERTIES( ${target} PROPERTIES
         MACOSX_RPATH ON)
     endif()
-  endif()
-
-  if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
-    message(STATUS "[UseOrocos] Setting RPATH of target '${target}' to '${_install_rpath}'.")
   endif()
 endmacro(orocos_set_install_rpath)
 
