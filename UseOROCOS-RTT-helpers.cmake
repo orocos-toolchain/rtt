@@ -383,7 +383,15 @@ macro(orocos_add_link_flags target)
 endmacro(orocos_add_link_flags)
 
 macro(orocos_set_install_rpath target)
-  set(_install_rpath ${ARGN} "${OROCOS-RTT_LIBRARY_DIRS};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins;${CMAKE_INSTALL_PREFIX}/lib")
+  set(_install_rpath
+    ${ARGN}
+    ${OROCOS-RTT_LIBRARY_DIRS}
+    ${OROCOS-OCL_LIBRARY_DIRS}
+    ${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}
+    ${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types
+    ${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins
+    ${CMAKE_INSTALL_PREFIX}/lib
+  )
 
   # strip DESTDIR from all RPATH entries...
   if(DEFINED ENV{DESTDIR})
