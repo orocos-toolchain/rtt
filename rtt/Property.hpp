@@ -162,7 +162,7 @@ namespace RTT
          * @post ready() will be true if datasource is a valid pointer.
          */
         Property(const std::string& name, const std::string& description,
-                 typename internal::AssignableDataSource<DataSourceType>::shared_ptr datasource )
+                 const typename internal::AssignableDataSource<DataSourceType>::shared_ptr& datasource )
             : base::PropertyBase(name, description), _value( datasource )
         {
             // need to do this on the datasource in order to have access to set()/rvalue() of the data source.
@@ -370,14 +370,21 @@ namespace RTT
             return new Property<T>(*this);
         }
 
-        virtual Property<T>* copy() const
-        {
-            return new Property<T>( _name, _description, _value );
-        }
-
         virtual Property<T>* create() const
         {
             return new Property<T>( _name, _description, T() );
+        }
+
+        virtual Property<T>* create( const base::DataSourceBase::shared_ptr& datasource ) const
+        {
+            typename internal::AssignableDataSource<DataSourceType>::shared_ptr value
+                    = internal::AssignableDataSource<DataSourceType>::narrow( datasource.get() );
+            Property<T>* prop = new Property<T>( _name, _description, value );
+            if ( datasource && !prop->ready() ) {
+                log(Error) << "Cannot initialize Property: "
+                           << "incompatible type ( destination type: " << getType() << ", source type: " << datasource->getTypeName() << ")." << endlog();
+            }
+            return prop;
         }
 
         virtual base::DataSourceBase::shared_ptr getDataSource() const {
