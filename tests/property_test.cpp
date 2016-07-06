@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE( testCopyUpdateLink )
     BOOST_REQUIRE_EQUAL( pi2->get(), pi1->get() );
     BOOST_REQUIRE_EQUAL( pi1ref->getName(), pi1->getName() );
     BOOST_REQUIRE_EQUAL( pi1ref->getDescription(), pi1->getDescription() );
-    BOOST_REQUIRE_NE( pi2->getDataSource(), pi1->getDataSource() );
+    BOOST_REQUIRE_NE( pi2->getDataSource().get(), pi1->getDataSource().get() );
     *pi1 = intref;
 
     // update with PropertyBase pointer
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( testCopyUpdateLink )
     BOOST_REQUIRE_EQUAL( pi2->get(), pi1->get() );
     BOOST_REQUIRE_EQUAL( pi1ref->getName(), pi1->getName() );
     BOOST_REQUIRE_EQUAL( pi1ref->getDescription(), pi1->getDescription() );
-    BOOST_REQUIRE_NE( pi2->getDataSource(), pi1->getDataSource() );
+    BOOST_REQUIRE_NE( pi2->getDataSource().get(), pi1->getDataSource().get() );
     *pi1 = intref;
 
     // copy semantics
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( testCopyUpdateLink )
     BOOST_REQUIRE_EQUAL( pi2->get(), pi1->get() );
     BOOST_REQUIRE_EQUAL( pi2ref->getName(), pi1->getName() );
     BOOST_REQUIRE_EQUAL( pi2ref->getDescription(), pi1->getDescription() );
-    BOOST_REQUIRE_NE( pi2->getDataSource(), pi1->getDataSource() );
+    BOOST_REQUIRE_NE( pi2->getDataSource().get(), pi1->getDataSource().get() );
     pi1->copy( *pi1ref );
 
     // copy with PropertyBase pointer
@@ -142,11 +142,11 @@ BOOST_AUTO_TEST_CASE( testCopyUpdateLink )
     BOOST_REQUIRE_EQUAL( pi2->get(), pi1->get() );
     BOOST_REQUIRE_EQUAL( pi2ref->getName(), pi1->getName() );
     BOOST_REQUIRE_EQUAL( pi2ref->getDescription(), pi1->getDescription() );
-    BOOST_REQUIRE_NE( pi2->getDataSource(), pi1->getDataSource() );
+    BOOST_REQUIRE_NE( pi2->getDataSource().get(), pi1->getDataSource().get() );
     pi1->copy( pi1ref );
 
     RTT::Property<int> pi1orig = pi1;
-    BOOST_REQUIRE_EQUAL( pi1orig.getDataSource(), pi1->getDataSource() );
+    BOOST_REQUIRE_EQUAL( pi1orig.getDataSource().get(), pi1->getDataSource().get() );
 
     // link semantics with PropertyBase pointer assignment
     *pi1 = pib2;
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE( testCopyUpdateLink )
     BOOST_REQUIRE_EQUAL( pi2->get(), pi1->get() );
     BOOST_REQUIRE_EQUAL( pi2ref->getName(), pi1->getName() );
     BOOST_REQUIRE_EQUAL( pi2ref->getDescription(), pi1->getDescription() );
-    BOOST_REQUIRE_EQUAL( pi2->getDataSource(), pi1->getDataSource() );
+    BOOST_REQUIRE_EQUAL( pi2->getDataSource().get(), pi1->getDataSource().get() );
     *pi1 = pi1orig;
 
     // link semantics with setDataSource() method (value only)
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( testCopyUpdateLink )
     BOOST_REQUIRE_EQUAL( pi2->get(), pi1->get() );
     BOOST_REQUIRE_EQUAL( pi1ref->getName(), pi1->getName() );
     BOOST_REQUIRE_EQUAL( pi1ref->getDescription(), pi1->getDescription() );
-    BOOST_REQUIRE_EQUAL( pi2->getDataSource(), pi1->getDataSource() );
+    BOOST_REQUIRE_EQUAL( pi2->getDataSource().get(), pi1->getDataSource().get() );
     BOOST_CHECK( pi1->setDataSource( pi1orig.getDataSource() ) );
 }
 
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( testCopyUpdateLinkChar )
     BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
     BOOST_REQUIRE_EQUAL( pc1ref.getName(), pc1.getName() );
     BOOST_REQUIRE_EQUAL( pc1ref.getDescription(), pc1.getDescription() );
-    BOOST_REQUIRE_NE( pc2.getDataSource(), pc1.getDataSource() );
+    BOOST_REQUIRE_NE( pc2.getDataSource().get(), pc1.getDataSource().get() );
     pc1 = 'e';
 
     // update with PropertyBase pointer
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE( testCopyUpdateLinkChar )
     BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
     BOOST_REQUIRE_EQUAL( pc1ref.getName(), pc1.getName() );
     BOOST_REQUIRE_EQUAL( pc1ref.getDescription(), pc1.getDescription() );
-    BOOST_REQUIRE_NE( pc2.getDataSource(), pc1.getDataSource() );
+    BOOST_REQUIRE_NE( pc2.getDataSource().get(), pc1.getDataSource().get() );
     pc1 = 'l';
 
     // copy semantics
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( testCopyUpdateLinkChar )
     BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
     BOOST_REQUIRE_EQUAL( pc2ref.getName(), pc1.getName() );
     BOOST_REQUIRE_EQUAL( pc2ref.getDescription(), pc1.getDescription() );
-    BOOST_REQUIRE_NE( pc2.getDataSource(), pc1.getDataSource() );
+    BOOST_REQUIRE_NE( pc2.getDataSource().get(), pc1.getDataSource().get() );
     pc1.copy( pc1ref );
 
     // copy with PropertyBase pointer
@@ -201,11 +201,11 @@ BOOST_AUTO_TEST_CASE( testCopyUpdateLinkChar )
     BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
     BOOST_REQUIRE_EQUAL( pc2ref.getName(), pc1.getName() );
     BOOST_REQUIRE_EQUAL( pc2ref.getDescription(), pc1.getDescription() );
-    BOOST_REQUIRE_NE( pc2.getDataSource(), pc1.getDataSource() );
+    BOOST_REQUIRE_NE( pc2.getDataSource().get(), pc1.getDataSource().get() );
     pc1.copy( pc1ref );
 
     RTT::Property<char> pc1orig = &pc1;
-    BOOST_REQUIRE_EQUAL( pc1orig.getDataSource(), pc1.getDataSource() );
+    BOOST_REQUIRE_EQUAL( pc1orig.getDataSource().get(), pc1.getDataSource().get() );
 
     // link semantics with PropertyBase pointer assignment
     pc1 = pcb2;
@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE( testCopyUpdateLinkChar )
     BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
     BOOST_REQUIRE_EQUAL( pc2ref.getName(), pc1.getName() );
     BOOST_REQUIRE_EQUAL( pc2ref.getDescription(), pc1.getDescription() );
-    BOOST_REQUIRE_EQUAL( pc2.getDataSource(), pc1.getDataSource() );
+    BOOST_REQUIRE_EQUAL( pc2.getDataSource().get(), pc1.getDataSource().get() );
     pc1 = &pc1orig;
 
     // link semantics with setDataSource() method (value only)
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE( testCopyUpdateLinkChar )
     BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
     BOOST_REQUIRE_EQUAL( pc1ref.getName(), pc1.getName() );
     BOOST_REQUIRE_EQUAL( pc1ref.getDescription(), pc1.getDescription() );
-    BOOST_REQUIRE_EQUAL( pc2.getDataSource(), pc1.getDataSource() );
+    BOOST_REQUIRE_EQUAL( pc2.getDataSource().get(), pc1.getDataSource().get() );
     BOOST_CHECK( pc1.setDataSource( pc1orig.getDataSource() ) );
 }
 
