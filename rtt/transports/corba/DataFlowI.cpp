@@ -399,6 +399,9 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
 #endif
     CRemoteChannelElement_i* this_element =
         transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull, is_signalling);
+    // transporter could be the CorbaFallBackProtocol => createChannelElement_i() returns null pointer
+    if (!this_element)
+        throw CNoCorbaTransport();
     this_element->setCDataFlowInterface(this);
 
     /*
