@@ -570,7 +570,7 @@ namespace RTT
         if (! force_remote)
         {
             for (TaskContextServer::ServerMap::iterator it = TaskContextServer::servers.begin(); it != TaskContextServer::servers.end(); ++it)
-                if ( it->second->server()->_is_equivalent( t ) ) {
+                if ( it->second.second->server()->_is_equivalent( t ) ) {
                     log(Debug) << "Local server found !" <<endlog();
                     return it->first;
                 }

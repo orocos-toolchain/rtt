@@ -69,7 +69,7 @@ namespace RTT
         friend class OrbRunner;
         friend class TaskContextProxy;
 
-        typedef std::map<TaskContext*, TaskContextServer*> ServerMap;
+        typedef std::map<TaskContext*, std::pair<std::string, TaskContextServer*> > ServerMap;
         static ServerMap servers;
         static base::ActivityInterface* orbrunner;
         static bool is_shutdown;
