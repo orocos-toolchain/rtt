@@ -23,6 +23,7 @@ module RTT
         boolean init;
         boolean pull;
         CBufferPolicy buffer_policy;
+        long max_threads;
         boolean mandatory;
         long transport;
         long data_size;
