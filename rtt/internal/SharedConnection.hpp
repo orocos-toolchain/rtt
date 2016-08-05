@@ -135,9 +135,9 @@ namespace internal {
     class SharedConnection : public SharedConnectionBase, public base::MultipleInputsMultipleOutputsChannelElement<T> {
     public:
         typedef boost::intrusive_ptr< SharedConnection<T> > shared_ptr;
-        using typename base::ChannelElement<T>::value_t;
-        using typename base::ChannelElement<T>::param_t;
-        using typename base::ChannelElement<T>::reference_t;
+        typedef typename base::ChannelElement<T>::value_t value_t;
+        typedef typename base::ChannelElement<T>::param_t param_t;
+        typedef typename base::ChannelElement<T>::reference_t reference_t;
 
     private:
         typename base::ChannelElement<T>::shared_ptr mstorage;

@@ -182,7 +182,7 @@ namespace RTT
         // non-copyable !
         AtomicMWMRQueue( const AtomicQueue<T>& );
     public:
-        using typename AtomicQueue<T>::size_type;
+        typedef typename AtomicQueue<T>::size_type size_type;
 
         /**
          * Create an AtomicQueue with queue size \a size.
