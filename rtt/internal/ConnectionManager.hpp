@@ -202,6 +202,19 @@ namespace RTT
              */
             void clear();
 
+            /**
+             * Locks the mutex protecting the channel element list.
+             * */
+            void lock() const {
+                connection_lock.lock();
+            };
+
+            /**
+             * Unlocks the mutex protecting the channel element list.
+             * */
+            void unlock() const {
+                connection_lock.unlock();
+            }
         protected:
 
             void updateCurrentChannel(bool reset_current);
@@ -245,7 +258,7 @@ namespace RTT
              * Lock that should be taken before the list of connections is
              * accessed or modified
              */
-            RTT::os::Mutex connection_lock;
+            mutable RTT::os::Mutex connection_lock;
         };
 
     }

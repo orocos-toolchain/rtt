@@ -15,6 +15,8 @@ namespace RTT
         class RTT_API MemberFactory
         {
         public:
+        virtual ~MemberFactory() {};
+
         /**
          * @name Inspecting data structures.
          * Used to write a complex type to an external representation, like XML.
