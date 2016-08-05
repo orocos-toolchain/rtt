@@ -123,9 +123,9 @@ class ThreadPool : public std::vector< std::pair< shared_ptr<Worker>, shared_ptr
 {
 public:
     typedef std::vector< std::pair< shared_ptr<Worker>, shared_ptr<ThreadInterface> > > Threads;
-    using typename Threads::value_type;
-    using typename Threads::iterator;
-    using typename Threads::const_iterator;
+    typedef typename Threads::value_type value_type;
+    typedef typename Threads::iterator iterator;
+    typedef typename Threads::const_iterator const_iterator;
 
     template <typename Arg1>
     ThreadPool(int threads, int scheduler, int priority, Seconds period, const std::string &name, const Arg1 &arg1)

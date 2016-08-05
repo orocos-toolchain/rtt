@@ -160,7 +160,7 @@ namespace RTT
             AtomicMWSRQueue(const AtomicMWSRQueue<T>&);
 
         public:
-            using typename AtomicQueue<T>::size_type;
+            typedef typename AtomicQueue<T>::size_type size_type;
 
             /**
              * Create an AtomicMWSRQueue with queue size \a size.

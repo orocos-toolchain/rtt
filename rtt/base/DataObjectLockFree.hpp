@@ -80,8 +80,8 @@ namespace RTT
         : public DataObjectInterface<T>
     {
     public:
-        using typename DataObjectBase::Options;
-        using typename DataObjectInterface<T>::DataType;
+        typedef typename DataObjectBase::Options Options;
+        typedef typename DataObjectInterface<T>::DataType DataType;
 
         /**
          * @brief The maximum number of threads.

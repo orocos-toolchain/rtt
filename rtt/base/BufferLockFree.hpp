@@ -69,7 +69,7 @@ namespace RTT
         : public BufferInterface<T>
     {
     public:
-        using typename BufferBase::Options;
+        typedef typename BufferBase::Options Options;
         typedef typename BufferInterface<T>::reference_t reference_t;
         typedef typename BufferInterface<T>::param_t param_t;
         typedef typename BufferInterface<T>::size_type size_type;
