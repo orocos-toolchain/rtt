@@ -61,8 +61,8 @@ namespace RTT { namespace base {
     class ChannelElement : virtual public ChannelElementBase
     {
     public:
-        typedef T value_t;
         typedef boost::intrusive_ptr< ChannelElement<T> > shared_ptr;
+        typedef T value_t;
         typedef typename boost::call_traits<T>::param_type param_t;
         typedef typename boost::call_traits<T>::reference reference_t;
 
@@ -134,10 +134,10 @@ namespace RTT { namespace base {
     class MultipleInputsChannelElement : virtual public MultipleInputsChannelElementBase, virtual public ChannelElement<T>
     {
     public:
-        using typename ChannelElement<T>::value_t;
         typedef boost::intrusive_ptr< MultipleInputsChannelElement<T> > shared_ptr;
-        using typename ChannelElement<T>::param_t;
-        using typename ChannelElement<T>::reference_t;
+        typedef typename ChannelElement<T>::value_t value_t;
+        typedef typename ChannelElement<T>::param_t param_t;
+        typedef typename ChannelElement<T>::reference_t reference_t;
 
         MultipleInputsChannelElement()
             : last_read()
@@ -275,10 +275,10 @@ namespace RTT { namespace base {
     class MultipleOutputsChannelElement : virtual public MultipleOutputsChannelElementBase, virtual public ChannelElement<T>
     {
     public:
-        using typename ChannelElement<T>::value_t;
         typedef boost::intrusive_ptr< MultipleInputsChannelElement<T> > shared_ptr;
-        using typename ChannelElement<T>::param_t;
-        using typename ChannelElement<T>::reference_t;
+        typedef typename ChannelElement<T>::value_t value_t;
+        typedef typename ChannelElement<T>::param_t param_t;
+        typedef typename ChannelElement<T>::reference_t reference_t;
 
         virtual WriteStatus data_sample(param_t sample, bool reset = true)
         {
@@ -364,10 +364,10 @@ namespace RTT { namespace base {
     class MultipleInputsMultipleOutputsChannelElement : public MultipleInputsMultipleOutputsChannelElementBase, public MultipleInputsChannelElement<T>, public MultipleOutputsChannelElement<T>
     {
     public:
-        using typename ChannelElement<T>::value_t;
         typedef boost::intrusive_ptr< MultipleInputsMultipleOutputsChannelElement<T> > shared_ptr;
-        using typename ChannelElement<T>::param_t;
-        using typename ChannelElement<T>::reference_t;
+        typedef typename ChannelElement<T>::value_t value_t;
+        typedef typename ChannelElement<T>::param_t param_t;
+        typedef typename ChannelElement<T>::reference_t referene_t;
 
         using MultipleInputsChannelElement<T>::data_sample;
         using MultipleOutputsChannelElement<T>::data_sample;
