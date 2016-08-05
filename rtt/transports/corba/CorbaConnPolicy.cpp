@@ -54,6 +54,7 @@ RTT::corba::CConnPolicy toCORBA(RTT::ConnPolicy const& policy)
     corba_policy.init          = policy.init;
     corba_policy.pull          = policy.pull;
     corba_policy.buffer_policy = RTT::corba::CBufferPolicy(int(policy.buffer_policy));
+    corba_policy.max_threads   = policy.max_threads;
     corba_policy.mandatory     = policy.mandatory;
     corba_policy.data_size     = policy.data_size;
     corba_policy.transport     = policy.transport;
@@ -70,6 +71,7 @@ RTT::ConnPolicy toRTT(RTT::corba::CConnPolicy const& corba_policy)
     policy.init          = corba_policy.init;
     policy.pull          = corba_policy.pull;
     policy.buffer_policy = RTT::BufferPolicy(corba_policy.buffer_policy);
+    policy.max_threads   = corba_policy.max_threads;
     policy.mandatory     = corba_policy.mandatory;
     policy.data_size     = corba_policy.data_size;
     policy.transport     = corba_policy.transport;
