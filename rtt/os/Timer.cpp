@@ -41,6 +41,7 @@
 #include "../Activity.hpp"
 #include "../Logger.hpp"
 #include "../os/fosi.h"
+#include <limits>
 
 namespace RTT {
     using namespace base;
@@ -71,7 +72,7 @@ namespace RTT {
                 MutexLock locker(m);
                 // We can't use infinite as the OS may internally use time_spec, which can not
                 // represent as much in the future (until 2038) // XXX Year-2038 Bug
-                wake_up_time = (TimeService::InfiniteNSecs/4)-1;
+                wake_up_time = 1000000000LL * std::numeric_limits<int32_t>::max();
                 for (TimerIds::iterator it = mtimers.begin(); it != mtimers.end(); ++it) {
                     if ( it->expires != 0 && it->expires < wake_up_time  ) {
                         wake_up_time = it->expires;
@@ -82,7 +83,8 @@ namespace RTT {
 
             // Wait
             int ret = 0;
-            if ( wake_up_time > rtos_get_time_ns() )
+            Time now = rtos_get_time_ns();
+            if ( wake_up_time > now )
                 ret = msem.waitUntil( wake_up_time ); // case of no timers or running timers
             else
                 ret = -1; // case of timer overrun.
@@ -99,6 +101,11 @@ namespace RTT {
                         TimerIds::iterator tim = mtimers.begin() + next_timer_id;
                         if ( tim->period ) {
                             // periodic timer
+                            // if late by more than 4 periods, skip late updates
+                            int maxDelayInPeriods = 4;
+                            if (now - tim->expires > tim->period*maxDelayInPeriods) {
+                                tim->expires += tim->period*((now - tim->expires) / tim->period);
+                            }
                             tim->expires += tim->period;
                         } else {
                             // aperiodic timer

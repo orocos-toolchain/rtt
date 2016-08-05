@@ -325,6 +325,13 @@ namespace RTT
          */
         bool loadService(const std::string& service_name);
 
+        /**
+         * Use this method to load a plugin.
+         * @param pluginPath The path to the shared library containing the plugin.
+         * @return true if the plugin was present already or could be loaded.
+         */
+        bool loadPlugin(const std::string& pluginPath);
+        
         /** @} */
 
         /**
