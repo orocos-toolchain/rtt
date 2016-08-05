@@ -69,7 +69,7 @@ namespace RTT
          * Create an uninitialized buffer of size \a size.
          */
         BufferUnSync( size_type size, const Options &options = Options() )
-            : cap(size), buf(), mcircular(options.circular()), initialized(false)
+            : cap(size), buf(), mcircular(options.circular()), initialized(false), droppedSamples(0)
         {
         }
 
@@ -77,7 +77,7 @@ namespace RTT
          * Create a buffer of size \a size.
          */
         BufferUnSync( size_type size, const T& initial_value, const Options &options = Options() )
-            : cap(size), buf(), mcircular(options.circular()), initialized(false)
+            : cap(size), buf(), mcircular(options.circular()), initialized(false), droppedSamples(0)
         {
             data_sample(initial_value);
         }
@@ -106,10 +106,16 @@ namespace RTT
         bool Push( param_t item )
         {
             if (cap == (size_type)buf.size() ) {
+                //buffer is full, we either overwrite a sample, or drop the given one
+                droppedSamples++;
                 if (!mcircular)
+                {
                     return false;
+                }
                 else
+                {
                     buf.pop_front();
+                }
             }
             buf.push_back( item );
             return true;
@@ -121,19 +127,29 @@ namespace RTT
             if (mcircular && (size_type)items.size() >= cap ) {
                 // clear out current data and reset iterator to first element we're going to take.
                 buf.clear();
+                //note the ignored samples are added below to the dropped samples.
+                droppedSamples += cap;
                 itl = items.begin() + ( items.size() - cap );
             } else if ( mcircular && (size_type)(buf.size() + items.size()) > cap) {
                 // drop excess elements from front
                 assert( (size_type)items.size() < cap );
                 while ( (size_type)(buf.size() + items.size()) > cap )
+                {
+                    droppedSamples++;
                     buf.pop_front();
+                }
                 // itl still points at first element of items.
             }
             while ( ((size_type)buf.size() != cap) && (itl != items.end()) ) {
                 buf.push_back( *itl );
                 ++itl;
             }
-            return (itl - items.begin());
+            
+            size_type written = (itl - items.begin());
+            
+            droppedSamples += items.size() - written;
+            
+            return written;
         }
 
         FlowStatus Pop( reference_t item )
@@ -198,12 +214,17 @@ namespace RTT
             return (size_type)buf.size() ==  cap;
         }
 
+        virtual size_type dropped() const
+        {
+            return droppedSamples;
+        }
     private:
         size_type cap;
         std::deque<T> buf;
         value_t lastSample;
         const bool mcircular;
         bool initialized;
+        size_type droppedSamples;
     };
 }}
 

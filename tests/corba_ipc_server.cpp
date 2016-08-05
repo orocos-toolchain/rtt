@@ -57,7 +57,7 @@ public:
         ports()->addEventPort( mi1 );
         ports()->addPort( mo1 );
         this->createOperationCallerFactories( this );
-        ts = corba::TaskContextServer::Create( this, true ); //use-naming
+        ts = corba::TaskContextServer::Create( this, /* use_naming = */ true );
         this->start();
         addOperation("callBackPeer", &TheServer::callBackPeer, this,ClientThread);
         addOperation("callBackPeerOwn", &TheServer::callBackPeer, this,OwnThread);

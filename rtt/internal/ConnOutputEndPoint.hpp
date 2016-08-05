@@ -135,6 +135,11 @@ namespace RTT
         virtual ConnID* getConnID() const { 
             return this->cid; 
         }
+        
+        std::string getElementName() const {
+            return std::string("ConnOutputEndpoint");
+        }
+        
     };
 
 }}

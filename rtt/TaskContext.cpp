@@ -118,6 +118,7 @@ namespace RTT
 
         this->addOperation("trigger", &TaskContext::trigger, this, ClientThread).doc("Trigger the update method for execution in the thread of this task.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task.");
         this->addOperation("loadService", &TaskContext::loadService, this, ClientThread).doc("Loads a service known to RTT into this component.").arg("service_name","The name with which the service is registered by in the PluginLoader.");
+        this->addOperation("loadPlugin", &TaskContext::loadPlugin, this, ClientThread).doc("Loads a RTT plugin.").arg("plugin_path","The path to the shared library containing the plugin.");
         // activity runs from the start.
         if (our_act)
             our_act->start();
@@ -235,6 +236,12 @@ namespace RTT
             return true;
         return PluginLoader::Instance()->loadService(service_name, this);
     }
+    
+    bool TaskContext::loadPlugin(const string& pluginPath)
+    {
+        return PluginLoader::Instance()->loadPlugin(pluginPath, "");
+    }
+
 
     void TaskContext::addUser( TaskContext* peer )
     {
@@ -347,7 +354,7 @@ namespace RTT
         if ( new_act == 0) {
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
             new_act = new SequentialActivity();
-#elseif defined(ORO_ACT_DEFAULT_ACTIVITY)
+#elif defined(ORO_ACT_DEFAULT_ACTIVITY)
             new_act = new Activity();
 #endif
         }

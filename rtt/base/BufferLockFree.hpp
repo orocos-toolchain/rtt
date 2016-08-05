@@ -39,6 +39,8 @@
 #define ORO_BUFFER_LOCK_FREE_HPP
 
 #include "../os/oro_arch.h"
+#include "../os/Atomic.hpp"
+#include "../os/CAS.hpp"
 #include "BufferInterface.hpp"
 #include "../internal/AtomicMWSRQueue.hpp"
 #include "../internal/AtomicMWMRQueue.hpp"
@@ -88,6 +90,8 @@ namespace RTT
         internal::AtomicQueue<Item*> *const bufs;
         internal::TsPool<Item> *const mpool;
 
+        RTT::os::AtomicInt droppedSamples;
+
     public:
         /**
          * Create an uninitialized lock-free buffer which can store \a bufsize elements.
@@ -100,6 +104,7 @@ namespace RTT
                        static_cast<internal::AtomicQueue<Item*> *>(new internal::AtomicMWSRQueue<Item*>(bufsize)) :
                        static_cast<internal::AtomicQueue<Item*> *>(new internal::AtomicMWMRQueue<Item*>(bufsize)))
             , mpool(new internal::TsPool<Item>(bufsize + options.max_threads()))
+            , droppedSamples(0)
         {
         }
 
@@ -115,6 +120,7 @@ namespace RTT
                        static_cast<internal::AtomicQueue<Item*> *>(new internal::AtomicMWSRQueue<Item*>(bufsize)) :
                        static_cast<internal::AtomicQueue<Item*> *>(new internal::AtomicMWMRQueue<Item*>(bufsize)))
             , mpool(new internal::TsPool<Item>(bufsize + options.max_threads()))
+            , droppedSamples(0)
         {
             data_sample( initial_value );
         }
@@ -178,20 +184,31 @@ namespace RTT
                 mpool->deallocate( item );
         }
 
+        virtual size_type dropped() const
+        {
+            return droppedSamples.read();
+        }
+        
         bool Push( param_t item)
         {
             if ( capacity() == (size_type)bufs->size() ) {
-                if (!mcircular)
+                if (!mcircular) {
+                    droppedSamples.inc();
                     return false;
+                }
                 // we will recover below in case of circular
             }
             Item* mitem = mpool->allocate();
             if ( mitem == 0 ) { // queue full ( rare but possible in race with PopWithoutRelease )
-                if (!mcircular)
+                if (!mcircular) {
+                    droppedSamples.inc();
                     return false;
+                }
                 else {
-                    if (bufs->dequeue( mitem ) == false )
+                    if (bufs->dequeue( mitem ) == false ) {
+                        droppedSamples.inc();
                         return false; // assert(false) ???
+                    }
                     // we keep mitem to write item to next
                 }
             }
@@ -204,13 +221,22 @@ namespace RTT
                 //bigger than the buffer
                 if (!mcircular) {
                     mpool->deallocate( mitem );
+                    droppedSamples.inc();
                     return false;
                 } else {
                     // pop & deallocate until we have free space.
                     Item* itmp = 0;
                     do {
-                        bufs->dequeue( itmp );
-                        mpool->deallocate( itmp );
+                        if ( bufs->dequeue( itmp ) ) {
+                            mpool->deallocate( itmp );
+                            droppedSamples.inc();
+                        } else {
+                            // Both operations, enqueue() and dequeue() failed on the buffer:
+                            // We could free the allocated pool item return false here,
+                            // but in fact this can only happen during massive concurrent
+                            // access to the circular buffer or in the trivial case that
+                            // the buffer size is zero. So just keep on trying...
+                        }
                     } while ( bufs->enqueue( mitem ) == false );
                 }
             }
@@ -221,12 +247,16 @@ namespace RTT
         {
             // @todo Make this function more efficient as in BufferLocked.
             int towrite  = items.size();
+            size_type written = 0;
             typename std::vector<T>::const_iterator it;
-            for(  it = items.begin(); it != items.end(); ++it)
+            for(  it = items.begin(); it != items.end(); ++it) {
                 if ( this->Push( *it ) == false ) {
                     break; // will only happen in non-circular case !
                 }
-            return towrite - (items.end() - it);
+                written++;
+            }
+            droppedSamples.add(towrite - written);
+            return written;
         }
 
 

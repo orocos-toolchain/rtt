@@ -105,6 +105,11 @@ namespace RTT { namespace internal {
         {
             return &policy;
         }
+
+        virtual std::string getElementName() const
+        {
+            return "ChannelDataElement";
+        };
     };
 }}
 

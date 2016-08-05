@@ -118,6 +118,11 @@ namespace RTT
          * @rt
          */
         virtual void clear() = 0;
+        
+        /**
+         * Returns the number of dropped samples, because the buffer was full
+         * */
+        virtual size_type dropped() const = 0;
     };
 }}
 

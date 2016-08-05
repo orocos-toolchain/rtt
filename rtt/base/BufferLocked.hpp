@@ -73,7 +73,7 @@ namespace RTT
          * @param size The number of elements this buffer can hold.
          */
         BufferLocked( size_type size, const Options &options = Options() )
-            : cap(size), buf(), mcircular(options.circular()), initialized(false)
+            : cap(size), buf(), mcircular(options.circular()), initialized(false), droppedSamples(0)
         {
         }
 
@@ -83,7 +83,7 @@ namespace RTT
          * @param initial_value A data sample with which each preallocated data element is initialized.
          */
         BufferLocked( size_type size, const T& initial_value, const Options &options = Options() )
-            : cap(size), buf(), mcircular(options.circular())
+            : cap(size), buf(), mcircular(options.circular()), droppedSamples(0)
         {
             data_sample(initial_value);
         }
@@ -116,8 +116,12 @@ namespace RTT
         {
             os::MutexLock locker(lock);
             if ( cap == (size_type)buf.size() ) {
+                //buffer is full, we either overwrite a sample, or drop the given one
+                droppedSamples++;
                 if (!mcircular)
+                {
                     return false;
+                }
                 else
                     buf.pop_front();
             }
@@ -132,12 +136,17 @@ namespace RTT
             if (mcircular && (size_type)items.size() >= cap ) {
                 // clear out current data and reset iterator to first element we're going to take.
                 buf.clear();
+                //note the ignored samples are added below to the dropped samples.
+                droppedSamples += cap;
                 itl = items.begin() + ( items.size() - cap );
             } else if ( mcircular && (size_type)(buf.size() + items.size()) > cap) {
                 // drop excess elements from front
                 assert( (size_type)items.size() < cap );
                 while ( (size_type)(buf.size() + items.size()) > cap )
+                {
+                    droppedSamples++;
                     buf.pop_front();
+                }
                 // itl still points at first element of items.
             }
             while ( ((size_type)buf.size() != cap) && (itl != items.end()) ) {
@@ -145,9 +154,14 @@ namespace RTT
                 ++itl;
             }
             // this is in any case the number of elements taken from items.
+            size_type writtenSamples = itl - items.begin(); 
+
             if (mcircular)
-                assert( (size_type)(itl - items.begin() ) == (size_type)items.size() );
-            return (itl - items.begin());
+                assert( writtenSamples == (size_type)items.size() );
+
+            droppedSamples += items.size() - writtenSamples;
+
+            return writtenSamples;
         }
 
         FlowStatus Pop( reference_t item )
@@ -220,6 +234,10 @@ namespace RTT
             return (size_type)buf.size() == cap;
         }
 
+        size_type dropped() const
+        {
+            return droppedSamples;
+        }
     private:
         size_type cap;
         std::deque<T> buf;
@@ -227,6 +245,7 @@ namespace RTT
         mutable os::Mutex lock;
         const bool mcircular;
         bool initialized;
+        size_type droppedSamples;
     };
 }}
 
