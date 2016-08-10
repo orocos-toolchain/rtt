@@ -76,6 +76,12 @@ namespace RTT
         PropertyBase();
 
         /**
+         * Mirror another PropertyBase (name, description and value).
+         * @param source A pointer to the property to mirror.
+         */
+        virtual PropertyBase& operator=( PropertyBase* source ) = 0;
+
+        /**
          * Get the name of the property.
          * @return name of the property.
          */
@@ -187,10 +193,17 @@ namespace RTT
         virtual PropertyBase* create() const = 0;
 
         /**
-         * Get a internal::DataSource through which this PropertyBase can be
-         * manipulated.
+         * Get an assignable base::DataSource through which this PropertyBase
+         * can be manipulated.
          */
         virtual DataSourceBase::shared_ptr getDataSource() const = 0;
+
+        /**
+         * Assign an external assignable base::DataSource to this property.
+         * @param dsb The other data source
+         * @return false if the Properties are of different type.
+         */
+        virtual bool setDataSource( const DataSourceBase::shared_ptr& dsb ) = 0;
 
         /**
          * Returns the type of this PropertyBase. Uses the

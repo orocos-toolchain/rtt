@@ -106,8 +106,10 @@ bool operator==(const std::vector<double>& a, const std::vector<double>& b)
 
 BOOST_FIXTURE_TEST_SUITE( PropertyTestSuite, PropertyTest )
 
-BOOST_AUTO_TEST_CASE( testCopyUpdate )
+BOOST_AUTO_TEST_CASE( testCopyUpdateLink )
 {
+    RTT::base::PropertyBase* pib2 = pi2;
+
     *pi1 = intref;
     *pi2 = 0;
 
@@ -116,68 +118,117 @@ BOOST_AUTO_TEST_CASE( testCopyUpdate )
     BOOST_REQUIRE_EQUAL( pi2->get(), pi1->get() );
     BOOST_REQUIRE_EQUAL( pi1ref->getName(), pi1->getName() );
     BOOST_REQUIRE_EQUAL( pi1ref->getDescription(), pi1->getDescription() );
-    *pi2 = 0;
+    BOOST_REQUIRE_NE( pi2->getDataSource().get(), pi1->getDataSource().get() );
+    *pi1 = intref;
 
-    // update with PropertyBase.
-    BOOST_CHECK( pi1->update( pi2 ) );
+    // update with PropertyBase pointer
+    BOOST_CHECK( pi1->update( static_cast< PropertyBase* >(pi2) ) );
     BOOST_REQUIRE_EQUAL( pi2->get(), pi1->get() );
     BOOST_REQUIRE_EQUAL( pi1ref->getName(), pi1->getName() );
     BOOST_REQUIRE_EQUAL( pi1ref->getDescription(), pi1->getDescription() );
-    *pi2 = 0;
+    BOOST_REQUIRE_NE( pi2->getDataSource().get(), pi1->getDataSource().get() );
+    *pi1 = intref;
 
     // copy semantics
     pi1->copy( *pi2 );
     BOOST_REQUIRE_EQUAL( pi2->get(), pi1->get() );
     BOOST_REQUIRE_EQUAL( pi2ref->getName(), pi1->getName() );
     BOOST_REQUIRE_EQUAL( pi2ref->getDescription(), pi1->getDescription() );
+    BOOST_REQUIRE_NE( pi2->getDataSource().get(), pi1->getDataSource().get() );
     pi1->copy( *pi1ref );
 
-    // copy with PropertyBase.
-    BOOST_CHECK( pi1->copy( pi2 ) );
+    // copy with PropertyBase pointer
+    BOOST_CHECK( pi1->copy( pib2 ) );
     BOOST_REQUIRE_EQUAL( pi2->get(), pi1->get() );
     BOOST_REQUIRE_EQUAL( pi2ref->getName(), pi1->getName() );
     BOOST_REQUIRE_EQUAL( pi2ref->getDescription(), pi1->getDescription() );
+    BOOST_REQUIRE_NE( pi2->getDataSource().get(), pi1->getDataSource().get() );
     pi1->copy( pi1ref );
+
+    RTT::Property<int> pi1orig = pi1;
+    BOOST_REQUIRE_EQUAL( pi1orig.getDataSource().get(), pi1->getDataSource().get() );
+
+    // link semantics with PropertyBase pointer assignment
+    *pi1 = pib2;
+    BOOST_CHECK( pi1->ready() );
+    BOOST_REQUIRE_EQUAL( pi2->get(), pi1->get() );
+    BOOST_REQUIRE_EQUAL( pi2ref->getName(), pi1->getName() );
+    BOOST_REQUIRE_EQUAL( pi2ref->getDescription(), pi1->getDescription() );
+    BOOST_REQUIRE_EQUAL( pi2->getDataSource().get(), pi1->getDataSource().get() );
+    *pi1 = pi1orig;
+
+    // link semantics with setDataSource() method (value only)
+    BOOST_CHECK( pi1->setDataSource( pi2->getDataSource() ) );
+    BOOST_REQUIRE_EQUAL( pi2->get(), pi1->get() );
+    BOOST_REQUIRE_EQUAL( pi1ref->getName(), pi1->getName() );
+    BOOST_REQUIRE_EQUAL( pi1ref->getDescription(), pi1->getDescription() );
+    BOOST_REQUIRE_EQUAL( pi2->getDataSource().get(), pi1->getDataSource().get() );
+    BOOST_CHECK( pi1->setDataSource( pi1orig.getDataSource() ) );
 }
 
-BOOST_AUTO_TEST_CASE( testCopyUpdateChar )
+BOOST_AUTO_TEST_CASE( testCopyUpdateLinkChar )
 {
-    pc2 = 'H';
     PropertyBase* pcb2 = &pc2;
+
+    pc2 = 'H';
 
     // update semantics
     pc1.update( pc2 );
     BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
     BOOST_REQUIRE_EQUAL( pc1ref.getName(), pc1.getName() );
     BOOST_REQUIRE_EQUAL( pc1ref.getDescription(), pc1.getDescription() );
-    pc2 = 'e';
+    BOOST_REQUIRE_NE( pc2.getDataSource().get(), pc1.getDataSource().get() );
+    pc1 = 'e';
 
-    // update with PropertyBase.
+    // update with PropertyBase pointer
     BOOST_CHECK( pc1.update( pcb2 ) );
     BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
     BOOST_REQUIRE_EQUAL( pc1ref.getName(), pc1.getName() );
     BOOST_REQUIRE_EQUAL( pc1ref.getDescription(), pc1.getDescription() );
-    pc2 = 'l';
+    BOOST_REQUIRE_NE( pc2.getDataSource().get(), pc1.getDataSource().get() );
+    pc1 = 'l';
 
     // copy semantics
     pc1.copy( pc2 );
     BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
     BOOST_REQUIRE_EQUAL( pc2ref.getName(), pc1.getName() );
     BOOST_REQUIRE_EQUAL( pc2ref.getDescription(), pc1.getDescription() );
+    BOOST_REQUIRE_NE( pc2.getDataSource().get(), pc1.getDataSource().get() );
     pc1.copy( pc1ref );
 
-    // copy with PropertyBase.
+    // copy with PropertyBase pointer
     BOOST_CHECK( pc1.copy( pcb2 ) );
     BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
     BOOST_REQUIRE_EQUAL( pc2ref.getName(), pc1.getName() );
     BOOST_REQUIRE_EQUAL( pc2ref.getDescription(), pc1.getDescription() );
+    BOOST_REQUIRE_NE( pc2.getDataSource().get(), pc1.getDataSource().get() );
     pc1.copy( pc1ref );
+
+    RTT::Property<char> pc1orig = &pc1;
+    BOOST_REQUIRE_EQUAL( pc1orig.getDataSource().get(), pc1.getDataSource().get() );
+
+    // link semantics with PropertyBase pointer assignment
+    pc1 = pcb2;
+    BOOST_CHECK( pc1.ready() );
+    BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
+    BOOST_REQUIRE_EQUAL( pc2ref.getName(), pc1.getName() );
+    BOOST_REQUIRE_EQUAL( pc2ref.getDescription(), pc1.getDescription() );
+    BOOST_REQUIRE_EQUAL( pc2.getDataSource().get(), pc1.getDataSource().get() );
+    pc1 = &pc1orig;
+
+    // link semantics with setDataSource() method (value only)
+    BOOST_CHECK( pc1.setDataSource( pc2.getDataSource() ) );
+    BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
+    BOOST_REQUIRE_EQUAL( pc1ref.getName(), pc1.getName() );
+    BOOST_REQUIRE_EQUAL( pc1ref.getDescription(), pc1.getDescription() );
+    BOOST_REQUIRE_EQUAL( pc2.getDataSource().get(), pc1.getDataSource().get() );
+    BOOST_CHECK( pc1.setDataSource( pc1orig.getDataSource() ) );
 }
 
-BOOST_AUTO_TEST_CASE( testUpdateCharClone )
+BOOST_AUTO_TEST_CASE( testCreateUpdateChar )
 {
     PropertyBag target;
-    // step 1 : clone a new instance (non deep copy)
+    // step 1 : create a new instance (non deep copy)
     PropertyBase* temp = pc1.create();
     // step 2 : deep copy clone with original, will never fail.
     BOOST_CHECK( temp->update( &pc1 ) );
