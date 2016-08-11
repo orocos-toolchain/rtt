@@ -170,8 +170,15 @@ namespace RTT
                     // pop & deallocate until we have free space.
                     Item* itmp = 0;
                     do {
-                        bufs.dequeue( itmp );
-                        mpool.deallocate( itmp );
+                        if ( bufs.dequeue( itmp ) ) {
+                            mpool.deallocate( itmp );
+                        } else {
+                            // Both operations, enqueue() and dequeue() failed on the buffer:
+                            // We could free the allocated pool item return false here,
+                            // but in fact this can only happen during massive concurrent
+                            // access to the circular buffer or in the trivial case that
+                            // the buffer size is zero. So just keep on trying...
+                        }
                     } while ( bufs.enqueue( mitem ) == false );
                 }
             }

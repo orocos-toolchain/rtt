@@ -223,7 +223,7 @@ BOOST_FIXTURE_TEST_SUITE(  CorbaIPCTestSuite,  CorbaTest )
 
 BOOST_AUTO_TEST_CASE( testRemoteOperationCallerC )
 {
-    tp = corba::TaskContextProxy::Create( "peerRMC", false ); // no-ior
+    tp = corba::TaskContextProxy::Create( "peerRMC", /* is_ior = */ false ); // no-ior
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerRMC.ior");
     BOOST_REQUIRE( tp );
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCallerC )
 
 BOOST_AUTO_TEST_CASE( testRemoteOperationCaller )
 {
-    tp = corba::TaskContextProxy::Create( "peerRM" , false);
+    tp = corba::TaskContextProxy::Create( "peerRM" , /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerRM.ior");
     BOOST_REQUIRE(tp);
@@ -276,7 +276,7 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCaller )
  */
 BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCallback )
 {
-    tp = corba::TaskContextProxy::Create( "peerRMCb" , false);
+    tp = corba::TaskContextProxy::Create( "peerRMCb" , /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerRMC.ior");
     BOOST_REQUIRE(tp);
@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCallback )
 BOOST_AUTO_TEST_CASE( testAnyOperationCaller )
 {
     double d;
-    tp = corba::TaskContextProxy::Create( "peerAM" , false);
+    tp = corba::TaskContextProxy::Create( "peerAM" , /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerAM.ior");
 
@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE( testAnyOperationCaller )
 
 BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 {
-    tp = corba::TaskContextProxy::Create( "peerDFI" , false);
+    tp = corba::TaskContextProxy::Create( "peerDFI" , /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerDFI.ior");
 
@@ -395,21 +395,18 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 BOOST_AUTO_TEST_CASE( testPortConnections )
 {
     // This test tests the differen port-to-port connections.
-    tp = corba::TaskContextProxy::Create( "peerPC" , false);
+    tp = corba::TaskContextProxy::Create( "peerPC", /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerPC.ior");
 
     s = tp->server();
     // server to our own tc.
-    ts2  = corba::TaskContextServer::Create( tc, false ); //no-naming
+    ts2  = corba::TaskContextServer::Create( tc, /* use_naming = */ false );
     s2 = ts2->server();
 
     // Create a default CORBA policy specification
-    RTT::corba::CConnPolicy policy;
-    policy.type = RTT::corba::CData;
+    RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::data());
     policy.init = false;
-    policy.lock_policy = RTT::corba::CLockFree;
-    policy.size = 0;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = s->ports();
@@ -487,7 +484,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
 BOOST_AUTO_TEST_CASE( testPortProxying )
 {
     // This test creates connections between local and remote ports.
-    tp = corba::TaskContextProxy::Create( "peerPP" , false);
+    tp = corba::TaskContextProxy::Create( "peerPP" , /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerPP.ior");
 
@@ -551,18 +548,15 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
 
     double result;
     // This test tests the differen port-to-port connections.
-    tp = corba::TaskContextProxy::Create( "peerDH" , false);
+    tp = corba::TaskContextProxy::Create( "peerDH" , /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerDH.ior");
 
     s = tp->server();
 
     // Create a default CORBA policy specification
-    RTT::corba::CConnPolicy policy;
-    policy.type = RTT::corba::CData;
+    RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::data());
     policy.init = false;
-    policy.lock_policy = RTT::corba::CLockFree;
-    policy.size = 0;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = s->ports();
@@ -621,18 +615,15 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     double result;
 
     // This test tests the differen port-to-port connections.
-    tp = corba::TaskContextProxy::Create( "peerBH" , false);
+    tp = corba::TaskContextProxy::Create( "peerBH" , /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerBH.ior");
 
     s = tp->server();
 
     // Create a default CORBA policy specification
-    RTT::corba::CConnPolicy policy;
-    policy.type = RTT::corba::CBuffer;
+    RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::buffer(10));
     policy.init = false;
-    policy.lock_policy = RTT::corba::CLockFree;
-    policy.size = 10;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = s->ports();
