@@ -32,6 +32,7 @@
 #include <rtt/transports/corba/RemotePorts.hpp>
 #include <transports/corba/ServiceC.h>
 #include <transports/corba/CorbaLib.hpp>
+#include <transports/corba/RTTCorbaConversion.hpp>
 
 #include "operations_fixture.hpp"
 
@@ -190,6 +191,56 @@ void CorbaTest::testPortDisconnected()
     BOOST_CHECK( !mi2->connected() );
 }
 
+template <typename T>
+static void testCorbaType(const T &value = T()) {
+    CORBA::Any any;
+    T copy = T();
+
+    BOOST_TEST_CHECKPOINT("Testing CORBA conversion for type " << typeid(T).name());
+    BOOST_CHECK( RTT::corba::AnyConversion<T>::updateAny(value, any) );
+    BOOST_CHECK( RTT::corba::AnyConversion<T>::update(any, copy) );
+    BOOST_CHECK_EQUAL( copy, value );
+}
+
+template <typename T>
+static void testCorbaTypeSequence(std::size_t size = 3, const T &value = T())
+{
+    CORBA::Any any;
+
+    BOOST_TEST_CHECKPOINT("Testing CORBA conversion for a vector with elements of type " << typeid(T).name());
+    std::vector<T> vec(size, value);
+    BOOST_CHECK( RTT::corba::AnyConversion< std::vector<T> >::updateAny(vec, any) );
+    BOOST_CHECK( RTT::corba::AnyConversion< std::vector<T> >::update(any, vec) );
+}
+
+namespace RTT {
+    static bool operator==(const ConnPolicy &, const ConnPolicy &) { return true; }
+}
+
+BOOST_AUTO_TEST_CASE( testCorbaTypes )
+{
+    testCorbaType<double>(1.0);
+    testCorbaTypeSequence<double>(3, 1.0);
+    testCorbaType<float>(2.0);
+    testCorbaTypeSequence<float>(3, 2.0);
+    testCorbaType<int>(-3);
+    testCorbaTypeSequence<int>(3, -3);
+    testCorbaType<unsigned int>(4);
+    testCorbaTypeSequence<unsigned int>(3, 4);
+    testCorbaType<long long>(-9223372036854775807ll);
+    testCorbaTypeSequence<long long>(3, 9223372036854775807ll);
+    testCorbaType<unsigned long long>(18446744073709551615ull);
+    testCorbaTypeSequence<unsigned long long>(3, 18446744073709551615ull);
+    testCorbaType<bool>(true);
+    testCorbaType<char>('c');
+    testCorbaTypeSequence<char>(3, 'c');
+    testCorbaType<std::string>("foo");
+    testCorbaTypeSequence<std::string>(3, "foo");
+    testCorbaType<RTT::ConnPolicy>();
+#ifdef OS_RT_MALLOC
+    testCorbaType<rt_string>("bar");
+#endif
+}
 
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  CorbaTestSuite,  CorbaTest )

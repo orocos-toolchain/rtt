@@ -94,19 +94,19 @@ PortableServer::POA_ptr RTT_corba_CService_i::_default_POA()
 char * RTT_corba_CService_i::getName (
     void)
 {
-    return CORBA::string_dup( mservice->getName().c_str() );
+    return CORBA::string_dup( mservice.lock()->getName().c_str() );
 }
 
 char * RTT_corba_CService_i::getServiceDescription (
     void)
 {
-    return CORBA::string_dup( mservice->doc().c_str() );
+    return CORBA::string_dup( mservice.lock()->doc().c_str() );
 }
 
 ::RTT::corba::CService::CProviderNames * RTT_corba_CService_i::getProviderNames (
     void)
 {
-    Service::ProviderNames names = mservice->getProviderNames();
+    Service::ProviderNames names = mservice.lock()->getProviderNames();
     ::RTT::corba::CService::CProviderNames_var result = new ::RTT::corba::CService::CProviderNames();
     result->length( names.size() );
     for (unsigned int i=0; i != names.size(); ++i )
@@ -122,7 +122,7 @@ char * RTT_corba_CService_i::getServiceDescription (
     if ( svc == "this" )
         return _this();
 
-    Service::shared_ptr provider = mservice->getService(svc);
+    Service::shared_ptr provider = mservice.lock()->getService(svc);
     if ( !provider )
     	return RTT::corba::CService::_nil();
 
@@ -143,7 +143,7 @@ char * RTT_corba_CService_i::getServiceDescription (
 ::CORBA::Boolean RTT_corba_CService_i::hasService (
     const char * name)
 {
-    return mservice->hasService( name );
+    return mservice.lock()->hasService( name );
 }
 
 ::RTT::corba::CServiceDescription * RTT_corba_CService_i::getCServiceDescription (
@@ -168,7 +168,7 @@ char * RTT_corba_CService_i::getServiceDescription (
     d->attributes = attributes;
 
     // Child services
-    Service::ProviderNames providers = mservice->getProviderNames();
+    Service::ProviderNames providers = mservice.lock()->getProviderNames();
     d->children.length( providers.size() );
     d->children_descriptions.length( providers.size() );
     j = 0;
@@ -177,7 +177,7 @@ char * RTT_corba_CService_i::getServiceDescription (
         if (providers[i] == "this") continue;
 
         // omit PortObject services
-        if (mservice->getPort(providers[i])) continue;
+        if (mservice.lock()->getPort(providers[i])) continue;
 
         ::RTT::corba::CService_ptr provider = getService(providers[i].c_str());
         Servants::const_iterator it = mservs.find(providers[i]);

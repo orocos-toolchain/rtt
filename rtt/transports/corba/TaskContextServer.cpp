@@ -66,7 +66,7 @@ namespace RTT
 {
     using namespace std;
 
-    std::map<TaskContext*, TaskContextServer*> TaskContextServer::servers;
+    std::map<TaskContext*, std::pair<std::string, TaskContextServer*> > TaskContextServer::servers;
 
     base::ActivityInterface* TaskContextServer::orbrunner = 0;
 
@@ -77,7 +77,9 @@ namespace RTT
   TaskContextServer::~TaskContextServer()
   {
     Logger::In in("~TaskContextServer()");
-    servers.erase(mtaskcontext);
+
+    ServerMap::iterator it = servers.find(mtaskcontext);
+    assert(it != servers.end());
 
     // Remove taskcontext ior reference
     iors.erase(mtaskcontext);
@@ -91,28 +93,30 @@ namespace RTT
             CosNaming::NamingContext_var rootNC = CosNaming::NamingContext::_narrow(rootObj.in());
 
             if (CORBA::is_nil( rootNC.in() ) ) {
-                log(Warning) << "CTaskContext '"<< mtaskcontext->getName() << "' could not find CORBA Naming Service."<<endlog();
+                log(Warning) << "CTaskContext '"<< it->second.first << "' could not find CORBA Naming Service."<<endlog();
             } else {
                 // Nameserver found...
                 CosNaming::Name name;
                 name.length(2);
                 name[0].id = CORBA::string_dup("TaskContexts");
-                name[1].id = CORBA::string_dup( mtaskcontext->getName().c_str() );
+                name[1].id = CORBA::string_dup( it->second.first.c_str() );
                 try {
                     rootNC->unbind(name);
-                    log(Info) << "Successfully removed CTaskContext '"<<mtaskcontext->getName()<<"' from CORBA Naming Service."<<endlog();
+                    log(Info) << "Successfully removed CTaskContext '"<<it->second.first<<"' from CORBA Naming Service."<<endlog();
                 }
                 catch( CosNaming::NamingContext::NotFound ) {
-                    log(Info) << "CTaskContext '"<< mtaskcontext->getName() << "' task was already unbound."<<endlog();
+                    log(Info) << "CTaskContext '"<< it->second.first << "' task was already unbound."<<endlog();
                 }
                 catch( ... ) {
-                    log(Warning) << "CTaskContext '"<< mtaskcontext->getName() << "' unbinding failed."<<endlog();
+                    log(Warning) << "CTaskContext '"<< it->second.first << "' unbinding failed."<<endlog();
                 }
             }
         } catch (...) {
-            log(Warning) << "CTaskContext '"<< mtaskcontext->getName() << "' unbinding failed from CORBA Naming Service."<<endlog();
+            log(Warning) << "CTaskContext '"<< it->second.first << "' unbinding failed from CORBA Naming Service."<<endlog();
         }
     }
+
+    servers.erase(mtaskcontext);
   }
 
 
@@ -122,7 +126,7 @@ namespace RTT
       : mtaskcontext(taskc), muse_naming(use_naming)
     {
         Logger::In in("TaskContextServer()");
-        servers[taskc] = this;
+        servers[taskc] = std::make_pair(taskc->getName(), this);
         try {
             // Each server has its own POA.
             // The server's objects have their own poa as well.
@@ -165,7 +169,6 @@ namespace RTT
                     if (require_name_service) {
                         servers.erase(taskc);
                         log(Error) << err << endlog();
-                        servers.erase(taskc);
                         throw IllegalServer(err);
                     }
                     else
@@ -250,7 +253,7 @@ namespace RTT
         if ( !CORBA::is_nil(orb) && !is_shutdown) {
             log(Info) << "Cleaning up TaskContextServers..."<<endlog();
             while ( !servers.empty() ){
-                delete servers.begin()->second;
+                delete servers.begin()->second.second;
                 // note: destructor will self-erase from map !
             }
             CDataFlowInterface_i::clearServants();
@@ -264,7 +267,7 @@ namespace RTT
             if ( it != servers.end() ){
                 log(Info) << "Cleaning up TaskContextServer for "<< c->getName()<<endlog();
                 CDataFlowInterface_i::deregisterServant(c->provides().get());
-                delete it->second; // destructor will do the rest.
+                delete it->second.second; // destructor will do the rest.
                 // note: destructor will self-erase from map !
             }
         }
@@ -402,7 +405,7 @@ namespace RTT
 
         if ( servers.count(tc) ) {
             log(Debug) << "Returning existing TaskContextServer for "<<tc->getName()<<endlog();
-            return servers.find(tc)->second;
+            return servers.find(tc)->second.second;
         }
 
         // create new:
@@ -423,7 +426,7 @@ namespace RTT
 
         if ( servers.count(tc) ) {
             log(Debug) << "Returning existing TaskContextServer for "<<tc->getName()<<endlog();
-            return CTaskContext::_duplicate( servers.find(tc)->second->server() );
+            return CTaskContext::_duplicate( servers.find(tc)->second.second->server() );
         }
 
         for (TaskContextProxy::PMap::iterator it = TaskContextProxy::proxies.begin(); it != TaskContextProxy::proxies.end(); ++it)
