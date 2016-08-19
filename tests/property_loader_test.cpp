@@ -25,6 +25,10 @@ struct LoaderTest {
     LoaderTest() : tc("tc"), pl(&tc),
             pstring("pstring","pstringd","Hello World"),
             pchar("pchar","pchard",'H'),
+            pint("pint", "pintd", -2),
+            puint("puint", "puintd", 3),
+            pllong("pllong", "pllongd", 2147483648),
+            pullong("pullong", "pullongd", 18446744073709551615ull),
             pdouble("pdouble", "pdoubled", 1.23456),
             pbag("pbag","pbagd"),
             pints("pints", "pintsd", vector<int>(3,4)),
@@ -36,6 +40,10 @@ struct LoaderTest {
     PropertyLoader pl;
     Property<string> pstring;
     Property<char> pchar;
+    Property<int> pint;
+    Property<unsigned int> puint;
+    Property<long long> pllong;
+    Property<unsigned long long> pullong;
     Property<double> pdouble;
     Property<PropertyBag> pbag;
     Property<std::vector<int> > pints;
@@ -55,6 +63,10 @@ BOOST_AUTO_TEST_CASE( testPropSaveLoad )
     std::string filename = "property_writing.tst";
     tc.addProperty(pstring);
     tc.addProperty(pchar);
+    tc.addProperty(pint);
+    tc.addProperty(puint);
+    tc.addProperty(pllong);
+    tc.addProperty(pullong);
     tc.addProperty(pdouble);
     tc.addProperty(pdoubles);
     tc.addProperty("newbag", bag).doc("newbag doc"); // takes reference to bag (PropertyBag&)
@@ -63,10 +75,37 @@ BOOST_AUTO_TEST_CASE( testPropSaveLoad )
     bag.addProperty( pbag ); // takes reference to bpag (PropertyBase&)
     pbag.value().addProperty( pchar );
 
+    // deep copy original property values
+    RTT::PropertyBag orig;
+    RTT::copyProperties(orig, *tc.properties());
+
     // save all to fresh file
     BOOST_CHECK( pl.save(filename, true) );
     // configure all from file.
     BOOST_CHECK( pl.configure(filename, true) );
+
+    // compare property values
+    BOOST_CHECK_EQUAL( pstring.value(), orig.getPropertyType<std::string>("pstring")->value() );
+    BOOST_CHECK_EQUAL( pchar.value(), orig.getPropertyType<char>("pchar")->value() );
+    BOOST_CHECK_EQUAL( pint.value(), orig.getPropertyType<int>("pint")->value() );
+    BOOST_CHECK_EQUAL( puint.value(), orig.getPropertyType<unsigned int>("puint")->value() );
+    BOOST_CHECK_EQUAL( pllong.value(), orig.getPropertyType<long long>("pllong")->value() );
+    BOOST_CHECK_EQUAL( pullong.value(), orig.getPropertyType<unsigned long long>("pullong")->value() );
+    BOOST_CHECK_EQUAL( pdouble.value(), orig.getPropertyType<double>("pdouble")->value() );
+    BOOST_CHECK_EQUAL_COLLECTIONS(
+        pdoubles.value().begin(),
+        pdoubles.value().end(),
+        orig.getPropertyType< vector<double> >("pdoubles")->value().begin(),
+        orig.getPropertyType< vector<double> >("pdoubles")->value().end()
+    );
+    BOOST_CHECK_EQUAL( bag.getPropertyType<double>("pdouble")->value(), orig.getPropertyType<RTT::PropertyBag>("newbag")->value().getPropertyType<double>("pdouble")->value() );
+    BOOST_CHECK_EQUAL_COLLECTIONS(
+        bag.getPropertyType< vector<double> >("pdoubles")->value().begin(),
+        bag.getPropertyType< vector<double> >("pdoubles")->value().end(),
+        orig.getPropertyType<RTT::PropertyBag>("newbag")->value().getPropertyType< vector<double> >("pdoubles")->value().begin(),
+        orig.getPropertyType<RTT::PropertyBag>("newbag")->value().getPropertyType< vector<double> >("pdoubles")->value().end()
+    );
+    BOOST_CHECK_EQUAL( pchar.value(), orig.getPropertyType<RTT::PropertyBag>("newbag")->value().getPropertyType<RTT::PropertyBag>("pbag")->value().getPropertyType<char>("pchar")->value() );
 
     // configure all fails with one missing element.
     bag.addProperty( pstring );
@@ -121,6 +160,11 @@ BOOST_AUTO_TEST_CASE( testPropLoading )
     BOOST_CHECK( tc.provides()->hasProperty("load1") );
     BOOST_CHECK( tc.provides()->hasProperty("load2") );
     BOOST_CHECK( tc.provides()->hasProperty("bag1"));
+    BOOST_CHECK( tc.provides()->hasProperty("pint2") );
+    BOOST_CHECK( tc.provides()->hasProperty("puint2") );
+    BOOST_CHECK( tc.provides()->hasProperty("pllong2") );
+    BOOST_CHECK( tc.provides()->hasProperty("pullong2") );
+
     Property<PropertyBag> bag1 = tc.properties()->getProperty("bag1");
     BOOST_REQUIRE( bag1.ready() );
     BOOST_CHECK( bag1.getDescription() == "Bag1");
@@ -134,6 +178,11 @@ BOOST_AUTO_TEST_CASE( testPropLoading )
     BOOST_REQUIRE(bagload1.ready());
     BOOST_CHECK_EQUAL(bagload1.get(), 3);
     BOOST_CHECK_EQUAL(bagload2.get(), "3 3 3");
+
+    BOOST_CHECK_EQUAL( tc.properties()->getPropertyType<int>("pint2")->value(), -2 );
+    BOOST_CHECK_EQUAL( tc.properties()->getPropertyType<unsigned int>("puint2")->value(), 3 );
+    BOOST_CHECK_EQUAL( tc.properties()->getPropertyType<long long>("pllong2")->value(), 9223372036854775807ll );
+    BOOST_CHECK_EQUAL( tc.properties()->getPropertyType<unsigned long long>("pullong2")->value(), 18446744073709551615ull );
 }
 
 BOOST_AUTO_TEST_CASE( testPropStoring )

@@ -49,7 +49,7 @@ namespace RTT {
 <!ELEMENT defaultvalue (#PCDATA)> \
 <!ELEMENT description (#PCDATA)> \
 <!ELEMENT simple (description?, value, choices?, defaultvalue?)> \
-<!ATTLIST simple name CDATA #IMPLIED type (boolean|char|double|float|short|long|objref|octet|string|ulong|ushort) #REQUIRED> \
+<!ATTLIST simple name CDATA #IMPLIED type (boolean|char|double|float|short|long|llong|objref|octet|string|ushort|ulong|ullong) #REQUIRED> \
 <!ELEMENT sequence (description?, (simple*|struct*|sequence*))> \
 <!ATTLIST sequence name CDATA #IMPLIED type CDATA #REQUIRED> \
 <!ELEMENT struct (description?, (simple|sequence|struct)*)> \
