@@ -114,10 +114,10 @@ namespace RTT {
             /**
              * CORBA IDL function.
              */
-            CORBA::Boolean remoteSignal() ACE_THROW_SPEC ((
+            void remoteSignal() ACE_THROW_SPEC ((
           	      CORBA::SystemException
           	    ))
-            { return base::ChannelElement<T>::signal(); }
+            { base::ChannelElement<T>::signal(); }
 
             bool signal()
             {
@@ -141,7 +141,7 @@ namespace RTT {
                 // in push mode, transfer all data, in pull mode, only signal once for each sample.
                 if ( pull ) {
                     try
-                    { valid = remote_side->remoteSignal(); }
+                    { remote_side->remoteSignal(); }
 #ifdef CORBA_IS_OMNIORB
                     catch(CORBA::SystemException& e)
                     {

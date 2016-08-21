@@ -79,7 +79,7 @@ module RTT
          * is available for reading.
          * @return false if this channel became invalidated.
          */
-        boolean remoteSignal();
+        oneway void remoteSignal();
 
         /**
          * Used by the 'remote' side to inform this channel element
