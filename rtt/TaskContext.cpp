@@ -344,7 +344,18 @@ namespace RTT
     {
         if (this->isRunning())
             return false;
-        if ( new_act == 0) {
+
+        // refuse to setActivity from our own thread
+        if (our_act) {
+            if (our_act->thread() && our_act->thread()->isSelf()) {
+                log(Error) << "Cannot set the activity of TaskContext "
+                           << this->getName() << " from its own thread." << endlog();
+                delete new_act;
+                return false;
+            }
+        }
+
+        if (!new_act) {
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
             new_act = new SequentialActivity();
 #elseif defined(ORO_ACT_DEFAULT_ACTIVITY)
@@ -352,7 +363,7 @@ namespace RTT
 #endif
         }
         new_act->stop();
-        if(our_act){
+        if (our_act){
             our_act->stop();
         }
         new_act->run( this->engine() );
@@ -363,9 +374,9 @@ namespace RTT
 
     void TaskContext::forceActivity(ActivityInterface* new_act)
     {
-    	if (!new_act)
-    		return;
-    	new_act->stop();
+        if (!new_act)
+            return;
+        new_act->stop();
         if(our_act){
             our_act->stop();
         }
