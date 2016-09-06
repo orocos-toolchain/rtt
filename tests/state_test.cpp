@@ -691,7 +691,8 @@ BOOST_AUTO_TEST_CASE( testStateOperations)
      parseState( prog, tc, true);
 
      tc->stop();
-     tc->setActivity( new Activity(0, 0.001) ); // deliberately test with real thread instead of simulation.
+     BOOST_REQUIRE( tc->getActivity()->stop() );
+     BOOST_REQUIRE( tc->setActivity( new Activity(0, 0.001) ) ); // deliberately test with real thread instead of simulation.
      tc->start();
 
      StateMachinePtr sm = sa->getStateMachine("x");
