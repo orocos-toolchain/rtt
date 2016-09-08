@@ -171,21 +171,21 @@ namespace RTT
             if (thread_name_len > MAX_THREAD_NAME_SIZE) {
                 thread_name += thread_name_len - MAX_THREAD_NAME_SIZE;
             }
-            rv = pthread_setname_np(task->thread, thread_name);
-            if (rv != 0) {
+            int result = pthread_setname_np(task->thread, thread_name);
+            if (result != 0) {
                 log(Error) << "Failed to set thread name for " << task->name << ": "
-                           << strerror(rv) << endlog();
-                return rv;
+                           << strerror(result) << endlog();
             }
         }
 
-	if ( cpu_affinity != (unsigned)~0 ) {
-	  log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
-	  if (0 != rtos_task_set_cpu_affinity(task, cpu_affinity))
-	    {
-	      log(Error) << "Failed to set CPU affinity to " << cpu_affinity << endlog();
-	    }
-	}
+        if ( cpu_affinity != (unsigned)~0 ) {
+            log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
+            int result = rtos_task_set_cpu_affinity(task, cpu_affinity);
+            if (result != 0) {
+                log(Error) << "Failed to set CPU affinity to " << cpu_affinity << " for " << task->name << ": "
+                           << strerror(result) << endlog();
+            }
+        }
 
         return rv;
 	}
