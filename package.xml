@@ -17,11 +17,13 @@
   <build_depend>boost</build_depend>
   <build_depend>omniorb</build_depend>
   <build_depend>pkg-config</build_depend>
+  <build_depend>log4cpp</build_depend>
 
   <run_depend>boost</run_depend>
   <run_depend>omniorb</run_depend>
   <run_depend>xpath-perl</run_depend>
   <run_depend>pkg-config</run_depend>
+  <run_depend>log4cpp</run_depend>
   
   <export>
     <build_type>cmake</build_type>
