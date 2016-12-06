@@ -78,6 +78,9 @@ void MQSendRecv::setupStream(base::DataSourceBase::shared_ptr ds, base::PortInte
 
     if (policy.name_id.empty())
     {
+        if (!port->getInterface() || !port->getInterface()->getOwner() || port->getInterface()->getOwner()->getName().empty())
+            throw std::runtime_error("MQ name_id not set, and the port is either not attached to a task, or said task has no name. Cannot create a reasonably unique MQ name automatically");
+
         std::stringstream name_stream;
         name_stream << port->getInterface()->getOwner()->getName() << '.' << port->getName() << '.' << this << '@' << getpid();
         std::string name = name_stream.str();
