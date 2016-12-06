@@ -82,6 +82,7 @@ FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* 
     , m_period(0)
     , m_has_error(false)
     , m_has_timeout(false)
+    , m_has_ioready(false)
     , m_break_loop(false)
     , m_trigger(false)
     , m_update_sets(false)
@@ -107,6 +108,7 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Runn
     , m_period(0)
     , m_has_error(false)
     , m_has_timeout(false)
+    , m_has_ioready(false)
     , m_break_loop(false)
     , m_trigger(false)
     , m_update_sets(false)
@@ -123,6 +125,7 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Seco
     , m_period(period >= 0.0 ? period : 0.0)        // intended period
     , m_has_error(false)
     , m_has_timeout(false)
+    , m_has_ioready(false)
     , m_break_loop(false)
     , m_trigger(false)
     , m_update_sets(false)
@@ -139,6 +142,7 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Seco
     , m_period(period >= 0.0 ? period : 0.0)        // intended period
     , m_has_error(false)
     , m_has_timeout(false)
+    , m_has_ioready(false)
     , m_break_loop(false)
     , m_trigger(false)
     , m_update_sets(false)
@@ -274,6 +278,7 @@ bool FileDescriptorActivity::trigger()
 { 
     if (isActive() ) {
         { RTT::os::MutexLock lock(m_command_mutex);
+            if (m_trigger) return true;
             m_trigger = true;
         }
         int unused; (void)unused;
@@ -287,7 +292,6 @@ bool FileDescriptorActivity::timeout()
 {
     return false;
 }
-
 
 struct fd_watch {
     int& fd;
@@ -319,7 +323,7 @@ void FileDescriptorActivity::loop()
         }
         FD_SET(pipe, &m_fd_work);
 
-        int ret;
+        int ret = -1;
         m_running = false;
         if (m_timeout_us == 0)
         {
@@ -327,7 +331,7 @@ void FileDescriptorActivity::loop()
         }
         else
         {
-			static const int USECS_PER_SEC = 1000000;
+            static const int USECS_PER_SEC = 1000000;
             timeval timeout = { m_timeout_us / USECS_PER_SEC,
                                 m_timeout_us % USECS_PER_SEC};
             ret = select(max_fd + 1, &m_fd_work, NULL, NULL, &timeout);
@@ -335,6 +339,7 @@ void FileDescriptorActivity::loop()
 
         m_has_error   = false;
         m_has_timeout = false;
+        m_has_ioready = false;
         if (ret == -1)
         {
             log(Error) << "FileDescriptorActivity: error in select(), errno = " << errno << endlog();
@@ -344,6 +349,11 @@ void FileDescriptorActivity::loop()
         {
             log(Error) << "FileDescriptorActivity: timeout in select()" << endlog();
             m_has_timeout = true;
+        }
+        else
+        {
+            // do not trigger an IOReady event if the only file descriptor that was active is the command pipe
+            m_has_ioready = !(ret == 1 && FD_ISSET(pipe, &m_fd_work));
         }
 
         // Empty all commands queued in the pipe
@@ -369,18 +379,15 @@ void FileDescriptorActivity::loop()
         }
 
         // We check the flags after the command queue was emptied as we could miss commands otherwise:
-        bool do_trigger = true;
-        bool user_trigger = false;
+        bool do_trigger = false;
         { RTT::os::MutexLock lock(m_command_mutex);
             // This section should be really fast to not block threads calling trigger(), breakLoop() or watch().
             if (m_trigger) {
-                do_trigger = true;
-                user_trigger = true;
                 m_trigger = false;
+                do_trigger = true;
             }
             if (m_update_sets) {
                 m_update_sets = false;
-                do_trigger = false;
             }
             if (m_break_loop) {
                 m_break_loop = false;
@@ -388,18 +395,20 @@ void FileDescriptorActivity::loop()
             }
         }
 
-        if (do_trigger)
+        // Execute activity...
+        if (m_has_timeout || m_has_ioready || do_trigger)
         {
             try
             {
                 m_running = true;
                 step();
-                if (m_has_timeout)
-                    work(RunnableInterface::TimeOut);
-                else if ( user_trigger )
+                if ( do_trigger )
                     work(RunnableInterface::Trigger);
-                else
+                if ( m_has_timeout )
+                    work(RunnableInterface::TimeOut);
+                if ( m_has_ioready )
                     work(RunnableInterface::IOReady);
+
                 m_running = false;
             }
             catch(...)
@@ -414,6 +423,7 @@ void FileDescriptorActivity::loop()
 bool FileDescriptorActivity::breakLoop()
 {
     { RTT::os::MutexLock lock(m_command_mutex);
+        if (m_break_loop) return true;
         m_break_loop = true;
     }
     int unused; (void)unused;

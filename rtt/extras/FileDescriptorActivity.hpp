@@ -115,6 +115,7 @@ namespace RTT { namespace extras {
         fd_set m_fd_work;
         bool m_has_error;
         bool m_has_timeout;
+        bool m_has_ioready;
 
         static const char CMD_ANY_COMMAND = 0;
         RTT::os::Mutex m_command_mutex;
