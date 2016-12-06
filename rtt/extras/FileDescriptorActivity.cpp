@@ -325,7 +325,6 @@ void FileDescriptorActivity::loop()
         FD_SET(pipe, &m_fd_work);
 
         int ret = -1;
-        m_running = false;
         if (m_timeout_us == 0)
         {
             ret = select(max_fd + 1, &m_fd_work, NULL, NULL, NULL);
@@ -438,18 +437,13 @@ bool FileDescriptorActivity::breakLoop()
 
 void FileDescriptorActivity::step()
 {
-    m_running = true;
     if (runner != 0)
         runner->step();
-    m_running = false;
 }
 
 void FileDescriptorActivity::work(base::RunnableInterface::WorkReason reason) {
-    m_running = true;
     if (runner != 0)
         runner->work(reason);
-    m_running = false;
-
 }
 
 bool FileDescriptorActivity::stop()
