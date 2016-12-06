@@ -309,6 +309,7 @@ void FileDescriptorActivity::loop()
     int pipe = m_interrupt_pipe[0];
     fd_watch watch_pipe_0(m_interrupt_pipe[0]);
     fd_watch watch_pipe_1(m_interrupt_pipe[1]);
+    timeval timeout = { 0, 0 };
 
     while(true)
     {
@@ -331,9 +332,13 @@ void FileDescriptorActivity::loop()
         }
         else
         {
-            static const int USECS_PER_SEC = 1000000;
-            timeval timeout = { m_timeout_us / USECS_PER_SEC,
-                                m_timeout_us % USECS_PER_SEC};
+            // only rearm the timer if the previous call was not a pure command pipe event
+            if (m_has_timeout || m_has_ioready || m_has_error ||
+                (timeout.tv_sec == 0 && timeout.tv_usec == 0)) {
+                static const int USECS_PER_SEC = 1000000;
+                timeout.tv_sec = m_timeout_us / USECS_PER_SEC;
+                timeout.tv_usec = m_timeout_us % USECS_PER_SEC;
+            }
             ret = select(max_fd + 1, &m_fd_work, NULL, NULL, &timeout);
         }
 
