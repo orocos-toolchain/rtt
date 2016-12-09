@@ -82,17 +82,32 @@ namespace RTT
     {
         MutexLock lock(type_lock);
         map_t::const_iterator i = data.find( name );
-        if ( i == data.end() ) {
-            // try alternate name replace / with dots:
-            string tkname = "/" + boost::replace_all_copy(boost::replace_all_copy(name, string("."), "/"), "<","</");
-            i = data.find( tkname );
-            if ( i == data.end())
-            {
-                return 0;
+        if ( i != data.end() ) {
+            // found
+            return i->second;
+        }
+
+        // try alternate name replace / with dots:
+        string tkname = "/" + boost::replace_all_copy(boost::replace_all_copy(name, string("."), "/"), "<","</");
+        i = data.find( tkname );
+        if ( i != data.end() ) {
+            // found
+            return i->second;
+        }
+
+        // try alias name
+        for (i = data.begin(); i != data.end(); ++i) {
+            std::vector< std::string > names = i->second->getTypeNames();
+            vector<std::string>::iterator j = names.begin();
+            for (; j != names.end(); ++j) {
+                if(((*j) == name) || ((*j) == tkname)) {
+                    return i->second;
+                }
             }
         }
-        // found
-        return i->second;
+
+        // not found
+        return 0;
     }
 
     TypeInfo* TypeInfoRepository::type( const std::string& name ) const
