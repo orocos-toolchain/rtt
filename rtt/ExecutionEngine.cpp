@@ -378,7 +378,7 @@ namespace RTT
                 )
             }
             // in case start() or updateHook() called error(), this will be called:
-            if (  taskc->mTaskState == TaskCore::RunTimeError ) {
+            if (taskc->mTaskState == TaskCore::RunTimeError && taskc->mTargetState >= TaskCore::Running) {
                 TRY (
                     taskc->errorHook();
                 ) CATCH(std::exception const& e,
@@ -408,7 +408,7 @@ namespace RTT
                     (*it)->exception(); // calls stopHook,cleanupHook
                 )
             }
-            if (  (*it)->mTaskState == TaskCore::RunTimeError ){
+            if ((*it)->mTaskState == TaskCore::RunTimeError && (*it)->mTargetState == TaskCore::RunTimeError){
                 TRY (
                     (*it)->errorHook();
                 ) CATCH(std::exception const& e,
