@@ -95,7 +95,7 @@ namespace RTT
             }
 
             // even if we're not written, test the connection with a default sample.
-            return ( channel_el_input->data_sample( T() ) != NotConnected );
+            return ( channel_el_input->data_sample( T(), /* reset = */ false ) != NotConnected );
         }
 
         /// True if \c sample has been set at least once by a call to write()
