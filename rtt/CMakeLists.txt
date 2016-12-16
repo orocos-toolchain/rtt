@@ -248,31 +248,20 @@ ENDIF(BUILD_STATIC)
 
 ### LTTNG UST Traces 
 IF (OROCOS_TARGET STREQUAL "gnulinux")
+  option(OROBLD_DISABLE_LTTNG_UST "Disable tracing with lttng ust" OFF)
 
-  OPTION(OROBLD_DISABLE_LTTNG_UST "Disable tracing with lttng ust" OFF)
-
-  IF (NOT OROBLD_DISABLE_LTTNG_UST)
-
-    FIND_PATH(Lttng_ust_INCLUDE_DIRS "lttng/tracepoint.h")
-    FIND_LIBRARY(Lttng_ust_LIBRARIES NAMES "lttng-ust")
-    MARK_AS_ADVANCED(FORCE Lttng_ust_INCLUDE_DIRS)
-    MARK_AS_ADVANCED(FORCE Lttng_ust_LIBRARIES)
-
-    IF (Lttng_ust_INCLUDE_DIRS AND Lttng_ust_LIBRARIES)
-
-      INCLUDE_DIRECTORIES(${Lttng_ust_INCLUDE_DIRS})
-      TARGET_LINK_LIBRARIES(orocos-rtt-${OROCOS_TARGET}_dynamic "dl")
-    
-      ADD_DEFINITIONS("-DHAVE_LTTNG_UST")
-    
-      ADD_SUBDIRECTORY( os/gnulinux/traces )
-
-    ELSE(Lttng_ust_INCLUDE_DIRS AND Lttng_ust_LIBRARIES)
-
-      SET(OROBLD_DISABLE_LTTNG_UST OFF)
-
-    ENDIF(Lttng_ust_INCLUDE_DIRS AND Lttng_ust_LIBRARIES)
-
-  ENDIF(NOT OROBLD_DISABLE_LTTNG_UST)
-
-ENDIF (OROCOS_TARGET STREQUAL "gnulinux")
+  if (NOT OROBLD_DISABLE_LTTNG_UST)
+    find_path(Lttng_ust_INCLUDE_DIRS "lttng/tracepoint.h")
+    find_library(Lttng_ust_LIBRARIES NAMES "lttng-ust")
+    if (Lttng_ust_INCLUDE_DIRS AND Lttng_ust_LIBRARIES)
+      message(STATUS "lttng-ust tracing support enabled")
+      include_directories(${Lttng_ust_INCLUDE_DIRS})
+      target_link_libraries(orocos-rtt-${OROCOS_TARGET}_dynamic ${Lttng_ust_LIBRARIES})
+      add_definitions("-DHAVE_LTTNG_UST")
+      add_subdirectory( os/gnulinux/traces )
+    else()
+      message(STATUS "could not find lttn-ust headers and libraries, disabling lttng-ust support")
+      set(OROBLD_DISABLE_LTTNG_UST ON)
+    endif()
+  endif()
+endif()
