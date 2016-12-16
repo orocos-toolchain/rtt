@@ -78,6 +78,7 @@ namespace RTT
         void signal();
 #endif
 
+        void traceRead(RTT::FlowStatus status);
         InputPortInterface(const InputPortInterface& orig);
     public:
 

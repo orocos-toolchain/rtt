@@ -153,6 +153,11 @@ FlowStatus InputPortInterface::read(DataSourceBase::shared_ptr source, bool copy
 bool InputPortInterface::connected() const
 { return cmanager.connected(); }
 
+void InputPortInterface::traceRead(RTT::FlowStatus status)
+{
+    tracepoint(orocos_rtt, InputPort_read, status, cFullName);
+}
+
 void InputPortInterface::clear()
 {
     tracepoint(orocos_rtt, InputPort_clear, cFullName);

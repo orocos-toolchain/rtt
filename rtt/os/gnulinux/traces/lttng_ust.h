@@ -63,6 +63,17 @@ TRACEPOINT_EVENT
 #define TRACEPOINT_NAMED_EVENT(provider, event) \
         TRACEPOINT_EVENT(provider, event, TP_ARGS(const char *, s), TP_FIELDS(ctf_string(name, s)))
 
+TRACEPOINT_EVENT(
+        orocos_rtt,
+        InputPort_read,
+        TP_ARGS(unsigned, v, const char*, s),
+        TP_FIELDS
+        (
+            ctf_string(name, s)
+            ctf_integer(unsigned, flow_status, v)
+        )
+)
+
 /* Triggering from activities */
 TRACEPOINT_NAMED_EVENT(orocos_rtt, Activity_trigger)
 TRACEPOINT_NAMED_EVENT(orocos_rtt, InputPort_clear)

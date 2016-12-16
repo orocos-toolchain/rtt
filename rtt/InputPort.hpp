@@ -112,7 +112,9 @@ namespace RTT
                 log(Error) << "trying to read to an incompatible data source" << endlog();
                 return NoData;
             }
-            return read(ds->set(), copy_old_data);
+            RTT::FlowStatus status = read(ds->set(), copy_old_data);
+            traceRead(status);
+            return status;
         }
 
         /** Read all new samples that are available on this port, and returns
