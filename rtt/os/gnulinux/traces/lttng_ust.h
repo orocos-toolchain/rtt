@@ -47,15 +47,15 @@ TRACEPOINT_EVENT
 #define TRACEPOINT_CONTEXT(provider, event, ...) \
     TRACEPOINT_EVENT(provider, event, TP_ARGS(unsigned, v, const char *, s), TP_FIELDS(ctf_string(name, s) ctf_integer(unsigned, on, v))) \
     struct TracepointContext__##provider__##event {            \
-        RTT::rt_string name;                                     \
-        TracepointContext__##provider__##event(std::string const& name) \
-            : name(name.c_str())                                      \
+        const char* name; \
+        TracepointContext__##provider__##event(const char* name) \
+            : name(name)                                      \
         {                                                     \
-            tracepoint(provider, event, 1, name.c_str());      \
+            tracepoint(provider, event, 1, name);             \
         }                                                     \
-        ~TracepointContext__##provider__##event()              \
+        ~TracepointContext__##provider__##event()             \
         {                                                     \
-            tracepoint(provider, event, 0, name.c_str());    \
+            tracepoint(provider, event, 0, name);             \
         }                                                     \
     };
 #endif

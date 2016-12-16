@@ -116,6 +116,6 @@ bool OutputPortInterface::connectTo(PortInterface* other)
 
 void OutputPortInterface::traceWrite()
 {
-    tracepoint(orocos_rtt, OutputPort_write, getName().c_str());
+    tracepoint(orocos_rtt, OutputPort_write, cFullName);
 }
 

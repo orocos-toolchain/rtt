@@ -485,6 +485,10 @@ namespace RTT
          * purposes
          */
         std::string name;
+
+    protected:
+        /** The C-string version of name for tracing purposes */
+        char* cName;
     };
 }}
 

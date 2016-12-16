@@ -155,7 +155,7 @@ bool InputPortInterface::connected() const
 
 void InputPortInterface::clear()
 {
-    tracepoint(orocos_rtt, InputPort_clear, getName().c_str());
+    tracepoint(orocos_rtt, InputPort_clear, cFullName);
     cmanager.clear();
 }
 

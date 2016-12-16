@@ -40,21 +40,40 @@
 #include "../Service.hpp"
 #include "../OperationCaller.hpp"
 #include "../internal/ConnFactory.hpp"
+#include "../TaskContext.hpp"
+#include <cstring>
 
 using namespace RTT;
 using namespace RTT::detail;
 using namespace std;
 
 PortInterface::PortInterface(const std::string& name)
-    : name(name), iface(0) {}
+    : name(name), fullName(name), cFullName(strdup("")), iface(0) {}
+
+PortInterface::~PortInterface()
+{
+    std::free(cFullName);
+}
 
 bool PortInterface::setName(const std::string& name)
 {
     if ( !connected() ) {
         this->name = name;
+        updateFullName();
         return true;
     }
     return false;
+}
+
+void PortInterface::updateFullName()
+{
+    if (getInterface() && getInterface()->getOwner())
+        fullName = getInterface()->getOwner()->getName() + "." + getName();
+    else
+        fullName = getName();
+
+    std::free(this->cFullName);
+    this->cFullName = strdup(fullName.c_str());
 }
 
 PortInterface& PortInterface::doc(const std::string& desc) {
@@ -90,6 +109,7 @@ Service* PortInterface::createPortObject()
 
 void PortInterface::setInterface(DataFlowInterface* dfi) {
     iface = dfi;
+    updateFullName();
 }
 
 DataFlowInterface* PortInterface::getInterface() const
