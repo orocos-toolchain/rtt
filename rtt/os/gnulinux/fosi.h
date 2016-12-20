@@ -212,7 +212,10 @@ extern "C"
 
     static inline int rtos_mutex_init(rt_mutex_t* m)
     {
-        return pthread_mutex_init(m, 0 );
+        pthread_mutexattr_t ma_t;
+        pthread_mutexattr_init(&ma_t);
+        pthread_mutexattr_setprotocol(&ma_t, PTHREAD_PRIO_INHERIT);
+        return pthread_mutex_init(m, &ma_t);
     }
 
     static inline int rtos_mutex_destroy(rt_mutex_t* m )
@@ -224,8 +227,9 @@ extern "C"
     {
         pthread_mutexattr_t ma_t;
         pthread_mutexattr_init(&ma_t);
-		pthread_mutexattr_settype(&ma_t,PTHREAD_MUTEX_RECURSIVE_NP);
-        return pthread_mutex_init(m, &ma_t );
+        pthread_mutexattr_settype(&ma_t, PTHREAD_MUTEX_RECURSIVE_NP);
+        pthread_mutexattr_setprotocol(&ma_t, PTHREAD_PRIO_INHERIT);
+        return pthread_mutex_init(m, &ma_t);
     }
 
     static inline int rtos_mutex_rec_destroy(rt_mutex_t* m )
