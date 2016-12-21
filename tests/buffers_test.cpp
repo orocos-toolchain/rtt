@@ -638,7 +638,11 @@ void BuffersDataFlowTest::testCirc()
 void BuffersDataFlowTest::testDObj()
 {
     Dummy* c = new Dummy(2.0, 1.0, 0.0);
-    Dummy  d;
+    Dummy  d(5.0, 4.0, 3.0);
+
+    BOOST_REQUIRE_EQUAL( NoData, dataobj->Get(d) );
+    BOOST_REQUIRE_EQUAL( d, Dummy(5.0, 4.0, 3.0) );
+
     dataobj->Set( *c );
     BOOST_REQUIRE_EQUAL( *c, dataobj->Get() );
     int i = 0;
