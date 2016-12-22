@@ -91,14 +91,14 @@ namespace RTT
             if (status == NewData) {
                 pull = data;
                 status = OldData;
-            } else if (copy_old_data) {
+            } else if ((status == OldData) && copy_old_data) {
                 pull = data;
             }
             return result;
         }
 
         virtual DataType Get() const {
-            DataType cache;
+            DataType cache = DataType();
             Get(cache);
             return cache;
         }

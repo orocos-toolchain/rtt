@@ -184,6 +184,11 @@ namespace RTT
                 return this;
             }
         }
+        
+        std::string getElementName() const {
+            return std::string("ConnOutputEndpoint");
+        }
+        
     };
 
 }}

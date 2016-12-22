@@ -74,7 +74,7 @@ namespace RTT
         /**
          * Read the current value of the integer.
          */
-        int read() { return oro_atomic_read( &_val); }
+        int read() const { return oro_atomic_read( &_val); }
 
         /**
          * Set the integer to a new value.

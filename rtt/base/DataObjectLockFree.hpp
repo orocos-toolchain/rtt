@@ -174,7 +174,7 @@ namespace RTT
          * @return A copy of the data.
          */
         virtual DataType Get() const {
-            DataType cache;
+            DataType cache = DataType();
             Get(cache);
             return cache;
         }
@@ -189,7 +189,6 @@ namespace RTT
         virtual FlowStatus Get( DataType& pull, bool copy_old_data = true ) const
         {
             if (!initialized) {
-                if (copy_old_data) pull = DataType();
                 return NoData;
             }
 
@@ -213,7 +212,7 @@ namespace RTT
             if (result == NewData) {
                 pull = reading->data;               // takes some time
                 reading->status = OldData;          // CAS?
-            } else if (copy_old_data) {
+            } else if ((result == OldData) && copy_old_data) {
                 pull = reading->data;               // takes some time
             }
 
