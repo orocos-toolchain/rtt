@@ -140,15 +140,18 @@ namespace RTT
          * @see ready() to inspect if the creation succeeded.
          */
         Property( base::PropertyBase* source)
-            : base::PropertyBase(source ? source->getName() : "", source ? source->getDescription() : ""),
-              _value( source ? internal::AssignableDataSource<DataSourceType>::narrow(source->getDataSource().get() ) : 0 )
+            : base::PropertyBase(source ? source->getName() : "", source ? source->getDescription() : "")
         {
-            if ( source && ! _value ) {
-                log(Error) <<"Can not initialize Property from "<<source->getName() <<": ";
-                if ( source->getDataSource() )
-                    log() << "incompatible type ( destination type: "<< getType() << ", source type: "<< source->getDataSource()->getTypeName() << ")."<<endlog();
-                else
-                    log() << "source Property was not ready."<<endlog();
+            if ( source ) {
+                base::DataSourceBase::shared_ptr dsb = source->getDataSource();
+                if ( !setDataSource(dsb) ) {
+                     log(Error) << "Cannot initialize Property from " << source->getName() << ": ";
+                     if ( dsb ) {
+                         log() << "incompatible type ( destination type: " << getType() << ", source type: " << dsb->getTypeName() << ")." << endlog();
+                     } else {
+                         log() << "source Property was not ready." << endlog();
+                     }
+                }
             }
         }
 
@@ -182,7 +185,7 @@ namespace RTT
         }
 
         /**
-         * Construct a Property which mirrors a PropertyBase.
+         * Mirror another PropertyBase (name, description and value).
          * @param source A pointer to the property to mirror.
          */
         Property<T>& operator=( base::PropertyBase* source )
@@ -193,13 +196,13 @@ namespace RTT
             if ( source ) {
                 this->setName( source->getName() );
                 this->setDescription( source->getDescription() );
-                typename internal::AssignableDataSource<DataSourceType>::shared_ptr vptr
-                    = internal::AssignableDataSource<DataSourceType>::narrow(source->getDataSource().get() );
-                if (vptr) {
-                    _value = vptr;
+
+                base::DataSourceBase::shared_ptr dsb = source->getDataSource();
+                if ( this->setDataSource(dsb) ) {
                     return *this;
                 }
             }
+
             // wrong assignment: mark not ready.
             this->setName( "" );
             this->setDescription( "" );
@@ -386,6 +389,22 @@ namespace RTT
 
         typename internal::AssignableDataSource<DataSourceType>::shared_ptr getAssignableDataSource() const {
             return _value;
+        }
+
+        /**
+         * Assign an external assignable base::DataSource to this property.
+         * @param dsb The other data source
+         * @return false if the properties are of different type.
+         */
+        virtual bool setDataSource( const base::DataSourceBase::shared_ptr& dsb )
+        {
+            typename internal::AssignableDataSource<DataSourceType>::shared_ptr vptr
+                = internal::AssignableDataSource<DataSourceType>::narrow(dsb.get());
+            if (vptr) {
+                _value.swap(vptr);
+                return true;
+            }
+            return false;
         }
 
         virtual std::string getType() const {

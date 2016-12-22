@@ -79,6 +79,7 @@ namespace RTT
 	{
         pthread_attr_destroy( &(main_task->attr) );
         free(main_task->name);
+        main_task->name = NULL;
 	    return 0;
 	}
 
@@ -170,21 +171,21 @@ namespace RTT
             if (thread_name_len > MAX_THREAD_NAME_SIZE) {
                 thread_name += thread_name_len - MAX_THREAD_NAME_SIZE;
             }
-            rv = pthread_setname_np(task->thread, thread_name);
-            if (rv != 0) {
+            int result = pthread_setname_np(task->thread, thread_name);
+            if (result != 0) {
                 log(Error) << "Failed to set thread name for " << task->name << ": "
-                           << strerror(rv) << endlog();
-                return rv;
+                           << strerror(result) << endlog();
             }
         }
 
-	if ( cpu_affinity != (unsigned)~0 ) {
-	  log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
-	  if (0 != rtos_task_set_cpu_affinity(task, cpu_affinity))
-	    {
-	      log(Error) << "Failed to set CPU affinity to " << cpu_affinity << endlog();
-	    }
-	}
+        if ( cpu_affinity != (unsigned)~0 ) {
+            log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
+            int result = rtos_task_set_cpu_affinity(task, cpu_affinity);
+            if (result != 0) {
+                log(Error) << "Failed to set CPU affinity to " << cpu_affinity << " for " << task->name << ": "
+                           << strerror(result) << endlog();
+            }
+        }
 
         return rv;
 	}
@@ -308,6 +309,7 @@ namespace RTT
         pthread_join( mytask->thread, 0);
         pthread_attr_destroy( &(mytask->attr) );
 	    free(mytask->name);
+        mytask->name = NULL;
 	}
 
     INTERNAL_QUAL int rtos_task_check_scheduler(int* scheduler)
@@ -461,7 +463,7 @@ namespace RTT
 
 	INTERNAL_QUAL const char * rtos_task_get_name(const RTOS_TASK* task)
 	{
-	    return task->name;
+        return task->name ? task->name : "(destroyed)";
 	}
 
     }

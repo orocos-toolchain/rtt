@@ -61,10 +61,6 @@ IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   ENDIF(MSVC)
 ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
-# Tell deployer to use ROSlib support.
-set(ROSLIB_SUPPORT TRUE)
-include(config/FindRoslib.cmake)
-
 # Export file name
 set(LIBRARY_EXPORT_FILE "orocos-rtt-${OROCOS_TARGET}-libraries")
 

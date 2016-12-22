@@ -42,6 +42,7 @@
 #include <vector>
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
 #include "TypeInfo.hpp"
 #include "TypeInfoGenerator.hpp"
 
@@ -61,11 +62,18 @@ namespace RTT
         typedef std::vector<TransportPlugin*> Transports;
         Transports transports;
         mutable os::Mutex type_lock;
+        
+        boost::function<bool (const std::string &)> loadTypeKitForName;
+        
+        TypeInfo* typeInternal( const std::string& name ) const;
     public:
         ~TypeInfoRepository();
         typedef boost::shared_ptr<TypeInfoRepository> shared_ptr;
         static shared_ptr Instance();
         static void Release();
+        
+        void setAutoLoader(const boost::function<bool (const std::string &)> &loader);
+        
         /**
          * Retrieve a type with a given \a name.
          * @param name The type name as specified by the

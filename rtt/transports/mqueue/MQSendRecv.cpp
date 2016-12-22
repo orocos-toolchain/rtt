@@ -45,6 +45,7 @@
 #include <cassert>
 #include <stdexcept>
 #include <errno.h>
+#include <boost/algorithm/string.hpp>
 
 #include "MQSendRecv.hpp"
 #include "../../types/TypeTransporter.hpp"
@@ -75,11 +76,17 @@ void MQSendRecv::setupStream(base::DataSourceBase::shared_ptr ds, base::PortInte
     marshaller_cookie = mtransport.createCookie();
     mis_sender = is_sender;
 
-    std::stringstream namestr;
-    namestr << '/' << port->getInterface()->getOwner()->getName() << '.' << port->getName() << '.' << this << '@' << getpid();
-
     if (policy.name_id.empty())
-        policy.name_id = namestr.str();
+    {
+        if (!port->getInterface() || !port->getInterface()->getOwner() || port->getInterface()->getOwner()->getName().empty())
+            throw std::runtime_error("MQ name_id not set, and the port is either not attached to a task, or said task has no name. Cannot create a reasonably unique MQ name automatically");
+
+        std::stringstream name_stream;
+        name_stream << port->getInterface()->getOwner()->getName() << '.' << port->getName() << '.' << this << '@' << getpid();
+        std::string name = name_stream.str();
+        boost::algorithm::replace_all(name, "/", "_");
+        policy.name_id = "/" + name;
+    }
 
     struct mq_attr mattr;
     mattr.mq_maxmsg = policy.size ? policy.size : 10;
