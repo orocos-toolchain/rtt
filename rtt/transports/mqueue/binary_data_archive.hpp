@@ -70,6 +70,7 @@
 #include <ostream>
 #include <streambuf>
 #include <cstring>
+#include <boost/version.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/is_bitwise_serializable.hpp>
 #include <boost/archive/detail/iserializer.hpp>
@@ -204,9 +205,15 @@ namespace RTT
              * @return *this
              */
             template<class T>
+#if BOOST_VERSION >= 106200
+            void load_override(const boost::serialization::array_wrapper<T> &t, int)
+            {
+                boost::serialization::array_wrapper<T> tmp(t.address(), t.count());
+#else
             void load_override(const boost::serialization::array<T> &t, int)
             {
                 boost::serialization::array<T> tmp(t.address(), t.count());
+#endif
                 *this >> tmp;
             }
 
@@ -323,7 +330,11 @@ namespace RTT
              * The optimized save_array dispatches to save_binary
              */
             template<class ValueType>
+#if BOOST_VERSION >= 106200
+            void load_array(boost::serialization::array_wrapper<ValueType>& a,
+#else
             void load_array(boost::serialization::array<ValueType>& a,
+#endif
                             unsigned int)
             {
                 load_binary(a.address(), a.count()
@@ -513,7 +524,11 @@ namespace RTT
              * The optimized save_array dispatches to save_binary
              */
             template<class ValueType>
+#if BOOST_VERSION >= 106200
+            void save_array(boost::serialization::array_wrapper<ValueType> const& a,
+#else
             void save_array(boost::serialization::array<ValueType> const& a,
+#endif
                             unsigned int)
             {
                 save_binary(a.address(), a.count()
