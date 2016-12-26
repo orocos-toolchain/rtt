@@ -43,7 +43,6 @@ TRACEPOINT_EVENT
 #define TRACEPOINT_CONTEXT(provider, event, ...) \
     TRACEPOINT_EVENT(provider, event, TP_ARGS(unsigned, v, const char *, s), TP_FIELDS(ctf_string(name, s) ctf_integer(unsigned, on, v)))
 #else
-#include "../../../rtt/rt_string.hpp"
 #define TRACEPOINT_CONTEXT(provider, event, ...) \
     TRACEPOINT_EVENT(provider, event, TP_ARGS(unsigned, v, const char *, s), TP_FIELDS(ctf_string(name, s) ctf_integer(unsigned, on, v))) \
     struct TracepointContext__##provider__##event {            \
