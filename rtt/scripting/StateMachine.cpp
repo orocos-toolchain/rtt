@@ -51,6 +51,10 @@
 #define TRACE_INIT() Logger::In in( _name )
 #define TRACE(msg) if (mtrace) log(Info) << '[' << this->getStatusStr() << ']' << std::string(" ") + msg <<endlog()
 
+#ifndef ASSERT_PROPER_EXECUTION_CYCLES
+//  #define ASSERT_PROPER_EXECUTION_CYCLES
+#endif
+
 namespace RTT {
     using namespace detail;
     using boost::tuples::get;
@@ -271,11 +275,13 @@ namespace RTT {
             return true;
         }
 
+#ifdef ASSERT_PROPER_EXECUTION_CYCLES
         // we're loaded. Do some sanity checking.
         if ( ee_cycle != 0 && ee_cycle == this->engine->getParent()->getCycleCounter() ) {
             log(Error) << "StateMachine executed twice in one cycle. Consider filing a bug report !" <<endlog();
             assert( false && "StateMachine executed twice in one cycle. Consider filing a bug report !" );
         }
+#endif
         ee_cycle = this->engine->getParent()->getCycleCounter();
 
         // internal transitional issues.
@@ -1165,7 +1171,12 @@ namespace RTT {
         if ( cp == 0)
             return false;
 
-        assert( ee_cycle == this->engine->getParent()->getCycleCounter() && "Program executed in previous or next ee_cycle. Consider filing a bug report !" );
+#ifdef ASSERT_PROPER_EXECUTION_CYCLES
+        if ( ee_cycle != 0 && ee_cycle != this->engine->getParent()->getCycleCounter() ) {
+            log(Error) << "Program executed in previous or next ee_cycle. Consider filing a bug report !" <<endlog();
+            assert( false && "Program executed in previous or next ee_cycle. Consider filing a bug report !" );
+        }
+#endif
 
         // execute this stateprogram and cleanup if needed.
         currentProg = cp;
