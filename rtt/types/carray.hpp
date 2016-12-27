@@ -39,6 +39,7 @@
 #ifndef ORO_CARRAY_HPP_
 #define ORO_CARRAY_HPP_
 
+#include <boost/version.hpp>
 #include <boost/serialization/array.hpp>
 #include <boost/array.hpp>
 
@@ -96,7 +97,11 @@ namespace RTT
              * the original data.
              * @param orig
              */
+#if BOOST_VERSION >= 106200
+            carray( boost::serialization::array_wrapper<T> const& orig)
+#else
             carray( boost::serialization::array<T> const& orig)
+#endif
             : m_t( orig.address() ), m_element_count( orig.count() ) {
                 if (m_element_count == 0)
                     m_t = 0;
