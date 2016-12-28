@@ -280,10 +280,10 @@ BOOST_AUTO_TEST_CASE( testRepository )
     /**
      * Test all types: create property of type T, decompose it and compose it again.
      */
-	BOOST_MESSAGE("----- Testing testRep");
+	BOOST_TEST_MESSAGE("----- Testing testRep");
     std::vector<string> names = TypeInfoRepository::Instance()->getTypes();
     for (std::vector<string>::iterator it = names.begin(); it != names.end(); ++it) {
-    	BOOST_MESSAGE("----------- loop names: " << *it);
+    	BOOST_TEST_MESSAGE("----------- loop names: " << *it);
         PropertyBase* target;
         Property<PropertyBag> bag("Result","D");
         BOOST_REQUIRE( TypeInfoRepository::Instance()->type( *it ) );
