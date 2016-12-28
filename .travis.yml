@@ -17,4 +17,5 @@ install:
 
 script:
   # Run tests
+  - export BOOST_TEST_LOG_LEVEL=message
   - make -j1 check
