@@ -182,6 +182,6 @@ namespace RTT
     private:
 
     };
-}};
+}}
 
 #endif

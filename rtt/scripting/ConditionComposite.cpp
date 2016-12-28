@@ -54,7 +54,7 @@ namespace RTT {
   void ConditionCompositeNOT::reset()
   {
     cond->reset();
-  };
+  }
 
   ConditionCompositeNOT* ConditionCompositeNOT::clone() const
   {
@@ -62,11 +62,11 @@ namespace RTT {
     // ownership semantics.  It doesn't hurt, because cond is not a
     // datasource...
     return new ConditionCompositeNOT( cond->clone() );
-  };
+  }
 
   ConditionCompositeNOT* ConditionCompositeNOT::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
   {
     return new ConditionCompositeNOT( cond->copy( alreadyCloned ) );
-  };
+  }
 }
 
