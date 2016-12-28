@@ -120,4 +120,8 @@ public:
 
 };
 
+#if BOOST_VERSION >= 106000
+BOOST_GLOBAL_FIXTURE( InitOrocos );
+#else
 BOOST_GLOBAL_FIXTURE( InitOrocos )
+#endif

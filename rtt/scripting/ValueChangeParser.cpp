@@ -51,7 +51,7 @@ namespace RTT
 
     using namespace std;
 
-    using namespace boost;;
+    using namespace boost;
 
     namespace {
         boost::spirit::classic::assertion<std::string> expect_open("Open brace expected.");
