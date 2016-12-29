@@ -637,6 +637,8 @@ public:
         clock_gettime(CLOCK_MONOTONIC, &tic_.monotonic);
 #elif defined(CLOCK_MONOTONIC_RAW)
         clock_gettime(CLOCK_MONOTONIC_RAW, &tic_.monotonic);
+#else
+        clock_gettime(CLOCK_REALTIME, &tic_.monotonic);
 #endif
 #if defined(CLOCK_THREAD_CPUTIME_ID)
         clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tic_.cputime);
@@ -652,6 +654,8 @@ public:
         if (0 != clock_gettime(CLOCK_MONOTONIC, &toc.monotonic)) throw std::runtime_error(strerror(errno));
 #elif defined(CLOCK_MONOTONIC_RAW)
         if (0 != clock_gettime(CLOCK_MONOTONIC_RAW, &toc.monotonic)) throw std::runtime_error(strerror(errno));
+#else
+        if (0 != clock_gettime(CLOCK_REALTIME, &toc.monotonic)) throw std::runtime_error(strerror(errno));
 #endif
 #if defined(CLOCK_THREAD_CPUTIME_ID)
         if (0 != clock_gettime(CLOCK_THREAD_CPUTIME_ID, &toc.cputime)) throw std::runtime_error(strerror(errno));
