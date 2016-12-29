@@ -76,6 +76,7 @@ extern "C"
 
     typedef struct timespec TIME_SPEC;
 
+#ifndef CLOCK_REALTIME
     /* fake clock_gettime for systems like darwin */
     #define  CLOCK_REALTIME 0
     static inline int clock_gettime(int clk_id /*ignored*/, struct timespec *tp)
@@ -91,6 +92,7 @@ extern "C"
         tp->tv_nsec = now.tv_usec * 1000;
         return 0;
     }
+#endif
 
     // high-resolution time to timespec
     static inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
