@@ -52,8 +52,8 @@ namespace RTT {
         void intrusive_ptr_add_ref( ConnectionBase* p ) { p->ref(); }
         void intrusive_ptr_release( ConnectionBase* p ) { p->deref(); }
 
-        void ConnectionBase::ref() { refcount.inc(); };
-        void ConnectionBase::deref() { if ( refcount.dec_and_test() ) delete this; };
+        void ConnectionBase::ref() { refcount.inc(); }
+        void ConnectionBase::deref() { if ( refcount.dec_and_test() ) delete this; }
 
         ConnectionBase::ConnectionBase(SignalBase* sig)
             : mconnected(false), m_sig(sig)

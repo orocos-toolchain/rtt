@@ -83,7 +83,7 @@ namespace RTT { namespace internal {
   {
     for ( ; a < b; a++ )
       delete *a;
-  };
+  }
 
 
     // SGI extension, does not seem present in current GNU STL
@@ -157,7 +157,7 @@ namespace RTT { namespace internal {
                         select1st<typename MapT::value_type>() );
         return ret;
     }
-    }
+}
 }
 
 namespace std
