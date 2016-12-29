@@ -176,8 +176,8 @@
 #define TLSF_PAGE_SIZE (getpagesize())
 #endif
 
-#define PRINT_MSG(fmt, args...) printf(fmt, ## args)
-#define ERROR_MSG(fmt, args...) printf(fmt, ## args)
+#define PRINT_MSG(...) printf(__VA_ARGS__)
+#define ERROR_MSG(...) printf(__VA_ARGS__)
 
 typedef unsigned int u32_t;     /* NOTE: Make sure that this type is 4 bytes long on your computer */
 typedef unsigned char u8_t;     /* NOTE: Make sure that this type is 1 byte on your computer */
