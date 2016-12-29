@@ -182,7 +182,7 @@ INSTALL(FILES package.xml DESTINATION share/rtt)
 configure_file(env-hooks/00.rtt.sh.in ${CMAKE_CURRENT_BINARY_DIR}/env-hooks/00.rtt.sh @ONLY)
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/env-hooks/00.rtt.sh
-  DESTINATION etc/orocos/${OROCOS_TARGET}/profile.d
+  DESTINATION etc/orocos/profile.d
 )
 
 # Install a catkin env-hook if catkin is installed
