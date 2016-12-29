@@ -633,8 +633,14 @@ public:
     {
         tic_.reset();
         last_delta_.reset();
+#if defined(CLOCK_MONOTONIC)
         clock_gettime(CLOCK_MONOTONIC, &tic_.monotonic);
+#elif defined(CLOCK_MONOTONIC_RAW)
+        clock_gettime(CLOCK_MONOTONIC_RAW, &tic_.monotonic);
+#endif
+#if defined(CLOCK_THREAD_CPUTIME_ID)
         clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tic_.cputime);
+#endif
     }
 
     Timer &toc()
@@ -642,8 +648,14 @@ public:
         if (!tic_) throw std::runtime_error("You called toc() without tic()!");
 
         Data toc;
+#if defined(CLOCK_MONOTONIC)
         if (0 != clock_gettime(CLOCK_MONOTONIC, &toc.monotonic)) throw std::runtime_error(strerror(errno));
+#elif defined(CLOCK_MONOTONIC_RAW)
+        if (0 != clock_gettime(CLOCK_MONOTONIC_RAW, &toc.monotonic)) throw std::runtime_error(strerror(errno));
+#endif
+#if defined(CLOCK_THREAD_CPUTIME_ID)
         if (0 != clock_gettime(CLOCK_THREAD_CPUTIME_ID, &toc.cputime)) throw std::runtime_error(strerror(errno));
+#endif
 
         count_++;
         last_delta_.monotonic = toc.monotonic - tic_.monotonic;
