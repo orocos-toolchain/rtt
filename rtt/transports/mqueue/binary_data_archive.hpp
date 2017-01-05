@@ -85,9 +85,9 @@
 #include <boost/serialization/item_version_type.hpp>
 #endif
 
-#if BOOST_VERSION >= 105900
+#ifndef BOOST_PFTO
 //Partial Function Template Ordering removed from boost in 1.59, setting it to nothing seems to work
-//(was also done in <boost/ptfo.hpp> itself)
+//(was also done in <boost/ptfo.hpp> itself, header removed from 1.59)
 //and keeps its functionality for older boost versions
 #define BOOST_PFTO
 #endif
