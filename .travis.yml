@@ -20,9 +20,11 @@ addons:
 env:
   global:
     - EXTRA_CMAKE_ARGS="-DENABLE_TESTS=ON -DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB"
-    - CFLAGS="-std=c99 -Wall -Wextra -Wno-unused-parameter"
-    - CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
     - BOOST_TEST_LOG_LEVEL=message
+  matrix:
+    - CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter" CFLAGS="-std=c99 -Wall -Wextra -Wno-unused-parameter"
+    - CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter" CFLAGS="-std=c99 -Wall -Wextra -Wno-unused-parameter"
+
 
 install:
   - mkdir -p build && cd build
