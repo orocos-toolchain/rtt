@@ -84,7 +84,8 @@ namespace RTT {
             bool connected() const;
             bool createStream( const ConnPolicy& policy );
             virtual bool addConnection(internal::ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
-            void disconnect();
+            virtual void disconnect();
+            using PortClass::disconnect;
         };
 
         /**
@@ -104,9 +105,11 @@ namespace RTT {
             bool keepsLastWrittenValue() const;
             void keepLastWrittenValue(bool new_flag);
 
-            using base::OutputPortInterface::createConnection;
             virtual bool disconnect(PortInterface* port);
+            using RemotePort<base::OutputPortInterface>::disconnect;
+
             bool createConnection( base::InputPortInterface& sink, ConnPolicy const& policy );
+            using base::OutputPortInterface::createConnection;
 
             virtual base::DataSourceBase::shared_ptr getDataSource() const;
 
@@ -162,6 +165,7 @@ namespace RTT {
             base::PortInterface* antiClone() const;
 
             virtual bool disconnect(PortInterface* port);
+            using RemotePort<base::InputPortInterface>::disconnect;
 
             base::DataSourceBase* getDataSource();
 
