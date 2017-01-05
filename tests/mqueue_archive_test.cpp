@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( testFixedStringBinaryDataArchive )
     rtos_enable_rt_warning();
     io::stream<io::array_source>  inbuf(sink,1000);
     binary_data_iarchive in( inbuf ); // +0 alloc
-#if BOOST_VERSION >= 106200
+#if BOOST_VERSION >= 106100
     boost::serialization::array_wrapper<char> ma = boost::serialization::make_array(c, 10);
 #else
     boost::serialization::array<char> ma = boost::serialization::make_array(c, 10);
