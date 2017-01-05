@@ -97,7 +97,7 @@ namespace RTT
              * the original data.
              * @param orig
              */
-#if BOOST_VERSION >= 106200
+#if BOOST_VERSION >= 106100
             carray( boost::serialization::array_wrapper<T> const& orig)
 #else
             carray( boost::serialization::array<T> const& orig)
@@ -167,7 +167,7 @@ namespace RTT
              * @param orig
              */
             template <class OtherT>
-#if BOOST_VERSION >= 106200
+#if BOOST_VERSION >= 106100
             const carray<T>& operator=( boost::serialization::array_wrapper<OtherT> const& orig ) {
 #else
             const carray<T>& operator=( boost::serialization::array<OtherT> const& orig ) {

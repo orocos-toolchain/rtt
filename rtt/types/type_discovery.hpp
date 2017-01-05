@@ -293,7 +293,7 @@ namespace RTT
              * @return *this
              */
             template<class T>
-#if BOOST_VERSION >= 106200
+#if BOOST_VERSION >= 106100
             type_discovery &load_a_type(const boost::serialization::array_wrapper<T> &t, boost::mpl::false_)
 #else
             type_discovery &load_a_type(const boost::serialization::array<T> &t, boost::mpl::false_)

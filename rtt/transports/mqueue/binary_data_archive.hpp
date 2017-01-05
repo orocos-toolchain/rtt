@@ -85,6 +85,13 @@
 #include <boost/serialization/item_version_type.hpp>
 #endif
 
+#ifndef BOOST_PFTO
+//Partial Function Template Ordering removed from boost in 1.59, setting it to nothing seems to work
+//(was also done in <boost/ptfo.hpp> itself, header removed from 1.59)
+//and keeps its functionality for older boost versions
+#define BOOST_PFTO
+#endif
+
 namespace RTT
 {
     namespace mqueue
@@ -205,7 +212,7 @@ namespace RTT
              * @return *this
              */
             template<class T>
-#if BOOST_VERSION >= 106200
+#if BOOST_VERSION >= 106100
             void load_override(const boost::serialization::array_wrapper<T> &t, int)
             {
                 boost::serialization::array_wrapper<T> tmp(t.address(), t.count());
@@ -330,7 +337,7 @@ namespace RTT
              * The optimized save_array dispatches to save_binary
              */
             template<class ValueType>
-#if BOOST_VERSION >= 106200
+#if BOOST_VERSION >= 106100
             void load_array(boost::serialization::array_wrapper<ValueType>& a,
 #else
             void load_array(boost::serialization::array<ValueType>& a,
@@ -524,7 +531,7 @@ namespace RTT
              * The optimized save_array dispatches to save_binary
              */
             template<class ValueType>
-#if BOOST_VERSION >= 106200
+#if BOOST_VERSION >= 106100
             void save_array(boost::serialization::array_wrapper<ValueType> const& a,
 #else
             void save_array(boost::serialization::array<ValueType> const& a,
