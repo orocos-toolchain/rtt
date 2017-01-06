@@ -81,8 +81,10 @@ namespace RTT
             DataStore(DataStore const& o) : arg(o.arg) {}
 
             T& get() { return arg; }
+            T const& get() const { return arg; }
             void operator()(T a) { arg = a; }
             operator T() { return arg;}
+            operator T const&() const { return arg;}
         };
 
         template<class T>
@@ -95,8 +97,10 @@ namespace RTT
             DataStore(DataStore const& o) : arg(o.arg) {}
 
             T& get() { return *arg; }
+            T const& get() const { return *arg; }
             void operator()(T& a) { arg = &a; }
             operator T&() { return *arg;}
+            operator T const&() const { return *arg;}
         };
 
         /**
@@ -154,7 +158,10 @@ namespace RTT
                 typedef typename ds_type::element_type element_type;
 
                 ds_type a =
-                    boost::dynamic_pointer_cast< element_type >( DataSourceTypeInfo<ds_arg_type>::getTypeInfo()->convert(*front) );
+                    boost::dynamic_pointer_cast< element_type >( *front );
+                if ( ! a ) {
+                    a = boost::dynamic_pointer_cast< element_type >( DataSourceTypeInfo<ds_arg_type>::getTypeInfo()->convert(*front) );
+                }
                 if ( ! a ) {
                     //cout << typeid(DataSource<ds_arg_type>).name() << endl;
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, tname, (*front)->getType() ), ds_type());
@@ -166,8 +173,10 @@ namespace RTT
             template<class ds_arg_type, class ads_type>
             static ads_type assignable(std::vector<base::DataSourceBase::shared_ptr>::const_iterator front, int argnbr, std::string const& tname )
             {
+                typedef typename ads_type::element_type element_type;
+
                 ads_type a =
-                    boost::dynamic_pointer_cast< AssignableDataSource<ds_arg_type> >( *front ); // note: no conversion done, must be same type.
+                    boost::dynamic_pointer_cast< element_type >( *front ); // note: no conversion done, must be same type.
                 if ( ! a ) {
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, tname, (*front)->getType() ), ads_type());
                 }
