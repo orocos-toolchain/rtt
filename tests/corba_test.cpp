@@ -35,9 +35,10 @@
 #include <transports/corba/CorbaConnPolicy.hpp>
 #include <transports/corba/RTTCorbaConversion.hpp>
 
-#include <boost/scoped_ptr.hpp>
-
 #include "operations_fixture.hpp"
+
+#include <boost/config.hpp>
+#include <memory>
 
 using namespace std;
 using corba::TaskContextProxy;
@@ -609,11 +610,22 @@ BOOST_AUTO_TEST_CASE( testSharedConnections )
     // This test installs shared connections between mo1 and mo2 as writers and mi2 and mi3 as readers
 
 //    // Add a second input port mo3 to tc
-//    boost::scoped_ptr<RTT::OutputPort<double> > mo3(new RTT::OutputPort<double>());
+//#ifndef BOOST_NO_CXX11_SMART_PTR
+//    unique_ptr<RTT::OutputPort<double> >
+//#else
+//    auto_ptr<RTT::OutputPort<double> >
+//#endif
+//            mo3(new RTT::OutputPort<double>());
+
 //    tc->addPort("mo3", *mo3);
 
     // Add a second input port mi3 to t2
-    boost::scoped_ptr<RTT::InputPort<double> > mi3(new RTT::InputPort<double>());
+#ifndef BOOST_NO_CXX11_SMART_PTR
+    unique_ptr<RTT::InputPort<double> >
+#else
+    auto_ptr<RTT::InputPort<double> >
+#endif
+            mi3(new RTT::InputPort<double>());
     t2->addPort("mi3", *mi3);
 
     // This test tests shared connections port-to-port connections.
@@ -773,7 +785,12 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
     BOOST_CHECK(!write_port->connected());
 
     // Test cloning
-    auto_ptr<base::InputPortInterface> read_clone(dynamic_cast<base::InputPortInterface*>(read_port->clone()));
+#ifndef BOOST_NO_CXX11_SMART_PTR
+    unique_ptr<base::InputPortInterface>
+#else
+    auto_ptr<base::InputPortInterface>
+#endif
+            read_clone(dynamic_cast<base::InputPortInterface*>(read_port->clone()));
     BOOST_CHECK(mo2->createConnection(*read_clone));
     BOOST_CHECK(read_clone->connected());
     BOOST_CHECK(!read_port->connected());
