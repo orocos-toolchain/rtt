@@ -161,6 +161,7 @@ namespace RTT
             return rv;
         }
 
+#ifdef ORO_HAVE_PTHREAD_SETNAME_NP
         // Set thread name to match task name, to help with debugging
         {
             // trim the name to fit 16 bytes restriction (including terminating
@@ -177,6 +178,7 @@ namespace RTT
                              << strerror(result) << endlog();
             }
         }
+#endif // ORO_HAVE_PTHREAD_SETNAME_NP
 
         if ( cpu_affinity != 0 ) {
             log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
