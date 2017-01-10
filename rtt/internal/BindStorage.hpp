@@ -71,7 +71,7 @@ namespace RTT
 
             T& get() { return arg; }
             void operator()(T a) { arg = a; }
-            operator T() { return arg;}
+            operator T&() { return arg; }
         };
 
         template<class T>
@@ -84,7 +84,7 @@ namespace RTT
 
             T& get() { return *arg; }
             void operator()(T& a) { arg = &a; }
-            operator T&() { return *arg;}
+            operator T&() { return *arg; }
         };
 
         template<class T>
