@@ -234,7 +234,7 @@ namespace RTT
             has_last_written_value = false;
 
             cmanager.delete_if( boost::bind(
-                        &OutputPort<T>::do_init, this, boost::ref(sample), _1)
+                        &OutputPort<T>::do_init, this, boost::ref(sample), _1 )
                     );
         }
 
@@ -253,7 +253,7 @@ namespace RTT
             has_last_written_value = keeps_last_written_value;
 
             cmanager.delete_if( boost::bind(
-                        &OutputPort<T>::do_write, this, boost::ref(sample), boost::lambda::_1)
+                        &OutputPort<T>::do_write, this, boost::ref(sample), _1 )
                     );
         }
 

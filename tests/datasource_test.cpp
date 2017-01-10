@@ -32,10 +32,7 @@
 #include <boost/serialization/array.hpp>
 
 #include <os/fosi.h>
-#include <boost/lambda/lambda.hpp>
 #include "datasource_fixture.hpp"
-
-using namespace boost::lambda;
 
 class DataSourceTest
 {

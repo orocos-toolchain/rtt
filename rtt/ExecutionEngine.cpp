@@ -48,8 +48,6 @@
 #include "extras/SlaveActivity.hpp"
 
 #include <boost/bind.hpp>
-#include <boost/ref.hpp>
-#include <functional>
 #include <algorithm>
 
 #define ORONUM_EE_MQUEUE_SIZE 100
@@ -157,8 +155,8 @@ namespace RTT
             found = true; // always true in order to be able to quit waitForMessages.
         }
         virtual void dispose() {}
-        virtual bool isError() const { return false;}
-
+        virtual bool isError() const { return false; }
+        bool done() const { return !mf->isLoaded() || found; }
     };
 
     bool ExecutionEngine::removeFunction( ExecutableInterface* f )
@@ -178,7 +176,7 @@ namespace RTT
             // Running: create message on stack.
             RemoveMsg rmsg(f,this);
             if ( this->process(&rmsg) )
-                this->waitForMessages( ! lambda::bind(&ExecutableInterface::isLoaded, f) || lambda::bind(&RemoveMsg::found,boost::ref(rmsg)) );
+                this->waitForMessages( boost::bind(&RemoveMsg::done, &rmsg) );
             if (!rmsg.found)
                 return false;
         }
