@@ -26,6 +26,7 @@
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
 
+#include <boost/config.hpp>
 #include <boost/function_types/function_type.hpp>
 #include <OperationCaller.hpp>
 

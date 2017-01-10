@@ -48,6 +48,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <boost/config.hpp>
 #include <boost/lexical_cast.hpp>
 #include "../Logger.hpp"
 #include "TypeInfo.hpp"
