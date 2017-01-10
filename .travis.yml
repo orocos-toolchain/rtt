@@ -35,7 +35,8 @@ matrix:
     - env: COMPILER=clang-3.8 CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
     - env: COMPILER=clang-3.8 CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
 
-install:
+before_install:
+  # Set C/C++ compiler
   - |
     if [[ "${COMPILER}" != "" ]]; then
       export CC=${COMPILER}
@@ -44,11 +45,17 @@ install:
       elif [[ "${COMPILER}" == "clang"* ]]; then
         export CXX=${COMPILER/clang/clang++}
       fi
+      ${CC} --version
+      ${CXX} --version
     fi
+
+  # Create build directory
   - mkdir -p build && cd build
-  - cmake .. -DCMAKE_INSTALL_PREFIX=$(pwd)/install $EXTRA_CMAKE_ARGS
-  - make -j2 install
 
 script:
+  # Build and install RTT
+  - cmake .. -DCMAKE_INSTALL_PREFIX=$(pwd)/install ${EXTRA_CMAKE_ARGS}
+  - make -j2 install
+
   # Run tests
   - make -j1 check
