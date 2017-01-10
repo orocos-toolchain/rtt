@@ -39,8 +39,12 @@
 #include "../os/MutexLock.hpp"
 #include "../Logger.hpp"
 
-#include <boost/uuid/random_generator.hpp>
-#include <boost/uuid/uuid_io.hpp>
+#if defined(ORO_HAVE_BOOST_UUID)
+    #include <boost/uuid/random_generator.hpp>
+    #include <boost/uuid/uuid_io.hpp>
+#elif defined(ORO_HAVE_LIBUUID)
+    #include <uuid/uuid.h>
+#endif
 
 using namespace RTT;
 using namespace RTT::base;
@@ -59,13 +63,24 @@ ConnID* SharedConnID::clone() const
     return new SharedConnID(this->connection);
 }
 
+#ifdef ORO_HAVE_BOOST_UUID
 static boost::uuids::random_generator uuid_generator;
+#endif
+
 SharedConnectionBase::SharedConnectionBase(const ConnPolicy &policy)
     : policy(policy)
 {
     // assign random name if none was given
     if (this->policy.name_id.empty()) {
+#if defined(ORO_HAVE_BOOST_UUID)
         this->policy.name_id = boost::uuids::to_string(uuid_generator());
+#elif defined(ORO_HAVE_LIBUUID)
+        uuid_t uuid;
+        uuid_generate_random(uuid);
+        char uuid_string[37];
+        uuid_unparse(uuid, uuid_string);
+        this->policy.name_id = uuid_string;
+#endif
     }
 
     // register at SharedConnectionRepository
