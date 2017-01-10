@@ -288,10 +288,12 @@ namespace RTT { namespace base {
 
             {
                 RTT::os::SharedMutexLock lock(outputs_lock);
+#ifndef NDEBUG
                 {
                     RTT::os::SharedMutexLock lock2(buffer_policy_lock);
                     assert((buffer_policy != PerOutputPort && buffer_policy != Shared) || (outputs.size() <= 1));
                 }
+#endif
 
                 if (outputs.empty()) return WriteSuccess;
                 for(Outputs::iterator it = outputs.begin(); it != outputs.end(); ++it)
@@ -329,10 +331,12 @@ namespace RTT { namespace base {
 
             {
                 RTT::os::SharedMutexLock lock(outputs_lock);
+#ifndef NDEBUG
                 {
                     RTT::os::SharedMutexLock lock2(buffer_policy_lock);
                     assert((buffer_policy != PerOutputPort && buffer_policy != Shared) || (outputs.size() <= 1));
                 }
+#endif
 
                 if (outputs.empty()) return NotConnected;
                 for(Outputs::iterator it = outputs.begin(); it != outputs.end(); ++it)
