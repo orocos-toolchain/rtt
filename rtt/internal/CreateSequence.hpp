@@ -51,6 +51,7 @@
 #include <boost/fusion/mpl.hpp>
 #include <boost/utility/enable_if.hpp>
 
+#include "BindStorage.hpp"
 #include "DataSource.hpp"
 #include "Exceptions.hpp"
 #include "../FactoryExceptions.hpp"
@@ -64,40 +65,6 @@ namespace RTT
     {
         namespace bf = boost::fusion;
         namespace mpl = boost::mpl;
-
-        /**
-         * Store a bound argument which may be a reference, const reference or
-         * any other type.
-         * This class was required to store (const) references, after the reference object storage
-         * was created. Copy of RTT::internal::AStore in BindStorage.hpp.
-         */
-        template<class T>
-        struct DataStore
-        {
-            typedef T arg_type;
-            T arg;
-            DataStore() : arg() {}
-            DataStore(T t) : arg(t) {}
-            DataStore(DataStore const& o) : arg(o.arg) {}
-
-            T& get() { return arg; }
-            void operator()(T a) { arg = a; }
-            operator T&() { return arg; }
-        };
-
-        template<class T>
-        struct DataStore<T&>
-        {
-            typedef T& arg_type;
-            T* arg;
-            DataStore() : arg( &NA<T&>::na() ) {}
-            DataStore(T& t) : arg(&t) {}
-            DataStore(DataStore const& o) : arg(o.arg) {}
-
-            T& get() { return *arg; }
-            void operator()(T& a) { arg = &a; }
-            operator T&() { return *arg; }
-        };
 
         /**
          * Helper class for extracting the bare pointer from a shared_ptr
@@ -233,7 +200,7 @@ namespace RTT
             /**
              * The argument storage type
              */
-            typedef DataStore<arg_type> arg_store_type;
+            typedef AStore<arg_type> arg_store_type;
 
             /**
              * The data source value type of an assignable data source is non-const, non-reference.
@@ -348,7 +315,7 @@ namespace RTT
              * We must return the resulting sequence by value, since boost fusion
              * returns temporaries, which we can't take a reference to.
              * @param in The values to store
-             * @return The receiving DataStore sequence.
+             * @return The receiving AStore sequence.
              */
             static data_store_type store(const data_type& in ) {
                 return data_store_type(bf::front(in), tail::store(bf::pop_front(in)));
@@ -419,7 +386,7 @@ namespace RTT
             typedef typename remove_cr<arg_type>::type ds_arg_type;
             typedef bf::cons<arg_type> data_type;
 
-            typedef DataStore<arg_type> arg_store_type;
+            typedef AStore<arg_type> arg_store_type;
             typedef bf::cons<arg_store_type > data_store_type;
 
             /**

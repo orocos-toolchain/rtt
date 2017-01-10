@@ -64,6 +64,7 @@ namespace RTT
         template<class T>
         struct AStore
         {
+            typedef T arg_type;
             T arg;
             AStore() : arg() {}
             AStore(T t) : arg(t) {}
@@ -77,6 +78,7 @@ namespace RTT
         template<class T>
         struct AStore<T&>
         {
+            typedef T& arg_type;
             T* arg;
             AStore() : arg( &NA<T&>::na() ) {}
             AStore(T& t) : arg(&t) {}
