@@ -2,9 +2,6 @@ dist: trusty
 sudo: false
 
 language: cpp
-compiler:
-  - clang
-  - gcc
 
 addons:
   apt:
@@ -21,12 +18,53 @@ env:
   global:
     - EXTRA_CMAKE_ARGS="-DENABLE_TESTS=ON -DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB"
     - BOOST_TEST_LOG_LEVEL=message
-  matrix:
-    - CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter" CFLAGS="-std=c99 -Wall -Wextra -Wno-unused-parameter"
-    - CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter" CFLAGS="-std=c99 -Wall -Wextra -Wno-unused-parameter"
+    - CFLAGS="-Wall -Wextra -Wno-unused-parameter"
 
+matrix:
+  include:
+    - compiler: gcc
+      env: CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
+    - compiler: gcc
+      env: CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
+    - env: COMPILER=gcc-5 CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+    - env: COMPILER=gcc-5 CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+    - compiler: clang
+      env: CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
+    - compiler: clang
+      env: CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
+    - env: COMPILER=clang-3.8 CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
+      addons:
+        apt:
+          packages:
+            - clang-3.8
+    - env: COMPILER=clang-3.8 CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
+      addons:
+        apt:
+          packages:
+            - clang-3.8
 
 install:
+  - |
+    if [[ "${COMPILER}" != "" ]]; then
+      export CC=${COMPILER}
+      if [[ "${COMPILER}" == "gcc"* ]]; then
+        export CXX=${COMPILER/gcc/g++}
+      elif [[ "${COMPILER}" == "clang"* ]]; then
+        export CXX=${COMPILER/clang/clang++}
+      fi
+    fi
   - mkdir -p build && cd build
   - cmake .. -DCMAKE_INSTALL_PREFIX=$(pwd)/install $EXTRA_CMAKE_ARGS
   - make -j2 install
