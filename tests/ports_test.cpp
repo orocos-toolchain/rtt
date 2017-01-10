@@ -26,8 +26,13 @@
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
 
+#include <boost/config.hpp>
 #include <boost/function_types/function_type.hpp>
 #include <OperationCaller.hpp>
+
+#include <rtt-config.h>
+
+#include <memory>
 
 using namespace std;
 using namespace RTT;
@@ -122,8 +127,13 @@ BOOST_AUTO_TEST_CASE( testPortTaskInterface )
     // We're adding the above ports to another TC as well.
     // This is not supported behavior, as it will 'overtake' ownership,
      {
+#ifndef BOOST_NO_CXX11_SMART_PTR
+        unique_ptr<TaskContext> tc1(new TaskContext( "tc", TaskContext::Stopped ));
+        unique_ptr<TaskContext> tc2(new TaskContext( "tc2", TaskContext::Stopped ));
+#else
         auto_ptr<TaskContext> tc1(new TaskContext( "tc", TaskContext::Stopped ));
         auto_ptr<TaskContext> tc2(new TaskContext( "tc2", TaskContext::Stopped ));
+#endif
 
         tc1->ports()->addPort( rp1 );
         tc1->ports()->addPort( wp2 );
@@ -652,7 +662,12 @@ BOOST_AUTO_TEST_CASE(testPlainPortNotSignalling)
 BOOST_AUTO_TEST_CASE(testPortDataSource)
 {
     OutputPort<int> wp1("Write");
-    auto_ptr<InputPortInterface> reader(dynamic_cast<InputPortInterface*>(wp1.antiClone()));
+#ifndef BOOST_NO_CXX11_SMART_PTR
+    unique_ptr<InputPortInterface>
+#else
+    auto_ptr<InputPortInterface>
+#endif
+            reader(dynamic_cast<InputPortInterface*>(wp1.antiClone()));
     BOOST_CHECK(wp1.connectTo(&*reader, ConnPolicy::buffer(2)));
 
     DataSource<int>::shared_ptr source = static_cast< DataSource<int>* >(reader->getDataSource());
