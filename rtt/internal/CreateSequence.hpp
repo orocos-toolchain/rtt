@@ -81,10 +81,8 @@ namespace RTT
             DataStore(DataStore const& o) : arg(o.arg) {}
 
             T& get() { return arg; }
-            T const& get() const { return arg; }
             void operator()(T a) { arg = a; }
-            operator T() { return arg;}
-            operator T const&() const { return arg;}
+            operator T&() { return arg; }
         };
 
         template<class T>
@@ -97,10 +95,8 @@ namespace RTT
             DataStore(DataStore const& o) : arg(o.arg) {}
 
             T& get() { return *arg; }
-            T const& get() const { return *arg; }
             void operator()(T& a) { arg = &a; }
-            operator T&() { return *arg;}
-            operator T const&() const { return *arg;}
+            operator T&() { return *arg; }
         };
 
         /**
