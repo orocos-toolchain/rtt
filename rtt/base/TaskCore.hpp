@@ -113,7 +113,7 @@ namespace RTT
          * @param initial_state Provide the \a PreOperational parameter flag here
          * to force users in calling configure(), before they call start().
          */
-        TaskCore( TaskState initial_state = Stopped  );
+        TaskCore( TaskState initial_state = Stopped, const std::string& name = std::string() );
 
         /**
          * Create a TaskCore.
@@ -123,7 +123,7 @@ namespace RTT
          * @param initial_state Provide the \a PreOperational parameter flag here
          * to force users in calling configure(), before they call start().
          */
-        TaskCore( ExecutionEngine* parent, TaskState initial_state = Stopped );
+        TaskCore( ExecutionEngine* parent, TaskState initial_state = Stopped, const std::string& name = std::string() );
 
         virtual ~TaskCore();
 
@@ -336,17 +336,6 @@ namespace RTT
         {
             return ee;
         }
-
-        /**
-         * The name of this TaskCore
-         *
-         * Used for debugging and/or tracing purposes
-         */
-        std::string getName() const;
-
-        /** Sets the name of this TaskCore
-         */
-        void setName(const std::string& name);
 
     protected:
         /**

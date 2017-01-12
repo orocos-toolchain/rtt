@@ -68,7 +68,7 @@ namespace RTT
     using namespace detail;
 
     TaskContext::TaskContext(const std::string& name, TaskState initial_state /*= Stopped*/)
-        :  TaskCore( initial_state)
+        :  TaskCore( initial_state, name )
            ,portqueue( new MWSRQueue<PortInterface*>(64) )
            ,tcservice(new Service(name,this) ), tcrequests( new ServiceRequester(name,this) )
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
@@ -77,12 +77,11 @@ namespace RTT
            ,our_act( new Activity( this->engine(), name ) )
 #endif
     {
-        TaskCore::setName(name);
         this->setup();
     }
 
     TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent, TaskState initial_state /*= Stopped*/ )
-        :  TaskCore(parent, initial_state)
+        :  TaskCore(parent, initial_state, name)
            ,portqueue( new MWSRQueue<PortInterface*>(64) )
            ,tcservice(new Service(name,this) ), tcrequests( new ServiceRequester(name,this) )
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
@@ -91,7 +90,6 @@ namespace RTT
            ,our_act( parent ? 0 : new Activity( this->engine(), name ) )
 #endif
     {
-        TaskCore::setName(name);
         this->setup();
     }
 

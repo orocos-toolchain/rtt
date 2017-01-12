@@ -50,21 +50,23 @@ namespace RTT {
 
     using namespace std;
 
-    TaskCore::TaskCore(TaskState initial_state /*= Stopped*/ )
+    TaskCore::TaskCore(TaskState initial_state /*= Stopped*/, const std::string& name /* = std::string() */  )
         :  ee( new ExecutionEngine(this) )
            ,mTaskState(initial_state)
            ,mInitialState(initial_state)
            ,mTargetState(initial_state)
-           ,cName(strdup(""))
+           ,name(name)
+           ,cName(strdup(name.c_str()))
     {
     }
 
-    TaskCore::TaskCore( ExecutionEngine* parent, TaskState initial_state /*= Stopped*/  )
+    TaskCore::TaskCore( ExecutionEngine* parent, TaskState initial_state /*= Stopped*/, const std::string& name /* = std::string */  )
         :  ee( parent )
            ,mTaskState(initial_state)
            ,mInitialState(initial_state)
            ,mTargetState(initial_state)
-           ,cName(strdup(""))
+           ,name(name)
+           ,cName(strdup(name.c_str()))
     {
         parent->addChild( this );
     }
@@ -350,14 +352,6 @@ namespace RTT {
         } else {
             this->ee = new ExecutionEngine(this);
         }
-    }
-
-    std::string TaskCore::getName() const {
-        return name;
-    }
-    void TaskCore::setName(const std::string& name) {
-        this->name = name;
-        this->cName = strdup(name.c_str());
     }
 }
 
