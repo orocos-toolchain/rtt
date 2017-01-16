@@ -606,5 +606,110 @@ BOOST_AUTO_TEST_CASE( testFailingTCStates)
     BOOST_CHECK( stc->start() == false );
 }
 
+BOOST_AUTO_TEST_CASE( testExecutionEngine)
+{
+    // no owner:
+    ExecutionEngine ee1(0);
+    ExecutionEngine ee2(0);
+
+    // test setActivity:
+    BOOST_CHECK( tsim->stop() );
+    BOOST_CHECK( tsim->run(&ee1) );
+    BOOST_CHECK( tsim->start() );
+    BOOST_CHECK( SimulationThread::Instance()->run(5) );
+
+    // this also tests setActivity:
+    BOOST_CHECK( tsim->stop() );
+    BOOST_CHECK( tsim->run(&ee2) );
+    BOOST_CHECK( tsim->start() );
+    BOOST_CHECK( SimulationThread::Instance()->run(5) );
+
+    tsim->run(0);
+}
+
+class calling_error_does_not_override_a_stop_transition_Task : public RTT::TaskContext
+{
+public:
+    calling_error_does_not_override_a_stop_transition_Task()
+        : TaskContext("test") {}
+    void updateHook() { error(); }
+    void errorHook() {
+        while(getTargetState() != Stopped);
+        error();
+        trigger();
+    }
+};
+BOOST_AUTO_TEST_CASE(calling_error_does_not_override_a_stop_transition)
+{
+    for (int i = 0; i < 100; ++i)
+    {
+        calling_error_does_not_override_a_stop_transition_Task task;
+        task.start();
+        usleep(100);
+        task.stop();
+        BOOST_REQUIRE_EQUAL(RTT::TaskContext::Stopped, task.getTaskState());
+        BOOST_REQUIRE_EQUAL(RTT::TaskContext::Stopped, task.getTargetState());
+    }
+}
+
+class calling_recover_does_not_override_a_stop_transition_Task : public RTT::TaskContext
+{
+public:
+    bool mRecovered;
+    TaskState mTargetState;
+    calling_recover_does_not_override_a_stop_transition_Task()
+        : TaskContext("test"), mRecovered(true) {} // true is an error
+    void updateHook() { error(); }
+    void errorHook() {
+        while(getTargetState() != Stopped);
+        mRecovered = recover();
+        trigger();
+    }
+};
+BOOST_AUTO_TEST_CASE(calling_recover_does_not_override_a_stop_transition)
+{
+    for (int i = 0; i < 100; ++i)
+    {
+        calling_recover_does_not_override_a_stop_transition_Task task;
+        task.start();
+        usleep(100);
+        task.stop();
+        BOOST_REQUIRE_EQUAL(RTT::TaskContext::Stopped, task.getTaskState());
+        BOOST_REQUIRE_EQUAL(RTT::TaskContext::Stopped, task.getTargetState());
+        BOOST_REQUIRE(!task.mRecovered);
+    }
+}
+
+class errorHook_is_not_called_after_an_exit_transition_Task : public RTT::TaskContext
+{
+public:
+    TimeService::ticks lastErrorHook;
+    TimeService::ticks lastStopHook;
+
+    errorHook_is_not_called_after_an_exit_transition_Task()
+        : TaskContext("test") {}
+    void updateHook() { error(); }
+    void errorHook() {
+        usleep(100);
+        lastErrorHook = TimeService::Instance()->getTicks();
+        trigger();
+    }
+    void stopHook() {
+        lastStopHook = TimeService::Instance()->getTicks();
+        usleep(100);
+    }
+};
+BOOST_AUTO_TEST_CASE(testErrorHook_is_not_called_during_stop)
+{
+    for (int i = 0; i < 100; ++i)
+    {
+        errorHook_is_not_called_after_an_exit_transition_Task task;
+        task.start();
+        usleep(100);
+        task.stop();
+        BOOST_REQUIRE(task.lastErrorHook < task.lastStopHook);
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 

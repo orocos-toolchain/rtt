@@ -309,8 +309,8 @@ namespace {
 
 static boost::shared_ptr<PluginLoader> instance2;
 
-PluginLoader::PluginLoader() { log(Debug) <<"PluginLoader Created" <<endlog(); }
-PluginLoader::~PluginLoader(){ log(Debug) <<"PluginLoader Destroyed" <<endlog(); }
+PluginLoader::PluginLoader() {}
+PluginLoader::~PluginLoader(){}
 
 
 boost::shared_ptr<PluginLoader> PluginLoader::Instance() {
