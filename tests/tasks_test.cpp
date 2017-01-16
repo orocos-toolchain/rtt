@@ -542,7 +542,7 @@ BOOST_AUTO_TEST_CASE( testAllocation )
 
 BOOST_AUTO_TEST_SUITE_END()
 
-#if defined( OROCOS_TARGET_GNULINUX )
+#if defined( OROCOS_TARGET_GNULINUX ) && defined( ORO_HAVE_PTHREAD_SETNAME_NP )
 BOOST_AUTO_TEST_CASE( testThreadName )
 {
     Activity activity(0, 0, "thread_name_34567890");
