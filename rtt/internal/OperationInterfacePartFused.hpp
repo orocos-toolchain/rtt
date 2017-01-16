@@ -227,7 +227,7 @@ namespace RTT
                                                                     boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
                                                                     boost::arg<1>()
                                                                     )
-                                                        ))
+                                                        )
                             );
 #endif // !defined(BOOST_NO_CXX11_AUTO_DECLARATIONS) && !defined(BOOST_NO_CXX11_DECLTYPE)
 #else // BOOST_VERSION >= 104100
@@ -449,8 +449,8 @@ namespace RTT
                                                                         boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
                                                                         boost::arg<1>()
                                                                         )
-                                                            ))
-//                                );
+                                                            )
+                                );
 #endif // !defined(BOOST_NO_CXX11_AUTO_DECLARATIONS) && !defined(BOOST_NO_CXX11_DECLTYPE)
 #else // BOOST_VERSION >= 104100
                     return this->op->signals(
