@@ -64,6 +64,7 @@ namespace RTT
         template<class T>
         struct AStore
         {
+            typedef T arg_type;
             T arg;
             AStore() : arg() {}
             AStore(T t) : arg(t) {}
@@ -71,12 +72,13 @@ namespace RTT
 
             T& get() { return arg; }
             void operator()(T a) { arg = a; }
-            operator T() { return arg;}
+            operator T&() { return arg; }
         };
 
         template<class T>
         struct AStore<T&>
         {
+            typedef T& arg_type;
             T* arg;
             AStore() : arg( &NA<T&>::na() ) {}
             AStore(T& t) : arg(&t) {}
@@ -84,7 +86,7 @@ namespace RTT
 
             T& get() { return *arg; }
             void operator()(T& a) { arg = &a; }
-            operator T&() { return *arg;}
+            operator T&() { return *arg; }
         };
 
         template<class T>
@@ -287,7 +289,7 @@ namespace RTT
             typename Signal<ToBind>::shared_ptr msig;
 #endif
 
-            BindStorageImpl() :  vStore(boost::ref(retv)) {}
+            BindStorageImpl() :  vStore(retv) {}
             BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv)
 #ifdef ORO_SIGNALLING_OPERATIONS
                                                          , msig(orig.msig)
@@ -335,10 +337,10 @@ namespace RTT
             void store(arg1_type t1) { a1(t1); }
             void exec() {
 #ifdef ORO_SIGNALLING_OPERATIONS
-                if (msig) (*msig)(a1.get());
+                if (msig) (*msig)(a1);
 #endif
                 if (mmeth)
-                    retv.exec( boost::bind(mmeth, boost::ref(a1.get()) ) );
+                    retv.exec( boost::bind(mmeth, a1 ) );
                 else
                     retv.executed = true;
             }
@@ -375,10 +377,10 @@ namespace RTT
             void store(arg1_type t1, arg2_type t2) { a1(t1); a2(t2); }
             void exec() {
 #ifdef ORO_SIGNALLING_OPERATIONS
-                if (msig) (*msig)(a1.get(), a2.get());
+                if (msig) (*msig)(a1, a2);
 #endif
                 if (mmeth)
-                    retv.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()) ) );
+                    retv.exec( boost::bind(mmeth, a1, a2 ) );
                 else
                     retv.executed = true;
             }
@@ -417,10 +419,10 @@ namespace RTT
             void store(arg1_type t1, arg2_type t2, arg3_type t3) { a1(t1); a2(t2); a3(t3); }
             void exec() {
 #ifdef ORO_SIGNALLING_OPERATIONS
-                if (msig) (*msig)(a1.get(), a2.get(), a3.get());
+                if (msig) (*msig)(a1, a2, a3);
 #endif
                 if (mmeth)
-                    retv.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()) ) );
+                    retv.exec( boost::bind(mmeth, a1, a2, a3 ) );
                 else
                     retv.executed = true;
             }
@@ -460,10 +462,10 @@ namespace RTT
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4) { a1(t1); a2(t2); a3(t3); a4(t4); }
             void exec() {
 #ifdef ORO_SIGNALLING_OPERATIONS
-                if (msig) (*msig)(a1.get(), a2.get(), a3.get(), a4.get());
+                if (msig) (*msig)(a1, a2, a3, a4);
 #endif
                 if (mmeth)
-                    retv.exec( boost::bind( mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()), boost::ref(a4.get()) ) );
+                    retv.exec( boost::bind( mmeth, a1, a2, a3, a4 ) );
                 else
                     retv.executed = true;
             }
@@ -505,10 +507,10 @@ namespace RTT
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5) { a1(t1); a2(t2); a3(t3); a4(t4); a5(t5);}
             void exec() {
 #ifdef ORO_SIGNALLING_OPERATIONS
-                if (msig) (*msig)(a1.get(), a2.get(), a3.get(), a4.get(), a5.get());
+                if (msig) (*msig)(a1, a2, a3, a4, a5);
 #endif
                 if (mmeth)
-                    retv.exec( boost::bind( mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()), boost::ref(a4.get()), boost::ref(a5.get()) ) );
+                    retv.exec( boost::bind( mmeth, a1, a2, a3, a4, a5 ) );
                 else
                     retv.executed = true;
             }
@@ -552,10 +554,10 @@ namespace RTT
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5, arg6_type t6) { a1(t1); a2(t2); a3(t3); a4(t4); a5(t5); a6(t6);}
             void exec() {
 #ifdef ORO_SIGNALLING_OPERATIONS
-                if (msig) (*msig)(a1.get(), a2.get(), a3.get(), a4.get(), a5.get(), a6.get());
+                if (msig) (*msig)(a1, a2, a3, a4, a5, a6);
 #endif
                 if (mmeth)
-                    retv.exec( boost::bind( mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()), boost::ref(a4.get()), boost::ref(a5.get()), boost::ref(a6.get()) ) );
+                    retv.exec( boost::bind( mmeth, a1, a2, a3, a4, a5, a6 ) );
                 else
                     retv.executed = true;
             }
@@ -601,10 +603,10 @@ namespace RTT
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5, arg6_type t6, arg7_type t7) { a1(t1); a2(t2); a3(t3); a4(t4); a5(t5); a6(t6); a7(t7);}
             void exec() {
 #ifdef ORO_SIGNALLING_OPERATIONS
-                if (msig) (*msig)(a1.get(), a2.get(), a3.get(), a4.get(), a5.get(), a6.get(), a7.get());
+                if (msig) (*msig)(a1, a2, a3, a4, a5, a6, a7);
 #endif
                 if (mmeth)
-                    retv.exec( boost::bind( mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()), boost::ref(a4.get()), boost::ref(a5.get()), boost::ref(a6.get()), boost::ref(a7.get()) ) );
+                    retv.exec( boost::bind( mmeth, a1, a2, a3, a4, a5, a6, a7 ) );
                 else
                     retv.executed = true;
             }

@@ -50,6 +50,7 @@
 #ifndef BOOST_FUSION_UNFUSED_MAX_ARITY
 #define BOOST_FUSION_UNFUSED_MAX_ARITY 7
 #endif
+#include <boost/functional/forward_adapter.hpp>
 #include <boost/fusion/functional/generation/make_unfused.hpp>
 #else
 // our code goes up to 7 FUSION_MAX_VECTOR_SIZE defaults to 10
@@ -57,10 +58,6 @@
 #define BOOST_FUSION_UNFUSED_GENERIC_MAX_ARITY 7
 #endif
 #include <boost/fusion/include/make_unfused_generic.hpp>
-#endif
-
-#ifndef USE_CPP11
-#include <boost/lambda/lambda.hpp>
 #endif
 
 #include <vector>
@@ -216,32 +213,34 @@ namespace RTT
                 if ( args.size() != OperationInterfacePartFused<Signature>::arity() ) throw wrong_number_of_args_exception(OperationInterfacePartFused<Signature>::arity(), args.size() );
                 // note: in boost 1.41.0+ the function make_unfused() is available.
 #if BOOST_VERSION >= 104100
-#ifdef USE_CPP11
-                return this->op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
-                                                                                                                    boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
-                                                                            _1
-                                                                            )
-                                                                )
-                                   );
-#else
-                return this->op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
-                                                                                                                    boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
-                                                                            boost::lambda::_1
-                                                                            )
-                                                                )
-                                   );
-#endif
-#else
-                return this->op->signals( boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
-                                                                                                                            boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()),subscriber),
-                                                                            boost::lambda::_1
-                                                                            )
-                                                                )
-                                   );
-#endif
+#if __cplusplus > 199711L
+                auto invoke_fused = boost::bind(&FusedMSignal<Signature>::invoke,
+                                        boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
+                                        boost::arg<1>()
+                                    );
+                typedef typename boost::fusion::result_of::make_unfused< decltype(invoke_fused) >::type unfused_type;
+                return this->op->signals(boost::forward_adapter<unfused_type>(boost::fusion::make_unfused(invoke_fused)));
+#else // __cplusplus > 199711L
+                return this->op->signals(
+                            boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
+                                                                    boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
+                                                                    boost::arg<1>()
+                                                                    )
+                                                        )
+                            );
+#endif // __cplusplus > 199711L
+#else // BOOST_VERSION >= 104100
+                return this->op->signals(
+                            boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
+                                                                    boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
+                                                                    boost::arg<1>()
+                                                                    )
+                                                        )
+                            );
+#endif // BOOST_VERSION >= 104100
             }
         };
-#endif
+#endif // ORO_SIGNALLING_OPERATIONS
 
         /**
          * OperationInterfacePart implementation that only provides synchronous
@@ -421,7 +420,7 @@ namespace RTT
                     assert( carity == collectArity() + 1 ); // check for arity functions. (this is actually a compile time assert).
                     if ( args.size() != carity ) throw wrong_number_of_args_exception(carity, args.size() );
                     // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
-                    return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >::sources(args.begin()), blocking );
+                    return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >::assignable(args.begin()), blocking );
                 }
 #ifdef ORO_SIGNALLING_OPERATIONS
                 virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* subscriber) const {
@@ -435,23 +434,35 @@ namespace RTT
                     a2.push_back(mwp);
                     a2.insert(a2.end(), args.begin(), args.end());
                     // note: in boost 1.41.0+ the function make_unfused() is available.
-    #if BOOST_VERSION >= 104100
-                    return this->op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
-                                                                                boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()),subscriber),
-                                                                                _1
-                                                                                )
-                                                                    )
-                                       );
-    #else
-                    return this->op->signals( boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
-                                                                                        boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()),subscriber),
-                                                                                _1
-                                                                                )
-                                                                    )
-                                       );
-    #endif
+#if BOOST_VERSION >= 104100
+#if __cplusplus > 199711L
+                    auto invoke_fused = boost::bind(&FusedMSignal<Signature>::invoke,
+                                            boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
+                                            boost::arg<1>()
+                                        );
+                    typedef typename boost::fusion::result_of::make_unfused< decltype(invoke_fused) >::type unfused_type;
+                    return this->op->signals(boost::forward_adapter<unfused_type>(boost::fusion::make_unfused(invoke_fused)));
+#else // __cplusplus > 199711L
+                    return this->op->signals(
+                                boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
+                                                                        boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
+                                                                        boost::arg<1>()
+                                                                        )
+                                                            )
+                                );
+#endif // __cplusplus > 199711L
+#else // BOOST_VERSION >= 104100
+                    return this->op->signals(
+                                boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
+                                                                        boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
+                                                                        boost::arg<1>()
+                                                                        )
+                                                            )
+                                );
+#endif // BOOST_VERSION >= 104100
                 }
-#endif
+#endif // ORO_SIGNALLING_OPERATIONS
+
                 boost::shared_ptr<base::DisposableInterface> getLocalOperation() const {
                     return this->op->getImplementation();
                 }
