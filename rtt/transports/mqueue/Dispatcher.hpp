@@ -192,10 +192,13 @@ namespace RTT {
                         contains file descriptor 4 in it. */
 
                     if (readsocks < 0) {
-                        log(Error) <<"Dispatcher failed to select on message queues. Stopped thread."<<endlog();
-                        return;
+                        if (errno != EINTR)
+                        {
+                            log(Error) <<"Dispatcher failed to select on message queues. Stopped thread. error: "<<strerror(errno)<<endlog();
+                            return;
+                        }
                     }
-                    if (readsocks == 0) {
+                    else if (readsocks == 0) {
                         // nop
                     } else // readsocks > 0
                         read_socks();
