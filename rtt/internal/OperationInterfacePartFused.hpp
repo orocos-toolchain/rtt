@@ -40,7 +40,6 @@
 #define ORO_OPERATION_INTERFACE_PART_FUSED_HPP
 
 
-#include <boost/config.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/function_types/result_type.hpp>
 #include <boost/function_types/parameter_types.hpp>
@@ -214,14 +213,14 @@ namespace RTT
                 if ( args.size() != OperationInterfacePartFused<Signature>::arity() ) throw wrong_number_of_args_exception(OperationInterfacePartFused<Signature>::arity(), args.size() );
                 // note: in boost 1.41.0+ the function make_unfused() is available.
 #if BOOST_VERSION >= 104100
-#if !defined(BOOST_NO_CXX11_AUTO_DECLARATIONS) && !defined(BOOST_NO_CXX11_DECLTYPE)
+#if __cplusplus > 199711L
                 auto invoke_fused = boost::bind(&FusedMSignal<Signature>::invoke,
                                         boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
                                         boost::arg<1>()
                                     );
                 typedef typename boost::fusion::result_of::make_unfused< decltype(invoke_fused) >::type unfused_type;
                 return this->op->signals(boost::forward_adapter<unfused_type>(boost::fusion::make_unfused(invoke_fused)));
-#else // !defined(BOOST_NO_CXX11_AUTO_DECLARATIONS) && !defined(BOOST_NO_CXX11_DECLTYPE)
+#else // __cplusplus > 199711L
                 return this->op->signals(
                             boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
                                                                     boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
@@ -229,7 +228,7 @@ namespace RTT
                                                                     )
                                                         )
                             );
-#endif // !defined(BOOST_NO_CXX11_AUTO_DECLARATIONS) && !defined(BOOST_NO_CXX11_DECLTYPE)
+#endif // __cplusplus > 199711L
 #else // BOOST_VERSION >= 104100
                 return this->op->signals(
                             boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
@@ -436,14 +435,14 @@ namespace RTT
                     a2.insert(a2.end(), args.begin(), args.end());
                     // note: in boost 1.41.0+ the function make_unfused() is available.
 #if BOOST_VERSION >= 104100
-#if !defined(BOOST_NO_CXX11_AUTO_DECLARATIONS) && !defined(BOOST_NO_CXX11_DECLTYPE)
+#if __cplusplus > 199711L
                     auto invoke_fused = boost::bind(&FusedMSignal<Signature>::invoke,
                                             boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
                                             boost::arg<1>()
                                         );
                     typedef typename boost::fusion::result_of::make_unfused< decltype(invoke_fused) >::type unfused_type;
                     return this->op->signals(boost::forward_adapter<unfused_type>(boost::fusion::make_unfused(invoke_fused)));
-#else // !defined(BOOST_NO_CXX11_AUTO_DECLARATIONS) && !defined(BOOST_NO_CXX11_DECLTYPE)
+#else // __cplusplus > 199711L
                     return this->op->signals(
                                 boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
                                                                         boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
@@ -451,7 +450,7 @@ namespace RTT
                                                                         )
                                                             )
                                 );
-#endif // !defined(BOOST_NO_CXX11_AUTO_DECLARATIONS) && !defined(BOOST_NO_CXX11_DECLTYPE)
+#endif // __cplusplus > 199711L
 #else // BOOST_VERSION >= 104100
                     return this->op->signals(
                                 boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
