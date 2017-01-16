@@ -363,8 +363,9 @@ namespace RTT
     }
 
     void Logger::allowRealTime() {
-        *this << Logger::Warning << "Enabling Real-Time Logging !" <<Logger::endl;
+        // re-enable and then log, otherwise you might not get the log event!
         d->allowRT = true;
+        *this << Logger::Warning << "Enabling Real-Time Logging !" <<Logger::endl;
     }
     void Logger::disallowRealTime() {
         *this << Logger::Warning << "Disabling Real-Time Logging !" <<Logger::endl;
