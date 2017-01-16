@@ -39,8 +39,6 @@
 #include <string>
 #include <stdlib.h>
 
-#include <boost/config.hpp>
-
 using namespace RTT;
 using namespace RTT::detail;
 
@@ -546,7 +544,7 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
     BOOST_CHECK(!write_port->connected());
 
     // Test cloning
-#ifndef BOOST_NO_CXX11_SMART_PTR
+#if __cplusplus > 199711L
     unique_ptr<base::InputPortInterface>
 #else
     auto_ptr<base::InputPortInterface>

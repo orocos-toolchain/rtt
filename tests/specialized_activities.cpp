@@ -12,7 +12,6 @@
 #include <extras/FileDescriptorActivity.hpp>
 #include <iostream>
 #include <memory>
-#include <boost/config.hpp>
 
 #include <rtt-detail-fwd.hpp>
 using namespace RTT::detail;
@@ -57,7 +56,7 @@ BOOST_FIXTURE_TEST_SUITE(SecializedActivitiesSuite,SpecializedActivities)
 
 BOOST_AUTO_TEST_CASE( testFileDescriptorActivity )
 {
-#ifndef BOOST_NO_CXX11_SMART_PTR
+#if __cplusplus > 199711L
     unique_ptr<TestFDActivity>
 #else
     auto_ptr<TestFDActivity>

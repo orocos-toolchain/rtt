@@ -48,7 +48,6 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include <boost/config.hpp>
 #include <boost/lexical_cast.hpp>
 #include "../Logger.hpp"
 #include "TypeInfo.hpp"
@@ -104,7 +103,7 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
     targetbag.setType( dsb->getTypeName() );
 
     // needed for recursion.
-#ifndef BOOST_NO_CXX11_SMART_PTR
+#if __cplusplus > 199711L
     unique_ptr< Property<PropertyBag> >
 #else
     auto_ptr< Property<PropertyBag> >
