@@ -26,7 +26,6 @@
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
 
-#include <boost/config.hpp>
 #include <boost/function_types/function_type.hpp>
 #include <OperationCaller.hpp>
 
@@ -132,7 +131,7 @@ BOOST_AUTO_TEST_CASE( testPortTaskInterface )
     // We're adding the above ports to another TC as well.
     // This is not supported behavior, as it will 'overtake' ownership,
      {
-#ifndef BOOST_NO_CXX11_SMART_PTR
+#if __cplusplus > 199711L
         unique_ptr<TaskContext> tc1(new TaskContext( "tc", TaskContext::Stopped ));
         unique_ptr<TaskContext> tc2(new TaskContext( "tc2", TaskContext::Stopped ));
 #else
@@ -1045,7 +1044,7 @@ BOOST_AUTO_TEST_CASE(testPlainPortNotSignalling)
 BOOST_AUTO_TEST_CASE(testPortDataSource)
 {
     OutputPort<int> wp1("Write");
-#ifndef BOOST_NO_CXX11_SMART_PTR
+#if __cplusplus > 199711L
     unique_ptr<InputPortInterface>
 #else
     auto_ptr<InputPortInterface>
