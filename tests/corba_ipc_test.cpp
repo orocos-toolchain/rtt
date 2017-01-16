@@ -39,8 +39,6 @@
 #include <string>
 #include <stdlib.h>
 
-#include <boost/config.hpp>
-
 using namespace RTT;
 using namespace RTT::detail;
 
