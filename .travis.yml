@@ -35,6 +35,11 @@ matrix:
     - env: COMPILER=clang-3.8 CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
     - env: COMPILER=clang-3.8 CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
 
+branches:
+  only:
+  - master
+  - /^toolchain-.*$/
+
 before_install:
   # Set C/C++ compiler
   - |
