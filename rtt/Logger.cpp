@@ -421,6 +421,8 @@ namespace RTT
 
     Logger& Logger::in(const std::string& modname)
     {
+        if ( !d->maylog() )
+            return *this;
         os::MutexLock lock( d->inpguard );
         d->moduleptr = modname.c_str();
         return *this;
@@ -428,12 +430,16 @@ namespace RTT
 
     Logger& Logger::out(const std::string& oldmod)
     {
+        if ( !d->maylog() )
+            return *this;
         os::MutexLock lock( d->inpguard );
         d->moduleptr = oldmod.c_str();
         return *this;
     }
 
     std::string Logger::getLogModule() const {
+        if ( !d->maylog() )
+            return "";
         os::MutexLock lock( d->inpguard );
         std::string ret = d->moduleptr.c_str();
         return ret;
