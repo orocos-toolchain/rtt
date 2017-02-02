@@ -124,6 +124,7 @@ namespace RTT
             // here would only lead to calling invalid virtual functions.
             // [Rule no 1: Don't call virtual functions in a destructor.]
             // [Rule no 2: Don't call virtual functions in a constructor.]
+            this->clear();
 
             // these need to be freed before we cleanup the EE:
             localservs.clear();
