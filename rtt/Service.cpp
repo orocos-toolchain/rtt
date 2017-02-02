@@ -103,10 +103,11 @@ namespace RTT {
     }
 
     void Service::removeService( string const& name) {
-        // carefully written to avoid destructor to call back on us when called from removeService.
+        // carefully written to avoid destructor to call back on us when called from clear().
         if ( services.count(name) ) {
             shared_ptr sp = services.find(name)->second;
             services.erase(name);
+            sp->setParent(Service::shared_ptr());
             sp.reset(); // this possibly deletes.
         }
     }
@@ -263,19 +264,8 @@ namespace RTT {
 
         this->mowner = new_owner;
 
-        for( Services::iterator it= services.begin(); it != services.end(); ++it) {
+        for( Services::iterator it= services.begin(); it != services.end(); ++it)
             it->second->setOwner( new_owner );
-            if (new_owner) {
-                // we pass and store a shared ptr in setParent, so we hack it like this:
-                shared_ptr me;
-                try {
-                    me = shared_from_this();
-                } catch ( boost::bad_weak_ptr& bw ) {
-                    me.reset(this); // take ownership
-                }
-                it->second->setParent( me );
-            }
-        }
     }
 
     void Service::setParent( Service::shared_ptr p) {

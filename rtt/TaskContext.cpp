@@ -128,7 +128,9 @@ namespace RTT
 
             // these need to be freed before we cleanup the EE:
             localservs.clear();
+            tcservice->setOwner(0);
             tcservice.reset();
+            tcrequests->setOwner(0);
             tcrequests.reset();
 
             // remove from all users.

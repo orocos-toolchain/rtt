@@ -95,6 +95,9 @@ namespace RTT
             it->second->setCaller( new_owner ? new_owner->engine() : 0);
 
         this->mrowner = new_owner;
+
+        for(Requests::iterator it = mrequests.begin(); it != mrequests.end(); ++it)
+            it->second->setOwner( new_owner );
     }
 
     ServiceRequester::shared_ptr ServiceRequester::requires() {
