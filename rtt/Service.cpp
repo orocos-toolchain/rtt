@@ -123,26 +123,18 @@ namespace RTT {
     }
 
     Service::shared_ptr Service::provides(const std::string& service_name) {
-        if (service_name == "this")
-            return provides();
-        shared_ptr sp = services[service_name];
+        shared_ptr sp = getService(service_name);
         if (sp)
             return sp;
         sp = boost::make_shared<Service>(service_name, mowner);
-        sp->setOwner( mowner );
-        // we pass and store a shared ptr in setParent, so we hack it like this:
-        shared_ptr me;
-        try {
-            me = shared_from_this();
-        } catch ( boost::bad_weak_ptr& bw ) {
-            me.reset(this); // take ownership
-        }
-        sp->setParent( me );
-        services[service_name] = sp;
-        return sp;
+        if ( addService(sp) )
+            return sp;
+        return shared_ptr();
     }
 
     Service::shared_ptr Service::getService(const std::string& service_name) {
+        if (service_name == "this")
+            return provides();
         Services::iterator it = services.find(service_name);
         if (it != services.end() )
             return it->second;
