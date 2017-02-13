@@ -67,7 +67,12 @@ namespace RTT
              * is called next.
              * @param ee The pointer to the engine calling us.
              */
-            void loaded(ExecutionEngine* ee) { engine = ee; this->loading();}
+            void loaded(ExecutionEngine* ee) {
+                if (!engine) {
+                    engine = ee;
+                    this->loading();
+                }
+            }
 
             /**
              * Called by the ExecutionEngine \a ee to tell
@@ -75,7 +80,12 @@ namespace RTT
              * user's loading() function
              * is called first and the engine pointer is cleared next.
              */
-            void unloaded() { this->unloading(); engine = 0;}
+            void unloaded() {
+                if (engine) {
+                    this->unloading();
+                    engine = 0;
+                }
+            }
 
             ExecutableInterface() : engine(0) {}
             virtual ~ExecutableInterface() {}

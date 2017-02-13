@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE(TestScriptingFunction)
     i = 0;
 
     // define a function (added to scripting interface):
-    string statements="void func1(void) { test.increase(); }\n";
+    string statements="void func1(void) { test.printNumber(\"[ENTER func1()] CycleCounter = \", CycleCounter); test.increase(); test.printNumber(\"[EXIT func1()] CycleCounter = \", CycleCounter); }\n";
     r = sc->eval(statements);
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 0);
@@ -203,28 +203,28 @@ BOOST_AUTO_TEST_CASE(TestScriptingFunction)
     BOOST_CHECK_EQUAL( i, 0);
     BOOST_CHECK( GlobalService::Instance()->provides()->hasMember("gfunc1"));
 
-    // nested function:
-    statements="void func2(void) { func1(); }\n";
+    // nested function call:
+    statements="void func2(void) { test.printNumber(\"[ENTER func2()] CycleCounter = \", CycleCounter); func1(); test.printNumber(\"[EXIT func2()] CycleCounter = \", CycleCounter); }\n";
     r = sc->eval(statements);
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 0);
     BOOST_CHECK( tc->provides("scripting")->hasMember("func2"));
 
-    // nested exported function:
+    // nested exported function call:
     statements="void efunc2(void) { efunc1(); }\n";
     r = sc->eval(statements);
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 0);
     BOOST_CHECK( tc->provides("scripting")->hasMember("efunc2"));
 
-    // nested global function:
+    // nested global function call:
     statements="void gfunc2(void) { gfunc1(); }\n";
     r = sc->eval(statements);
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 0);
     BOOST_CHECK( tc->provides("scripting")->hasMember("gfunc2"));
 
-    // nested local function:
+    // nested local function call:
     statements="void lfunc2(void) { lfunc1(); }\n";
     r = sc->eval(statements);
     BOOST_CHECK( r );
@@ -255,25 +255,25 @@ BOOST_AUTO_TEST_CASE(TestScriptingFunction)
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 4);
 
-    // invoke a nested function:
+    // invoke a function with a nested function call:
     statements="func2()\n";
     r = sc->eval(statements);
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 5);
 
-    // invoke a nested exported function:
+    // invoke a function with a nested exported function call:
     statements="efunc2()\n";
     r = sc->eval(statements);
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 6);
 
-    // invoke a nested global function:
+    // invoke a function with a nested global function call:
     statements="gfunc2()\n";
     r = sc->eval(statements);
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 7);
 
-    // invoke a nested local function:
+    // invoke a function with a nested local function call:
     statements="lfunc2()\n";
     r = sc->eval(statements);
     BOOST_CHECK( r );
@@ -326,6 +326,54 @@ BOOST_AUTO_TEST_CASE(TestScriptingFunction)
     r = sc->eval(statements);
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 14);
+}
+
+BOOST_AUTO_TEST_CASE(TestScriptingFunctionWithYield)
+{
+    PluginLoader::Instance()->loadService("scripting",tc);
+
+    // We need a periodic activity for this test case so that yielded functions
+    // will be executed again while we are waiting.
+    tc->setPeriod(0.1);
+
+//    // We use a sequential activity in order to force execution on trigger().
+//    tc->stop();
+//    BOOST_CHECK( tc->setActivity( new SequentialActivity() ) );
+//    tc->start();
+
+    boost::shared_ptr<Scripting> sc = tc->getProvider<Scripting>("scripting");
+    BOOST_REQUIRE( sc );
+    BOOST_CHECK ( sc->ready() );
+    bool r;
+
+    // set test counter to zero:
+    i = 0;
+
+    // define a function that yields:
+    string statements="void func1(void) { test.printNumber(\"[ENTER func1()] CycleCounter = \", CycleCounter); test.increase(); yield; test.increase(); test.printNumber(\"[EXIT func1()] CycleCounter = \", CycleCounter); }\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 0);
+    BOOST_CHECK( tc->provides("scripting")->hasMember("func1"));
+
+    // define a function that calls func1:
+    statements = "void func2(void) { test.printNumber(\"[ENTER func2()] CycleCounter = \", CycleCounter); func1(); test.printNumber(\"[EXIT func2()] CycleCounter = \", CycleCounter); }\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 0);
+    BOOST_CHECK( tc->provides("scripting")->hasMember("func2"));
+
+    // invoke func1()
+    statements = "func1()\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 2);
+
+    // invoke func2()
+    statements="func2()\n";
+    r = sc->eval(statements); // deadlock!!!!
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 4);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

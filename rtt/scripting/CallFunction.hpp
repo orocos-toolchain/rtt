@@ -68,7 +68,7 @@ namespace RTT
         bool maccept;
 
         bool fooDone() {
-            return _foo->inError() || _foo->isStopped();
+            return maccept && (_foo->inError() || _foo->isStopped());
         }
 
     public:
@@ -94,6 +94,20 @@ namespace RTT
             delete minit;
         }
 
+        /**
+         * Enqueue the function in the target engine (mrunner) and wait until
+         * it is finished or in error state.
+         *
+         * As a first attempt the function is enqueued in the process queue of
+         * the engine (@see ExecutionEngine::process()), which calls into
+         * executeAndDispose() for actual execution in its callback step. If
+         * ProgramInterface::execute() would return true and the program did not
+         * yet finish (e.g. as a result of a yield command), it will be enqueued
+         * in the function queue for synchronous execution with the next update step.
+         *
+         * @implements RTT::base::ActionInterface::execute()
+         *
+         */
         virtual bool execute() {
             // this is asyn behaviour :
             if (isqueued == false ) {
@@ -101,27 +115,39 @@ namespace RTT
                 if (!minit->execute()) return false;
                 _foo->loaded(mrunner);
                 // we ignore the ret value of start(). It could have been auto-started during loading() of the function.
-                if ( _foo->needsStart() ) // _foo might be auto-started in runFunction()
+                if ( _foo->needsStart() )
                     _foo->start();
                 maccept = mrunner->process( this );
                 if ( maccept ) {
                     // block for the result: foo stopped or in error
-                    mrunner->waitForMessages(boost::bind(&CallFunction::fooDone,this) );
+                    mrunner->waitForMessages(boost::bind(&CallFunction::fooDone, this) );
                     if ( _foo->inError() ) {
                         throw false;
                     }
                 }
-                return _foo->isStopped();
+                return maccept && _foo->isStopped();
             }
             return true;
         }
 
-        // execute function in the thread of the caller
+        /**
+         * Message callback that executes the function once.
+         *
+         * Will be processed in the mrunner engine. If necessary, enqueue the
+         * function in the function queue for later synchronous execution
+         * (@see execute()).
+         *
+         * @implements RTT::base::DisposableInterface::executeAndDispose()
+         */
         virtual void executeAndDispose() {
-            if ( _foo->execute() == false ){
+            if ( _foo->execute() == false ) {
                 _foo->unloaded();
-            } else {
-                mrunner->process( this );
+            } else if ( !_foo->isStopped() ) {
+                // The function yielded!
+                if ( !mrunner->runFunction( _foo.get() ) ) {
+                    maccept = false;
+                    mrunner->process(this); // wakeup the caller
+                }
             }
         }
 
