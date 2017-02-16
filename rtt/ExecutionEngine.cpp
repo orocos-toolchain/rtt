@@ -335,7 +335,11 @@ namespace RTT
     void ExecutionEngine::waitAndProcessMessages(boost::function<bool(void)> const& pred)
     {
         assert( mmaster == 0 );
-        while ( !pred() ){
+        // optimization for the case the predicate is already true
+        if ( pred() )
+            return;
+
+        while ( true ) {
             // may not be called while holding the msg_lock !!!
             this->processMessages();
             {
