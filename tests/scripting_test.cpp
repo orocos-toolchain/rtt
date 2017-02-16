@@ -45,11 +45,6 @@ BOOST_AUTO_TEST_CASE(TestGetProvider)
 
     PluginLoader::Instance()->loadService("scripting",tc);
 
-    // We use a sequential activity in order to force execution on trigger().
-//    tc->stop();
-//    BOOST_CHECK( tc->setActivity( new SequentialActivity() ) );
-//    tc->start();
-
     boost::shared_ptr<Scripting> sc = tc->getProvider<Scripting>("scripting");
     BOOST_REQUIRE( sc );
     BOOST_CHECK ( sc->ready() );
@@ -76,11 +71,6 @@ BOOST_AUTO_TEST_CASE(TestGetProvider)
 BOOST_AUTO_TEST_CASE(TestScriptingParser)
 {
     PluginLoader::Instance()->loadService("scripting",tc);
-
-    // We use a sequential activity in order to force execution on trigger().
-//    tc->stop();
-//    BOOST_CHECK( tc->setActivity( new SequentialActivity() ) );
-//    tc->start();
 
     boost::shared_ptr<Scripting> sc = tc->getProvider<Scripting>("scripting");
     BOOST_REQUIRE( sc );
@@ -162,11 +152,6 @@ BOOST_AUTO_TEST_CASE(TestScriptingFunction)
 {
     PluginLoader::Instance()->loadService("scripting",tc);
 
-    // We use a sequential activity in order to force execution on trigger().
-//    tc->stop();
-//    BOOST_CHECK( tc->setActivity( new SequentialActivity() ) );
-//    tc->start();
-
     boost::shared_ptr<Scripting> sc = tc->getProvider<Scripting>("scripting");
     BOOST_REQUIRE( sc );
     BOOST_CHECK ( sc->ready() );
@@ -176,7 +161,7 @@ BOOST_AUTO_TEST_CASE(TestScriptingFunction)
     i = 0;
 
     // define a function (added to scripting interface):
-    string statements="void func1(void) { test.printNumber(\"[ENTER func1()] CycleCounter = \", CycleCounter); test.increase(); test.printNumber(\"[EXIT func1()] CycleCounter = \", CycleCounter); }\n";
+    string statements="void func1(void) { test.increase(); }\n";
     r = sc->eval(statements);
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 0);
@@ -204,7 +189,7 @@ BOOST_AUTO_TEST_CASE(TestScriptingFunction)
     BOOST_CHECK( GlobalService::Instance()->provides()->hasMember("gfunc1"));
 
     // nested function call:
-    statements="void func2(void) { test.printNumber(\"[ENTER func2()] CycleCounter = \", CycleCounter); func1(); test.printNumber(\"[EXIT func2()] CycleCounter = \", CycleCounter); }\n";
+    statements="void func2(void) { func1(); }\n";
     r = sc->eval(statements);
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 0);
@@ -336,11 +321,6 @@ BOOST_AUTO_TEST_CASE(TestScriptingFunctionWithYield)
     // will be executed again while we are waiting.
     tc->setPeriod(0.1);
 
-//    // We use a sequential activity in order to force execution on trigger().
-//    tc->stop();
-//    BOOST_CHECK( tc->setActivity( new SequentialActivity() ) );
-//    tc->start();
-
     boost::shared_ptr<Scripting> sc = tc->getProvider<Scripting>("scripting");
     BOOST_REQUIRE( sc );
     BOOST_CHECK ( sc->ready() );
@@ -356,8 +336,8 @@ BOOST_AUTO_TEST_CASE(TestScriptingFunctionWithYield)
     BOOST_CHECK_EQUAL( i, 0);
     BOOST_CHECK( tc->provides("scripting")->hasMember("func1"));
 
-    // define a function that calls func1:
-    statements = "void func2(void) { test.printNumber(\"[ENTER func2()] CycleCounter = \", CycleCounter); func1(); test.printNumber(\"[EXIT func2()] CycleCounter = \", CycleCounter); }\n";
+    // define a function that calls func1, yields and calls func1 again:
+    statements = "void func2(void) { test.printNumber(\"[ENTER func2()] CycleCounter = \", CycleCounter); func1(); yield; func1(); test.printNumber(\"[EXIT func2()] CycleCounter = \", CycleCounter); }\n";
     r = sc->eval(statements);
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 0);
@@ -371,9 +351,9 @@ BOOST_AUTO_TEST_CASE(TestScriptingFunctionWithYield)
 
     // invoke func2()
     statements="func2()\n";
-    r = sc->eval(statements); // deadlock!!!!
+    r = sc->eval(statements);
     BOOST_CHECK( r );
-    BOOST_CHECK_EQUAL( i, 4);
+    BOOST_CHECK_EQUAL( i, 6);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
