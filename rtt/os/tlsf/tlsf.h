@@ -53,6 +53,11 @@ extern void tlsf_free(void *ptr);
 extern void *tlsf_realloc(void *ptr, size_t size);
 extern void *tlsf_calloc(size_t nelem, size_t elem_size);
 
+#if _DEBUG_TLSF_
+extern void print_tlsf_mp();
+extern void print_all_blocks_mp();
+#endif
+
 #ifdef	__cplusplus
 }
 #endif

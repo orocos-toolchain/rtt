@@ -1097,8 +1097,10 @@ void *calloc_ex(size_t nelem, size_t elem_size, void *mem_pool)
 
 extern void dump_memory_region(unsigned char *mem_ptr, unsigned int size);
 extern void print_block(bhdr_t * b);
+//extern void print_tlsf_mp(); in tlsf.h
 extern void print_tlsf(tlsf_t * tlsf);
-void print_all_blocks(tlsf_t * tlsf);
+//extern void print_all_blocks_mp(); in tlsf.h
+extern void print_all_blocks(tlsf_t * tlsf);
 
 void dump_memory_region(unsigned char *mem_ptr, unsigned int size)
 {
@@ -1158,6 +1160,15 @@ void print_block(bhdr_t * b)
         PRINT_MSG("prev used)\n");
 }
 
+// use default memory pool
+void print_tlsf_mp()
+{
+    if (0 == mp) return;
+    TLSF_ACQUIRE_LOCK(&((tlsf_t *)mp)->lock);
+    print_tlsf((tlsf_t *)mp);
+    TLSF_RELEASE_LOCK(&((tlsf_t *)mp)->lock);
+}
+
 void print_tlsf(tlsf_t * tlsf)
 {
     bhdr_t *next;
@@ -1180,6 +1191,15 @@ void print_tlsf(tlsf_t * tlsf)
             }
         }
     }
+}
+
+// use default memory pool
+void print_all_blocks_mp()
+{
+    if (0 == mp) return;
+    TLSF_ACQUIRE_LOCK(&((tlsf_t *)mp)->lock);
+    print_all_blocks((tlsf_t *)mp);
+    TLSF_RELEASE_LOCK(&((tlsf_t *)mp)->lock);
 }
 
 void print_all_blocks(tlsf_t * tlsf)
