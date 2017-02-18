@@ -249,6 +249,7 @@
 #ifdef USE_PRINTF
 #include <stdio.h>
 #define PRINT_MSG(fmt, args...) printf(fmt, ## args)
+#define FPRINT_MSG(ff, fmt, args...) fprintf(ff, fmt, ## args)
 #define ERROR_MSG(fmt, args...) printf(fmt, ## args)
 #else
 # if !defined(PRINT_MSG)
@@ -1096,11 +1097,11 @@ void *calloc_ex(size_t nelem, size_t elem_size, void *mem_pool)
 /* haven't too much worth.  To enable them, _DEBUG_TLSF_ must be set.  */
 
 extern void dump_memory_region(unsigned char *mem_ptr, unsigned int size);
-extern void print_block(bhdr_t * b);
+extern void print_block(FILE* ff, bhdr_t * b);
 //extern void print_tlsf_mp(); in tlsf.h
-extern void print_tlsf(tlsf_t * tlsf);
+extern void print_tlsf(FILE* ff, tlsf_t * tlsf);
 //extern void print_all_blocks_mp(); in tlsf.h
-extern void print_all_blocks(tlsf_t * tlsf);
+extern void print_all_blocks(FILE* ff, tlsf_t * tlsf);
 
 void dump_memory_region(unsigned char *mem_ptr, unsigned int size)
 {
@@ -1141,52 +1142,57 @@ void dump_memory_region(unsigned char *mem_ptr, unsigned int size)
     PRINT_MSG("\n\n");
 }
 
-void print_block(bhdr_t * b)
+void print_block(FILE* ff, bhdr_t * b)
 {
     if (!b)
         return;
-    PRINT_MSG(">> [%p] (", b);
+    FPRINT_MSG(ff, ">> [%p] (", b);
     if ((b->size & BLOCK_SIZE))
-        PRINT_MSG("%lu bytes, ", (unsigned long) ((intptr_t)b->size & BLOCK_SIZE));
+        FPRINT_MSG(ff, "%lu bytes, ", (unsigned long) ((intptr_t)b->size & BLOCK_SIZE));
     else
-        PRINT_MSG("sentinel, ");
+        FPRINT_MSG(ff, "sentinel, ");
     if ((b->size & BLOCK_STATE) == FREE_BLOCK)
-        PRINT_MSG("free [%p, %p], ", b->ptr.free_ptr.prev, b->ptr.free_ptr.next);
+        FPRINT_MSG(ff, "free [%p, %p], ", b->ptr.free_ptr.prev, b->ptr.free_ptr.next);
     else
-        PRINT_MSG("used, ");
+        FPRINT_MSG(ff, "used, ");
     if ((b->size & PREV_STATE) == PREV_FREE)
-        PRINT_MSG("prev. free [%p])\n", (void*)((intptr_t)b->prev_hdr & BLOCK_SIZE));
+        FPRINT_MSG(ff, "prev. free [%p])\n", (void*)((intptr_t)b->prev_hdr & BLOCK_SIZE));
     else
-        PRINT_MSG("prev used)\n");
+        FPRINT_MSG(ff, "prev used)\n");
 }
 
 // use default memory pool
-void print_tlsf_mp()
+void print_tlsf_mp(FILE* ff)
 {
+    if (0 == ff) return;
     if (0 == mp) return;
+
     TLSF_ACQUIRE_LOCK(&((tlsf_t *)mp)->lock);
-    print_tlsf((tlsf_t *)mp);
+    print_tlsf(ff, (tlsf_t *)mp);
     TLSF_RELEASE_LOCK(&((tlsf_t *)mp)->lock);
 }
 
-void print_tlsf(tlsf_t * tlsf)
+void print_tlsf(FILE* ff, tlsf_t * tlsf)
 {
+    if (0 == ff) return;
+    if (0 == tlsf) return;
+
     bhdr_t *next;
     int i, j;
 
-    PRINT_MSG("\nTLSF at %p\n", tlsf);
+    FPRINT_MSG(ff, "\nTLSF at %p\n", tlsf);
 
-    PRINT_MSG("FL bitmap: 0x%x\n\n", (unsigned) tlsf->fl_bitmap);
+    FPRINT_MSG(ff, "FL bitmap: 0x%x\n\n", (unsigned) tlsf->fl_bitmap);
 
     for (i = 0; i < REAL_FLI; i++) {
         if (tlsf->sl_bitmap[i])
-            PRINT_MSG("SL bitmap 0x%x\n", (unsigned) tlsf->sl_bitmap[i]);
+            FPRINT_MSG(ff, "SL bitmap 0x%x\n", (unsigned) tlsf->sl_bitmap[i]);
         for (j = 0; j < MAX_SLI; j++) {
             next = tlsf->matrix[i][j];
             if (next)
-                PRINT_MSG("-> [%d][%d]\n", i, j);
+                FPRINT_MSG(ff, "-> [%d][%d]\n", i, j);
             while (next) {
-                print_block(next);
+                print_block(ff, next);
                 next = next->ptr.free_ptr.next;
             }
         }
@@ -1194,24 +1200,29 @@ void print_tlsf(tlsf_t * tlsf)
 }
 
 // use default memory pool
-void print_all_blocks_mp()
+void print_all_blocks_mp(FILE* ff)
 {
+    if (0 == ff) return;
     if (0 == mp) return;
+
     TLSF_ACQUIRE_LOCK(&((tlsf_t *)mp)->lock);
-    print_all_blocks((tlsf_t *)mp);
+    print_all_blocks(ff, (tlsf_t *)mp);
     TLSF_RELEASE_LOCK(&((tlsf_t *)mp)->lock);
 }
 
-void print_all_blocks(tlsf_t * tlsf)
+void print_all_blocks(FILE* ff, tlsf_t * tlsf)
 {
+    if (0 == ff) return;
+    if (0 == tlsf) return;
+
     area_info_t *ai;
     bhdr_t *next;
-    PRINT_MSG("\nTLSF at %p\nALL BLOCKS\n\n", tlsf);
+    FPRINT_MSG(ff, "\nTLSF at %p\nALL BLOCKS\n\n", tlsf);
     ai = tlsf->area_head;
     while (ai) {
         next = (bhdr_t *) ((char *) ai - BHDR_OVERHEAD);
         while (next) {
-            print_block(next);
+            print_block(ff, next);
             if ((next->size & BLOCK_SIZE))
                 next = GET_NEXT_BLOCK(next->ptr.buffer, next->size & BLOCK_SIZE);
             else
