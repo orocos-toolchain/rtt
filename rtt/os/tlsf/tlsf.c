@@ -241,8 +241,10 @@ typedef struct TLSF_struct {
 #if TLSF_STATISTIC
     /* These can not be calculated outside tlsf because we
      * do not know the sizes when freeing/reallocing memory. */
-    size_t used_size;
-    size_t max_size;
+    size_t pool_size;       // total pool area
+    size_t overhead_size;   // TLSF overhead
+    size_t used_size;       // currently used (includes overhead)
+    size_t max_size;        // max used (includes overhead)
 #endif
 
     /* A linked list holding all the existing areas */
@@ -531,7 +533,9 @@ size_t init_memory_pool(size_t mem_pool_size, void *mem_pool)
     tlsf->area_head = TYPE_PUN(area_info_t, u8_t, ib->ptr.buffer);
 
 #if TLSF_STATISTIC
+    tlsf->pool_size = mem_pool_size;
     tlsf->used_size = mem_pool_size - (b->size & BLOCK_SIZE);
+    tlsf->overhead_size = tlsf->used_size;
     tlsf->max_size = tlsf->used_size;
 #endif
 
@@ -616,6 +620,52 @@ size_t add_new_area(void *area, size_t area_size, void *mem_pool)
     return (b0->size & BLOCK_SIZE);
 }
 
+
+/******************************************************************/
+size_t get_pool_size(void *mem_pool)
+{
+/******************************************************************/
+#if TLSF_STATISTIC
+    return ((tlsf_t *) mem_pool)->pool_size;
+#else
+    return 0;
+#endif
+}
+
+/******************************************************************/
+// use default memory pool
+size_t get_pool_size_mp()
+{
+/******************************************************************/
+#if TLSF_STATISTIC
+    return (mp ? ((tlsf_t *) mp)->pool_size : 0);
+#else
+    return 0;
+#endif
+}
+
+/******************************************************************/
+size_t get_overhead_size(void *mem_pool)
+{
+/******************************************************************/
+#if TLSF_STATISTIC
+    return ((tlsf_t *) mem_pool)->overhead_size;
+#else
+    return 0;
+#endif
+}
+
+/******************************************************************/
+// use default memory pool
+size_t get_overhead_size_mp()
+{
+/******************************************************************/
+#if TLSF_STATISTIC
+    return (mp ? ((tlsf_t *) mp)->overhead_size : 0);
+#else
+    return 0;
+#endif
+}
 
 /******************************************************************/
 size_t get_used_size(void *mem_pool)
@@ -1114,7 +1164,9 @@ void print_all_blocks(FILE* ff, tlsf_t * tlsf)
 
     area_info_t *ai;
     bhdr_t *next;
-    FPRINT_MSG(ff, "\nTLSF at %p\nALL BLOCKS\n\n", tlsf);
+    FPRINT_MSG(ff, "\nTLSF at %p\nALL BLOCKS\n", tlsf);
+    FPRINT_MSG(ff, "Sizes pool=%u overhead=%u used=%u max-used=%u\n\n",
+               tlsf->pool_size, tlsf->overhead_size, tlsf->used_size, tlsf->max_size);
     ai = tlsf->area_head;
     while (ai) {
         next = (bhdr_t *) ((char *) ai - BHDR_OVERHEAD);
