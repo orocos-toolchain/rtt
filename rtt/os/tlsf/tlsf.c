@@ -1165,8 +1165,15 @@ void print_all_blocks(FILE* ff, tlsf_t * tlsf)
     area_info_t *ai;
     bhdr_t *next;
     FPRINT_MSG(ff, "\nTLSF at %p\nALL BLOCKS\n", tlsf);
-    FPRINT_MSG(ff, "Sizes pool=%u overhead=%u used=%u max-used=%u\n\n",
-               tlsf->pool_size, tlsf->overhead_size, tlsf->used_size, tlsf->max_size);
+    FPRINT_MSG(ff, "Sizes (bytes)\n");
+    FPRINT_MSG(ff, "  pool=%lu initial overhead=%lu max-possible-available=%lu\n",
+               tlsf->pool_size, tlsf->overhead_size, (tlsf->pool_size - tlsf->overhead_size));
+    FPRINT_MSG(ff, "  used=%lu max-used=%lu (both including initial overhead)\n",
+               tlsf->used_size, tlsf->max_size);
+    FPRINT_MSG(ff, "  used=%lu max-used=%lu (both without initial overhead)\n",
+               (tlsf->used_size - tlsf->overhead_size), (tlsf->max_size - tlsf->overhead_size));
+    FPRINT_MSG(ff, "  sizeof items bhdr_t=%lu area_info_t=%lu tlsf_t=%lu\n\n" ,
+               sizeof(bhdr_t), sizeof(area_info_t), sizeof(tlsf_t));
     ai = tlsf->area_head;
     while (ai) {
         next = (bhdr_t *) ((char *) ai - BHDR_OVERHEAD);
