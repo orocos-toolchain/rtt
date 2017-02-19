@@ -55,6 +55,7 @@ namespace RTT
 	    // fixme check return value and bail out if necessary
 	    pthread_attr_setschedparam(&(main_task->attr), &sp);
         main_task->priority = sp.sched_priority;
+        main_task->pid = getpid();
         main_task->wait_policy = ORO_WAIT_ABS;
 	    return 0;
 	}
@@ -268,6 +269,8 @@ namespace RTT
 
 	INTERNAL_QUAL unsigned int rtos_task_get_pid(const RTOS_TASK* task)
 	{
+		if (task)
+			return task->pid;
 		return 0;
 	}
 
