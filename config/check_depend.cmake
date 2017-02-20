@@ -66,7 +66,7 @@ if ( PLUGINS_ENABLE )
 endif()
 
 if(Boost_INCLUDE_DIR)
-  message("Boost found in ${Boost_INCLUDE_DIR}")
+  #message(STATUS "Boost found in ${Boost_INCLUDE_DIR}")  # already printed by find_package(Boost)
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_INCLUDE_DIR} )
   if(OROCOS_TARGET STREQUAL "win32")
     add_definitions(-DBOOST_ALL_NO_LIB)
@@ -111,7 +111,7 @@ else(XERCES_FOUND)
 endif(XERCES_FOUND)
 
 # Check for OS/Target specific dependencies:
-message("Orocos target is ${OROCOS_TARGET}")
+message(STATUS "Orocos target is ${OROCOS_TARGET}")
 string(TOUPPER ${OROCOS_TARGET} OROCOS_TARGET_CAP)
 
 if ( NOT ";lxrt;gnulinux;xenomai;macosx;win32;" MATCHES ".*;${OROCOS_TARGET};.*")
@@ -176,6 +176,9 @@ if(OROCOS_TARGET STREQUAL "gnulinux")
 
   find_package(Boost 1.36 COMPONENTS thread )
   find_package(Pthread REQUIRED)
+
+  include(CheckLibraryExists)
+  check_library_exists(pthread "pthread_setname_np" "" ORO_HAVE_PTHREAD_SETNAME_NP)
 
   add_definitions( -Wall )
 
