@@ -114,7 +114,7 @@ extern "C"
      * This function should return ticks,
      * but we use ticks == nsecs in userspace
      */
-    static inline NANO_TIME rtos_get_time_ticks()
+    static inline NANO_TIME rtos_get_time_ticks(void)
     {
         return rtos_get_time_ns();
     }
@@ -275,11 +275,11 @@ extern "C"
         return pthread_mutex_unlock(m);
     }
 
-    static inline void rtos_enable_rt_warning()
+    static inline void rtos_enable_rt_warning(void)
     {
     }
 
-    static inline void rtos_disable_rt_warning()
+    static inline void rtos_disable_rt_warning(void)
     {
     }
 

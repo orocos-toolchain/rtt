@@ -1,6 +1,6 @@
 /*
  * Two Levels Segregate Fit memory allocator (TLSF)
- * Version 2.4.4
+ * Version 2.4.6
  *
  * Written by Miguel Masmano Tello <mimastel@doctor.upv.es>
  *
@@ -41,7 +41,7 @@
  * - Added rtl_realloc and rtl_calloc function
  * - Implemented realloc clever support.
  * - Added some test code in the example directory.
- *
+ * - Bug fixed (discovered by the rockbox project: www.rockbox.org).       
  *
  * (Oct 23 2006) Adam Scislowicz:
  *
@@ -60,9 +60,15 @@
 #include "../fosi.h"
 #endif
 
+#ifndef USE_PRINTF
+#define USE_PRINTF      (1)
+#endif
+
 #include <string.h>
 
+#ifndef TLSF_USE_LOCKS
 #define	TLSF_USE_LOCKS 	(1)
+#endif
 
 #ifndef TLSF_STATISTIC
 #define	TLSF_STATISTIC 	(0)
@@ -107,18 +113,12 @@
 
 #if USE_MMAP
 #include <sys/mman.h>
-
-#ifdef	__APPLE__
-#define	TLSF_MAP	MAP_PRIVATE | MAP_ANON
-#else
-#define	TLSF_MAP	MAP_PRIVATE | MAP_ANONYMOUS
-#endif
 #endif
 
 #ifndef NVALGRIND
 #include <valgrind/memcheck.h>
-#include <string.h>
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+//#include <string.h>
+//#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define TLSF_VALGRIND_CREATE_MEMPOOL(pool, rzB, is_zeroed) \
   VALGRIND_CREATE_MEMPOOL(pool, rzB, is_zeroed)
 #define TLSF_VALGRIND_DESTROY_MEMPOOL(pool) \
@@ -133,28 +133,28 @@
   VALGRIND_MAKE_MEM_DEFINED(addr, size)
 #define TLSF_VALGRIND_MEMPOOL_ALLOC(pool, addr, size) \
   do { \
-    /*printf("%s:%u: TLSF_VALGRIND_MEMPOOL_ALLOC(" #pool ", " #addr " = %p, " #size " = %lu);\n", __FILENAME__, __LINE__, addr, size);*/ \
+    /*PRINT_MSG("%s:%u: TLSF_VALGRIND_MEMPOOL_ALLOC(" #pool ", " #addr " = %p, " #size " = %lu);\n", __FILENAME__, __LINE__, addr, size);*/ \
     VALGRIND_MEMPOOL_ALLOC(pool, addr, size); \
   } while(0)
 #define TLSF_VALGRIND_MEMPOOL_ALLOC_INTERNAL(pool, addr, size) \
   do { \
-    /*printf("%s:%u: TLSF_VALGRIND_MEMPOOL_ALLOC_INTERNAL(" #pool ", " #addr " = %p, " #size " = %lu);\n", __FILENAME__, __LINE__, addr, size);*/ \
+    /*PRINT_MSG("%s:%u: TLSF_VALGRIND_MEMPOOL_ALLOC_INTERNAL(" #pool ", " #addr " = %p, " #size " = %lu);\n", __FILENAME__, __LINE__, addr, size);*/ \
     VALGRIND_MEMPOOL_ALLOC(pool, addr, size); \
     VALGRIND_MAKE_MEM_DEFINED(addr, size); \
   } while(0)
 #define TLSF_VALGRIND_MEMPOOL_FREE(pool, addr) \
   do { \
-    /*printf("%s:%u: TLSF_VALGRIND_MEMPOOL_FREE(" #pool ", " #addr " = %p);\n", __FILENAME__, __LINE__, addr);*/ \
+    /*PRINT_MSG("%s:%u: TLSF_VALGRIND_MEMPOOL_FREE(" #pool ", " #addr " = %p);\n", __FILENAME__, __LINE__, addr);*/ \
     VALGRIND_MEMPOOL_FREE(pool, addr); \
   } while(0)
 #define TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(pool, addr) \
   do { \
-    /*printf("%s:%u: TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(" #pool ", " #addr " = %p);\n", __FILENAME__, __LINE__, addr);*/ \
+    /*PRINT_MSG("%s:%u: TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(" #pool ", " #addr " = %p);\n", __FILENAME__, __LINE__, addr);*/ \
     VALGRIND_MEMPOOL_FREE(pool, addr); \
   } while(0)
 #define TLSF_VALGRIND_MEMPOOL_CHANGE(pool, addrA, addrB, size) \
   do { \
-    /*printf("%s:%u: TLSF_VALGRIND_MEMPOOL_CHANGE(" #pool ", " #addrA " = %p, " #addrB " = %p " #size " = %lu);\n", __FILENAME__, __LINE__, addrA, addrB, size);*/ \
+    /*PRINT_MSG("%s:%u: TLSF_VALGRIND_MEMPOOL_CHANGE(" #pool ", " #addrA " = %p, " #addrB " = %p " #size " = %lu);\n", __FILENAME__, __LINE__, addrA, addrB, size);*/ \
     VALGRIND_MEMPOOL_CHANGE(pool, addrA, addrB, size); \
   } while(0)
 
@@ -230,6 +230,7 @@
 #define BLOCK_STATE	(0x1)
 #define PREV_STATE	(0x2)
 #define STATE_MASK  (BLOCK_STATE | PREV_STATE)
+
 /* bit 0 of the block size */
 #define FREE_BLOCK	(0x1)
 #define USED_BLOCK	(0x0)
@@ -245,8 +246,18 @@
 #define TLSF_PAGE_SIZE (getpagesize())
 #endif
 
+#ifdef USE_PRINTF
+#include <stdio.h>
 #define PRINT_MSG(fmt, args...) printf(fmt, ## args)
 #define ERROR_MSG(fmt, args...) printf(fmt, ## args)
+#else
+# if !defined(PRINT_MSG)
+#  define PRINT_MSG(fmt, args...)
+# endif
+# if !defined(ERROR_MSG)
+#  define ERROR_MSG(fmt, args...)
+# endif
+#endif
 
 typedef unsigned int u32_t;     /* NOTE: Make sure that this type is 4 bytes long on your computer */
 typedef unsigned char u8_t;     /* NOTE: Make sure that this type is 1 byte on your computer */
@@ -493,9 +504,15 @@ static __inline__ void *get_new_area(size_t * size)
         return area;
 #endif
 
+#ifndef MAP_ANONYMOUS
+/* https://dev.openwrt.org/ticket/322 */
+# define MAP_ANONYMOUS MAP_ANON
+#endif
+
+
 #if USE_MMAP
     *size = ROUNDUP(*size, TLSF_PAGE_SIZE);
-    if ((area = mmap(0, *size, PROT_READ | PROT_WRITE, TLSF_MAP, -1, 0)) != MAP_FAILED)
+    if ((area = mmap(0, *size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0)) != MAP_FAILED)
         return area;
 #endif
     return ((void *) ~0);
@@ -679,7 +696,7 @@ size_t get_used_size(void *mem_pool)
 
 /******************************************************************/
 // use default memory pool
-size_t get_used_size_mp()
+size_t get_used_size_mp(void)
 {
 /******************************************************************/
 #if TLSF_STATISTIC
@@ -702,7 +719,7 @@ size_t get_max_size(void *mem_pool)
 
 /******************************************************************/
 // use default memory pool
-size_t get_max_size_mp()
+size_t get_max_size_mp(void)
 {
 /******************************************************************/
 #if TLSF_STATISTIC
@@ -722,6 +739,7 @@ void destroy_memory_pool(void *mem_pool)
 
     tlsf_t *tlsf = (tlsf_t *) mem_pool;
     tlsf->tlsf_signature = 0;
+
     TLSF_DESTROY_LOCK(&tlsf->lock);
 
 #ifndef NVALGRIND
@@ -876,6 +894,7 @@ void *malloc_ex(size_t size, void *mem_pool)
         next_b->prev_hdr = encode_prev_block(b2, next_b->size);
         MAPPING_INSERT(tmp_size, &fl, &sl);
         INSERT_BLOCK(b2, tlsf, fl, sl);
+
         b->size = size | (b->size & PREV_STATE);
     } else {
         next_b->size &= (~PREV_FREE);
@@ -904,7 +923,6 @@ void free_ex(void *ptr, void *mem_pool)
     if (!ptr) {
         return;
     }
-
     b = (bhdr_t *) ((char *) ptr - BHDR_OVERHEAD);
 
     if( (b->size & BLOCK_STATE) != USED_BLOCK )
@@ -1038,7 +1056,9 @@ void *realloc_ex(void *ptr, size_t new_size, void *mem_pool)
         }
     }
 
-    ptr_aux = malloc_ex(new_size, mem_pool);
+    if (!(ptr_aux = malloc_ex(new_size, mem_pool))){
+        return NULL;
+    }
 
     cpsize = ((b->size & BLOCK_SIZE) > new_size) ? new_size : (b->size & BLOCK_SIZE);
 

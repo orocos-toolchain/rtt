@@ -110,7 +110,7 @@ OPTION(ENABLE_MQ "Enable real-time posix message queues for data-flow." ON)
 CMAKE_DEPENDENT_OPTION(OS_RT_MALLOC "Enable RT memory management" ON "OS_HAS_TLSF" OFF)
 
 IF ( OS_RT_MALLOC )
-    SET(TLSF_FLAGS "")
+    SET(TLSF_FLAGS "-Wextra -Wall -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wno-long-long -Wstrict-aliasing=2")
     OPTION( OS_RT_MALLOC_SBRK "Enable RT memory management with sbrk support" ON)
     OPTION( OS_RT_MALLOC_MMAP "Enable RT memory management with mmap support" ON)
     OPTION( OS_RT_MALLOC_STATS "Enable RT memory management with statistics" ON)
