@@ -223,10 +223,6 @@ static void testCorbaTypeSequence(std::size_t size = 3, const T &value = T())
     BOOST_CHECK( RTT::corba::AnyConversion< std::vector<T> >::update(any, vec) );
 }
 
-namespace RTT {
-    static bool operator==(const ConnPolicy &, const ConnPolicy &) { return true; }
-}
-
 BOOST_AUTO_TEST_CASE( testCorbaTypes )
 {
     testCorbaType<double>(1.0);
@@ -246,7 +242,7 @@ BOOST_AUTO_TEST_CASE( testCorbaTypes )
     testCorbaTypeSequence<char>(3, 'c');
     testCorbaType<std::string>("foo");
     testCorbaTypeSequence<std::string>(3, "foo");
-    testCorbaType<RTT::ConnPolicy>();
+    // testCorbaType<RTT::ConnPolicy>();
 #ifdef OS_RT_MALLOC
     testCorbaType<rt_string>("bar");
 #endif
