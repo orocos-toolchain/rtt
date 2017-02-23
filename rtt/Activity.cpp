@@ -146,10 +146,7 @@ namespace RTT
         if ( ! Thread::isActive() )
             return false;
         //a trigger is always allowed when active
-        {
-            os::MutexLock lock(msg_lock);
-            msg_cond.broadcast();
-        }
+        msg_cond.broadcast();
         Thread::start();
         return true;
     }
@@ -165,6 +162,7 @@ namespace RTT
             return false;
         }
         mtimeout = true;
+        msg_cond.broadcast();
         Thread::start();
         return true;
     }
