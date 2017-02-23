@@ -615,7 +615,7 @@ namespace RTT
                             temp->update( (*sit) );
                         }
                         // step 3 : add result to target bag.
-                        target.add( temp );
+                        target.ownProperty( temp );
                     }
             }
             ++it;
