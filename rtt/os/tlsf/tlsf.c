@@ -745,18 +745,18 @@ void destroy_memory_pool(void *mem_pool)
 #ifndef NVALGRIND
     // iterate over all areas and blocks and mark block headers as freed
     area_info_t *ai = tlsf->area_head;
-    bhdr_t *current, *next;
+    bhdr_t *b;
     while (ai) {
-        current = (bhdr_t *) ((char *) ai - BHDR_OVERHEAD);
-        while (current) {
-            if ((current->size & BLOCK_SIZE))
-                next = GET_NEXT_BLOCK(current->ptr.buffer, current->size & BLOCK_SIZE);
-            else
-                next = NULL;
-            TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(mem_pool, current);
-            current = next;
+        area_info_t *next_ai = ai->next;
+        b = (bhdr_t *) ((char *) ai - BHDR_OVERHEAD);
+        while (b) {
+            bhdr_t *next_b = NULL;
+            if ((b->size & BLOCK_SIZE))
+                next_b = GET_NEXT_BLOCK(b->ptr.buffer, b->size & BLOCK_SIZE);
+            TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(mem_pool, b);
+            b = next_b;
         }
-        ai = ai->next;
+        ai = next_ai;
     }
 #endif
     TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(mem_pool, tlsf);
