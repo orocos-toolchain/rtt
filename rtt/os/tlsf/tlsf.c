@@ -115,6 +115,64 @@
 #endif
 #endif
 
+#ifndef NVALGRIND
+#include <valgrind/memcheck.h>
+#include <string.h>
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#define TLSF_VALGRIND_CREATE_MEMPOOL(pool, rzB, is_zeroed) \
+  VALGRIND_CREATE_MEMPOOL(pool, rzB, is_zeroed)
+#define TLSF_VALGRIND_DESTROY_MEMPOOL(pool) \
+  VALGRIND_DESTROY_MEMPOOL(pool)
+#define TLSF_VALGRIND_MEMPOOL_TRIM(pool, addr, size) \
+  VALGRIND_MEMPOOL_TRIM(pool, addr, size)
+#define TLSF_VALGRIND_MAKE_MEM_NOACCESS(addr, size) \
+  VALGRIND_MAKE_MEM_NOACCESS(addr, size)
+#define TLSF_VALGRIND_MAKE_MEM_UNDEFINED(addr, size) \
+  VALGRIND_MAKE_MEM_UNDEFINED(addr, size)
+#define TLSF_VALGRIND_MAKE_MEM_DEFINED(addr, size) \
+  VALGRIND_MAKE_MEM_DEFINED(addr, size)
+#define TLSF_VALGRIND_MEMPOOL_ALLOC(pool, addr, size) \
+  do { \
+    /*printf("%s:%u: TLSF_VALGRIND_MEMPOOL_ALLOC(" #pool ", " #addr " = %p, " #size " = %lu);\n", __FILENAME__, __LINE__, addr, size);*/ \
+    VALGRIND_MEMPOOL_ALLOC(pool, addr, size); \
+  } while(0)
+#define TLSF_VALGRIND_MEMPOOL_ALLOC_INTERNAL(pool, addr, size) \
+  do { \
+    /*printf("%s:%u: TLSF_VALGRIND_MEMPOOL_ALLOC_INTERNAL(" #pool ", " #addr " = %p, " #size " = %lu);\n", __FILENAME__, __LINE__, addr, size);*/ \
+    VALGRIND_MEMPOOL_ALLOC(pool, addr, size); \
+    VALGRIND_MAKE_MEM_DEFINED(addr, size); \
+  } while(0)
+#define TLSF_VALGRIND_MEMPOOL_FREE(pool, addr) \
+  do { \
+    /*printf("%s:%u: TLSF_VALGRIND_MEMPOOL_FREE(" #pool ", " #addr " = %p);\n", __FILENAME__, __LINE__, addr);*/ \
+    VALGRIND_MEMPOOL_FREE(pool, addr); \
+  } while(0)
+#define TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(pool, addr) \
+  do { \
+    /*printf("%s:%u: TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(" #pool ", " #addr " = %p);\n", __FILENAME__, __LINE__, addr);*/ \
+    VALGRIND_MEMPOOL_FREE(pool, addr); \
+  } while(0)
+#define TLSF_VALGRIND_MEMPOOL_CHANGE(pool, addrA, addrB, size) \
+  do { \
+    /*printf("%s:%u: TLSF_VALGRIND_MEMPOOL_CHANGE(" #pool ", " #addrA " = %p, " #addrB " = %p " #size " = %lu);\n", __FILENAME__, __LINE__, addrA, addrB, size);*/ \
+    VALGRIND_MEMPOOL_CHANGE(pool, addrA, addrB, size); \
+  } while(0)
+
+#else // NVALGRIND
+#define TLSF_VALGRIND_CREATE_MEMPOOL(pool, rzB, is_zeroed)      do {} while(0)
+#define TLSF_VALGRIND_DESTROY_MEMPOOL(pool)                     do {} while(0)
+#define TLSF_VALGRIND_MEMPOOL_TRIM(pool, addr, size)            do {} while(0)
+#define TLSF_VALGRIND_MAKE_MEM_NOACCESS(addr, size)             do {} while(0)
+#define TLSF_VALGRIND_MAKE_MEM_UNDEFINED(addr, size)            do {} while(0)
+#define TLSF_VALGRIND_MAKE_MEM_DEFINED(addr, size)              do {} while(0)
+#define TLSF_VALGRIND_MEMPOOL_ALLOC(pool, addr, size)           do {} while(0)
+#define TLSF_VALGRIND_MEMPOOL_ALLOC_INTERNAL(pool, addr, size)  do {} while(0)
+#define TLSF_VALGRIND_MEMPOOL_FREE(pool, addr)                  do {} while(0)
+#define TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(pool, addr)         do {} while(0)
+#define TLSF_VALGRIND_MEMPOOL_CHANGE(pool, addrA, addrB, size)  do {} while(0)
+
+#endif // NVALGRIND
+
 #define ORO_MEMORY_POOL
 #include "tlsf.h"
 
@@ -260,7 +318,7 @@ static __inline__ int ms_bit(int x);
 static __inline__ void MAPPING_SEARCH(size_t * _r, int *_fl, int *_sl);
 static __inline__ void MAPPING_INSERT(size_t _r, int *_fl, int *_sl);
 static __inline__ bhdr_t *FIND_SUITABLE_BLOCK(tlsf_t * _tlsf, int *_fl, int *_sl);
-static __inline__ bhdr_t *process_area(void *area, size_t size);
+static __inline__ bhdr_t *process_area(void *area, size_t size, void *mem_pool);
 #if USE_SBRK || USE_MMAP
 static __inline__ void *get_new_area(size_t * size);
 #endif
@@ -444,21 +502,24 @@ static __inline__ void *get_new_area(size_t * size)
 }
 #endif
 
-static __inline__ bhdr_t *process_area(void *area, size_t size)
+static __inline__ bhdr_t *process_area(void *area, size_t size, void *mem_pool)
 {
     bhdr_t *b, *lb, *ib;
     area_info_t *ai;
 
     ib = (bhdr_t *) area;
-    ib->size =
-        (sizeof(area_info_t) <
-         MIN_BLOCK_SIZE) ? MIN_BLOCK_SIZE : ROUNDUP_SIZE(sizeof(area_info_t)) | USED_BLOCK | PREV_USED;
+    size_t ib_size = (sizeof(area_info_t) <
+                      MIN_BLOCK_SIZE) ? MIN_BLOCK_SIZE : ROUNDUP_SIZE(sizeof(area_info_t));
+    TLSF_VALGRIND_MEMPOOL_ALLOC_INTERNAL(mem_pool, ib, BHDR_OVERHEAD + ib_size);
+    ib->size = ib_size | USED_BLOCK | PREV_USED;
     ib->prev_hdr = encode_prev_block( NULL, ib->size );
     b = GET_NEXT_BLOCK(ib->ptr.buffer, ib->size & BLOCK_SIZE);
+    TLSF_VALGRIND_MEMPOOL_ALLOC_INTERNAL(mem_pool, b, BHDR_OVERHEAD + MIN_BLOCK_SIZE);
     b->size = ROUNDDOWN_SIZE(size - 3 * BHDR_OVERHEAD - (ib->size & BLOCK_SIZE)) | USED_BLOCK | PREV_USED;
     b->prev_hdr = encode_prev_block( NULL, b->size );
     b->ptr.free_ptr.prev = b->ptr.free_ptr.next = 0;
     lb = GET_NEXT_BLOCK(b->ptr.buffer, b->size & BLOCK_SIZE);
+    TLSF_VALGRIND_MEMPOOL_ALLOC_INTERNAL(mem_pool, lb, BHDR_OVERHEAD);
     lb->size = 0 | USED_BLOCK | PREV_FREE;
     lb->prev_hdr = encode_prev_block( b, lb->size );
     ai = TYPE_PUN(area_info_t, u8_t, ib->ptr.buffer);
@@ -491,6 +552,7 @@ size_t init_memory_pool(size_t mem_pool_size, void *mem_pool)
     }
     tlsf = (tlsf_t *) mem_pool;
     /* Check if already initialised */
+    TLSF_VALGRIND_MAKE_MEM_DEFINED(&(tlsf->tlsf_signature), sizeof(tlsf->tlsf_signature));
     if (tlsf->tlsf_signature == TLSF_SIGNATURE) {
         b = GET_NEXT_BLOCK(mp, ROUNDUP_SIZE(sizeof(tlsf_t)));
         return b->size & BLOCK_SIZE;
@@ -504,11 +566,16 @@ size_t init_memory_pool(size_t mem_pool_size, void *mem_pool)
 
     tlsf->tlsf_signature = TLSF_SIGNATURE;
 
+    TLSF_VALGRIND_CREATE_MEMPOOL(mem_pool, 0, 0);
+    TLSF_VALGRIND_MAKE_MEM_NOACCESS(mem_pool, mem_pool_size);
+    TLSF_VALGRIND_MEMPOOL_ALLOC_INTERNAL(mem_pool, tlsf, ROUNDUP_SIZE(sizeof(tlsf_t)));
+
     TLSF_CREATE_LOCK(&tlsf->lock);
 
     ib = process_area(GET_NEXT_BLOCK
-                      (mem_pool, ROUNDUP_SIZE(sizeof(tlsf_t))), ROUNDDOWN_SIZE(mem_pool_size - sizeof(tlsf_t)));
+                      (mem_pool, ROUNDUP_SIZE(sizeof(tlsf_t))), ROUNDDOWN_SIZE(mem_pool_size - sizeof(tlsf_t)), mem_pool);
     b = GET_NEXT_BLOCK(ib->ptr.buffer, ib->size & BLOCK_SIZE);
+    TLSF_VALGRIND_MEMPOOL_ALLOC_INTERNAL(mem_pool, b->ptr.buffer, (size_t) 0); // do not trigger an invalid free error in the next line
     free_ex(b->ptr.buffer, tlsf);
     tlsf->area_head = TYPE_PUN(area_info_t, u8_t, ib->ptr.buffer);
 
@@ -532,7 +599,7 @@ size_t add_new_area(void *area, size_t area_size, void *mem_pool)
     ptr = tlsf->area_head;
     ptr_prev = 0;
 
-    ib0 = process_area(area, area_size);
+    ib0 = process_area(area, area_size, mem_pool);
     b0 = GET_NEXT_BLOCK(ib0->ptr.buffer, ib0->size & BLOCK_SIZE);
     lb0 = GET_NEXT_BLOCK(b0->ptr.buffer, b0->size & BLOCK_SIZE);
 
@@ -657,6 +724,25 @@ void destroy_memory_pool(void *mem_pool)
     tlsf->tlsf_signature = 0;
     TLSF_DESTROY_LOCK(&tlsf->lock);
 
+#ifndef NVALGRIND
+    // iterate over all areas and blocks and mark block headers as freed
+    area_info_t *ai = tlsf->area_head;
+    bhdr_t *current, *next;
+    while (ai) {
+        current = (bhdr_t *) ((char *) ai - BHDR_OVERHEAD);
+        while (current) {
+            if ((current->size & BLOCK_SIZE))
+                next = GET_NEXT_BLOCK(current->ptr.buffer, current->size & BLOCK_SIZE);
+            else
+                next = NULL;
+            TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(mem_pool, current);
+            current = next;
+        }
+        ai = ai->next;
+    }
+#endif
+    TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(mem_pool, tlsf);
+    TLSF_VALGRIND_DESTROY_MEMPOOL(mem_pool);
 }
 
 
@@ -709,9 +795,9 @@ void *tlsf_realloc(void *ptr, size_t size)
     void *ret;
 
 #if USE_MMAP || USE_SBRK
-	if (!mp) {
-		return tlsf_malloc(size);
-	}
+    if (!mp) {
+        return tlsf_malloc(size);
+    }
 #endif
 
     TLSF_ACQUIRE_LOCK(&((tlsf_t *)mp)->lock);
@@ -784,12 +870,12 @@ void *malloc_ex(size_t size, void *mem_pool)
     if (tmp_size >= sizeof(bhdr_t)) {
         tmp_size -= BHDR_OVERHEAD;
         b2 = GET_NEXT_BLOCK(b->ptr.buffer, size);
+        TLSF_VALGRIND_MEMPOOL_ALLOC_INTERNAL(mem_pool, b2, BHDR_OVERHEAD + MIN_BLOCK_SIZE);
         b2->size = tmp_size | FREE_BLOCK | PREV_USED;
         b2->prev_hdr = encode_prev_block( b2->prev_hdr, b2->size );
         next_b->prev_hdr = encode_prev_block(b2, next_b->size);
         MAPPING_INSERT(tmp_size, &fl, &sl);
         INSERT_BLOCK(b2, tlsf, fl, sl);
-
         b->size = size | (b->size & PREV_STATE);
     } else {
         next_b->size &= (~PREV_FREE);
@@ -799,6 +885,7 @@ void *malloc_ex(size_t size, void *mem_pool)
     b->prev_hdr = encode_prev_block( b->prev_hdr, b->size );
 
     TLSF_ADD_SIZE(tlsf, b);
+    TLSF_VALGRIND_MEMPOOL_ALLOC(mem_pool, b->ptr.buffer, size);
 
     if( (b->size & BLOCK_STATE) != (~(intptr_t)b->prev_hdr & BLOCK_STATE) )
         corrupt("malloc_ex(): Mismatched flags after allocation\n");
@@ -825,6 +912,9 @@ void free_ex(void *ptr, void *mem_pool)
         if( (b->size & BLOCK_STATE) != (~(intptr_t)b->prev_hdr & BLOCK_STATE) )
             corrupt("free_ex(): Mismatched flags\n");
 
+    TLSF_VALGRIND_MEMPOOL_FREE(mem_pool, ptr);
+    TLSF_VALGRIND_MAKE_MEM_UNDEFINED(ptr, MIN_BLOCK_SIZE);
+
     b->size |= FREE_BLOCK;
 
     TLSF_REMOVE_SIZE(tlsf, b);
@@ -837,6 +927,8 @@ void free_ex(void *ptr, void *mem_pool)
         MAPPING_INSERT(tmp_b->size & BLOCK_SIZE, &fl, &sl);
         EXTRACT_BLOCK(tmp_b, tlsf, fl, sl);
         b->size += (tmp_b->size & BLOCK_SIZE) + BHDR_OVERHEAD;
+        // free header of tmp_b
+        TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(mem_pool, tmp_b);
     }
     if (b->size & PREV_FREE) {
         /* Coalesce previous block */
@@ -844,6 +936,8 @@ void free_ex(void *ptr, void *mem_pool)
         MAPPING_INSERT(tmp_b->size & BLOCK_SIZE, &fl, &sl);
         EXTRACT_BLOCK(tmp_b, tlsf, fl, sl);
         tmp_b->size += (b->size & BLOCK_SIZE) + BHDR_OVERHEAD;
+        // free header of b
+        TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(mem_pool, b);
         b = tmp_b;
     }
     MAPPING_INSERT(b->size & BLOCK_SIZE, &fl, &sl);
@@ -885,10 +979,13 @@ void *realloc_ex(void *ptr, size_t new_size, void *mem_pool)
     if (new_size <= tmp_size) {
         /* shrink allocated portion */
         TLSF_REMOVE_SIZE(tlsf, b);
+        TLSF_VALGRIND_MEMPOOL_CHANGE(mem_pool, ptr, ptr, new_size);
         if (next_b->size & FREE_BLOCK) {
             /* coalesce next block (free) */
             MAPPING_INSERT(next_b->size & BLOCK_SIZE, &fl, &sl);
             EXTRACT_BLOCK(next_b, tlsf, fl, sl);
+            // free memory for next_b's block header
+            TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(mem_pool, next_b);
             tmp_size += (next_b->size & BLOCK_SIZE) + BHDR_OVERHEAD;
             next_b = GET_NEXT_BLOCK(next_b->ptr.buffer, next_b->size & BLOCK_SIZE);
             /* We allways reenter this free block because tmp_size will
@@ -899,6 +996,8 @@ void *realloc_ex(void *ptr, size_t new_size, void *mem_pool)
             /* add tail as free block */
             tmp_size -= BHDR_OVERHEAD;
             tmp_b = GET_NEXT_BLOCK(b->ptr.buffer, new_size);
+            // allocate memory for the block header of tmp_b
+            TLSF_VALGRIND_MEMPOOL_ALLOC_INTERNAL(mem_pool, tmp_b, BHDR_OVERHEAD + MIN_BLOCK_SIZE);
             tmp_b->size = tmp_size | FREE_BLOCK | PREV_USED;
             tmp_b->prev_hdr = encode_prev_block( NULL, tmp_b->size );
             next_b->size |= PREV_FREE;
@@ -907,15 +1006,18 @@ void *realloc_ex(void *ptr, size_t new_size, void *mem_pool)
             INSERT_BLOCK(tmp_b, tlsf, fl, sl);
             b->size = new_size | (b->size & PREV_STATE);
         }
-	TLSF_ADD_SIZE(tlsf, b);
+        TLSF_ADD_SIZE(tlsf, b);
         return (void *) b->ptr.buffer;
     }
     if ((next_b->size & FREE_BLOCK)) {
         if (new_size <= (tmp_size + (next_b->size & BLOCK_SIZE))) {
             /* allocate out of next block */
-			TLSF_REMOVE_SIZE(tlsf, b);
+            TLSF_REMOVE_SIZE(tlsf, b);
             MAPPING_INSERT(next_b->size & BLOCK_SIZE, &fl, &sl);
             EXTRACT_BLOCK(next_b, tlsf, fl, sl);
+            // free memory for next_b's block header and resize ptr's size instead
+            TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(mem_pool, next_b);
+            TLSF_VALGRIND_MEMPOOL_CHANGE(mem_pool, ptr, ptr, new_size);
             b->size += (next_b->size & BLOCK_SIZE) + BHDR_OVERHEAD;
             next_b = GET_NEXT_BLOCK(b->ptr.buffer, b->size & BLOCK_SIZE);
             next_b->size &= ~PREV_FREE;
@@ -931,7 +1033,7 @@ void *realloc_ex(void *ptr, size_t new_size, void *mem_pool)
                 INSERT_BLOCK(tmp_b, tlsf, fl, sl);
                 b->size = new_size | (b->size & PREV_STATE);
             }
-			TLSF_ADD_SIZE(tlsf, b);
+            TLSF_ADD_SIZE(tlsf, b);
             return (void *) b->ptr.buffer;
         }
     }
