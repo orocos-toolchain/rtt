@@ -1,6 +1,6 @@
 /*
  * Two Levels Segregate Fit memory allocator (TLSF)
- * Version 2.4.4
+ * Version 2.4.6
  *
  * Written by Miguel Masmano Tello <mimastel@doctor.upv.es>
  *
@@ -41,7 +41,7 @@
  * - Added rtl_realloc and rtl_calloc function
  * - Implemented realloc clever support.
  * - Added some test code in the example directory.
- *
+ * - Bug fixed (discovered by the rockbox project: www.rockbox.org).       
  *
  * (Oct 23 2006) Adam Scislowicz:
  *
@@ -60,9 +60,15 @@
 #include "../fosi.h"
 #endif
 
+#ifndef USE_PRINTF
+#define USE_PRINTF      (1)
+#endif
+
 #include <string.h>
 
+#ifndef TLSF_USE_LOCKS
 #define	TLSF_USE_LOCKS 	(1)
+#endif
 
 #ifndef TLSF_STATISTIC
 #define	TLSF_STATISTIC 	(0)
@@ -107,12 +113,6 @@
 
 #if USE_MMAP
 #include <sys/mman.h>
-
-#ifdef	__APPLE__
-#define	TLSF_MAP	MAP_PRIVATE | MAP_ANON
-#else
-#define	TLSF_MAP	MAP_PRIVATE | MAP_ANONYMOUS
-#endif
 #endif
 
 #define ORO_MEMORY_POOL
@@ -172,6 +172,7 @@
 #define BLOCK_STATE	(0x1)
 #define PREV_STATE	(0x2)
 #define STATE_MASK  (BLOCK_STATE | PREV_STATE)
+
 /* bit 0 of the block size */
 #define FREE_BLOCK	(0x1)
 #define USED_BLOCK	(0x0)
@@ -187,8 +188,18 @@
 #define TLSF_PAGE_SIZE (getpagesize())
 #endif
 
-#define PRINT_MSG(...) printf(__VA_ARGS__)
-#define ERROR_MSG(...) printf(__VA_ARGS__)
+#ifdef USE_PRINTF
+#include <stdio.h>
+#define PRINT_MSG(fmt, args...) printf(fmt, ## args)
+#define ERROR_MSG(fmt, args...) printf(fmt, ## args)
+#else
+# if !defined(PRINT_MSG)
+#  define PRINT_MSG(fmt, args...)
+# endif
+# if !defined(ERROR_MSG)
+#  define ERROR_MSG(fmt, args...)
+# endif
+#endif
 
 typedef unsigned int u32_t;     /* NOTE: Make sure that this type is 4 bytes long on your computer */
 typedef unsigned char u8_t;     /* NOTE: Make sure that this type is 1 byte on your computer */
@@ -435,9 +446,15 @@ static __inline__ void *get_new_area(size_t * size)
         return area;
 #endif
 
+#ifndef MAP_ANONYMOUS
+/* https://dev.openwrt.org/ticket/322 */
+# define MAP_ANONYMOUS MAP_ANON
+#endif
+
+
 #if USE_MMAP
     *size = ROUNDUP(*size, TLSF_PAGE_SIZE);
-    if ((area = mmap(0, *size, PROT_READ | PROT_WRITE, TLSF_MAP, -1, 0)) != MAP_FAILED)
+    if ((area = mmap(0, *size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0)) != MAP_FAILED)
         return area;
 #endif
     return ((void *) ~0);
@@ -612,7 +629,7 @@ size_t get_used_size(void *mem_pool)
 
 /******************************************************************/
 // use default memory pool
-size_t get_used_size_mp()
+size_t get_used_size_mp(void)
 {
 /******************************************************************/
 #if TLSF_STATISTIC
@@ -635,7 +652,7 @@ size_t get_max_size(void *mem_pool)
 
 /******************************************************************/
 // use default memory pool
-size_t get_max_size_mp()
+size_t get_max_size_mp(void)
 {
 /******************************************************************/
 #if TLSF_STATISTIC
@@ -655,6 +672,7 @@ void destroy_memory_pool(void *mem_pool)
 
     tlsf_t *tlsf = (tlsf_t *) mem_pool;
     tlsf->tlsf_signature = 0;
+
     TLSF_DESTROY_LOCK(&tlsf->lock);
 
 }
@@ -817,7 +835,6 @@ void free_ex(void *ptr, void *mem_pool)
     if (!ptr) {
         return;
     }
-
     b = (bhdr_t *) ((char *) ptr - BHDR_OVERHEAD);
 
     if( (b->size & BLOCK_STATE) != USED_BLOCK )
@@ -936,7 +953,9 @@ void *realloc_ex(void *ptr, size_t new_size, void *mem_pool)
         }
     }
 
-    ptr_aux = malloc_ex(new_size, mem_pool);
+    if (!(ptr_aux = malloc_ex(new_size, mem_pool))){
+        return NULL;
+    }
 
     cpsize = ((b->size & BLOCK_SIZE) > new_size) ? new_size : (b->size & BLOCK_SIZE);
 
