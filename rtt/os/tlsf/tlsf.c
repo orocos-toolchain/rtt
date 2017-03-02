@@ -157,19 +157,25 @@
     /*PRINT_MSG("%s:%u: TLSF_VALGRIND_MEMPOOL_CHANGE(" #pool ", " #addrA " = %p, " #addrB " = %p " #size " = %lu);\n", __FILENAME__, __LINE__, addrA, addrB, size);*/ \
     VALGRIND_MEMPOOL_CHANGE(pool, addrA, addrB, size); \
   } while(0)
+#define TLSF_VALGRIND_MEMPOOL_CHANGE_INTERNAL(pool, addrA, addrB, size) \
+  do { \
+    /*PRINT_MSG("%s:%u: TLSF_VALGRIND_MEMPOOL_CHANGE_INTERNAL(" #pool ", " #addrA " = %p, " #addrB " = %p " #size " = %lu);\n", __FILENAME__, __LINE__, addrA, addrB, size);*/ \
+    VALGRIND_MEMPOOL_CHANGE(pool, addrA, addrB, size); \
+  } while(0)
 
 #else // NVALGRIND
-#define TLSF_VALGRIND_CREATE_MEMPOOL(pool, rzB, is_zeroed)      do {} while(0)
-#define TLSF_VALGRIND_DESTROY_MEMPOOL(pool)                     do {} while(0)
-#define TLSF_VALGRIND_MEMPOOL_TRIM(pool, addr, size)            do {} while(0)
-#define TLSF_VALGRIND_MAKE_MEM_NOACCESS(addr, size)             do {} while(0)
-#define TLSF_VALGRIND_MAKE_MEM_UNDEFINED(addr, size)            do {} while(0)
-#define TLSF_VALGRIND_MAKE_MEM_DEFINED(addr, size)              do {} while(0)
-#define TLSF_VALGRIND_MEMPOOL_ALLOC(pool, addr, size)           do {} while(0)
-#define TLSF_VALGRIND_MEMPOOL_ALLOC_INTERNAL(pool, addr, size)  do {} while(0)
-#define TLSF_VALGRIND_MEMPOOL_FREE(pool, addr)                  do {} while(0)
-#define TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(pool, addr)         do {} while(0)
-#define TLSF_VALGRIND_MEMPOOL_CHANGE(pool, addrA, addrB, size)  do {} while(0)
+#define TLSF_VALGRIND_CREATE_MEMPOOL(pool, rzB, is_zeroed)              do {} while(0)
+#define TLSF_VALGRIND_DESTROY_MEMPOOL(pool)                             do {} while(0)
+#define TLSF_VALGRIND_MEMPOOL_TRIM(pool, addr, size)                    do {} while(0)
+#define TLSF_VALGRIND_MAKE_MEM_NOACCESS(addr, size)                     do {} while(0)
+#define TLSF_VALGRIND_MAKE_MEM_UNDEFINED(addr, size)                    do {} while(0)
+#define TLSF_VALGRIND_MAKE_MEM_DEFINED(addr, size)                      do {} while(0)
+#define TLSF_VALGRIND_MEMPOOL_ALLOC(pool, addr, size)                   do {} while(0)
+#define TLSF_VALGRIND_MEMPOOL_ALLOC_INTERNAL(pool, addr, size)          do {} while(0)
+#define TLSF_VALGRIND_MEMPOOL_FREE(pool, addr)                          do {} while(0)
+#define TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(pool, addr)                 do {} while(0)
+#define TLSF_VALGRIND_MEMPOOL_CHANGE(pool, addrA, addrB, size)          do {} while(0)
+#define TLSF_VALGRIND_MEMPOOL_CHANGE_INTERNAL(pool, addrA, addrB, size) do {} while(0)
 
 #endif // NVALGRIND
 
@@ -811,7 +817,7 @@ void destroy_memory_pool(void *mem_pool)
     }
 #endif
     TLSF_VALGRIND_MEMPOOL_FREE_INTERNAL(mem_pool, tlsf);
-    TLSF_VALGRIND_DESTROY_MEMPOOL(mem_pool);
+//    TLSF_VALGRIND_DESTROY_MEMPOOL(mem_pool);
 }
 
 
@@ -955,6 +961,7 @@ void *malloc_ex(size_t size, void *mem_pool)
     b->prev_hdr = encode_prev_block( b->prev_hdr, b->size );
 
     TLSF_ADD_SIZE(tlsf, b);
+    TLSF_VALGRIND_MEMPOOL_CHANGE_INTERNAL(mem_pool, b, b, BHDR_OVERHEAD);
     TLSF_VALGRIND_MEMPOOL_ALLOC(mem_pool, b->ptr.buffer, size);
 
     if( (b->size & BLOCK_STATE) != (~(intptr_t)b->prev_hdr & BLOCK_STATE) )
@@ -982,6 +989,7 @@ void free_ex(void *ptr, void *mem_pool)
             corrupt("free_ex(): Mismatched flags\n");
 
     TLSF_VALGRIND_MEMPOOL_FREE(mem_pool, ptr);
+    TLSF_VALGRIND_MEMPOOL_CHANGE_INTERNAL(mem_pool, b, b, BHDR_OVERHEAD + BLOCK_SIZE);
     TLSF_VALGRIND_MAKE_MEM_UNDEFINED(ptr, MIN_BLOCK_SIZE);
 
     b->size |= FREE_BLOCK;
