@@ -15,7 +15,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#define ORO_SIGNALLING_OPERATIONS
+
 #include "unit.hpp"
 
 #include <rtt-config.h>
@@ -89,9 +89,10 @@ public:
     StateTest()
         :
          d_event("d_event"), b_event("b_event"), t_event("t_event"), v_event("v_event"),o_event("o_event"),
-         v1_event("v1_event"),v2_event("v2_event"),v3_event("v3_event"),c_event("c_event"),
-         d_event_source("d_event_source"), b_event_source("b_event_source"), t_event_source("t_event_source")
-         ,sa( ScriptingService::Create(tc) ),
+         v1_event("v1_event"),v2_event("v2_event"),v3_event("v3_event"),
+         d_event_source("d_event_source"), b_event_source("b_event_source"), t_event_source("t_event_source"),
+         c_event("c_event"),
+         sa( ScriptingService::Create(tc) ),
          setState_op("setState", &StateTest::setState, this, RTT::OwnThread)
     {
         tc->stop();
@@ -846,7 +847,7 @@ BOOST_AUTO_TEST_CASE( testStateYieldbySend )
         + "       do test.assert(false); }\n"
         + " transition o_event(d) select NEXT;\n"
         + " transitions {\n"
-        + "       select FINI\n"
+        + "       if test.i == 10 then select FINI\n"
         + " }\n"
         + " }\n"
         + " state NEXT {\n" // Success state.

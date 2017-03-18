@@ -172,6 +172,7 @@ namespace RTT
         {
             //rt_task_delete( &(main_task->xenotask) );
             free (main_task->name);
+            main_task->name = NULL;
             munlockall();
             return 0;
         }
@@ -427,7 +428,7 @@ namespace RTT
         }
 
         INTERNAL_QUAL const char* rtos_task_get_name(const RTOS_TASK* mytask) {
-            return mytask->name;
+            return mytask->name ? mytask->name : "(destroyed)";
         }
 
     	INTERNAL_QUAL unsigned int rtos_task_get_pid(const RTOS_TASK* task)
@@ -450,6 +451,8 @@ namespace RTT
                 log(Error) << "Failed to join with thread " << mytask->name << endlog();
             }
             rt_task_delete(&(mytask->xenotask));
+            free(mytask->name);
+            mytask->name = NULL;
         }
 
         INTERNAL_QUAL int rtos_task_set_priority(RTOS_TASK * mytask, int priority)

@@ -55,6 +55,7 @@ namespace RTT
 	    // fixme check return value and bail out if necessary
 	    pthread_attr_setschedparam(&(main_task->attr), &sp);
         main_task->priority = sp.sched_priority;
+        main_task->pid = getpid();
         main_task->wait_policy = ORO_WAIT_ABS;
 	    return 0;
 	}
@@ -63,6 +64,7 @@ namespace RTT
 	{
         pthread_attr_destroy( &(main_task->attr) );
         free( main_task->name );
+        main_task->name = NULL;
 	    return 0;
 	}
 
@@ -204,6 +206,7 @@ namespace RTT
             pthread_join( mytask->thread, 0);
             pthread_attr_destroy( &(mytask->attr) );
 	    free(mytask->name);
+        mytask->name = NULL;
 	}
 
         INTERNAL_QUAL int rtos_task_check_scheduler(int* scheduler)
@@ -266,6 +269,8 @@ namespace RTT
 
 	INTERNAL_QUAL unsigned int rtos_task_get_pid(const RTOS_TASK* task)
 	{
+		if (task)
+			return task->pid;
 		return 0;
 	}
 
@@ -281,7 +286,7 @@ namespace RTT
 
 	INTERNAL_QUAL const char * rtos_task_get_name(const RTOS_TASK* task)
 	{
-	    return task->name;
+        return task->name ? task->name : "(destroyed)";
 	}
 
     }

@@ -7,6 +7,11 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
 IF(COMMAND cmake_policy AND ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} GREATER 4)
   CMAKE_POLICY(SET CMP0003 NEW)
 ENDIF(COMMAND cmake_policy AND ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} GREATER 4)
+IF(COMMAND cmake_policy)
+    IF(NOT (${CMAKE_VERSION} VERSION_LESS 3.0.0))
+        CMAKE_POLICY(SET CMP0026 OLD) # Disallow use of the LOCATION property for build targets.
+    ENDIF()
+ENDIF()
 
 ###################################################
 #                                                 #
