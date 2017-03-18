@@ -267,13 +267,14 @@ namespace RTT {
     bool StateMachine::execute()
     {
         TRACE_INIT();
-        os::MutexLock lock(execlock);
+
         // before dealing with transitional states,
         // check if we're actually running.
         if (smStatus == Status::inactive || smStatus == Status::unloaded) {
             smpStatus = nill;
             return true;
         }
+        os::MutexLock lock(execlock);
 
 #ifdef ASSERT_PROPER_EXECUTION_CYCLES
         // we're loaded. Do some sanity checking.
@@ -476,7 +477,7 @@ namespace RTT {
             }
         else
             {
-                TRACE("Transition triggered from '"+ (current ? current->getName() : "null") +"' to '"+(newState ? newState->getName() : "null")+"'.");
+                TRACE("Transition triggered from '"+ (current ? current->getName() : "(null)") +"' to '"+(newState ? newState->getName() : "(null)")+"'.");
                 // reset handle and run, in case it is still set ( during error
                 // or when an event arrived ).
                 //currentRun = 0;
@@ -487,7 +488,6 @@ namespace RTT {
                         smStatus = Status::error;
 
                 }
-                next = newState;
                 currentTrans = transProg;
 
                 next = newState;
@@ -1035,14 +1035,14 @@ namespace RTT {
         if ( inError() )
             return false;
 
-        TRACE("executePreCheck..." );
+//        TRACE("executePreCheck..." );
         // first try to finish the current entry program (this only happens if entry was not atomically implemented, ie yielding):
         if ( currentEntry ) {
-            TRACE("Executing entry program of '"+ current->getName() +"'" );
+            TRACE("Executing entry program of '"+ (current ? current->getName() : "(null)") +"'" );
             if ( this->executeProgram(currentEntry, stepping) == false )
                 return false;
             // done.
-            TRACE("Finished  entry program of '"+ current->getName() +"'" );
+            TRACE("Finished  entry program of '"+ (current ? current->getName() : "(null)") +"'" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
                 currentProg = currentRun;
@@ -1052,7 +1052,7 @@ namespace RTT {
 
         // Run is executed before the transitions.
         if ( currentRun ) {
-            TRACE("Executing run program of '"+ current->getName() +"'" );
+            TRACE("Executing run program of '"+ (current ? current->getName() : "(null)") +"'" );
             if ( this->executeProgram(currentRun, stepping) == false )
                 return true;
             // done.
@@ -1068,7 +1068,7 @@ namespace RTT {
         if ( inError() )
             return false;
 
-        TRACE("executePostCheck..." );
+//        TRACE("executePostCheck..." );
         // if a transition has been scheduled, proceed directly instead of doing a run:
         if ( currentTrans ) {
             TRACE("Executing transition program from '"+ (current ? current->getName() : "(null)") + "' to '"+ ( next ? next->getName() : "(null)")+"'" );
@@ -1090,7 +1090,7 @@ namespace RTT {
 
         // last is exit
         if ( currentExit ) {
-            TRACE("Executing exit program from '"+ current->getName() + "' (going to '"+ (next ? next->getName() : "(null)") +"')" );
+            TRACE("Executing exit program from '"+ (current ? current->getName() : "(null)") + "' (going to '"+ (next ? next->getName() : "(null)") +"')" );
             if ( this->executeProgram(currentExit, stepping) == false )
                 return false;
             // done.
@@ -1132,7 +1132,7 @@ namespace RTT {
 
         // finally, execute the current Entry of the new state:
         if ( currentEntry ) {
-            TRACE("Executing entry program of '"+ current->getName() +"'" );
+            TRACE("Executing entry program of '"+ (current ? current->getName() : "(null)") +"'" );
             if ( this->executeProgram(currentEntry, stepping) == false )
                 return false;
             // done.
@@ -1150,7 +1150,7 @@ namespace RTT {
 
         // Handle is executed after the transitions failed.
         if ( currentHandle ) {
-            TRACE("Executing handle program of '"+ current->getName() +"'" );
+            TRACE("Executing handle program of '"+ (current ? current->getName() : "(null)") +"'" );
             if ( this->executeProgram(currentHandle, stepping) == false )
                 return false;
             // done.
@@ -1233,6 +1233,7 @@ namespace RTT {
             TRACE("Won't activate: already active.");
             return false;
         }
+        os::MutexLock lock(execlock);
 
         smpStatus = nill;
 
@@ -1262,8 +1263,6 @@ namespace RTT {
 
         // execute the entry program of the initial state.
         if ( !inError() ) {
-            enableEvents(current);
-
             if ( this->executePreCheck() ) {
                 smStatus = Status::active;
                 TRACE("Activated.");
@@ -1300,9 +1299,10 @@ namespace RTT {
             currentTrans = 0;
         // if we stalled, in previous deactivate
         // even skip/stop exit program.
-        if ( next != 0 && current )
+        if ( next != 0 && current ) {
             leaveState( current );
-        else {
+            disableEvents(current);
+        } else {
             currentExit = 0;
             currentTrans = 0;
         }
