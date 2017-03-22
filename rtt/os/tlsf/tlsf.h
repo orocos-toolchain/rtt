@@ -38,10 +38,10 @@ extern "C" {
 extern size_t init_memory_pool(size_t, void *);
 // get size of TLSF pool
 extern size_t get_pool_size(void *);
-extern size_t get_pool_size_mp();
+extern size_t get_pool_size_mp(void);
 // get size of TLSF overhead
 extern size_t get_overhead_size(void *);
-extern size_t get_overhead_size_mp();
+extern size_t get_overhead_size_mp(void);
 // get currently used size (includes overhead)
 extern size_t get_used_size(void *);
 extern size_t get_used_size_mp(void);

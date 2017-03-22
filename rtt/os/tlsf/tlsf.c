@@ -709,7 +709,7 @@ size_t get_pool_size(void *mem_pool)
 
 /******************************************************************/
 // use default memory pool
-size_t get_pool_size_mp()
+size_t get_pool_size_mp(void)
 {
 /******************************************************************/
 #if TLSF_STATISTIC
@@ -732,7 +732,7 @@ size_t get_overhead_size(void *mem_pool)
 
 /******************************************************************/
 // use default memory pool
-size_t get_overhead_size_mp()
+size_t get_overhead_size_mp(void)
 {
 /******************************************************************/
 #if TLSF_STATISTIC
