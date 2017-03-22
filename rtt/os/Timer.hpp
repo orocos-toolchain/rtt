@@ -45,6 +45,7 @@
 #include "Semaphore.hpp"
 #include "ThreadInterface.hpp"
 #include "../base/RunnableInterface.hpp"
+#include <string>
 #include <vector>
 #include <utility>
 
@@ -108,6 +109,18 @@ namespace RTT
          * @param priority The priority within the \a scheduler of this timer.
          */
         Timer(TimerId max_timers, int scheduler = -1, int priority = 0);
+
+        /**
+         * Create a named timer object which can hold \a max_timers timers.
+         * \sa Timer::Timer()
+         * @param max_timers The initial amount of timers this Timer can monitor.
+         * Keep as low as possible. See also setMaxTimers().
+         * @param scheduler The Orocos scheduler type for this timer. ORO_SCHED_OTHER or ORO_SCHED_RT or
+         * -1 to attach your own thread.
+         * @param priority The priority within the \a scheduler of this timer.
+         * @param name The name of the timer (ie the underlying Activity/Thread)
+         */
+        Timer(TimerId max_timers, int scheduler = -1, int priority = 0, const std::string& name = std::string("Timer"));
 
         ~Timer();
 
