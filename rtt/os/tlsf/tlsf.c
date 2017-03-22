@@ -530,6 +530,8 @@ static __inline__ void *get_new_area(size_t * size)
 
 static __inline__ bhdr_t *process_area(void *area, size_t size, void *mem_pool)
 {
+    (void)mem_pool; // avoid possible compiler warning if not using valgrind
+
     bhdr_t *b, *lb, *ib;
     area_info_t *ai;
 
