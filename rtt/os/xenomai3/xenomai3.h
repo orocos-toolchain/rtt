@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:19 CET 2008  fosi.h 
+  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  xenomai.h 
 
-                        fosi.h -  description
+                        xenomai.h -  description
                            -------------------
-    begin                : Tue March 11 2008
-    copyright            : (C) 2008 FMTC
-    email                : peter.soetens@fmtc.be
+    begin                : Wed January 18 2006
+    copyright            : (C) 2006 Peter Soetens
+    email                : peter.soetens@mech.kuleuven.be
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -36,32 +36,3 @@
  ***************************************************************************/
  
  
-#include "../rtt-config.h"
-
-#ifdef OROPKG_OS_GNULINUX
- #include "gnulinux/fosi.h"
-#endif
-
-#ifdef OROPKG_OS_LXRT
- #include "lxrt/fosi.h"
-#endif
-
-#ifdef OROPKG_OS_XENOMAI
- #include "xenomai/fosi.h"
-#endif
-
-#ifdef OROPKG_OS_XENOMAI3
- #include "xenomai3/fosi.h"
-#endif
-
-#ifdef OROPKG_OS_ECOS
- #include "ecos/fosi.h"
-#endif
-
-#ifdef OROPKG_OS_MACOSX
-  #include "macosx/fosi.h"
-#endif
-
-#ifdef OROPKG_OS_WIN32
-  #include "win32/fosi.h"
-#endif

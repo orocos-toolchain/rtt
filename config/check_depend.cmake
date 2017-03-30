@@ -131,8 +131,8 @@ endif(XERCES_FOUND)
 message(STATUS "Orocos target is ${OROCOS_TARGET}")
 string(TOUPPER ${OROCOS_TARGET} OROCOS_TARGET_CAP)
 
-if ( NOT ";lxrt;gnulinux;xenomai;macosx;win32;" MATCHES ".*;${OROCOS_TARGET};.*")
-  message( FATAL_ERROR "OROCOS_TARGET=${OROCOS_TARGET} is an unkown target. Please use one of lxrt;gnulinux;xenomai;macosx;win32.")
+if ( NOT ";lxrt;gnulinux;xenomai;xenomai3;macosx;win32;" MATCHES ".*;${OROCOS_TARGET};.*")
+  message( FATAL_ERROR "OROCOS_TARGET=${OROCOS_TARGET} is an unkown target. Please use one of lxrt;gnulinux;xenomai;xenomai3;macosx;win32.")
 endif()
 
 # Setup flags for RTAI/LXRT
@@ -184,6 +184,38 @@ if(OROCOS_TARGET STREQUAL "xenomai")
   endif()
 else()
   set(OROPKG_OS_XENOMAI FALSE CACHE INTERNAL "" FORCE)
+endif()
+
+# Setup flags for Xenomai3
+if(OROCOS_TARGET STREQUAL "xenomai3")
+  set(OROPKG_OS_XENOMAI3 TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+  set(OS_HAS_TLSF TRUE)
+
+  find_package(Xenomai3 REQUIRED)
+  find_package(Boost 1.36 COMPONENTS thread )
+  find_package(Pthread REQUIRED)
+
+  include(CheckLibraryExists)
+  check_library_exists(pthread "pthread_setname_np" "" ORO_HAVE_PTHREAD_SETNAME_NP)
+  
+  add_definitions( -Wall )
+
+  if(XENOMAI3_FOUND)
+    # Input for .pc and .cmake generated files:
+    list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XENOMAI3_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
+    list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI3_LIBRARIES} ${PTHREAD_LIBRARIES} rt dl) 
+    list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+    list(APPEND OROCOS-RTT_USER_LINK_LIBS ${PTHREAD_LIBRARIES} rt) # For libraries used in inline (fosi/template) code.
+    # Direct input only for .pc file:
+    list(APPEND RTT_USER_LDFLAGS ${XENOMAI3_LDFLAGS} )
+    list(APPEND RTT_USER_CFLAGS ${XENOMAI3_CFLAGS} )
+  set(MQ_LDFLAGS ${XENOMAI3_LDFLAGS} )
+  set(MQ_CFLAGS ${XENOMAI3_CFLAGS} )
+  set(MQ_INCLUDE_DIRS ${XENOMAI3_INCLUDE_DIRS})
+  set(MQ_LIBRARIES ${XENOMAI3_LIBRARIES})
+  endif()
+else()
+  set(OROPKG_OS_XENOMAI3 FALSE CACHE INTERNAL "" FORCE)
 endif()
 
 # Setup flags for GNU/Linux

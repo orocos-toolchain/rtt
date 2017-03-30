@@ -487,6 +487,9 @@ namespace RTT
 #ifdef OROPKG_OS_XENOMAI
         *this<<" Running in Xenomai."<< Logger::nl;
 #endif
+#ifdef OROPKG_OS_XENOMAI3
+        *this<<" Running in Xenomai3."<< Logger::nl;
+#endif
         *this<<"Orocos Logging Activated at level : " << d->showLevel( d->outloglevel ) << " ( "<<int(d->outloglevel)<<" ) "<< Logger::nl;
         *this<<"Reference System Time is : " << d->timestamp << " ticks ( "<< Seconds(TimeService::ticks2nsecs(d->timestamp))/NSECS_IN_SECS <<" seconds )." << Logger::nl;
         *this<<"Logging is relative to this time." <<Logger::endl;
