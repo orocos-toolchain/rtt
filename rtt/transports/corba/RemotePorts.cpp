@@ -142,9 +142,11 @@ RTT::base::ChannelElementBase::shared_ptr RemoteInputPort::buildRemoteChannelOut
 
     // Input side is now ok and waiting for us to complete. We build our corba channel element too
     // and connect it to the remote side and vice versa.
+
+    std::string dispatcherName = CDataFlowInterface_i::dispatcherNameFromPolicy(output_port.getInterface(), policy);
     CRemoteChannelElement_i*  local =
         static_cast<CorbaTypeTransporter*>(type->getProtocol(ORO_CORBA_PROTOCOL_ID))
-                            ->createChannelElement_i(output_port.getInterface(), mpoa, policy.pull);
+                            ->createOutputChannelElement_i(dispatcherName, mpoa, policy.pull);
 
     CRemoteChannelElement_var proxy = local->_this();
     local->setRemoteSide(remote);
