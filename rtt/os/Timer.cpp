@@ -121,16 +121,6 @@ namespace RTT {
         return true;
     }
 
-    Timer::Timer(TimerId max_timers, int scheduler, int priority)
-        : mThread(0), msem(0), mdo_quit(false)
-    {
-        mtimers.resize(max_timers);
-        if (scheduler != -1) {
-            mThread = new Activity(scheduler, priority, 0.0, this, "Timer");
-            mThread->start();
-        }
-    }
-
     Timer::Timer(TimerId max_timers, int scheduler, int priority, const std::string& name)
         : mThread(0), msem(0), mdo_quit(false)
     {
