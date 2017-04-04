@@ -543,13 +543,21 @@ BOOST_AUTO_TEST_CASE( testAllocation )
 BOOST_AUTO_TEST_SUITE_END()
 
 #if defined( OROCOS_TARGET_GNULINUX ) && defined( ORO_HAVE_PTHREAD_SETNAME_NP )
-BOOST_AUTO_TEST_CASE( testThreadName )
+BOOST_AUTO_TEST_CASE( testThreadName1 )
 {
-    Activity activity(0, 0, "thread_name_34567890");
+    Activity activity(0, 0, "hello-world");
     RTT::os::ThreadInterface *thread = activity.thread();
     char buffer[256];
     pthread_getname_np(thread->getTask()->thread, buffer, sizeof(buffer));
-    BOOST_CHECK_EQUAL(std::string(buffer), std::string("d_name_3456890"));
+    BOOST_CHECK_EQUAL(std::string(buffer), std::string("hello-world"));
+}
+BOOST_AUTO_TEST_CASE( testThreadName2 )
+{
+    Activity activity(0, 0, "abcdefgXXXXX1234567");
+    RTT::os::ThreadInterface *thread = activity.thread();
+    char buffer[256];
+    pthread_getname_np(thread->getTask()->thread, buffer, sizeof(buffer));
+    BOOST_CHECK_EQUAL(std::string(buffer), std::string("abcdefg~1234567"));
 }
 #endif
 
