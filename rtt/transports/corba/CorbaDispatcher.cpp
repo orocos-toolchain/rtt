@@ -115,11 +115,6 @@ void CorbaDispatcher::Release(std::string const& name) {
             DispatchI.erase(result);
         }
     }
-    if ( DispatchI.empty() )
-    {
-        delete mlock;
-        mlock = 0;
-    }
 }
 
 void CorbaDispatcher::hasElement(base::ChannelElementBase::shared_ptr c0, base::ChannelElementBase::shared_ptr c1, bool& result)
