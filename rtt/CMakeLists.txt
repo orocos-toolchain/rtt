@@ -38,7 +38,7 @@ OPTION(CONFIG_FORCE_UP "Enable to optimise for single core/cpu systems." OFF)
 
 # Notify unit tests that no assembly must be tested.
 SET(TESTS_OS_NO_ASM ${OS_NO_ASM} PARENT_SCOPE)
-  
+
 ### Embedded
 OPTION(OS_EMBEDDED "Build/Customise for embedded Operating System" OFF)
 CMAKE_DEPENDENT_OPTION(OS_NOEXCEPTIONS "Disable exceptions." ON "OS_EMBEDDED" OFF)
@@ -111,11 +111,15 @@ CMAKE_DEPENDENT_OPTION(OS_RT_MALLOC "Enable RT memory management" ON "OS_HAS_TLS
 
 IF ( OS_RT_MALLOC )
     SET(TLSF_FLAGS "")
+    OPTION( OS_RT_MALLOC_LOCKS "Enable RT memory management with lock support" ON)
     OPTION( OS_RT_MALLOC_SBRK "Enable RT memory management with sbrk support" ON)
     OPTION( OS_RT_MALLOC_MMAP "Enable RT memory management with mmap support" ON)
     OPTION( OS_RT_MALLOC_STATS "Enable RT memory management with statistics" ON)
     OPTION( OS_RT_MALLOC_DEBUG "Enable RT memory management debugging" OFF)
-    
+
+    IF (OS_RT_MALLOC_LOCKS)
+        SET( TLSF_FLAGS "${TLSF_FLAGS} -DUSE_LOCKS")
+    ENDIF (OS_RT_MALLOC_LOCKS)
     IF (OS_RT_MALLOC_SBRK)
         SET( TLSF_FLAGS "${TLSF_FLAGS} -DUSE_SBRK")
     ENDIF (OS_RT_MALLOC_SBRK)
@@ -131,6 +135,8 @@ IF ( OS_RT_MALLOC )
     SET( TLSF_FLAGS "${TLSF_FLAGS} -fno-strict-aliasing")
     SET_SOURCE_FILES_PROPERTIES( os/tlsf/tlsf.c PROPERTIES
                                 COMPILE_FLAGS "${TLSF_FLAGS}")
+    SET_SOURCE_FILES_PROPERTIES( os/tlsf/tlsf.c PROPERTIES
+                                LANGUAGE CXX)
 
     set(TLSF_FLAGS "${TLSF_FLAGS}" CACHE INTERNAL "")
 
@@ -247,4 +253,3 @@ IF(BUILD_STATIC)
           EXPORT              ${LIBRARY_EXPORT_FILE}
           ARCHIVE DESTINATION lib )
 ENDIF(BUILD_STATIC)
-
