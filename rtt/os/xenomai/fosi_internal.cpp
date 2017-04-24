@@ -77,14 +77,15 @@ namespace RTT
                 exit(1);
 #endif
             }
-
+            // Locking is bootstrapped in xenomai_init()
+#if CONFIG_XENO_VERSION_MAJOR < 3
             // locking of all memory for this process
             int rv = mlockall(MCL_CURRENT | MCL_FUTURE);
             if ( rv != 0 ) {
                 perror( "rtos_task_create_main: Could not lock memory using mlockall" ); // Logger unavailable.
                 exit(1);
             }
-
+#endif
             struct sched_param param;
             // we set the MT to the highest sched priority to allow the console
             // to interrupt a loose running thread.
@@ -213,24 +214,24 @@ namespace RTT
             task->name = strncpy( (char*)malloc( (strlen(name)+1)*sizeof(char) ), name, strlen(name)+1 );
             task->sched_type = sched_type; // User requested scheduler.
             int rv;
-
+#if (CONFIG_XENO_VERSION_MAJOR <= 2)
             unsigned int aff = 0;
             if ( cpu_affinity != 0 ) {
                 // calculate affinity:
                 for(unsigned i = 0; i < 8*sizeof(cpu_affinity); i++) {
-                    if(cpu_affinity & (1 << i)) { 
+                    if(cpu_affinity & (1 << i)) {
                         // RTHAL_NR_CPUS is defined in the kernel, not in user space. So we just limit up to 7, until Xenomai allows us to get the maximum.
                         if ( i > 7 ) {
                             const unsigned int all_cpus = ~0;
                             if ( cpu_affinity != all_cpus ) // suppress this warning when ~0 is provided
                                 log(Warning) << "rtos_task_create: ignoring cpu_affinity for "<< name << " on CPU " << i << " since it's larger than RTHAL_NR_CPUS - 1 (="<< 7 <<")"<<endlog();
                         } else {
-                            aff |= T_CPU(i); 
+                            aff |= T_CPU(i);
                         }
                     }
                 }
             }
-            
+#endif
             if (stack_size == 0) {
                 log(Debug) << "Raizing default stack size to 128kb for Xenomai threads in Orocos." <<endlog();
                 stack_size = 128000;
@@ -238,7 +239,11 @@ namespace RTT
 
             // task, name, stack, priority, mode, fun, arg
             // UGLY, how can I check in Xenomai that a name is in use before calling rt_task_spawn ???
+#if (CONFIG_XENO_VERSION_MAJOR <= 2)
             rv = rt_task_spawn(&(task->xenotask), name, stack_size, priority, T_JOINABLE | (aff & T_CPUMASK), rtos_xeno_thread_wrapper, xcookie);
+#else
+            rv = rt_task_spawn(&(task->xenotask), name, stack_size, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
+#endif
             if ( rv == -EEXIST ) {
                 free( task->name );
                 task->name = strncpy( (char*)malloc( (strlen(name)+2)*sizeof(char) ), name, strlen(name)+1 );
@@ -246,12 +251,20 @@ namespace RTT
                 task->name[ strlen(name)+1 ] = 0;
                 while ( rv == -EEXIST &&  task->name[ strlen(name) ] != '9') {
                     task->name[ strlen(name) ] += 1;
-                    rv = rt_task_spawn(&(task->xenotask), task->name, stack_size, priority, T_JOINABLE | (aff & T_CPUMASK), rtos_xeno_thread_wrapper, xcookie);
+#if (CONFIG_XENO_VERSION_MAJOR <= 2)
+                    rv = rt_task_spawn(&(task->xenotask), name, stack_size, priority, T_JOINABLE | (aff & T_CPUMASK), rtos_xeno_thread_wrapper, xcookie);
+#else
+                    rv = rt_task_spawn(&(task->xenotask), name, stack_size, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
+#endif
                 }
             }
             if ( rv == -EEXIST ) {
                 log(Warning) << name << ": an object with that name is already existing in Xenomai." << endlog();
+#if (CONFIG_XENO_VERSION_MAJOR <= 2)
                 rv = rt_task_spawn(&(task->xenotask), 0, stack_size, priority, T_JOINABLE | (aff & T_CPUMASK), rtos_xeno_thread_wrapper, xcookie);
+#else
+                rv = rt_task_spawn(&(task->xenotask), 0, stack_size, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
+#endif
             }
             if ( rv != 0) {
                 log(Error) << name << " : CANNOT INIT Xeno TASK " << task->name <<" error code: "<< rv << endlog();
@@ -442,7 +455,11 @@ namespace RTT
             RT_TASK* tt = mytask->xenoptr;
             if ( tt )
                 if ( rt_task_inquire ( tt, &info) == 0 )
+#if (CONFIG_XENO_VERSION_MAJOR <= 2)
                     return info.bprio;
+#else
+                    return info.prio;
+#endif
             return -1;
         }
 
