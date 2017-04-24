@@ -84,6 +84,12 @@ IF (BUILD_TESTING)
     COMPILE_DEFINITIONS "${COMPILE_DEFS}")
     ADD_TEST( main-test ${RUNTIME_OUTPUT_DIRECTORY}/main-test )
 
+    ADD_EXECUTABLE( simple-main-test test-main-tlsf-simple.cpp )
+    TARGET_LINK_LIBRARIES( simple-main-test orocos-rtt-${OROCOS_TARGET}_dynamic ${OROCOS-RTT_USER_LINK_LIBS})
+    SET_TARGET_PROPERTIES( simple-main-test PROPERTIES
+    COMPILE_DEFINITIONS "${COMPILE_DEFS}")
+    ADD_TEST( simple-main-test ${RUNTIME_OUTPUT_DIRECTORY}/simple-main-test )
+
     if ( ${Boost_VERSION} GREATER 103599 )
       ADD_EXECUTABLE( list-test test-runner.cpp  listlocked_test.cpp )
       TARGET_LINK_LIBRARIES( list-test orocos-rtt-${OROCOS_TARGET}_dynamic ${TEST_LIBRARIES})
@@ -118,9 +124,9 @@ IF (BUILD_TESTING)
 
     IF(ENABLE_CORBA)
       ADD_EXECUTABLE( corba-test test-runner-corba.cpp corba_test.cpp )
-      TARGET_LINK_LIBRARIES( corba-test 
-            orocos-rtt-${OROCOS_TARGET}_dynamic 
-            orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
+      TARGET_LINK_LIBRARIES( corba-test
+            orocos-rtt-${OROCOS_TARGET}_dynamic
+            orocos-rtt-corba-${OROCOS_TARGET}_dynamic
             ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( corba-test PROPERTIES
 	   COMPILE_DEFINITIONS "${COMPILE_DEFS}"
@@ -138,28 +144,28 @@ IF (BUILD_TESTING)
            # Launched before ctest.
            SET(CORBA_SETUP_COMMAND COMMAND setup_corba)
         ENDIF(UNIX)
-       
+
           ADD_EXECUTABLE( corba-ipc-test test-runner-corba.cpp corba_ipc_test.cpp )
-          TARGET_LINK_LIBRARIES( corba-ipc-test 
-                orocos-rtt-${OROCOS_TARGET}_dynamic 
-                orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
+          TARGET_LINK_LIBRARIES( corba-ipc-test
+                orocos-rtt-${OROCOS_TARGET}_dynamic
+                orocos-rtt-corba-${OROCOS_TARGET}_dynamic
                 ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
           SET_TARGET_PROPERTIES( corba-ipc-test PROPERTIES
             COMPILE_DEFINITIONS "${COMPILE_DEFS}"
             )
           ADD_TEST( corba-ipc-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-ipc-test )
           list(APPEND ORO_EXTRA_TESTS "corba-ipc-test")
-    
+
           # This server is required to run when the corba-ipc-test runs
           ADD_EXECUTABLE( corba-ipc-server corba_ipc_server.cpp )
-          TARGET_LINK_LIBRARIES( corba-ipc-server 
-                orocos-rtt-${OROCOS_TARGET}_dynamic 
-                orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
+          TARGET_LINK_LIBRARIES( corba-ipc-server
+                orocos-rtt-${OROCOS_TARGET}_dynamic
+                orocos-rtt-corba-${OROCOS_TARGET}_dynamic
                 ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
           SET_TARGET_PROPERTIES( corba-ipc-server PROPERTIES
             COMPILE_DEFINITIONS "${COMPILE_DEFS}"
             )
-          ADD_SIMPLE_TEST(test-corba-main ORO_EXTRA_TESTS "orocos-rtt-corba-${OROCOS_TARGET}_dynamic" ) 
+          ADD_SIMPLE_TEST(test-corba-main ORO_EXTRA_TESTS "orocos-rtt-corba-${OROCOS_TARGET}_dynamic" )
     ENDIF(ENABLE_CORBA)
 
     IF(ENABLE_MQ)
@@ -184,41 +190,41 @@ IF (BUILD_TESTING)
         COMPILE_DEFINITIONS "${COMPILE_DEFS}")
       ADD_TEST( corba-mqueue-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-mqueue-test )
       list(APPEND ORO_EXTRA_TESTS "corba-mqueue-test")
-      
+
       # These tests require the Unix 'system()' function and 'killall'. To be ported to windows.
       IF (UNIX)
           ADD_EXECUTABLE( corba-mqueue-ipc-test test-runner-corba.cpp corba_mqueue_ipc_test.cpp )
-          TARGET_LINK_LIBRARIES( corba-mqueue-ipc-test 
+          TARGET_LINK_LIBRARIES( corba-mqueue-ipc-test
                 orocos-rtt-${OROCOS_TARGET}_dynamic
                 orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic
-                orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
+                orocos-rtt-corba-${OROCOS_TARGET}_dynamic
                 ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
           SET_TARGET_PROPERTIES( corba-mqueue-ipc-test PROPERTIES
             COMPILE_DEFINITIONS "${COMPILE_DEFS}"
             )
           ADD_TEST( corba-mqueue-ipc-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-mqueue-ipc-test )
           list(APPEND ORO_EXTRA_TESTS "corba-mqueue-ipc-test")
-    
+
           # This server is required to run when the corba-mqueue-ipc-test runs
           ADD_EXECUTABLE( corba-mqueue-ipc-server corba_mqueue_ipc_server.cpp )
-          TARGET_LINK_LIBRARIES( corba-mqueue-ipc-server 
-                orocos-rtt-${OROCOS_TARGET}_dynamic 
+          TARGET_LINK_LIBRARIES( corba-mqueue-ipc-server
+                orocos-rtt-${OROCOS_TARGET}_dynamic
                 orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic
-                orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
+                orocos-rtt-corba-${OROCOS_TARGET}_dynamic
                 ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
           SET_TARGET_PROPERTIES( corba-mqueue-ipc-server PROPERTIES
             COMPILE_DEFINITIONS "${COMPILE_DEFS}"
             )
      ENDIF()
 
-      
+
     ENDIF(ENABLE_MQ AND ENABLE_CORBA)
 
     if( TESTS_OS_NO_ASM )
     else()
         ADD_UNIT_TEST(buffers_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}")
     endif()
-        
+
     ADD_UNIT_TEST(method_test ORO_EXTRA_TESTS "fixtures" )
     if (ORO_REMOTING)
         ADD_UNIT_TEST(remote_method_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
@@ -272,7 +278,7 @@ IF (BUILD_TESTING)
        #This test must be last: it stops the corba servers (on Unix systems)
        ADD_SIMPLE_TEST(cleanup_corba ORO_EXTRA_TESTS "")
     ENDIF(ENABLE_CORBA AND UNIX)
-    
+
 	# link to root build dir, to pick up CTest options when run from this dir
 	EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink
 	  ${CMAKE_BINARY_DIR}/DartConfiguration.tcl
@@ -281,7 +287,7 @@ IF (BUILD_TESTING)
     ADD_CUSTOM_TARGET(check ${CMAKE_COMMAND} -E remove *.tst core *.ior orocos.log
       ${CORBA_SETUP_COMMAND}
       COMMAND ctest -V
-      DEPENDS main-test core-test task-test ${ORO_EXTRA_TESTS}  
+      DEPENDS main-test core-test task-test ${ORO_EXTRA_TESTS}
         WORKING_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}")
 
     #ADD_DEPENDENCIES(check prep-cpf)
