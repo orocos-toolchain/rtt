@@ -65,9 +65,9 @@ IRQActivity::~IRQActivity()
 int  IRQActivity::getIRQ() const { return m_irq; }
 void IRQActivity::setIRQ(int irq) { m_irq = irq; }
 
-#ifndef OROPKG_OS_XENOMAI
+#if !defined(OROPKG_OS_XENOMAI) || (CONFIG_XENO_VERSION_MAJOR == 3)
 bool IRQActivity::start() {
-    Logger::log() << Logger::Error << "IRQActivity is only usable on Xenomai" << Logger::endl;
+    Logger::log() << Logger::Error << "IRQActivity is only usable on Xenomai 2" << Logger::endl;
     return false;
 }
 #else
