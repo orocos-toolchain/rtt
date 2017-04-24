@@ -30,10 +30,6 @@
 #define tlsf_realloc oro_rt_realloc
 #define tlsf_calloc oro_rt_calloc
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
 #ifdef ORO_MEMORY_POOL
 extern size_t init_memory_pool(size_t, void *);
 // get size of TLSF pool
@@ -60,6 +56,7 @@ extern void *tlsf_malloc(size_t size);
 extern void tlsf_free(void *ptr);
 extern void *tlsf_realloc(void *ptr, size_t size);
 extern void *tlsf_calloc(size_t nelem, size_t elem_size);
+size_t malloc_usable_size_ex(void *ptr, void *pool);
 
 #if _DEBUG_TLSF_
 // dump default memory pool to file ff
@@ -70,6 +67,4 @@ extern void print_all_blocks_mp(FILE* ff);
 
 #ifdef	__cplusplus
 }
-#endif
-
 #endif
