@@ -47,9 +47,6 @@
 #include "../os/MutexLock.hpp"
 
 #include <boost/bind.hpp>
-#ifndef USE_CPP11
-#include <boost/lambda/lambda.hpp>
-#endif
 
 namespace RTT { namespace base {
 
@@ -168,7 +165,7 @@ namespace RTT { namespace base {
 #ifdef USE_CPP11
             select_reader_channel( bind( &MultipleInputsChannelElement<T>::do_read, this, boost::ref(sample), boost::ref(result), _1, _2), copy_old_data );
 #else
-            select_reader_channel( boost::bind( &MultipleInputsChannelElement<T>::do_read, this, boost::ref(sample), boost::ref(result), boost::lambda::_1, boost::lambda::_2), copy_old_data );
+            select_reader_channel( boost::bind( &MultipleInputsChannelElement<T>::do_read, this, boost::ref(sample), boost::ref(result), ::_1, ::_2), copy_old_data );
 #endif
             return result;
         }
