@@ -233,7 +233,7 @@ namespace RTT
 
         for( const_iterator i = orig.mproperties.begin(); i != orig.mproperties.end(); ++i) {
             if ( orig.ownsProperty( *i ) ) {
-                PropertyBase* copy = (*i)->copy();
+                PropertyBase* copy = (*i)->create( (*i)->getDataSource() );
                 this->ownProperty( copy );
             } else {
                 this->add( *i );
