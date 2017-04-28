@@ -40,8 +40,6 @@
 #include "TaskContext.hpp"
 #include <algorithm>
 #include "internal/mystd.hpp"
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/construct.hpp>
 #include <algorithm>
 
 namespace RTT {
@@ -216,7 +214,10 @@ namespace RTT {
             simpleoperations.erase(simpleoperations.begin() );
         }
 
-        for_each(ownedoperations.begin(),ownedoperations.end(), lambda::delete_ptr() );
+        for( OperationList::const_iterator it = ownedoperations.begin(); it != ownedoperations.end(); ++it )
+        {
+            delete *it;
+        }
         ownedoperations.clear();
 
         OperationInterface::clear();

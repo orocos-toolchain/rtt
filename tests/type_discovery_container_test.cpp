@@ -26,7 +26,6 @@
 #include <internal/DataSources.hpp>
 #include <types/type_discovery.hpp>
 #include <os/fosi.h>
-#include <boost/lambda/lambda.hpp>
 
 #include "datasource_fixture.hpp"
 #include "types/StructTypeInfo.hpp"
@@ -34,7 +33,6 @@
 #include "types/SequenceTypeInfo.hpp"
 #include "types/BoostArrayTypeInfo.hpp"
 
-using namespace boost::lambda;
 using namespace boost::archive;
 using namespace boost::serialization;
 
@@ -61,9 +59,6 @@ BOOST_AUTO_TEST_CASE( testCTypeArray )
     // check the part names lookup:
     vector<string> names = atype->getMemberNames();
     BOOST_CHECK_EQUAL( atype->getMemberNames().size(), 2 ); // capacity,size
-
-//    for_each( names.begin(), names.end(), cout << lambda::_1 <<", " );
-//    cout <<endl;
 
     BOOST_REQUIRE_EQUAL( names.size(), 2);
     BOOST_REQUIRE( atype->getMember("0") );
@@ -109,9 +104,6 @@ BOOST_AUTO_TEST_CASE( testContainerType )
     // check the part names lookup:
     vector<string> names = atype->getMemberNames();
     BOOST_CHECK_EQUAL( atype->getMemberNames().size(), 2 ); // capacity,size
-
-//    for_each( names.begin(), names.end(), cout << lambda::_1 <<", " );
-//    cout <<endl;
 
     BOOST_REQUIRE_EQUAL( names.size(), 2);
     BOOST_REQUIRE( atype->getMember("0") );
@@ -167,9 +159,6 @@ BOOST_AUTO_TEST_CASE( testStringContainerType )
     // check the part names lookup:
     vector<string> names = atype->getMemberNames();
     BOOST_CHECK_EQUAL( atype->getMemberNames().size(), 2 ); // capacity,size
-
-//    for_each( names.begin(), names.end(), cout << lambda::_1 <<", " );
-//    cout <<endl;
 
     BOOST_REQUIRE_EQUAL( names.size(), 2);
     BOOST_REQUIRE( atype->getMember("0") );
