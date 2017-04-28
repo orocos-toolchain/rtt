@@ -110,7 +110,10 @@ namespace RTT
     public:
         /**
          * Create a named timer object which can hold \a max_timers timers.
-         * \sa Timer::Timer()
+         * A Timer must be executed in a non periodic thread (or the main thread)
+         * or it will refuse to start.
+         * If \a scheduler is set to -1 (default) no thread is created and you need
+         * to attach a thread yourself to this Timer.
          * @param max_timers The initial amount of timers this Timer can monitor.
          * Keep as low as possible. See also setMaxTimers().
          * @param scheduler The Orocos scheduler type for this timer. ORO_SCHED_OTHER or ORO_SCHED_RT or
