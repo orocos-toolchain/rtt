@@ -510,7 +510,11 @@ namespace RTT
             os::MutexLock lock( d->inpguard );
             getline( d->remotestream, line );
             if ( !d->remotestream )
+            {
+                d->remotestream.str("");
                 d->remotestream.clear();
+                d->messagecnt = 0;
+            }
         }
         if ( !line.empty() )
             --d->messagecnt;
