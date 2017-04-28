@@ -95,13 +95,16 @@ namespace RTT
             it->second->setCaller( new_owner ? new_owner->engine() : 0);
 
         this->mrowner = new_owner;
+
+        for(Requests::iterator it = mrequests.begin(); it != mrequests.end(); ++it)
+            it->second->setOwner( new_owner );
     }
 
     ServiceRequester::shared_ptr ServiceRequester::requires() {
         try {
             return shared_from_this();
         } catch( boost::bad_weak_ptr& /*bw*/ ) {
-            log(Error) <<"When using boost < 1.40.0 : You are not allowed to call provides() on a ServiceRequester that does not yet belong to a TaskContext or another ServiceRequester." << endlog();
+            log(Error) <<"When using boost < 1.40.0 : You are not allowed to call requires() on a ServiceRequester that does not yet belong to a TaskContext or another ServiceRequester." << endlog();
             log(Error) <<"Try to avoid using requires() in this case: omit it or use the service requester directly." <<endlog();
             log(Error) <<"OR: upgrade to boost 1.40.0, then this error will go away." <<endlog();
             throw std::runtime_error("Illegal use of requires()");
@@ -111,12 +114,13 @@ namespace RTT
     ServiceRequester::shared_ptr ServiceRequester::requires(const std::string& service_name) {
         if (service_name == "this")
             return requires();
-        shared_ptr sp = mrequests[service_name];
-        if (sp)
+        Requests::iterator it = mrequests.find(service_name);
+        if (it != mrequests.end() )
+            return it->second;
+        shared_ptr sp = boost::make_shared<ServiceRequester>(service_name, mrowner);
+        if ( addServiceRequester(sp) )
             return sp;
-        sp = boost::make_shared<ServiceRequester>(service_name, mrowner);
-        mrequests[service_name] = sp;
-        return sp;
+        return shared_ptr();
     }
 
     bool ServiceRequester::addServiceRequester(ServiceRequester::shared_ptr obj) {

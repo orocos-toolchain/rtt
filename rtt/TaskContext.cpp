@@ -124,10 +124,13 @@ namespace RTT
             // here would only lead to calling invalid virtual functions.
             // [Rule no 1: Don't call virtual functions in a destructor.]
             // [Rule no 2: Don't call virtual functions in a constructor.]
+            this->clear();
 
             // these need to be freed before we cleanup the EE:
             localservs.clear();
+            tcservice->setOwner(0);
             tcservice.reset();
+            tcrequests->setOwner(0);
             tcrequests.reset();
 
             // remove from all users.
