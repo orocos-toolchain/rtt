@@ -117,10 +117,9 @@ namespace RTT { namespace extras {
         bool m_has_timeout;
 
         static const char CMD_ANY_COMMAND = 0;
-        RTT::os::Mutex m_command_mutex;
-        bool m_break_loop;
-        bool m_trigger;
-        bool m_update_sets;
+        mutable oro_atomic_t m_break_loop;
+        mutable oro_atomic_t m_trigger;
+        mutable oro_atomic_t m_update_sets;
 
         /** Internal method that makes sure loop() takes into account
          * modifications in the set of watched FDs
