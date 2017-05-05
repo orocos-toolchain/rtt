@@ -83,10 +83,10 @@ FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* 
     , m_has_error(false)
     , m_has_timeout(false)
     , m_has_ioready(false)
-    , m_break_loop(false)
-    , m_trigger(false)
-    , m_update_sets(false)
 {
+    oro_atomic_set(&m_break_loop, 0);
+    oro_atomic_set(&m_trigger, 0);
+    oro_atomic_set(&m_update_sets, 0);
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
     m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
@@ -109,10 +109,10 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Runn
     , m_has_error(false)
     , m_has_timeout(false)
     , m_has_ioready(false)
-    , m_break_loop(false)
-    , m_trigger(false)
-    , m_update_sets(false)
 {
+    oro_atomic_set(&m_break_loop, 0);
+    oro_atomic_set(&m_trigger, 0);
+    oro_atomic_set(&m_update_sets, 0);
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
     m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
@@ -126,10 +126,10 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Seco
     , m_has_error(false)
     , m_has_timeout(false)
     , m_has_ioready(false)
-    , m_break_loop(false)
-    , m_trigger(false)
-    , m_update_sets(false)
 {
+    oro_atomic_set(&m_break_loop, 0);
+    oro_atomic_set(&m_trigger, 0);
+    oro_atomic_set(&m_update_sets, 0);
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
     m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
@@ -143,10 +143,10 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Seco
     , m_has_error(false)
     , m_has_timeout(false)
     , m_has_ioready(false)
-    , m_break_loop(false)
-    , m_trigger(false)
-    , m_update_sets(false)
 {
+    oro_atomic_set(&m_break_loop, 0);
+    oro_atomic_set(&m_trigger, 0);
+    oro_atomic_set(&m_update_sets, 0);
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
     m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
@@ -215,9 +215,7 @@ void FileDescriptorActivity::clearAllWatches()
 }
 void FileDescriptorActivity::triggerUpdateSets()
 {
-    { RTT::os::MutexLock lock(m_command_mutex);
-        m_update_sets = true;
-    }
+    oro_atomic_inc(&m_update_sets);
     int unused; (void)unused;
     unused = write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
 }
@@ -259,9 +257,9 @@ bool FileDescriptorActivity::start()
 #endif
 
     // reset flags
-    m_break_loop = false;
-    m_trigger = false;
-    m_update_sets = false;
+    oro_atomic_set(&m_break_loop, 0);
+    oro_atomic_set(&m_trigger, 0);
+    oro_atomic_set(&m_update_sets, 0);
 
     if (!Activity::start())
     {
@@ -277,10 +275,8 @@ bool FileDescriptorActivity::start()
 bool FileDescriptorActivity::trigger()
 { 
     if (isActive() ) {
-        { RTT::os::MutexLock lock(m_command_mutex);
-            if (m_trigger) return true;
-            m_trigger = true;
-        }
+        if (oro_atomic_read(&m_trigger) > 0) return true;
+        oro_atomic_inc(&m_trigger);
         int unused; (void)unused;
         unused = write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
         return true;
@@ -384,19 +380,17 @@ void FileDescriptorActivity::loop()
 
         // We check the flags after the command queue was emptied as we could miss commands otherwise:
         bool do_trigger = false;
-        { RTT::os::MutexLock lock(m_command_mutex);
-            // This section should be really fast to not block threads calling trigger(), breakLoop() or watch().
-            if (m_trigger) {
-                m_trigger = false;
-                do_trigger = true;
-            }
-            if (m_update_sets) {
-                m_update_sets = false;
-            }
-            if (m_break_loop) {
-                m_break_loop = false;
-                break;
-            }
+        if (oro_atomic_read(&m_trigger) > 0) {
+            oro_atomic_set(&m_trigger, 0);
+            do_trigger = true;
+        }
+        if (oro_atomic_read(&m_break_loop) > 0) {
+            oro_atomic_set(&m_break_loop, 0);
+            break;
+        }
+        if (oro_atomic_read(&m_update_sets) > 0) {
+            oro_atomic_set(&m_update_sets, 0);
+            continue;
         }
 
         // Execute activity...
@@ -426,10 +420,8 @@ void FileDescriptorActivity::loop()
 
 bool FileDescriptorActivity::breakLoop()
 {
-    { RTT::os::MutexLock lock(m_command_mutex);
-        if (m_break_loop) return true;
-        m_break_loop = true;
-    }
+    if (oro_atomic_read(&m_break_loop) > 0) return true;
+    oro_atomic_inc(&m_break_loop);
     int unused; (void)unused;
     unused = write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
     return true;
