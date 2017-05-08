@@ -81,11 +81,11 @@ namespace RTT {
     }
 
     Handle::operator bool() const {
-        return m_conn;
+        return static_cast<bool>(m_conn);
     }
 
     bool Handle::ready() const {
-        return m_conn;
+        return static_cast<bool>(m_conn);
     }
 
 

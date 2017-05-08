@@ -267,7 +267,7 @@ namespace RTT {
 
     bool OperationCallerC::ready() const
     {
-        return m;
+        return static_cast<bool>(m);
     }
 
     OperationInterfacePart* OperationCallerC::getOrp() const {
