@@ -371,14 +371,14 @@ void FileDescriptorActivity::loop()
         if (oro_atomic_read(&m_trigger) > 0) {
             do_trigger = true;
             user_trigger = true;
-            oro_atomic_dec(&m_trigger);
+            oro_atomic_set(&m_trigger, 0);
         }
         if (oro_atomic_read(&m_update_sets) > 0) {
-            oro_atomic_dec(&m_update_sets);
+            oro_atomic_set(&m_update_sets, 0);
             do_trigger = false;
         }
         if (oro_atomic_read(&m_break_loop) > 0) {
-            oro_atomic_dec(&m_break_loop);
+            oro_atomic_set(&m_break_loop, 0);
             break;
         }
 
