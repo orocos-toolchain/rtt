@@ -127,6 +127,11 @@ namespace RTT { namespace extras {
          */
         void triggerUpdateSets();
 
+        /** Internal method to clear the command (trigger, break loop,
+         * update sets) flags.
+         */
+        void clearCommandFlags();
+
     public:
         /**
          * Create a FileDescriptorActivity with a given priority and base::RunnableInterface

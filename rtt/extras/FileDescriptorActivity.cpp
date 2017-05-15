@@ -84,9 +84,7 @@ FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* 
     , m_has_timeout(false)
     , m_has_ioready(false)
 {
-    oro_atomic_set(&m_break_loop, 0);
-    oro_atomic_set(&m_trigger, 0);
-    oro_atomic_set(&m_update_sets, 0);
+    clearCommandFlags();
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
     m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
@@ -110,9 +108,7 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Runn
     , m_has_timeout(false)
     , m_has_ioready(false)
 {
-    oro_atomic_set(&m_break_loop, 0);
-    oro_atomic_set(&m_trigger, 0);
-    oro_atomic_set(&m_update_sets, 0);
+    clearCommandFlags();
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
     m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
@@ -127,9 +123,7 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Seco
     , m_has_timeout(false)
     , m_has_ioready(false)
 {
-    oro_atomic_set(&m_break_loop, 0);
-    oro_atomic_set(&m_trigger, 0);
-    oro_atomic_set(&m_update_sets, 0);
+    clearCommandFlags();
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
     m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
@@ -144,9 +138,7 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Seco
     , m_has_timeout(false)
     , m_has_ioready(false)
 {
-    oro_atomic_set(&m_break_loop, 0);
-    oro_atomic_set(&m_trigger, 0);
-    oro_atomic_set(&m_update_sets, 0);
+    clearCommandFlags();
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
     m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
@@ -219,6 +211,14 @@ void FileDescriptorActivity::triggerUpdateSets()
     int unused; (void)unused;
     unused = write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
 }
+
+void FileDescriptorActivity::clearCommandFlags()
+{
+    oro_atomic_set(&m_break_loop, 0);
+    oro_atomic_set(&m_trigger, 0);
+    oro_atomic_set(&m_update_sets, 0);
+}
+
 bool FileDescriptorActivity::isUpdated(int fd) const
 { return FD_ISSET(fd, &m_fd_work); }
 bool FileDescriptorActivity::hasError() const
@@ -256,10 +256,8 @@ bool FileDescriptorActivity::start()
     }
 #endif
 
-    // reset flags
-    oro_atomic_set(&m_break_loop, 0);
-    oro_atomic_set(&m_trigger, 0);
-    oro_atomic_set(&m_update_sets, 0);
+    // clear command flags
+    clearCommandFlags();
 
     if (!Activity::start())
     {
