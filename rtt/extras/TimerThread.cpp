@@ -77,7 +77,10 @@ namespace RTT {
                 it = TimerThreads.begin();
                 continue;
             }
-            if ( tptr->getScheduler() == scheduler && tptr->getPriority() == pri && tptr->getPeriodNS() == Seconds_to_nsecs(per) ) {
+            if ( tptr->getScheduler() == scheduler &&
+                 tptr->getPriority() == pri &&
+                 tptr->getPeriodNS() == Seconds_to_nsecs(per) &&
+                 tptr->getCpuAffinity() == cpu_affinity ) {
                 return tptr;
             }
             ++it;
