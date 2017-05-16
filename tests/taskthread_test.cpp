@@ -205,6 +205,14 @@ BOOST_AUTO_TEST_CASE(testPeriodic )
         }
     }
 
+    // Different CPU affinity
+    unsigned cpu_affinity = 1; // first CPU only
+    if ( mtask.thread()->getCpuAffinity() != cpu_affinity ) {
+        PeriodicActivity m4task(ORO_SCHED_OTHER, 15, 0.01, cpu_affinity);
+        BOOST_CHECK( mtask.thread() != m4task.thread() );
+        BOOST_CHECK_EQUAL( cpu_affinity, m4task.thread()->getCpuAffinity() );
+    }
+
     // Starting thread if thread not running
     BOOST_CHECK( mtask.thread()->stop() );
     BOOST_CHECK( mtask.thread()->isRunning() == false );
