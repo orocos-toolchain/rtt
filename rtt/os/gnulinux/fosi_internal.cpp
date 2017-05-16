@@ -173,8 +173,8 @@ namespace RTT
             }
             int result = pthread_setname_np(task->thread, thread_name);
             if (result != 0) {
-                log(Error) << "Failed to set thread name for " << task->name << ": "
-                           << strerror(result) << endlog();
+                log(Warning) << "Failed to set thread name for " << task->name << ": "
+                             << strerror(result) << endlog();
             }
         }
 
