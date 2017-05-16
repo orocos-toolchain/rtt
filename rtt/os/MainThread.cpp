@@ -111,6 +111,11 @@ namespace RTT
     	return rtos_task_get_pid(&main_task);
     }
 
+    unsigned MainThread::getCpuAffinity() const
+    {
+        return rtos_task_get_cpu_affinity(&main_task);
+    }
+
     bool MainThread::setPeriod(Seconds period)
     {
         return false;
