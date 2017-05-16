@@ -258,7 +258,7 @@ namespace RTT {
 
     bool SendHandleC::ready() const
     {
-        return static_cast<bool>(e->s);
+        return e->s;
     }
 
     void SendHandleC::setAutoCollect(bool on_off) {
