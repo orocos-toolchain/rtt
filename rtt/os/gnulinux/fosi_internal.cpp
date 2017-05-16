@@ -180,7 +180,7 @@ namespace RTT
         }
 #endif // ORO_HAVE_PTHREAD_SETNAME_NP
 
-        if ( cpu_affinity != (unsigned)~0 ) {
+        if ( cpu_affinity != 0 ) {
             log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
             int result = rtos_task_set_cpu_affinity(task, cpu_affinity);
             if (result != 0) {
