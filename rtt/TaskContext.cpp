@@ -349,6 +349,8 @@ namespace RTT
             new_act = new SequentialActivity();
 #elif defined(ORO_ACT_DEFAULT_ACTIVITY)
             new_act = new Activity();
+#else
+            return false;
 #endif
         }
         new_act->stop();
@@ -460,4 +462,3 @@ namespace RTT
         }
     }
 }
-
