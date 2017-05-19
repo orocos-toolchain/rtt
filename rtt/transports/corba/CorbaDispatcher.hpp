@@ -72,13 +72,17 @@ namespace RTT {
             CorbaDispatcher( const std::string& name)
             : Activity(defaultScheduler, defaultPriority, 0.0, 0, name),
               RClist(20,2),
-              do_exit(false)
+              do_exit(false),
+              mscheduler(defaultScheduler),
+              mpriority(defaultPriority)
               {}
 
             CorbaDispatcher( const std::string& name, int scheduler, int priority)
             : Activity(scheduler, priority, 0.0, 0, name),
               RClist(20,2),
-              do_exit(false)
+              do_exit(false),
+              mscheduler(scheduler),
+              mpriority(priority)
               {}
 
             ~CorbaDispatcher() {
@@ -94,7 +98,7 @@ namespace RTT {
              * @param iface The interface to dispatch data flow messages for.
              * @return
              */
-            static CorbaDispatcher* Instance(DataFlowInterface* iface, int scheduler = defaultScheduler, int priority = defaultPriority) {
+            static CorbaDispatcher* Instance(DataFlowInterface* iface) {
                 if (!mlock)
                     mlock = new os::Mutex();
                 DispatchMap::iterator result = DispatchI.find(iface);
@@ -111,7 +115,33 @@ namespace RTT {
                     else
                         name = iface->getOwner()->getName();
                     name += ".CorbaDispatch";
+
+                    // The properties to create the CorbaDispatcher are retrieved.
+                    // When the CorbaDispatcher is created these properties can't be changed anymore,
+                    // so they are converted to Constants.
+                    PropertyBag* properties = iface->getOwner()->properties();
+                    int scheduler;
+
+                    base::PropertyBase* property = properties->getProperty("CorbaDispatcherScheduler");
+                    if( property != 0 && property->getType() == "int") {
+                      scheduler = (static_cast<RTT::internal::DataSource<int>*>(property->getDataSource().get())->get());
+                      properties->removeProperty(property);
+                    }
+                    else
+                      scheduler = defaultScheduler;
+
+                    int priority;
+
+                    property = properties->getProperty("CorbaDispatcherPriority");
+                    if( property != 0 && property->getType() == "int") {
+                      priority = (static_cast<RTT::internal::DataSource<int>*>(property->getDataSource().get())->get());
+                      properties->removeProperty(property);
+                    } else
+                      priority = defaultPriority;
+
                     DispatchI[iface] = new CorbaDispatcher( name, scheduler, priority );
+                    iface->getOwner()->addConstant("CorbaDispatcherScheduler", DispatchI[iface]->mscheduler);
+                    iface->getOwner()->addConstant("CorbaDispatcherPriority", DispatchI[iface]->mpriority);
                     DispatchI[iface]->start();
                     return DispatchI[iface];
                 }
@@ -185,6 +215,17 @@ namespace RTT {
                 do_exit = true;
                 return true;
             }
+
+            protected:
+            /**
+             * The scheduler used by the underlying CorbaDispatcher Thread.
+             */
+            int mscheduler;
+
+            /**
+             * The priority used by the underlying CorbaDispatcher Thread.
+             */
+            int mpriority;
         };
     }
 }
