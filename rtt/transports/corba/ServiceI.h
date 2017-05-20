@@ -99,7 +99,7 @@ protected:
     Servants mservs;
 public:
   // Constructor 
-    RTT_corba_CService_i ( RTT::ServicePtr service, PortableServer::POA_ptr poa);
+    RTT_corba_CService_i ( RTT::Service::shared_ptr service, PortableServer::POA_ptr poa, const std::string& ownerName);
   
   // Destructor 
   virtual ~RTT_corba_CService_i (void);

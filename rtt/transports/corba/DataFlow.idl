@@ -122,6 +122,11 @@ module RTT
       typedef sequence<CPortDescription> CPortDescriptions;
 
       /**
+      * Return the name of the instance that owns this interface.
+      */
+      string getOwnerName();
+      
+      /**
        * Returns the names of the ports of this component.
        */
       CPortNames getPorts();
@@ -165,7 +170,7 @@ module RTT
        * The returned channel element will not be functional until
        * channelReady() has been called for it
        */
-      CChannelElement buildChannelOutput(in string input_port, inout CConnPolicy policy)
+      CChannelElement buildChannelOutput(in string input_port, in string output_port_name, in string output_task_name, inout CConnPolicy policy)
             raises(CNoCorbaTransport,CNoSuchPortException);
 
       /**
@@ -174,7 +179,7 @@ module RTT
        * Some protocols may adjust the policy, or pass additional information
        * into the policy, such as the name of the newly created connection.
        */
-      CChannelElement buildChannelInput(in string output_port, inout CConnPolicy policy)
+      CChannelElement buildChannelInput(in string output_port, in string input_port_name, in string input_task_name, inout CConnPolicy policy)
             raises(CNoCorbaTransport,CNoSuchPortException);
 
       /**

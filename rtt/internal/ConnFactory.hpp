@@ -261,6 +261,8 @@ namespace RTT
             return data_object;
         }
 
+        static void fillConnId(ConnID *connId, base::OutputPortInterface& output_port, base::InputPortInterface& input_port);
+        
         /**
          * Creates a connection from a local output_port to a local or remote input_port.
          * This function contains all logic to decide on how connections must be created to
@@ -290,8 +292,11 @@ namespace RTT
                     log(Error) << "Port " << input_port.getName() << " is not compatible with " << output_port.getName() << endlog();
                     return false;
                 }
+                ConnID *id = output_port.getPortID();
+                fillConnId(id, output_port, input_port);
+                
                 // local ports, create buffer here.
-                output_half = buildBufferedChannelOutput<T>(*input_p, output_port.getPortID(), policy, output_port.getLastWrittenValue());
+                output_half = buildBufferedChannelOutput<T>(*input_p, id, policy, output_port.getLastWrittenValue());
             }
             else
             {
@@ -308,10 +313,13 @@ namespace RTT
             if (!output_half)
                 return false;
 
+            ConnID *id = input_port.getPortID();
+            fillConnId(id, output_port, input_port);
+
             // Since output is local, buildChannelInput is local as well.
             // This this the input channel element of the whole connection
             base::ChannelElementBase::shared_ptr channel_input =
-                buildChannelInput<T>(output_port, input_port.getPortID(), output_half);
+                buildChannelInput<T>(output_port, id, output_half);
 
             return createAndCheckConnection(output_port, input_port, channel_input, policy );
         }

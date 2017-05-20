@@ -200,7 +200,7 @@ char * RTT_corba_CTaskContext_i::getDescription (
     if ( CORBA::is_nil( mService ) ) {
         log(Debug) << "Creating CService for "<< mtask->getName()<<endlog();
         RTT_corba_CService_i* mserv;
-        mService_i = mserv = new RTT_corba_CService_i( mtask->provides(), mpoa );
+        mService_i = mserv = new RTT_corba_CService_i( mtask->provides(), mpoa , mtask->getName());
         mService = mserv->activate_this();
         CDataFlowInterface_i::registerServant(CDataFlowInterface::_narrow(mService), mserv);
     }
