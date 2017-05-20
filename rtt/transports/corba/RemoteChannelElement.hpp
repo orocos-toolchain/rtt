@@ -339,14 +339,14 @@ namespace RTT {
             /**
              * CORBA IDL function.
              */
-            bool write(const ::CORBA::Any& sample) ACE_THROW_SPEC ((
+            void write(const ::CORBA::Any& sample) ACE_THROW_SPEC ((
           	      CORBA::SystemException
           	    ))
             {
                 typename internal::ValueDataSource<T> value_data_source;
                 value_data_source.ref();
                 transport.updateFromAny(&sample, &value_data_source);
-                return base::ChannelElement<T>::write(value_data_source.rvalue());
+                base::ChannelElement<T>::write(value_data_source.rvalue());
             }
 
             virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
