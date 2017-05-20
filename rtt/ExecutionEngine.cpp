@@ -46,6 +46,7 @@
 #include "TaskContext.hpp"
 #include "internal/CatchConfig.hpp"
 #include "extras/SlaveActivity.hpp"
+#include "os/TimeService.hpp"
 
 #include <boost/bind.hpp>
 #include <algorithm>
@@ -69,7 +70,7 @@ namespace RTT
         : taskc(owner),
           mqueue(new MWSRQueue<DisposableInterface*>(ORONUM_EE_MQUEUE_SIZE) ),
           f_queue( new MWSRQueue<ExecutableInterface*>(ORONUM_EE_MQUEUE_SIZE) ),
-          mmaster(0)
+          mmaster(0), update_period(-1.0), mtrigger(false)
     {
     }
 
@@ -284,6 +285,16 @@ namespace RTT
         mmaster = master;
     }
 
+    bool ExecutionEngine::setPeriod( Seconds s ) {
+        update_period = s;
+        this->getActivity()->setPeriod(0.0);
+        return true;
+    }
+
+    Seconds ExecutionEngine::getPeriod() const {
+        return update_period >= 0.0 ? update_period : this->getActivity()->getPeriod();
+    }
+
     void ExecutionEngine::setActivity( base::ActivityInterface* task )
     {
         extras::SlaveActivity *slave_activity = dynamic_cast<extras::SlaveActivity *>(task);
@@ -344,10 +355,83 @@ namespace RTT
         }
     }
 
+    bool ExecutionEngine::trigger() {
+        if ( update_period < 0) {
+            mtrigger = true;
+            return this->getActivity()->trigger();
+        }
+        if ( update_period > 0) {
+            return false;
+        }
+        mtrigger = true;
+        msg_cond.broadcast();
+        return this->getActivity()->trigger();
+    }
+
+    bool ExecutionEngine::execute() {
+        if ( update_period < 0) {
+            return this->getActivity()->execute();
+        }
+        step();
+        return true;
+    }
+
     void ExecutionEngine::step() {
         processMessages();
+        if (taskc) taskc->prepareUpdateHook();
         processFunctions();
-        processChildren(); // aren't these ExecutableInterfaces ie functions ?
+        processChildren();
+    }
+
+    void ExecutionEngine::loop() {
+        nsecs wakeup = 0;
+
+        while ( true ) {
+            // since update_period may be changed at any time, we need to recheck it each time:
+            if ( update_period > 0.0) {
+                // initialize first wakeup time if we are periodic.
+                if ( wakeup == 0 ) {
+                    wakeup = os::TimeService::Instance()->getNSecs() + Seconds_to_nsecs(update_period);
+                }
+            } else {
+                // only clear if update_period <= 0.0 :
+                wakeup = 0;
+            }
+
+            // first, process messages + execute callback functions
+            processMessages();
+            if (taskc) taskc->prepareUpdateHook();
+
+
+            // periodic: we flag mtrigger below; non-periodic: we flag mtrigger in trigger()
+            if (mtrigger) {
+                mtrigger = false;
+                processFunctions();
+                processChildren();
+            }
+            // next, sleep/wait
+            os::MutexLock lock(msg_lock);
+            if ( wakeup == 0 ) {
+                // non periodic, default behavior:
+                //msg_cond.wait(msg_lock);
+                return;
+            } else {
+                // If periodic, sleep until wakeup time or a message comes in.
+                // when wakeup time passed, wait_until will return false and we recalculate wakeup + mtrigger
+                bool time_elapsed = ! msg_cond.wait_until(msg_lock,wakeup);
+
+                if (time_elapsed) {
+                    // calculate next wakeup point, overruns causes skips:
+                    while ( wakeup < os::TimeService::Instance()->getNSecs() )
+                        wakeup = wakeup + Seconds_to_nsecs(update_period);
+                    mtrigger = true;
+                }
+            }
+            if (mstopRequested) {
+                mstopRequested = false; // guarded by Mutex lock
+                return;
+            }
+        }
     }
 
     void ExecutionEngine::processChildren() {
@@ -356,7 +440,6 @@ namespace RTT
             // A trigger() in startHook() will be ignored, we trigger in TaskCore after startHook finishes.
             if ( taskc->mTaskState == TaskCore::Running && taskc->mTargetState == TaskCore::Running ) {
                 TRY (
-                    taskc->prepareUpdateHook();
                     taskc->updateHook();
                 ) CATCH(std::exception const& e,
                     log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
@@ -421,6 +504,11 @@ namespace RTT
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
             ok = (*it)->breakUpdateHook() && ok;
             }
+        os::MutexLock lock(msg_lock); // protects stopRequested
+        if (ok) {
+            mstopRequested = true;
+            msg_cond.broadcast();
+        }
         return ok;
     }
 
