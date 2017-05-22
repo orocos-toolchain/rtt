@@ -44,6 +44,7 @@
 #include "../../base/ChannelElementBase.hpp"
 #include "../../Logger.hpp"
 #include "../../internal/List.hpp"
+#include "../../internal/GlobalService.hpp"
 #include "DataFlowI.h"
 #include "../../DataFlowInterface.hpp"
 #include "../../TaskContext.hpp"
@@ -73,19 +74,13 @@ namespace RTT {
             CorbaDispatcher( const std::string& name)
             : Activity(defaultScheduler, defaultPriority, 0.0, 0, name),
               RClist(20,2),
-              do_exit(false),
-              mscheduler(defaultScheduler),
-              mpriority(defaultPriority),
-              mcpuaffinity(defaultCpuAffinity)
+              do_exit(false)
               {}
 
             CorbaDispatcher( const std::string& name, int scheduler, int priority, unsigned cpu_affinity)
             : Activity(scheduler, priority, 0.0, cpu_affinity, 0, name),
               RClist(20,2),
-              do_exit(false),
-              mscheduler(scheduler),
-              mpriority(priority),
-              mcpuaffinity(defaultCpuAffinity)
+              do_exit(false)
               {}
 
             ~CorbaDispatcher() {
@@ -122,39 +117,26 @@ namespace RTT {
                     // The properties to create the CorbaDispatcher are retrieved.
                     // When the CorbaDispatcher is created these properties can't be changed anymore,
                     // so they are converted to Constants.
-                    PropertyBag* properties = iface->getOwner()->properties();
-                    int scheduler;
+                    TaskContext* owner = iface->getOwner();
+                    RTT::internal::GlobalService* global_service = RTT::internal::GlobalService::Instance();
+                    // The hard coded default is used if the property isn't set for the Component
+                    // that owns the Dispatcher and for the GlobalService.
+                    RTT::Property<int> scheduler = RTT::Property<int>("","",defaultScheduler);
+                    RTT::Property<int> priority = RTT::Property<int>("","",defaultPriority);
+                    RTT::Property<int> cpu_affinity =RTT::Property<int>("","",defaultCpuAffinity);
 
-                    base::PropertyBase* property = properties->getProperty("CorbaDispatcherScheduler");
-                    if( property != 0 && property->getType() == "int") {
-                      scheduler = (static_cast<RTT::internal::DataSource<int>*>(property->getDataSource().get())->get());
-                      properties->removeProperty(property);
-                    }
-                    else
-                      scheduler = defaultScheduler;
+                    // If the Property is defined for the Component or for the GlobalService,
+                    // the temporary Property values is updated.
+                    scheduler.refresh(owner->getProperty("CorbaDispatcherScheduler")) ||
+                        scheduler.refresh(global_service->getProperty("CorbaDispatcherScheduler"));
 
-                    int priority;
+                    priority.refresh(owner->getProperty("CorbaDispatcherPriority")) ||
+                        priority.refresh(global_service->getProperty("CorbaDispatcherPriority"));
 
-                    property = properties->getProperty("CorbaDispatcherPriority");
-                    if( property != 0 && property->getType() == "int") {
-                      priority = (static_cast<RTT::internal::DataSource<int>*>(property->getDataSource().get())->get());
-                      properties->removeProperty(property);
-                    } else
-                      priority = defaultPriority;
-
-                    int cpu_affinity;
-
-                    property = properties->getProperty("CorbaDispatcherCpuAffinity");
-                    if( property != 0 && property->getType() == "int") {
-                      cpu_affinity = (static_cast<RTT::internal::DataSource<int>*>(property->getDataSource().get())->get());
-                      properties->removeProperty(property);
-                    } else
-                      cpu_affinity = defaultCpuAffinity;
+                    cpu_affinity.refresh(owner->getProperty("CorbaDispatcherCpuAffinity")) ||
+                        cpu_affinity.refresh(global_service->getProperty("CorbaDispatcherCpuAffinity"));
 
                     DispatchI[iface] = new CorbaDispatcher( name, scheduler, priority, cpu_affinity );
-                    iface->getOwner()->addConstant("CorbaDispatcherScheduler", DispatchI[iface]->mscheduler);
-                    iface->getOwner()->addConstant("CorbaDispatcherPriority", DispatchI[iface]->mpriority);
-                    iface->getOwner()->addConstant("CorbaDispatcherCpuAffinity", DispatchI[iface]->mcpuaffinity);
                     DispatchI[iface]->start();
                     return DispatchI[iface];
                 }
@@ -228,22 +210,6 @@ namespace RTT {
                 do_exit = true;
                 return true;
             }
-
-            protected:
-            /**
-             * The scheduler used by the underlying CorbaDispatcher Thread.
-             */
-            int mscheduler;
-
-            /**
-             * The priority used by the underlying CorbaDispatcher Thread.
-             */
-            int mpriority;
-
-            /**
-             * The affinity used by the underlying CorbaDispatcher Thread.
-             */
-            int mcpuaffinity;
         };
     }
 }
