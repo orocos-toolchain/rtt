@@ -68,21 +68,24 @@ namespace RTT {
 
             RTT_CORBA_API static int defaultScheduler;
             RTT_CORBA_API static int defaultPriority;
+            RTT_CORBA_API static int defaultCpuAffinity;
 
             CorbaDispatcher( const std::string& name)
             : Activity(defaultScheduler, defaultPriority, 0.0, 0, name),
               RClist(20,2),
               do_exit(false),
               mscheduler(defaultScheduler),
-              mpriority(defaultPriority)
+              mpriority(defaultPriority),
+              mcpuaffinity(defaultCpuAffinity)
               {}
 
-            CorbaDispatcher( const std::string& name, int scheduler, int priority)
-            : Activity(scheduler, priority, 0.0, 0, name),
+            CorbaDispatcher( const std::string& name, int scheduler, int priority, unsigned cpu_affinity)
+            : Activity(scheduler, priority, 0.0, cpu_affinity, 0, name),
               RClist(20,2),
               do_exit(false),
               mscheduler(scheduler),
-              mpriority(priority)
+              mpriority(priority),
+              mcpuaffinity(defaultCpuAffinity)
               {}
 
             ~CorbaDispatcher() {
@@ -139,9 +142,19 @@ namespace RTT {
                     } else
                       priority = defaultPriority;
 
-                    DispatchI[iface] = new CorbaDispatcher( name, scheduler, priority );
+                    int cpu_affinity;
+
+                    property = properties->getProperty("CorbaDispatcherCpuAffinity");
+                    if( property != 0 && property->getType() == "int") {
+                      cpu_affinity = (static_cast<RTT::internal::DataSource<int>*>(property->getDataSource().get())->get());
+                      properties->removeProperty(property);
+                    } else
+                      cpu_affinity = defaultCpuAffinity;
+
+                    DispatchI[iface] = new CorbaDispatcher( name, scheduler, priority, cpu_affinity );
                     iface->getOwner()->addConstant("CorbaDispatcherScheduler", DispatchI[iface]->mscheduler);
                     iface->getOwner()->addConstant("CorbaDispatcherPriority", DispatchI[iface]->mpriority);
+                    iface->getOwner()->addConstant("CorbaDispatcherCpuAffinity", DispatchI[iface]->mcpuaffinity);
                     DispatchI[iface]->start();
                     return DispatchI[iface];
                 }
@@ -226,6 +239,11 @@ namespace RTT {
              * The priority used by the underlying CorbaDispatcher Thread.
              */
             int mpriority;
+
+            /**
+             * The affinity used by the underlying CorbaDispatcher Thread.
+             */
+            int mcpuaffinity;
         };
     }
 }
