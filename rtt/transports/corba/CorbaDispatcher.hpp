@@ -118,7 +118,7 @@ namespace RTT {
                     // When the CorbaDispatcher is created these properties can't be changed anymore,
                     // so they are converted to Constants.
                     TaskContext* owner = iface->getOwner();
-                    RTT::internal::GlobalService* global_service = RTT::internal::GlobalService::Instance();
+                    Service::shared_ptr global_service = RTT::internal::GlobalService::Instance();
                     // The hard coded default is used if the property isn't set for the Component
                     // that owns the Dispatcher and for the GlobalService.
                     RTT::Property<int> scheduler = RTT::Property<int>("","",defaultScheduler);
