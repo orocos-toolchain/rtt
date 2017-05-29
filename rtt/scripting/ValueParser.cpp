@@ -160,9 +160,15 @@ namespace RTT
         return;
     }
 
-    // Global variable case:
+    // Global Attribute case:
     if ( GlobalsRepository::Instance()->hasAttribute( name ) ) {
         ret = GlobalsRepository::Instance()->getValue(name)->getDataSource();
+        return;
+    }
+
+    // Global Property case:
+    if ( GlobalsRepository::Instance()->hasProperty( name ) ) {
+        ret = GlobalsRepository::Instance()->properties()->find(name)->getDataSource();
         return;
     }
 

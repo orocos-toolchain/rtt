@@ -60,7 +60,7 @@
 
 #include "../../os/threads.hpp"
 #include "../../Activity.hpp"
-#include "../../internal/GlobalService.hpp"
+#include "../../types/GlobalsRepository.hpp"
 
 namespace RTT
 {namespace corba
@@ -351,7 +351,7 @@ namespace RTT
     };
 
     void TaskContextServer::ThreadOrb() {
-      Service::shared_ptr global_service = RTT::internal::GlobalService::Instance();
+      RTT::types::GlobalsRepository::shared_ptr  global_repository = RTT::types::GlobalsRepository::Instance();
 
       RTT::Property<int> scheduler = RTT::Property<int>("","",ORO_SCHED_RT);
       RTT::Property<int> priority = RTT::Property<int>("","",os::LowestPriority);
@@ -359,11 +359,11 @@ namespace RTT
 
       // The temporary Property value is updated if the Property is defined for
       // the GlobalService. The hard coded default is used otherwise.
-      scheduler.refresh(global_service->getProperty("OrbRunnerScheduler"));
+      scheduler.refresh(global_repository->getProperty("OrbRunnerScheduler"));
 
-      priority.refresh(global_service->getProperty("OrbRunnerPriority"));
+      priority.refresh(global_repository->getProperty("OrbRunnerPriority"));
 
-      cpu_affinity.refresh(global_service->getProperty("OrbRunnerCpuAffinity"));
+      cpu_affinity.refresh(global_repository->getProperty("OrbRunnerCpuAffinity"));
 
       return ThreadOrb(scheduler, priority, cpu_affinity);
     }
