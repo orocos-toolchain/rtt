@@ -339,7 +339,7 @@ namespace RTT
     {
     public:
         OrbRunner(int scheduler, int priority, unsigned cpu_affinity)
-            : Activity(scheduler, priority, cpu_affinity)
+            : Activity(scheduler, priority, 0.0, cpu_affinity, 0, "RTT::OrbRunner")
         {}
         void loop()
         {
