@@ -57,7 +57,7 @@
 #   endif
 #  endif
 #  ifdef OROSEM_REMOTE_LOGGING
-#   include <sstream>
+#   include <deque>
 #  endif
 #endif
 
@@ -132,9 +132,6 @@ namespace RTT
 #ifndef OROSEM_PRINTF_LOGGING
               stdoutput( &str ),
 #endif
-#ifdef OROSEM_REMOTE_LOGGING
-              messagecnt(0),
-#endif
 #if     defined(OROSEM_FILE_LOGGING)
 #if     defined(OROSEM_LOG4CPP_LOGGING)
               category(log4cpp::Category::getInstance(RTT::Logger::log4cppCategoryName)),
@@ -204,13 +201,11 @@ namespace RTT
 #endif
 #ifdef OROSEM_REMOTE_LOGGING
                 // detect buffer 'overflow'
-                if ( messagecnt >= ORONUM_LOGGING_BUFSIZE ) {
-                    std::string dummy;
-                    remotestream >> dummy; // FIFO principle: read 1 line
-                    --messagecnt;
+                if(remotedeque.size() >= ORONUM_LOGGING_BUFSIZE)
+                {
+                    remotedeque.pop_front(); // FIFO principle
                 }
-                remotestream << res << fileline.str() << pf;
-                ++messagecnt;
+                remotedeque.push_back( res+fileline.str() );  // or emplace_back c++11
 #endif
 #if defined(OROSEM_FILE_LOGGING) || defined(OROSEM_REMOTE_LOGGING)
                 fileline.str("");
@@ -227,8 +222,7 @@ namespace RTT
         std::stringstream fileline;
 #endif
 #if defined(OROSEM_REMOTE_LOGGING)
-        std::stringstream remotestream;
-        unsigned int messagecnt;
+        std::deque<std::string> remotedeque;
 #endif
 #if defined(OROSEM_FILE_LOGGING)
 #if     defined(OROSEM_LOG4CPP_LOGGING)
@@ -511,20 +505,15 @@ namespace RTT
 #ifdef OROSEM_REMOTE_LOGGING
         if (!d->started)
             return "";
-        std::string line;
+
+        os::MutexLock lock( d->inpguard );
+        if( d->remotedeque.size() > 0 )
         {
-            os::MutexLock lock( d->inpguard );
-            getline( d->remotestream, line );
-            if ( !d->remotestream )
-            {
-                d->remotestream.str("");
-                d->remotestream.clear();
-                d->messagecnt = 0;
-            }
+            std::string line = d->remotedeque.front();
+            d->remotedeque.pop_front();
+            return line;
         }
-        if ( !line.empty() )
-            --d->messagecnt;
-        return line;
+        return "";
 #else
         return "";
 #endif
@@ -594,9 +583,6 @@ namespace RTT
             if ( d->maylogStdOut() ) {
 #ifndef OROSEM_PRINTF_LOGGING
                 d->stdoutput->flush();
-#endif
-#if defined(OROSEM_REMOTE_LOGGING)
-                d->remotestream.flush();
 #endif
             }
 #if defined(OROSEM_FILE_LOGGING)
