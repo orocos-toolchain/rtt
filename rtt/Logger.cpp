@@ -57,7 +57,7 @@
 #   endif
 #  endif
 #  ifdef OROSEM_REMOTE_LOGGING
-#   include <deque>
+#   include "base/BufferLockFree.hpp"
 #  endif
 #endif
 
@@ -132,6 +132,9 @@ namespace RTT
 #ifndef OROSEM_PRINTF_LOGGING
               stdoutput( &str ),
 #endif
+#ifdef OROSEM_REMOTE_LOGGING
+              remotestring(ORONUM_LOGGING_BUFSIZE,std::string(), true),
+#endif
 #if     defined(OROSEM_FILE_LOGGING)
 #if     defined(OROSEM_LOG4CPP_LOGGING)
               category(log4cpp::Category::getInstance(RTT::Logger::log4cppCategoryName)),
@@ -200,12 +203,7 @@ namespace RTT
                 fprintf( logfile, "%s%s\n", res.c_str(), fileline.str().c_str() );
 #endif
 #ifdef OROSEM_REMOTE_LOGGING
-                // detect buffer 'overflow'
-                if(remotedeque.size() >= ORONUM_LOGGING_BUFSIZE)
-                {
-                    remotedeque.pop_front(); // FIFO principle
-                }
-                remotedeque.push_back( res+fileline.str() );  // or emplace_back c++11
+                remotestring.Push(res+fileline.str());  // TODO, handle failure.
 #endif
 #if defined(OROSEM_FILE_LOGGING) || defined(OROSEM_REMOTE_LOGGING)
                 fileline.str("");
@@ -222,7 +220,7 @@ namespace RTT
         std::stringstream fileline;
 #endif
 #if defined(OROSEM_REMOTE_LOGGING)
-        std::deque<std::string> remotedeque;
+        base::BufferLockFree<std::string> remotestring;
 #endif
 #if defined(OROSEM_FILE_LOGGING)
 #if     defined(OROSEM_LOG4CPP_LOGGING)
@@ -507,13 +505,11 @@ namespace RTT
             return "";
 
         os::MutexLock lock( d->inpguard );
-        if( d->remotedeque.size() > 0 )
-        {
-            std::string line = d->remotedeque.front();
-            d->remotedeque.pop_front();
+        std::string line;
+        if(d->remotestring.Pop(line))
             return line;
-        }
-        return "";
+        else
+            return "";
 #else
         return "";
 #endif
