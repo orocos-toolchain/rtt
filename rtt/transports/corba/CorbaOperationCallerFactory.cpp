@@ -166,17 +166,25 @@ std::string CorbaOperationCallerFactory::description() const {
 
 std::vector< ArgumentDescription > CorbaOperationCallerFactory::getArgumentList() const {
     corba::CArgumentDescriptions_var result;
-    CArgumentDescriptions ret;
-    try {
-        corba::CArgumentDescriptions_var result = mfact->getArguments( method.c_str() );
-        ret.reserve( result->length() );
-        for (size_t i=0; i!= result->length(); ++i)
-            ret.push_back( ArgumentDescription(std::string( result[i].name.in() ),
-                                                          std::string( result[i].description.in() ),
-                                                          std::string( result[i].type.in() ) ));
-    } catch ( corba::CNoSuchNameException& nsn ) {
-        throw  name_not_found_exception( nsn.name.in() );
+    const corba::CArgumentDescriptions *result_ptr = 0;
+
+    if (mdescription) {
+        result_ptr = &(mdescription->arguments);
+    } else {
+        try {
+            result = mfact->getArguments( method.c_str() );
+            result_ptr = &(result.in());
+        } catch ( corba::CNoSuchNameException& nsn ) {
+            throw  name_not_found_exception( nsn.name.in() );
+        }
     }
+
+    CArgumentDescriptions ret;
+    ret.reserve( result_ptr->length() );
+    for (size_t i=0; i!= result_ptr->length(); ++i)
+        ret.push_back( ArgumentDescription(std::string( (*result_ptr)[i].name.in() ),
+                                           std::string( (*result_ptr)[i].description.in() ),
+                                           std::string( (*result_ptr)[i].type.in() ) ));
     return ret;
 }
 
