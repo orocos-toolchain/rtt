@@ -97,12 +97,18 @@ namespace RTT
 
     TypeInfo* TypeInfoRepository::type( const std::string& name ) const
     {
-        TypeInfo *ret = typeInternal(name);
-        
+        // strip qualifier after the first space
+        std::string unqualified = name;
+        if ( unqualified.find(' ') != std::string::npos ) {
+            unqualified = unqualified.substr(0, unqualified.find(' '));
+        }
+
+        TypeInfo *ret = typeInternal(unqualified);
+
         if(!ret && loadTypeKitForName)
         {
-            if(loadTypeKitForName(name))
-                ret = typeInternal(name);
+            if(loadTypeKitForName(unqualified))
+                ret = typeInternal(unqualified);
         }
             
         return ret;
