@@ -136,7 +136,7 @@ IF ( OS_RT_MALLOC )
     SET_SOURCE_FILES_PROPERTIES( os/tlsf/tlsf.c PROPERTIES
                                 COMPILE_FLAGS "${TLSF_FLAGS}")
     SET_SOURCE_FILES_PROPERTIES( os/tlsf/tlsf.c PROPERTIES
-                                LANGUAGE CXX)
+                                LANGUAGE C)
 
     set(TLSF_FLAGS "${TLSF_FLAGS}" CACHE INTERNAL "")
 

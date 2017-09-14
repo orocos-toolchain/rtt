@@ -72,23 +72,24 @@ using namespace RTT::os;
 static int os_argc_arg;
 static char** os_argv_arg;
 
+
 #if CONFIG_XENO_VERSION_MAJOR == 3
 #include <xenomai/init.h>
 #endif
 
 int __os_init(int argc, char** argv )
 {
-    
-#if CONFIG_XENO_VERSION_MAJOR == 3
-    // Manual init to stay coherent with xenomai 2 (need xeno-config --no-auto-init)
-    char *const* argvp = const_cast<char*const*>(argv);
-    xenomai_init(&argc,&argvp);
-#endif
 
 #ifdef OS_HAVE_MANUAL_CRT
     DO_GLOBAL_CTORS();
 #endif
-
+// #if CONFIG_XENO_VERSION_MAJOR == 3
+//     // Manual init to stay coherent with xenomai 2 (need xeno-config --no-auto-init)
+//     char *const* argvp = const_cast<char*const*>(argv);
+//     printf("Calling Xenomai init\n");
+//     xenomai_init(&argc,&argvp);
+//     printf("DONE -  Calling Xenomai init\n");
+// #endif
     os_argc_arg = argc;
     os_argv_arg = argv;
 

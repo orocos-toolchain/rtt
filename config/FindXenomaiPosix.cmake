@@ -50,7 +50,8 @@ endif()
 
 if(${XENOMAI_VERSION_MAJOR} EQUAL 3)
     # NOTE: Copperplate auto-initialization
-    set(XENOMAI_LDFLAGS_EXTRA_ARGS "--no-auto-init")
+    #set(XENOMAI_LDFLAGS_EXTRA_ARGS "--no-auto-init")
+    set(XENOMAI_LDFLAGS_EXTRA_ARGS "--no-mode-check" "--no-auto-init")
 endif()
 
 if(NOT XENOMAI_SKIN_NAME)

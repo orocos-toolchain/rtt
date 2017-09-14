@@ -48,6 +48,10 @@
 #include <signal.h>
 #include <execinfo.h>
 
+#if CONFIG_XENO_VERSION_MAJOR == 3
+#include <xenomai/init.h>
+#endif
+
 extern "C"
 void warn_upon_switch(int /*sig*/)
 {
@@ -77,7 +81,7 @@ namespace RTT
                 exit(1);
 #endif
             }
-            // Locking is bootstrapped in xenomai_init()
+            // Locking is bootstrapped in --auto-init-solib
 #if CONFIG_XENO_VERSION_MAJOR < 3
             // locking of all memory for this process
             int rv = mlockall(MCL_CURRENT | MCL_FUTURE);
@@ -174,7 +178,9 @@ namespace RTT
             //rt_task_delete( &(main_task->xenotask) );
             free (main_task->name);
             main_task->name = NULL;
+#if CONFIG_XENO_VERSION_MAJOR < 3
             munlockall();
+#endif
             return 0;
         }
 
@@ -231,6 +237,11 @@ namespace RTT
                     }
                 }
             }
+#else
+            //const int nproc = boost::thread::hardware_concurrency();
+            //cpu_set_t cpus;
+            //CPU_ZERO(&cpus);
+            //rt_task_set_affinity(&(task->xenotask),&cpus);
 #endif
             if (stack_size == 0) {
                 log(Debug) << "Raizing default stack size to 128kb for Xenomai threads in Orocos." <<endlog();
@@ -267,7 +278,18 @@ namespace RTT
 #endif
             }
             if ( rv != 0) {
-                log(Error) << name << " : CANNOT INIT Xeno TASK " << task->name <<" error code: "<< rv << endlog();
+                log(Error) << name << " cannot spawn Xenomai task [" << task->name <<"] error code: "<< rv << endlog();
+                switch (rv) {
+                    case -EINVAL:
+                    log(Error) << "-EINVAL : prio, mode or stksize are invalid" << endlog();
+                    break;
+                    case -ENOMEM:
+                    log(Error) << "-ENOMEM : the system fails to get memory from the main heap in order to create the task" << endlog();
+                    break;
+                    case -EEXIST:
+                    log(Error) << "-EEXIST : the name is conflicting with an already registered task" << endlog();
+                    break;
+                }
                 return rv;
             }
 
@@ -328,6 +350,17 @@ namespace RTT
             *priority = 99;
             ret = -1;
         }
+
+#if CONFIG_XENO_VERSION_MAJOR == 3
+        if(*scheduler == SCHED_XENOMAI_SOFT)
+        {
+            if(priority != 0)
+            {
+                log(Warning) << "Forcing priority to 0 for ORO_SCHED_OTHER" <<endlog();
+            }
+            *priority = 0;
+        }
+#endif
         return ret;
     }
 
@@ -370,36 +403,38 @@ namespace RTT
         }
 
         INTERNAL_QUAL int rtos_task_get_scheduler(const RTOS_TASK* mytask) {
-#if 0
-            // WORK AROUND constness: (need non-const mytask)
-            RT_TASK* tt = mytask->xenoptr;
-            RT_TASK_INFO info;
-            if ( tt )
-                if ( rt_task_inquire( tt, &info) == 0 )
-                    if ( info.status & XNRELAX )
-                        return SCHED_XENOMAI_SOFT;
-                    else
-                        return SCHED_XENOMAI_HARD;
-            return -1;
-#else
             return mytask->sched_type;
-#endif
         }
 
         INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, NANO_TIME nanosecs )
         {
+            int ret = 0;
             if (nanosecs == 0) {
-                rt_task_set_periodic( &(mytask->xenotask), TM_NOW, TM_INFINITE);
+                ret = rt_task_set_periodic( &(mytask->xenotask), TM_NOW, TM_INFINITE);
             }
             else {
-                rt_task_set_periodic( &(mytask->xenotask), TM_NOW, rt_timer_ns2ticks(nanosecs) );
+                //#if (CONFIG_XENO_VERSION_MAJOR == 3)
+                //ret = rt_task_set_periodic( NULL, TM_NOW, rt_timer_ns2ticks(nanosecs) );
+                //rt_task_wait_period(NULL);
+                //#else
+                ret = rt_task_set_periodic( &(mytask->xenotask), TM_NOW, rt_timer_ns2ticks(nanosecs) );
+                //#endif
+            }
+            switch (ret) {
+                case -EINVAL:
+                    log(Error) << "rt_task_set_periodic returned -EINVAL is returned if task is NULL but the caller is not a Xenomai task, or if task is non-NULL but not a valid task descriptor." << endlog();
+                    break;
+                case -ETIMEDOUT:
+                    log(Error) << "rt_task_set_periodic returned -ETIMEDOUT is returned if idate is different from TM_INFINITE and represents a date in the past. " << endlog();
+                    break;
+                default:
+                    break;
             }
         }
 
         INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs )
         {
             rtos_task_make_periodic( mytask, nanosecs);
-            //rt_task_set_period(&(mytask->xenotask), rt_timer_ns2ticks( nanosecs ));
         }
 
         INTERNAL_QUAL void rtos_task_set_wait_period_policy( RTOS_TASK* task, int policy )
@@ -409,6 +444,18 @@ namespace RTT
 
         INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* mytask )
         {
+#if CONFIG_XENO_VERSION_MAJOR == 3
+            long unsigned int overrun = 0;
+            int ret = rt_task_wait_period(&overrun);
+            switch(ret)
+            {
+                case -EWOULDBLOCK: printf("rtos_task_wait_period returned -EWOULDBLOCK is returned if rt_task_set_periodic() was not called for the current task.\n"); break;
+                case -EINTR: printf("rtos_task_wait_period returned -EINTR is returned if rt_task_unblock() was called for the waiting task before the next periodic release point was reached. In this case, the overrun counter is also cleared.\n"); break;
+                case -ETIMEDOUT: printf("rtos_task_wait_period returned -ETIMEDOUT is returned if a timer overrun occurred, which indicates that a previous release point was missed by the calling task. If overruns_r is non-NULL, the count of pending overruns is written to the pointed memory location.\n"); break;
+                case -EPERM: printf("rtos_task_wait_period returned -EPERM is returned if this service was called from an invalid context.\n"); break;
+            }
+            return ret;
+#else
             // detect overrun.
 #if CONFIG_XENO_VERSION_MAJOR == 2 && CONFIG_XENO_VERSION_MINOR == 0
             if ( rt_task_wait_period() == -ETIMEDOUT)
@@ -427,6 +474,7 @@ namespace RTT
                 return 1;
 #endif
             return 0;
+#endif
         }
 
         INTERNAL_QUAL int rtos_task_set_cpu_affinity(RTOS_TASK * task, unsigned cpu_affinity)
@@ -437,7 +485,24 @@ namespace RTT
 
         INTERNAL_QUAL unsigned rtos_task_get_cpu_affinity(const RTOS_TASK *task)
         {
+#if (CONFIG_XENO_VERSION_MAJOR == 3)
+            RT_TASK_INFO info;
+            // WORK AROUND constness: (need non-const mytask)
+            RT_TASK* tt = task->xenoptr;
+            if ( tt )
+            {
+                if ( rt_task_inquire ( tt, &info) == 0 )
+                    return info.stat.cpu;
+                else
+                    return ~0;
+            }
+            else
+            {
+                return ~0;
+            }
+#else
             return ~0;
+#endif
         }
 
         INTERNAL_QUAL const char* rtos_task_get_name(const RTOS_TASK* mytask) {
@@ -446,7 +511,24 @@ namespace RTT
 
     	INTERNAL_QUAL unsigned int rtos_task_get_pid(const RTOS_TASK* task)
     	{
+#if (CONFIG_XENO_VERSION_MAJOR == 3)
+            RT_TASK_INFO info;
+            // WORK AROUND constness: (need non-const mytask)
+            RT_TASK* tt = task->xenoptr;
+            if ( tt )
+            {
+                if ( rt_task_inquire ( tt, &info) == 0 )
+                    return info.pid;
+                else
+                    return 0;
+            }
+            else
+            {
+                return 0;
+            }
+#else
     		return 0;
+#endif
     	}
 
     	INTERNAL_QUAL int rtos_task_get_priority(const RTOS_TASK* mytask) {

@@ -12,7 +12,6 @@
 #  XENOMAI_LIBRARIES: Package libraries
 #
 ################################################################################
-
 include(LibFindMacros)
 
 # Get hint from environment variable (if any)
@@ -39,7 +38,7 @@ else()
 endif()
 
 if(NOT XENOMAI_XENO_CONFIG )
-  message(FATAL_ERROR "Your Xenomai installation is broken: I can not determine Xenomai Native cflags/ldflags without xeno-config.")
+  message(FATAL_ERROR "Your Xenomai installation is broken: I can not determine Xenomai cflags/ldflags without xeno-config.")
 else()
   execute_process(COMMAND ${XENOMAI_XENO_CONFIG} --version OUTPUT_VARIABLE XENOMAI_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
   string(REPLACE "." ";" XENOMAI_VERSION_LIST ${XENOMAI_VERSION} )
@@ -55,16 +54,19 @@ endif()
 
 if(${XENOMAI_VERSION_MAJOR} EQUAL 3)
     set(XENOMAI_SKIN_NAME   alchemy)
-    # NOTE: Copperplate auto-initialization
-    set(XENOMAI_LDFLAGS_EXTRA_ARGS "--auto-init-solib")
+    # NOTE: --auto-init-solib adds bootstrap_pic to build shared libs
+    set(XENO_CONFIG_LDFLAGS_EXTRA_ARGS "--auto-init-solib")
+    #set(XENO_CONFIG_LDFLAGS_EXTRA_ARGS "--no-auto-init" "--no-mode-check")
 endif()
 
 if(NOT XENOMAI_SKIN_NAME)
     message(SEND_ERROR "The only supported Xenomai versions are 2.x and 3.x, your version is ${XENOMAI_VERSION}")
 endif()
 
-execute_process(COMMAND ${XENOMAI_XENO_CONFIG} --skin=${XENOMAI_SKIN_NAME} --ldflags ${XENOMAI_LDFLAGS_EXTRA_ARGS} OUTPUT_VARIABLE XENOMAI_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND ${XENOMAI_XENO_CONFIG} --skin=${XENOMAI_SKIN_NAME} --cflags OUTPUT_VARIABLE XENOMAI_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+message(STATUS "Xenomai ${XENOMAI_VERSION} detected, searching for ${XENOMAI_SKIN_NAME} skin.")
+
+execute_process(COMMAND ${XENOMAI_XENO_CONFIG} --skin=${XENOMAI_SKIN_NAME} --ldflags ${XENO_CONFIG_LDFLAGS_EXTRA_ARGS} OUTPUT_VARIABLE XENOMAI_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND ${XENOMAI_XENO_CONFIG} --skin=${XENOMAI_SKIN_NAME} --cflags ${XENOMAI_COMPAT} OUTPUT_VARIABLE XENOMAI_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 string(STRIP ${XENOMAI_LDFLAGS} XENOMAI_LIBRARY)
 

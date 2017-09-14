@@ -43,7 +43,7 @@ endif()
 
 OPTION(PLUGINS_ENABLE "Enable plugins" ON)
 OPTION(PLUGINS_STD_TYPES_SUPPORT "Enable support for the std::string and std::vector<double> types in the RTT typekit & transports." ON)
-    
+
 OPTION(ORO_NO_EMIT_CORBA_IOR "Do not emit CORBA IORs if name service not used" OFF)
 
 ###########################################################
@@ -62,7 +62,7 @@ if ( PLUGINS_ENABLE )
     message(SEND_ERROR "Plugins require Boost Filesystem and System libraries, but they were not found.")
   endif()
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_FILESYSTEM_INCLUDE_DIRS} ${Boost_SYSTEM_INCLUDE_DIRS} ${Boost_SERIALIZATION_INCLUDE_DIRS})
-  list(APPEND OROCOS-RTT_LIBRARIES ${Boost_FILESYSTEM_LIBRARIES} ${Boost_SYSTEM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARIES}) 
+  list(APPEND OROCOS-RTT_LIBRARIES ${Boost_FILESYSTEM_LIBRARIES} ${Boost_SYSTEM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARIES})
 endif()
 
 if(Boost_INCLUDE_DIR)
@@ -71,7 +71,7 @@ if(Boost_INCLUDE_DIR)
   if(OROCOS_TARGET STREQUAL "win32")
     add_definitions(-DBOOST_ALL_NO_LIB)
   endif()
-    
+
   # We don't link with boost here. It depends on the options set by the user.
   #list(APPEND OROCOS-RTT_LIBRARIES ${Boost_LIBRARIES} )
 else(Boost_INCLUDE_DIR)
@@ -81,7 +81,7 @@ endif(Boost_INCLUDE_DIR)
 # Look for linux capabilities (7)
 find_library(LINUX_CAP_NG_LIBRARY cap-ng)
 
-# Look for Xerces 
+# Look for Xerces
 
 # If a nonstandard path is used when crosscompiling, uncomment the following lines
 # IF(NOT CMAKE_CROSS_COMPILE) # NOTE: There now exists a standard CMake variable named CMAKE_CROSSCOMPILING
@@ -114,7 +114,7 @@ endif()
 if(XERCES_FOUND)
   set(OROPKG_SUPPORT_XERCES_C TRUE CACHE INTERNAL "" FORCE)
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XERCES_INCLUDE_DIRS} )
-  list(APPEND OROCOS-RTT_LIBRARIES ${XERCES_LIBRARIES} ) 
+  list(APPEND OROCOS-RTT_LIBRARIES ${XERCES_LIBRARIES} )
   set(ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE "\"marsh/CPFMarshaller.hpp\"")
   set(OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER "CPFMarshaller")
   set(ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE "\"marsh/CPFDemarshaller.hpp\"")
@@ -148,8 +148,8 @@ if(OROCOS_TARGET STREQUAL "lxrt")
 
   if(RTAI_FOUND)
     list(APPEND OROCOS-RTT_INCLUDE_DIRS ${RTAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
-    list(APPEND OROCOS-RTT_LIBRARIES ${RTAI_LIBRARIES} ${PTHREAD_LIBRARIES} dl) 
-    list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+    list(APPEND OROCOS-RTT_LIBRARIES ${RTAI_LIBRARIES} ${PTHREAD_LIBRARIES} dl)
+    list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}")
     list(APPEND MQ_LIBRARIES "rt")
   endif()
 else()
@@ -162,29 +162,31 @@ if(OROCOS_TARGET STREQUAL "xenomai")
   set(OS_HAS_TLSF TRUE)
 
   find_package(Xenomai REQUIRED)
-  find_package(Pthread REQUIRED)
-  find_package(XenomaiPosix)
 
-  add_definitions( -Wall )
+  if(XENOMAI_VERSION_MAJOR EQUAL 2)
+      find_package(Pthread REQUIRED)
+      find_package(XenomaiPosix)
+      add_definitions( -Wall )
+  endif()
 
   # TLSF conflicts with the one embedded in xenomai 3
   if(XENOMAI_VERSION_MAJOR EQUAL 3)
-      set(OS_HAS_TLSF FALSE)
+      set(OS_HAS_TLSF TRUE)
   endif()
 
-    # Input for .pc and .cmake generated files:
-    list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XENOMAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
-    list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI_LIBRARIES} ${PTHREAD_LIBRARIES} dl)
-    list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}")
-    # Direct input only for .pc file:
-    list(APPEND RTT_USER_LDFLAGS ${XENOMAI_LDFLAGS} )
-    list(APPEND RTT_USER_CFLAGS ${XENOMAI_CFLAGS} )
-    if (XENOMAI_POSIX_FOUND)
-      set(MQ_LDFLAGS ${XENOMAI_POSIX_LDFLAGS} )
-      set(MQ_CFLAGS ${XENOMAI_POSIX_CFLAGS} )
-      set(MQ_INCLUDE_DIRS ${XENOMAI_POSIX_INCLUDE_DIRS})
-      set(MQ_LIBRARIES ${XENOMAI_POSIX_LIBRARIES})
-    endif()
+  # Input for .pc and .cmake generated files:
+  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XENOMAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
+  list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI_LIBRARIES} ${PTHREAD_LIBRARIES} dl)
+  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}")
+  # Direct input only for .pc file:
+  list(APPEND RTT_USER_LDFLAGS ${XENOMAI_LDFLAGS} )
+  list(APPEND RTT_USER_CFLAGS ${XENOMAI_CFLAGS} )
+  if (XENOMAI_POSIX_FOUND)
+    set(MQ_LDFLAGS ${XENOMAI_POSIX_LDFLAGS} )
+    set(MQ_CFLAGS ${XENOMAI_POSIX_CFLAGS} )
+    set(MQ_INCLUDE_DIRS ${XENOMAI_POSIX_INCLUDE_DIRS})
+    set(MQ_LIBRARIES ${XENOMAI_POSIX_LIBRARIES})
+  endif()
 else()
   set(OROPKG_OS_XENOMAI FALSE CACHE INTERNAL "" FORCE)
 endif()
@@ -205,8 +207,8 @@ if(OROCOS_TARGET STREQUAL "gnulinux")
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${PTHREAD_INCLUDE_DIRS})
   list(APPEND OROCOS-RTT_USER_LINK_LIBS ${PTHREAD_LIBRARIES} rt) # For libraries used in inline (fosi/template) code.
 
-  list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES} rt dl) 
-  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+  list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES} rt dl)
+  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}")
 else()
   set(OROPKG_OS_GNULINUX FALSE CACHE INTERNAL "" FORCE)
 endif()
@@ -236,8 +238,8 @@ if(OROCOS_TARGET STREQUAL "macosx")
   set(ENABLE_MQ OFF CACHE BOOL "This option is forced to OFF by the build system on macosx platform." FORCE)
 
   # see also src/CMakeLists.txt as it adds the boost_thread library to OROCOS_RTT_LIBRARIES
-  list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES} dl) 
-  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+  list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES} dl)
+  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}")
 
 else()
   set(OROPKG_OS_MACOSX FALSE CACHE INTERNAL "" FORCE)
@@ -258,8 +260,8 @@ if(OROCOS_TARGET STREQUAL "ecos")
     set(ECOS_SUPPORT TRUE CACHE INTERNAL "" FORCE)
 
     list(APPEND OROCOS-RTT_INCLUDE_DIRS ${ECOS_INCLUDE_DIRS} )
-    list(APPEND OROCOS-RTT_LIBRARIES ${ECOS_LIBRARIES} pthread) 
-    list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+    list(APPEND OROCOS-RTT_LIBRARIES ${ECOS_LIBRARIES} pthread)
+    list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}")
 
     message( "Turning BUILD_STATIC ON for ecos.")
     set( FORCE_BUILD_STATIC ON CACHE INTERNAL "Forces to build Orocos RTT as a static library (forced to ON by Ecos)" FORCE)
@@ -291,7 +293,7 @@ if(OROCOS_TARGET STREQUAL "win32")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4355 /wd4251 /wd4180 /wd4996 /wd4250 /wd4748 /bigobj /Oi ${PARALLEL_FLAG}")
     list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib Ws2_32.lib winmm.lib)
   endif()
-  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}")
   set(CMAKE_DEBUG_POSTFIX "d")
 else(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 FALSE CACHE INTERNAL "" FORCE)
