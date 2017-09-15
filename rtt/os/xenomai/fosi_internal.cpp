@@ -161,6 +161,7 @@ namespace RTT
 #  endif
 # endif
 #endif
+# if CONFIG_XENO_VERSION_MAJOR < 3
             log(Info) << "Installing SIGXCPU handler." <<endlog();
             //signal(SIGXCPU, warn_upon_switch);
             struct sigaction sa;
@@ -168,7 +169,7 @@ namespace RTT
             sigemptyset( &sa.sa_mask );
             sa.sa_flags = 0;
             sigaction(SIGXCPU, &sa, 0);
-
+#endif
             Logger::log() << Logger::Debug << "Xenomai Timer and Main Task Created" << Logger::endl;
             return 0;
         }
@@ -408,17 +409,14 @@ namespace RTT
 
         INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, NANO_TIME nanosecs )
         {
-            int ret = 0;
-            if (nanosecs == 0) {
+            int ret = 0,rett=0;
+            if (nanosecs == 0)
+            {
                 ret = rt_task_set_periodic( &(mytask->xenotask), TM_NOW, TM_INFINITE);
             }
-            else {
-                //#if (CONFIG_XENO_VERSION_MAJOR == 3)
-                //ret = rt_task_set_periodic( NULL, TM_NOW, rt_timer_ns2ticks(nanosecs) );
-                //rt_task_wait_period(NULL);
-                //#else
+            else
+            {
                 ret = rt_task_set_periodic( &(mytask->xenotask), TM_NOW, rt_timer_ns2ticks(nanosecs) );
-                //#endif
             }
             switch (ret) {
                 case -EINVAL:
@@ -427,7 +425,11 @@ namespace RTT
                 case -ETIMEDOUT:
                     log(Error) << "rt_task_set_periodic returned -ETIMEDOUT is returned if idate is different from TM_INFINITE and represents a date in the past. " << endlog();
                     break;
-                default:
+            }
+            switch(rett)
+            {
+                case -EINVAL:
+                    log(Error) << "rt_task_unblock returned -EINVAL is returned if task is NULL but the caller is not a Xenomai task, or if task is non-NULL but not a valid task descriptor." << endlog();
                     break;
             }
         }
