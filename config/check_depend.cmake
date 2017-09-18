@@ -162,25 +162,35 @@ if(OROCOS_TARGET STREQUAL "xenomai")
   set(OS_HAS_TLSF TRUE)
 
   find_package(Xenomai REQUIRED)
+  find_package(XenomaiPosix)
 
   if(XENOMAI_VERSION_MAJOR EQUAL 2)
       find_package(Pthread REQUIRED)
-      find_package(XenomaiPosix)
-      add_definitions( -Wall )
   endif()
+
+  add_definitions( -Wall )
 
   # TLSF conflicts with the one embedded in xenomai 3
   if(XENOMAI_VERSION_MAJOR EQUAL 3)
-      set(OS_HAS_TLSF TRUE)
+      set(OS_HAS_TLSF FALSE)
   endif()
 
   # Input for .pc and .cmake generated files:
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XENOMAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
   list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI_LIBRARIES} ${PTHREAD_LIBRARIES} dl)
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}")
+
+  foreach(xeno_flag ${XENOMAI_COMPILE_DEFINITIONS})
+      string(REPLACE "-D" "" f ${xeno_flag})
+      list(APPEND ${f} XENOMAI_DEFINITIONS)
+  endforeach()
+
+  list(APPEND OROCOS-RTT_DEFINITIONS ${XENOMAI_DEFINITIONS})
+
   # Direct input only for .pc file:
   list(APPEND RTT_USER_LDFLAGS ${XENOMAI_LDFLAGS} )
   list(APPEND RTT_USER_CFLAGS ${XENOMAI_CFLAGS} )
+
   if (XENOMAI_POSIX_FOUND)
     set(MQ_LDFLAGS ${XENOMAI_POSIX_LDFLAGS} )
     set(MQ_CFLAGS ${XENOMAI_POSIX_CFLAGS} )
