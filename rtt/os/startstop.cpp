@@ -83,13 +83,13 @@ int __os_init(int argc, char** argv )
 #ifdef OS_HAVE_MANUAL_CRT
     DO_GLOBAL_CTORS();
 #endif
-// #if CONFIG_XENO_VERSION_MAJOR == 3
-//     // Manual init to stay coherent with xenomai 2 (need xeno-config --no-auto-init)
-//     char *const* argvp = const_cast<char*const*>(argv);
-//     printf("Calling Xenomai init\n");
-//     xenomai_init(&argc,&argvp);
-//     printf("DONE -  Calling Xenomai init\n");
-// #endif
+#if CONFIG_XENO_VERSION_MAJOR == 3
+    // In case we don't have the flag xeno-config --no-auto-init
+    // Otherwise xenomai_init is bootstrap during build
+    char *const* argvp = const_cast<char*const*>(argv);
+    xenomai_init(&argc,&argvp);
+#endif
+
     os_argc_arg = argc;
     os_argv_arg = argv;
 
