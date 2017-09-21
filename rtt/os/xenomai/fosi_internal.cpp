@@ -161,7 +161,6 @@ namespace RTT
 #  endif
 # endif
 #endif
-# if CONFIG_XENO_VERSION_MAJOR < 3
             log(Info) << "Installing SIGXCPU handler." <<endlog();
             //signal(SIGXCPU, warn_upon_switch);
             struct sigaction sa;
@@ -169,7 +168,6 @@ namespace RTT
             sigemptyset( &sa.sa_mask );
             sa.sa_flags = 0;
             sigaction(SIGXCPU, &sa, 0);
-#endif
             Logger::log() << Logger::Debug << "Xenomai Timer and Main Task Created" << Logger::endl;
             return 0;
         }
@@ -239,10 +237,7 @@ namespace RTT
                 }
             }
 #else
-            //const int nproc = boost::thread::hardware_concurrency();
-            //cpu_set_t cpus;
-            //CPU_ZERO(&cpus);
-            //rt_task_set_affinity(&(task->xenotask),&cpus);
+            rtos_task_set_cpu_affinity(task,cpu_affinity);
 #endif
             if (stack_size == 0) {
                 log(Debug) << "Raizing default stack size to 128kb for Xenomai threads in Orocos." <<endlog();
@@ -353,6 +348,7 @@ namespace RTT
         }
 
 #if CONFIG_XENO_VERSION_MAJOR == 3
+        // SCHED_OTHER means priority 0 in xenomai 3
         if(*scheduler == SCHED_XENOMAI_SOFT)
         {
             if(priority != 0)
@@ -481,6 +477,12 @@ namespace RTT
 
         INTERNAL_QUAL int rtos_task_set_cpu_affinity(RTOS_TASK * task, unsigned cpu_affinity)
         {
+#if (CONFIG_XENO_VERSION_MAJOR == 3)
+            cpu_set_t cpu;
+            CPU_ZERO(&cpu);
+            CPU_SET(cpu_affinity, &cpu);
+            return rt_task_set_affinity(&(task->xenotask),&cpu);
+#endif
             log(Error) << "rtos_task_set_cpu_affinity: Xenomai tasks don't allow to migrate to another CPU once created." << endlog();
             return -1;
         }
