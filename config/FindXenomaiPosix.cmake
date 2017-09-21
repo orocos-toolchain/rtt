@@ -90,11 +90,12 @@ string(REPLACE "-I" ";" XENOMAI_POSIX_INCLUDE_DIR ${XENOMAI_POSIX_INCLUDE_DIR})
 set(XENOMAI_POSIX_PROCESS_INCLUDES XENOMAI_POSIX_INCLUDE_DIR)
 set(XENOMAI_POSIX_PROCESS_LIBS XENOMAI_POSIX_LIBRARY)
 
-message("
+message(STATUS "
 ==========================================
-Xenomai Posix skin
+Xenomai ${XENOMAI_VERSION} ${XENOMAI_POSIX_SKIN_NAME} skin
     libs    : ${XENOMAI_POSIX_LIBRARY}
     include : ${XENOMAI_POSIX_INCLUDE_DIR}
+    defs    : ${XENOMAI_POSIX_COMPILE_DEFINITIONS}
 ==========================================
 ")
 

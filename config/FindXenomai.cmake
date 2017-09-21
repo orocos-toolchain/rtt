@@ -92,4 +92,13 @@ string(REPLACE "-I" ";" XENOMAI_INCLUDE_DIR ${XENOMAI_INCLUDE_DIR})
 set(XENOMAI_PROCESS_INCLUDES XENOMAI_INCLUDE_DIR)
 set(XENOMAI_PROCESS_LIBS XENOMAI_LIBRARY)
 
+message(STATUS "
+==========================================
+Xenomai ${XENOMAI_VERSION} ${XENOMAI_SKIN_NAME} skin
+    libs    : ${XENOMAI_LIBRARY}
+    include : ${XENOMAI_INCLUDE_DIR}
+    defs    : ${XENOMAI_COMPILE_DEFINITIONS}
+==========================================
+")
+
 libfind_process(XENOMAI)
