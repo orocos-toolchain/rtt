@@ -161,88 +161,37 @@ static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     {
         CHK_XENO_CALL();
         RTIME ticks = rqtp->tv_sec * 1000000000LL + rqtp->tv_nsec;
-        int ret = rt_task_sleep( rt_timer_ns2ticks(ticks) );
-        switch(ret)
-        {
-            case -EINTR: printf("rtos_nanosleep returned -EINTR is returned if rt_task_unblock() was called for the current task.\n"); break;
-            case -ETIMEDOUT: printf("rtos_nanosleep returned -ETIMEDOUT is returned if date has already elapsed.\n"); break;
-            case -EPERM: printf("rtos_nanosleep returned -EPERM is returned if this service was called from an invalid context.\n"); break;
-        }
-        return 0;
+        return rt_task_sleep( rt_timer_ns2ticks(ticks) );
     }
 
     static inline int rtos_sem_init(rt_sem_t* m, int value )
     {
         CHK_XENO_CALL();
-        int ret = rt_sem_create( m, 0, value, S_PRIO);
-        switch(ret)
-        {
-            case -EINVAL: printf("rtos_sem_init returned -EINVAL is returned if icount is non-zero and S_PULSE is set in mode, or mode is otherwise invalid.\n"); break;
-            case -ENOMEM: printf("rtos_sem_init returned -ENOMEM is returned if the system fails to get memory from the main heap in order to create the semaphore.\n"); break;
-            case -EEXIST: printf("rtos_sem_init returned -EEXIST is returned if the name is conflicting with an already registered semaphore.\n"); break;
-            case -EPERM: printf("rtos_sem_init returned -EPERM is returned if this service was called from an asynchronous context.\n"); break;
-        }
-        return ret;
+        return rt_sem_create( m, 0, value, S_PRIO);
     }
 
     static inline int rtos_sem_destroy(rt_sem_t* m )
     {
         CHK_XENO_CALL();
-        int ret = rt_sem_delete( m );
-        switch(ret)
-        {
-            case -EINVAL: printf("rtos_sem_destroy returned -EINVAL is returned if sem is not a valid semaphore descriptor.\n"); break;
-            case -EPERM: printf("rtos_sem_destroy returned -EPERM is returned if this service was called from an asynchronous context.\n"); break;
-        }
-        return ret;
+        return rt_sem_delete( m );
     }
 
     static inline int rtos_sem_signal(rt_sem_t* m )
     {
         CHK_XENO_CALL();
-        int ret = rt_sem_v( m );
-        switch(ret)
-        {
-            case -ETIMEDOUT: printf("rtos_sem_wait_timed returned -ETIMEDOUT is returned if abs_timeout is reached before the request is satisfied.\n"); break;
-            case -EWOULDBLOCK: printf("rtos_sem_wait_timed returned -EWOULDBLOCK is returned if abs_timeout is { .tv_sec = 0, .tv_nsec = 0 } and the semaphore count is zero on entry.\n"); break;
-            case -EINTR: printf("rtos_sem_wait_timed returned -EINTR is returned if rt_task_unblock() was called for the current task before the request is satisfied.\n"); break;
-            case -EINVAL: printf("rtos_sem_wait_timed returned -EINVAL is returned if sem is not a valid semaphore descriptor.\n"); break;
-            case -EIDRM: printf("rtos_sem_wait_timed returned -EIDRM is returned if sem is deleted while the caller was sleeping on it. In such a case, sem is no more valid upon return of this service.\n"); break;
-            case -EPERM: printf("rtos_sem_wait_timed returned -EPERM is returned if this service should block, but was not called from a Xenomai thread.\n"); break;
-        }
-        return ret;
+        return rt_sem_v( m );
     }
 
     static inline int rtos_sem_wait(rt_sem_t* m )
     {
         CHK_XENO_CALL();
-        int ret = rt_sem_p( m, TM_INFINITE);
-        switch(ret)
-        {
-            case -ETIMEDOUT: printf("rtos_sem_wait_timed returned -ETIMEDOUT is returned if abs_timeout is reached before the request is satisfied.\n"); break;
-            case -EWOULDBLOCK: printf("rtos_sem_wait_timed returned -EWOULDBLOCK is returned if abs_timeout is { .tv_sec = 0, .tv_nsec = 0 } and the semaphore count is zero on entry.\n"); break;
-            case -EINTR: printf("rtos_sem_wait_timed returned -EINTR is returned if rt_task_unblock() was called for the current task before the request is satisfied.\n"); break;
-            case -EINVAL: printf("rtos_sem_wait_timed returned -EINVAL is returned if sem is not a valid semaphore descriptor.\n"); break;
-            case -EIDRM: printf("rtos_sem_wait_timed returned -EIDRM is returned if sem is deleted while the caller was sleeping on it. In such a case, sem is no more valid upon return of this service.\n"); break;
-            case -EPERM: printf("rtos_sem_wait_timed returned -EPERM is returned if this service should block, but was not called from a Xenomai thread.\n"); break;
-        }
-        return ret;
+        return rt_sem_p( m, TM_INFINITE);
     }
 
     static inline int rtos_sem_trywait(rt_sem_t* m )
     {
         CHK_XENO_CALL();
-        int ret = rt_sem_p( m, TM_NONBLOCK);
-        switch(ret)
-        {
-            case -ETIMEDOUT: printf("rtos_sem_trywait returned -ETIMEDOUT is returned if abs_timeout is reached before the request is satisfied.\n"); break;
-            case -EWOULDBLOCK: printf("rtos_sem_trywait returned -EWOULDBLOCK is returned if abs_timeout is { .tv_sec = 0, .tv_nsec = 0 } and the semaphore count is zero on entry.\n"); break;
-            case -EINTR: printf("rtos_sem_trywait returned -EINTR is returned if rt_task_unblock() was called for the current task before the request is satisfied.\n"); break;
-            case -EINVAL: printf("rtos_sem_trywait returned -EINVAL is returned if sem is not a valid semaphore descriptor.\n"); break;
-            case -EIDRM: printf("rtos_sem_trywait returned -EIDRM is returned if sem is deleted while the caller was sleeping on it. In such a case, sem is no more valid upon return of this service.\n"); break;
-            case -EPERM: printf("rtos_sem_trywait returned -EPERM is returned if this service should block, but was not called from a Xenomai thread.\n"); break;
-        }
-        return ret;
+        return rt_sem_p( m, TM_NONBLOCK);
     }
 
     static inline int rtos_sem_value(rt_sem_t* m )
@@ -258,60 +207,26 @@ static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     static inline int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay )
     {
         CHK_XENO_CALL();
-        int ret = rt_sem_p(m, rt_timer_ns2ticks(delay));
-        switch(ret)
-        {
-            case -ETIMEDOUT: printf("rtos_sem_wait_timed returned -ETIMEDOUT is returned if abs_timeout is reached before the request is satisfied.\n"); break;
-            case -EWOULDBLOCK: printf("rtos_sem_wait_timed returned -EWOULDBLOCK is returned if abs_timeout is { .tv_sec = 0, .tv_nsec = 0 } and the semaphore count is zero on entry.\n"); break;
-            case -EINTR: printf("rtos_sem_wait_timed returned -EINTR is returned if rt_task_unblock() was called for the current task before the request is satisfied.\n"); break;
-            case -EINVAL: printf("rtos_sem_wait_timed returned -EINVAL is returned if sem is not a valid semaphore descriptor.\n"); break;
-            case -EIDRM: printf("rtos_sem_wait_timed returned -EIDRM is returned if sem is deleted while the caller was sleeping on it. In such a case, sem is no more valid upon return of this service.\n"); break;
-            case -EPERM: printf("rtos_sem_wait_timed returned -EPERM is returned if this service should block, but was not called from a Xenomai thread.\n"); break;
-        }
-        return ret;
+        return rt_sem_p(m, rt_timer_ns2ticks(delay));
     }
 
     static inline int rtos_sem_wait_until(rt_sem_t* m, NANO_TIME when )
     {
         CHK_XENO_CALL();
-        int ret = rt_sem_p_until(m, rt_timer_ns2ticks(when));
-        switch(ret)
-        {
-            case -ETIMEDOUT: printf("rtos_sem_wait_timed returned -ETIMEDOUT is returned if abs_timeout is reached before the request is satisfied.\n"); break;
-            case -EWOULDBLOCK: printf("rtos_sem_wait_timed returned -EWOULDBLOCK is returned if abs_timeout is { .tv_sec = 0, .tv_nsec = 0 } and the semaphore count is zero on entry.\n"); break;
-            case -EINTR: printf("rtos_sem_wait_timed returned -EINTR is returned if rt_task_unblock() was called for the current task before the request is satisfied.\n"); break;
-            case -EINVAL: printf("rtos_sem_wait_timed returned -EINVAL is returned if sem is not a valid semaphore descriptor.\n"); break;
-            case -EIDRM: printf("rtos_sem_wait_timed returned -EIDRM is returned if sem is deleted while the caller was sleeping on it. In such a case, sem is no more valid upon return of this service.\n"); break;
-            case -EPERM: printf("rtos_sem_wait_timed returned -EPERM is returned if this service should block, but was not called from a Xenomai thread.\n"); break;
-        }
-        return ret;
+        return rt_sem_p_until(m, rt_timer_ns2ticks(when));
     }
 
     static inline int rtos_mutex_init(rt_mutex_t* m)
     {
         CHK_XENO_CALL();
         // a Xenomai mutex is always recursive
-        int ret = rt_mutex_create(m, 0);
-        switch(ret)
-        {
-            case -ENOMEM: printf("rtos_mutex_init returned -ENOMEM is returned if the system fails to get memory from the main heap in order to create the mutex.\n"); break;
-            case -EEXIST: printf("rtos_mutex_init returned -EEXIST is returned if the name is conflicting with an already registered mutex.\n"); break;
-            case -EPERM: printf("rtos_mutex_init returned -EPERM is returned if this service was called from an asynchronous context.\n"); break;
-        }
-        return ret;
+        return rt_mutex_create(m, 0);
     }
 
     static inline int rtos_mutex_destroy(rt_mutex_t* m )
     {
         CHK_XENO_CALL();
-        int ret = rt_mutex_delete(m);
-        switch(ret)
-        {
-            case -EINVAL: printf("rtos_mutex_destroy returned -EINVAL is returned if alarm is not a valid mutex descriptor.\n"); break;
-            case -EPERM: printf("rtos_mutex_destroy returned -EPERM is returned if this service was called from an asynchronous context.\n"); break;
-            case -EBUSY: printf("rtos_mutex_destroy returned -EBUSY is returned upon an attempt to destroy the object referenced by mutex while it is referenced (for example, while being used in a rt_mutex_acquite(), rt_mutex_acquire_timed() or rt_mutex_acquire_until() by another task).\n"); break;
-        }
-        return ret;
+        return rt_mutex_delete(m);
     }
 
     static inline int rtos_mutex_rec_init(rt_mutex_t* m)
@@ -327,87 +242,30 @@ static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     static inline int rtos_mutex_lock( rt_mutex_t* m)
     {
         CHK_XENO_CALL();
-        int ret = rt_mutex_acquire(m,TM_INFINITE);
-        switch (ret) {
-            case -ETIMEDOUT:
-                printf( "rt_mutex_acquire(m,TM_INFINITE) returned -ETIMEDOUT is returned if abs_timeout is reached before the mutex is available. \n");
-                break;
-            case -EWOULDBLOCK:
-                printf( "rt_mutex_acquire(m,TM_INFINITE) returned -EWOULDBLOCK is returned if timeout is { .tv_sec = 0, .tv_nsec = 0 } and the mutex is not immediately available.\n");
-                break;
-            case -EINTR:
-                printf( "rt_mutex_acquire(m,TM_INFINITE) returned -EINTR is returned if rt_task_unblock() was called for the current task.\n");
-                break;
-            case -EINVAL:
-                printf( "rt_mutex_acquire(m,TM_INFINITE) returned EINVAL is returned if mutex is not a valid mutex descriptor.\n");
-                break;
-            case -EIDRM:
-                printf( "rt_mutex_acquire(m,TM_INFINITE) returned -EIDRM is returned if mutex is deleted while the caller was waiting on it. In such event, mutex is no more valid upon return of this service.\n");
-                break;
-            case -EPERM:
-                printf( "rt_mutex_acquire(m,TM_INFINITE) returned -EPERM is returned if this service should block, but was not called from a Xenomai thread.\n");
-                break;
-        }
-        return ret;
+        return rt_mutex_acquire(m,TM_INFINITE);
     }
 
     static inline int rtos_mutex_trylock( rt_mutex_t* m)
     {
         CHK_XENO_CALL();
-        int ret =  rt_mutex_acquire(m,TM_NONBLOCK);
-        switch (ret) {
-            case -ETIMEDOUT:
-                printf( "rt_mutex_acquire(m,TM_NONBLOCK) returned -ETIMEDOUT is returned if abs_timeout is reached before the mutex is available. \n");
-                break;
-            case -EWOULDBLOCK:
-                printf( "rt_mutex_acquire(m,TM_NONBLOCK) returned -EWOULDBLOCK is returned if timeout is { .tv_sec = 0, .tv_nsec = 0 } and the mutex is not immediately available.\n");
-                break;
-            case -EINTR:
-                printf( "rt_mutex_acquire(m,TM_NONBLOCK) returned -EINTR is returned if rt_task_unblock() was called for the current task.\n");
-                break;
-            case -EINVAL:
-                printf( "rt_mutex_acquire(m,TM_NONBLOCK) returned -EINVAL is returned if mutex is not a valid mutex descriptor.\n");
-                break;
-            case -EIDRM:
-                printf( "rt_mutex_acquire(m,TM_NONBLOCK) returned -EIDRM is returned if mutex is deleted while the caller was waiting on it. In such event, mutex is no more valid upon return of this service.\n");
-                break;
-            case -EPERM:
-                printf( "rt_mutex_acquire(m,TM_NONBLOCK) returned -EPERM is returned if this service should block, but was not called from a Xenomai thread.\n");
-                break;
-        }
-        return ret;
+        return rt_mutex_acquire(m,TM_NONBLOCK);
     }
 
     static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
     {
         CHK_XENO_CALL();
-        int ret = rt_mutex_acquire_until(m, rt_timer_ns2ticks(abs_time) );
-        switch(ret)
-        {
-            case -ETIMEDOUT: printf("rtos_mutex_lock_until returned -ETIMEDOUT is returned if abs_timeout is reached before the mutex is available.\n");break;
-            case -EWOULDBLOCK: printf("rtos_mutex_lock_until returned -EWOULDBLOCK is returned if timeout is { .tv_sec = 0, .tv_nsec = 0 } and the mutex is not immediately available.\n");break;
-            case -EINTR: printf("rtos_mutex_lock_until returned -EINTR is returned if rt_task_unblock() was called for the current task.\n");break;
-            case -EINVAL: printf("rtos_mutex_lock_until returned -EINVAL is returned if mutex is not a valid mutex descriptor.\n");break;
-            case -EIDRM: printf("rtos_mutex_lock_until returned -EIDRM is returned if mutex is deleted while the caller was waiting on it. In such event, mutex is no more valid upon return of this service.\n");break;
-            case -EPERM: printf("rtos_mutex_lock_until returned -EPERM is returned if this service should block, but was not called from a Xenomai thread.\n");break;
-        }
-        return ret;
+        return rt_mutex_acquire_until(m, rt_timer_ns2ticks(abs_time));
     }
 
     static inline int rtos_mutex_unlock( rt_mutex_t* m)
     {
         CHK_XENO_CALL();
-        int ret = rt_mutex_release(m);
-        switch (ret) {
-            case -EINVAL: printf("rtos_mutex_unlock returned -EINVAL is returned if alarm is not a valid mutex descriptor.\n");break;
-            case -EPERM: printf("rtos_mutex_unlock returned -EPERM is returned if mutex is not owned by the current task, or more generally if this service was called from a context which cannot own any mutex (e.g. interrupt context).\n");break;
-        }
-        return ret;
+        return rt_mutex_release(m);
     }
 
     static inline int rtos_mutex_rec_lock( rt_rec_mutex_t* m)
     {
-        return rtos_mutex_lock(m );
+        return rtos_mutex_lock(m);
     }
 
     static inline int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
@@ -440,66 +298,31 @@ static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     static inline int rtos_cond_init(rt_cond_t *cond)
     {
         CHK_XENO_CALL();
-        int ret = rt_cond_create(cond, 0);
-        switch (ret) {
-            case -ENOMEM: printf("rtos_cond_init returned -ENOMEM is returned if the system fails to get memory from the main heap in order to create the condition variable.\n"); break;
-            case -EEXIST: printf("rtos_cond_init returned -EEXIST is returned if the name is conflicting with an already registered condition variable.\n"); break;
-            case -EPERM: printf("rtos_cond_init returned -EPERM is returned if this service was called from an asynchronous context.\n"); break;
-        }
-        return ret;
+        return rt_cond_create(cond, 0);
     }
 
     static inline int rtos_cond_destroy(rt_cond_t *cond)
     {
         CHK_XENO_CALL();
-        int ret = rt_cond_delete(cond);
-        switch (ret) {
-            case -EINVAL: printf("rtos_cond_destroy returned -EINVAL is returned if alarm is not a valid condition variable descriptor.\n");break;
-            case -EPERM: printf("rtos_cond_destroy returned -EPERM is returned if this service was called from an asynchronous context.\n");break;
-            case -EBUSY: printf("rtos_cond_destroy returned -EBUSY is returned upon an attempt to destroy the object referenced by cond while it is referenced (for example, while being used in a rt_cond_wait(), rt_cond_wait_timed() or rt_cond_wait_until() by another task).\n");break;
-        }
-        return ret;
+        return rt_cond_delete(cond);
     }
 
     static inline int rtos_cond_wait(rt_cond_t *cond, rt_mutex_t *mutex)
     {
         CHK_XENO_CALL();
-        int ret = rt_cond_wait(cond, mutex, TM_INFINITE);
-        switch (ret) {
-            case -ETIMEDOUT: printf("rtos_cond_wait returned -ETIMEDOUT is returned if abs_timeout is reached before the condition variable is signaled.\n"); break;
-            case -EWOULDBLOCK: printf("rtos_cond_wait returned -EWOULDBLOCK is returned if abs_timeout is { .tv_sec = 0, .tv_nsec = 0 } .\n"); break;
-            case -EINTR: printf("rtos_cond_wait returned -EINTR is returned if rt_task_unblock() was called for the current task.\n"); break;
-            case -EINVAL: printf("rtos_cond_wait returned -EINVAL is returned if cond is not a valid condition variable descriptor.\n"); break;
-            case -EIDRM: printf("rtos_cond_wait returned -EIDRM is returned if cond is deleted while the caller was waiting on the condition variable. In such event, cond is no more valid upon return of this service.\n"); break;
-            case -EPERM: printf("rtos_cond_wait returned -EPERM is returned if this service should block, but was not called from a Xenomai thread.\n"); break;
-        }
-        return ret;
+        return rt_cond_wait(cond, mutex, TM_INFINITE);
     }
 
     static inline int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, NANO_TIME abs_time)
     {
         CHK_XENO_CALL();
-        RTIME now = rt_timer_read();
-        int ret = rt_cond_wait_until(cond, mutex, rt_timer_ns2ticks(abs_time));
-        // switch (ret) {
-        //     case -ETIMEDOUT: printf("%s rtos_cond_timedwait %lld ns->%lld ticks at time %lld returned -ETIMEDOUT is returned if abs_timeout is reached before the condition variable is signaled.\n",__PRETTY_FUNCTION__,rt_timer_ns2ticks(abs_time) - now,rt_timer_ns2ticks(abs_time),now); break;
-        //     case -EWOULDBLOCK: printf("rtos_cond_timedwait %lld ns->%lld ticks at time %lld returned -EWOULDBLOCK is returned if abs_timeout is { .tv_sec = 0, .tv_nsec = 0 } .\n",abs_time,rt_timer_ns2ticks(abs_time),rtos_get_time_ns()); break;
-        //     case -EINTR: printf("rtos_cond_timedwait %lld ns->%lld ticks at time %lld returned -EINTR is returned if rt_task_unblock() was called for the current task.\n",abs_time,rt_timer_ns2ticks(abs_time),rtos_get_time_ns()); break;
-        //     case -EINVAL: printf("rtos_cond_timedwait %lld ns->%lld ticks at time %lld returned -EINVAL is returned if cond is not a valid condition variable descriptor.\n",abs_time,rt_timer_ns2ticks(abs_time),rtos_get_time_ns()); break;
-        //     case -EIDRM: printf("rtos_cond_timedwait %lld ns->%lld ticks at time %lld returned -EIDRM is returned if cond is deleted while the caller was waiting on the condition variable. In such event, cond is no more valid upon return of this service.\n",abs_time,rt_timer_ns2ticks(abs_time),rtos_get_time_ns()); break;
-        //     case -EPERM: printf("rtos_cond_timedwait %lld ns->%lld ticks at time %lld returned -EPERM is returned if this service should block, but was not called from a Xenomai thread.\n",abs_time,rt_timer_ns2ticks(abs_time),rtos_get_time_ns()); break;
-        // }
-        return ret;
+        return rt_cond_wait_until(cond, mutex, rt_timer_ns2ticks(abs_time));
     }
 
     static inline int rtos_cond_broadcast(rt_cond_t *cond)
     {
         CHK_XENO_CALL();
-        int ret = rt_cond_broadcast(cond);
-        switch (ret) {
-            case -EINVAL: printf("rtos_cond_wait returned -EINVAL is returned if cond is not a valid condition variable descriptor.\n"); break;
-        }
-        return ret;
+        return rt_cond_broadcast(cond);
     }
 
 
