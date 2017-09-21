@@ -67,7 +67,7 @@
 #include <string.h>
 
 #ifndef TLSF_USE_LOCKS
-#define	TLSF_USE_LOCKS 	(1)
+#define	TLSF_USE_LOCKS 	(0)
 #endif
 
 #ifndef TLSF_STATISTIC

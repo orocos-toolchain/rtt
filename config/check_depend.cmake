@@ -170,11 +170,6 @@ if(OROCOS_TARGET STREQUAL "xenomai")
 
   add_definitions( -Wall )
 
-  # TLSF conflicts with the one embedded in xenomai 3
-  if(XENOMAI_VERSION_MAJOR EQUAL 3)
-      set(OS_HAS_TLSF FALSE)
-  endif()
-
   # Input for .pc and .cmake generated files:
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XENOMAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
   list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI_LIBRARIES} ${PTHREAD_LIBRARIES} dl)
