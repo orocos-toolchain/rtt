@@ -474,11 +474,11 @@ static __inline__ bhdr_t *process_area(void *area, size_t size)
         (sizeof(area_info_t) <
          MIN_BLOCK_SIZE) ? MIN_BLOCK_SIZE : ROUNDUP_SIZE(sizeof(area_info_t)) | USED_BLOCK | PREV_USED;
     ib->prev_hdr = encode_prev_block( NULL, ib->size );
-    b = GET_NEXT_BLOCK((void *)ib->ptr.buffer, ib->size & BLOCK_SIZE);
+    b = GET_NEXT_BLOCK(ib->ptr.buffer, ib->size & BLOCK_SIZE);
     b->size = ROUNDDOWN_SIZE(size - 3 * BHDR_OVERHEAD - (ib->size & BLOCK_SIZE)) | USED_BLOCK | PREV_USED;
     b->prev_hdr = encode_prev_block( NULL, b->size );
     b->ptr.free_ptr.prev = b->ptr.free_ptr.next = 0;
-    lb = GET_NEXT_BLOCK((void *)b->ptr.buffer, b->size & BLOCK_SIZE);
+    lb = GET_NEXT_BLOCK(b->ptr.buffer, b->size & BLOCK_SIZE);
     lb->size = 0 | USED_BLOCK | PREV_FREE;
     lb->prev_hdr = encode_prev_block( b, lb->size );
     ai = TYPE_PUN(area_info_t, u8_t, ib->ptr.buffer);
@@ -512,7 +512,7 @@ size_t init_memory_pool(size_t mem_pool_size, void *mem_pool)
     tlsf = (tlsf_t *) mem_pool;
     /* Check if already initialised */
     if (tlsf->tlsf_signature == TLSF_SIGNATURE) {
-        b = GET_NEXT_BLOCK((void *)mp, ROUNDUP_SIZE(sizeof(tlsf_t)));
+        b = GET_NEXT_BLOCK(mp, ROUNDUP_SIZE(sizeof(tlsf_t)));
         return b->size & BLOCK_SIZE;
     }
 
@@ -528,7 +528,7 @@ size_t init_memory_pool(size_t mem_pool_size, void *mem_pool)
 
     ib = process_area(GET_NEXT_BLOCK
                       (mem_pool, ROUNDUP_SIZE(sizeof(tlsf_t))), ROUNDDOWN_SIZE(mem_pool_size - sizeof(tlsf_t)));
-    b = GET_NEXT_BLOCK((void *)ib->ptr.buffer, ib->size & BLOCK_SIZE);
+    b = GET_NEXT_BLOCK(ib->ptr.buffer, ib->size & BLOCK_SIZE);
     free_ex(b->ptr.buffer, tlsf);
     tlsf->area_head = TYPE_PUN(area_info_t, u8_t, ib->ptr.buffer);
 
@@ -555,15 +555,15 @@ size_t add_new_area(void *area, size_t area_size, void *mem_pool)
     ptr_prev = 0;
 
     ib0 = process_area(area, area_size);
-    b0 = GET_NEXT_BLOCK((void *)ib0->ptr.buffer, ib0->size & BLOCK_SIZE);
-    lb0 = GET_NEXT_BLOCK((void *)b0->ptr.buffer, b0->size & BLOCK_SIZE);
+    b0 = GET_NEXT_BLOCK(ib0->ptr.buffer, ib0->size & BLOCK_SIZE);
+    lb0 = GET_NEXT_BLOCK(b0->ptr.buffer, b0->size & BLOCK_SIZE);
 
     /* Before inserting the new area, we have to merge this area with the
        already existing ones */
 
     while (ptr) {
         ib1 = (bhdr_t *) ((char *) ptr - BHDR_OVERHEAD);
-        b1 = GET_NEXT_BLOCK((void *)ib1->ptr.buffer, ib1->size & BLOCK_SIZE);
+        b1 = GET_NEXT_BLOCK(ib1->ptr.buffer, ib1->size & BLOCK_SIZE);
         lb1 = ptr->end;
 
         /* Merging the new area with the next physically contigous one */
@@ -600,7 +600,7 @@ size_t add_new_area(void *area, size_t area_size, void *mem_pool)
             lb1->size =
                 ROUNDDOWN_SIZE((b0->size & BLOCK_SIZE) +
                                (ib0->size & BLOCK_SIZE) + 2 * BHDR_OVERHEAD) | USED_BLOCK | (lb1->size & PREV_STATE);
-            next_b = GET_NEXT_BLOCK((void *)lb1->ptr.buffer, lb1->size & BLOCK_SIZE);
+            next_b = GET_NEXT_BLOCK(lb1->ptr.buffer, lb1->size & BLOCK_SIZE);
             next_b->prev_hdr = encode_prev_block( lb1, next_b->size );
             b0 = lb1;
             ib0 = ib1;
@@ -847,12 +847,12 @@ void *malloc_ex(size_t size, void *mem_pool)
     EXTRACT_BLOCK_HDR(b, tlsf, fl, sl);
 
     /*-- found: */
-    next_b = GET_NEXT_BLOCK((void *)b->ptr.buffer, b->size & BLOCK_SIZE);
+    next_b = GET_NEXT_BLOCK(b->ptr.buffer, b->size & BLOCK_SIZE);
     /* Should the block be split? */
     tmp_size = (b->size & BLOCK_SIZE) - size;
     if (tmp_size >= sizeof(bhdr_t)) {
         tmp_size -= BHDR_OVERHEAD;
-        b2 = GET_NEXT_BLOCK((void *)b->ptr.buffer, size);
+        b2 = GET_NEXT_BLOCK(b->ptr.buffer, size);
         b2->size = tmp_size | FREE_BLOCK | PREV_USED;
         b2->prev_hdr = encode_prev_block( b2->prev_hdr, b2->size );
         next_b->prev_hdr = encode_prev_block(b2, next_b->size);
@@ -899,7 +899,7 @@ void free_ex(void *ptr, void *mem_pool)
 
     b->ptr.free_ptr.prev = NULL;
     b->ptr.free_ptr.next = NULL;
-    tmp_b = GET_NEXT_BLOCK((void *)b->ptr.buffer, b->size & BLOCK_SIZE);
+    tmp_b = GET_NEXT_BLOCK(b->ptr.buffer, b->size & BLOCK_SIZE);
     if (tmp_b->size & FREE_BLOCK) {
         /* Coalesce next block */
         MAPPING_INSERT(tmp_b->size & BLOCK_SIZE, &fl, &sl);
@@ -917,7 +917,7 @@ void free_ex(void *ptr, void *mem_pool)
     MAPPING_INSERT(b->size & BLOCK_SIZE, &fl, &sl);
     INSERT_BLOCK(b, tlsf, fl, sl);
 
-    tmp_b = GET_NEXT_BLOCK((void *)b->ptr.buffer, b->size & BLOCK_SIZE);
+    tmp_b = GET_NEXT_BLOCK(b->ptr.buffer, b->size & BLOCK_SIZE);
     /* if tmp_b is free, it should have been coalesced */
     if( (tmp_b->size & BLOCK_STATE) == FREE_BLOCK )
         corrupt( "free_ex(): uncoalesced block\n");
@@ -947,7 +947,7 @@ void *realloc_ex(void *ptr, size_t new_size, void *mem_pool)
     }
 
     b = (bhdr_t *) ((char *) ptr - BHDR_OVERHEAD);
-    next_b = GET_NEXT_BLOCK((void *)b->ptr.buffer, b->size & BLOCK_SIZE);
+    next_b = GET_NEXT_BLOCK(b->ptr.buffer, b->size & BLOCK_SIZE);
     new_size = (new_size < MIN_BLOCK_SIZE) ? MIN_BLOCK_SIZE : ROUNDUP_SIZE(new_size);
     tmp_size = (b->size & BLOCK_SIZE);
     if (new_size <= tmp_size) {
@@ -958,7 +958,7 @@ void *realloc_ex(void *ptr, size_t new_size, void *mem_pool)
             MAPPING_INSERT(next_b->size & BLOCK_SIZE, &fl, &sl);
             EXTRACT_BLOCK(next_b, tlsf, fl, sl);
             tmp_size += (next_b->size & BLOCK_SIZE) + BHDR_OVERHEAD;
-            next_b = GET_NEXT_BLOCK((void *)next_b->ptr.buffer, next_b->size & BLOCK_SIZE);
+            next_b = GET_NEXT_BLOCK(next_b->ptr.buffer, next_b->size & BLOCK_SIZE);
             /* We allways reenter this free block because tmp_size will
                be greater then sizeof (bhdr_t) */
         }
@@ -966,7 +966,7 @@ void *realloc_ex(void *ptr, size_t new_size, void *mem_pool)
         if (tmp_size >= sizeof(bhdr_t)) {
             /* add tail as free block */
             tmp_size -= BHDR_OVERHEAD;
-            tmp_b = GET_NEXT_BLOCK((void *)b->ptr.buffer, new_size);
+            tmp_b = GET_NEXT_BLOCK(b->ptr.buffer, new_size);
             tmp_b->size = tmp_size | FREE_BLOCK | PREV_USED;
             tmp_b->prev_hdr = encode_prev_block( NULL, tmp_b->size );
             next_b->size |= PREV_FREE;
@@ -985,13 +985,13 @@ void *realloc_ex(void *ptr, size_t new_size, void *mem_pool)
             MAPPING_INSERT(next_b->size & BLOCK_SIZE, &fl, &sl);
             EXTRACT_BLOCK(next_b, tlsf, fl, sl);
             b->size += (next_b->size & BLOCK_SIZE) + BHDR_OVERHEAD;
-            next_b = GET_NEXT_BLOCK((void *)b->ptr.buffer, b->size & BLOCK_SIZE);
+            next_b = GET_NEXT_BLOCK(b->ptr.buffer, b->size & BLOCK_SIZE);
             next_b->size &= ~PREV_FREE;
             next_b->prev_hdr = encode_prev_block( b, next_b->size );
             tmp_size = (b->size & BLOCK_SIZE) - new_size;
             if (tmp_size >= sizeof(bhdr_t)) {
                 tmp_size -= BHDR_OVERHEAD;
-                tmp_b = GET_NEXT_BLOCK((void *)b->ptr.buffer, new_size);
+                tmp_b = GET_NEXT_BLOCK(b->ptr.buffer, new_size);
                 tmp_b->size = tmp_size | FREE_BLOCK | PREV_USED;
                 next_b->size |= PREV_FREE;
                 next_b->prev_hdr = encode_prev_block(tmp_b, next_b->size);
@@ -1180,7 +1180,7 @@ void print_all_blocks(FILE* ff, tlsf_t * tlsf)
         while (next) {
             print_block(ff, next);
             if ((next->size & BLOCK_SIZE))
-                next = GET_NEXT_BLOCK((void *)next->ptr.buffer, next->size & BLOCK_SIZE);
+                next = GET_NEXT_BLOCK(next->ptr.buffer, next->size & BLOCK_SIZE);
             else
                 next = NULL;
         }
