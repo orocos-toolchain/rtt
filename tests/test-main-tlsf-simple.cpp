@@ -25,7 +25,7 @@
 #define	USE_MMAP 0
 #define	USE_SBRK 0
 #define _DEBUG_TLSF_  (0)
-#include <rtt/os/tlsf/tlsf.c>
+#include <rtt/os/tlsf/tlsf.h>
 
 #define POOL_SIZE 1024 * 1024
 char pool[POOL_SIZE];
