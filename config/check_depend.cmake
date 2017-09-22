@@ -164,10 +164,6 @@ if(OROCOS_TARGET STREQUAL "xenomai")
   find_package(Xenomai REQUIRED)
   find_package(XenomaiPosix)
 
-  if(XENOMAI_VERSION_MAJOR EQUAL 2)
-      find_package(Pthread REQUIRED)
-  endif()
-
   add_definitions( -Wall )
 
   # Input for .pc and .cmake generated files:
