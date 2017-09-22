@@ -80,11 +80,9 @@ if( XENOMAI_CFLAGS_ERROR)
     message(FATAL_ERROR "Could not determine cflags with command ${XENOMAI_XENO_CONFIG} --skin=${XENOMAI_SKIN_NAME} --cflags ${XENO_CONFIG_LDFLAGS_EXTRA_ARGS}")
 endif()
 
-string(STRIP ${XENOMAI_LDFLAGS} XENOMAI_LIBRARY)
-
+string(REGEX MATCHALL "-L([^ ]+)|-l([^ ]+)" XENOMAI_LIBRARY ${XENOMAI_LDFLAGS})
 string(REGEX MATCHALL "-I([^ ]+)" XENOMAI_INCLUDE_DIR ${XENOMAI_CFLAGS})
 string(REGEX MATCHALL "-D([^ ]+)" XENOMAI_COMPILE_DEFINITIONS ${XENOMAI_CFLAGS})
-#add_definitions(${XENOMAI_COMPILE_DEFINITIONS})
 string(REPLACE "-I" ";" XENOMAI_INCLUDE_DIR ${XENOMAI_INCLUDE_DIR})
 
 # Set the include dir variables and the libraries and let libfind_process do the rest.
@@ -97,7 +95,8 @@ message(STATUS "
 Xenomai ${XENOMAI_VERSION} ${XENOMAI_SKIN_NAME} skin
     libs    : ${XENOMAI_LIBRARY}
     include : ${XENOMAI_INCLUDE_DIR}
-    defs    : ${XENOMAI_COMPILE_DEFINITIONS}
+    ldflags : ${XENOMAI_LDFLAGS}
+    cflags  : ${XENOMAI_CFLAGS}
 ==========================================
 ")
 
