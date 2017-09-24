@@ -91,7 +91,7 @@ set(XENOMAI_POSIX_PROCESS_LIBS XENOMAI_POSIX_LIBRARY)
 
 message(STATUS "
 ==========================================
-Xenomai ${XENOMAI_VERSION} ${XENOMAI_POSIX_SKIN_NAME} skin
+Xenomai ${XENOMAI_POSIX_VERSION} ${XENOMAI_POSIX_SKIN_NAME} skin
     libs    : ${XENOMAI_POSIX_LIBRARY}
     include : ${XENOMAI_POSIX_INCLUDE_DIR}
     ldflags : ${XENOMAI_POSIX_LDFLAGS}
