@@ -70,9 +70,7 @@ SharedConnectionBase::SharedConnectionBase(const ConnPolicy &policy)
     // assign random name if none was given
     if (this->policy.name_id.empty()) {
 #if defined(ORO_HAVE_BOOST_UUID)
-#ifdef ORO_HAVE_BOOST_UUID
         static boost::uuids::random_generator uuid_generator;
-#endif
         this->policy.name_id = boost::uuids::to_string(uuid_generator());
 #elif defined(ORO_HAVE_LIBUUID)
         uuid_t uuid;
