@@ -342,26 +342,22 @@ static const double    InfiniteSeconds = DBL_MAX;
 
     static inline int rtos_mutex_rec_lock( rt_rec_mutex_t* m)
     {
-        CHK_XENO_CALL();
-        return rt_mutex_acquire(m, TM_INFINITE );
+        return rtos_mutex_lock(m);
     }
 
     static inline int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
     {
-        CHK_XENO_CALL();
         return rtos_mutex_trylock(m);
     }
 
     static inline int rtos_mutex_rec_lock_until( rt_rec_mutex_t* m, NANO_TIME abs_time)
     {
-        CHK_XENO_CALL();
         return rtos_mutex_lock_until(m, abs_time);
     }
 
     static inline int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
     {
-        CHK_XENO_CALL();
-        return rt_mutex_release(m);
+        return rtos_mutex_unlock(m);
     }
 
     static inline void rtos_enable_rt_warning()
