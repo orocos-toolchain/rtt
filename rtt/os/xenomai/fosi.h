@@ -58,9 +58,21 @@ extern "C" {
 #define _GNU_SOURCE
 #endif
 
-// HACK: define this to avoid including copperplate/debug.h
-// That causes troubles with log4cpp (also defining debug())
-#define _COPPERPLATE_DEBUG_H
+#include <xeno_config.h> // version number
+#if CONFIG_XENO_VERSION_MAJOR == 2
+#include <native/task.h>
+#include <native/timer.h>
+#include <native/mutex.h>
+#include <native/sem.h>
+#include <native/cond.h>
+#endif
+#if CONFIG_XENO_VERSION_MAJOR == 3
+#include <alchemy/task.h>
+#include <alchemy/timer.h>
+#include <alchemy/mutex.h>
+#include <alchemy/sem.h>
+#include <alchemy/cond.h>
+#endif
 
 #include <sys/mman.h>
 #include <sys/time.h>
@@ -77,20 +89,10 @@ extern "C" {
 #include <float.h>
 #include "../oro_limits.h"
 
-#include <xeno_config.h> // version number
-#if CONFIG_XENO_VERSION_MAJOR == 2
-#include <native/task.h>
-#include <native/timer.h>
-#include <native/mutex.h>
-#include <native/sem.h>
-#include <native/cond.h>
-#endif
 #if CONFIG_XENO_VERSION_MAJOR == 3
-#include <alchemy/task.h>
-#include <alchemy/timer.h>
-#include <alchemy/mutex.h>
-#include <alchemy/sem.h>
-#include <alchemy/cond.h>
+// HACK: prevent confliting macros
+#undef debug
+#undef barrier
 #endif
 
 // BC: support Xenomai < 2.3.0
