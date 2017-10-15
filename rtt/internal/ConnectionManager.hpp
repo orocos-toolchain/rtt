@@ -56,9 +56,6 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
-#ifndef USE_CPP11
-#include <boost/lambda/lambda.hpp>
-#endif
 
 #include <rtt/os/Mutex.hpp>
 #include <rtt/os/MutexLock.hpp>
@@ -145,34 +142,34 @@ namespace RTT
             template<typename Pred>
             void select_reader_channel(Pred pred, bool copy_old_data) {
                 RTT::os::MutexLock lock(connection_lock);
-                std::pair<bool, ChannelDescriptor> new_channel =
+                ChannelDescriptor *new_channel =
                     find_if(pred, copy_old_data);
-                if (new_channel.first)
+                if (new_channel)
                 {
                     // We don't clear the current channel (to get it to NoData state), because there is a race
                     // between find_if and this line. We have to accept (in other parts of the code) that eventually,
                     // all channels return 'OldData'.
-                    cur_channel = new_channel.second;
+                    cur_channel = new_channel;
                 }
             }
 
             template<typename Pred>
-            std::pair<bool, ChannelDescriptor> find_if(Pred pred, bool copy_old_data) {
+            ChannelDescriptor *find_if(Pred pred, bool copy_old_data) {
                 // We only copy OldData in the initial read of the current channel.
                 // if it has no new data, the search over the other channels starts,
                 // but no old data is needed.
-                ChannelDescriptor channel = cur_channel;
-                if ( channel.get<1>() )
-                    if ( pred( copy_old_data, channel ) )
-                        return std::make_pair(true, channel);
+                ChannelDescriptor *channel = cur_channel;
+                if ( channel )
+                    if ( pred( copy_old_data, *channel ) )
+                        return channel;
 
                 std::list<ChannelDescriptor>::iterator result;
                 for (result = connections.begin(); result != connections.end(); ++result) {
-                    if (result->get<1>() == cur_channel.get<1>()) continue;
+                    if (cur_channel && (result->get<1>() == cur_channel->get<1>())) continue;
                     if ( pred(false, *result) == true)
-                        return std::make_pair(true, *result);
+                        return &(*result);
                 }
-                return std::make_pair(false, ChannelDescriptor());
+                return NULL;
             }
 
             /**
@@ -187,7 +184,7 @@ namespace RTT
              * @return
              */
             base::ChannelElementBase* getCurrentChannel() const {
-                return cur_channel.get<1>().get();
+                return cur_channel ? cur_channel->get<1>().get() : NULL;
             }
 
             /**
@@ -254,7 +251,7 @@ namespace RTT
             /**
              * Optimisation in case only one channel is to be managed.
              */
-            ChannelDescriptor cur_channel;
+            ChannelDescriptor *cur_channel;
 
             /**
              * Lock that should be taken before the list of connections is

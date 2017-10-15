@@ -48,12 +48,6 @@
 #include "extras/SlaveActivity.hpp"
 
 #include <boost/bind.hpp>
-#include <boost/ref.hpp>
-#ifndef USE_CPP11
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#endif
-#include <functional>
 #include <algorithm>
 
 #define ORONUM_EE_MQUEUE_SIZE 100
@@ -161,8 +155,8 @@ namespace RTT
             found = true; // always true in order to be able to quit waitForMessages.
         }
         virtual void dispose() {}
-        virtual bool isError() const { return false;}
-
+        virtual bool isError() const { return false; }
+        bool done() const { return !mf->isLoaded() || found; }
     };
 
     bool ExecutionEngine::removeFunction( ExecutableInterface* f )
@@ -182,11 +176,7 @@ namespace RTT
             // Running: create message on stack.
             RemoveMsg rmsg(f,this);
             if ( this->process(&rmsg) )
-#ifdef USE_CPP11
-                this->waitForMessages( ! bind(&ExecutableInterface::isLoaded, f) || bind(&RemoveMsg::found,boost::ref(rmsg)) );
-#else
-                this->waitForMessages( ! lambda::bind(&ExecutableInterface::isLoaded, f) || lambda::bind(&RemoveMsg::found,boost::ref(rmsg)) );
-#endif
+                this->waitForMessages( boost::bind(&RemoveMsg::done, &rmsg) );
             if (!rmsg.found)
                 return false;
         }
@@ -378,7 +368,7 @@ namespace RTT
                 )
             }
             // in case start() or updateHook() called error(), this will be called:
-            if (  taskc->mTaskState == TaskCore::RunTimeError ) {
+            if (taskc->mTaskState == TaskCore::RunTimeError && taskc->mTargetState >= TaskCore::Running) {
                 TRY (
                     taskc->errorHook();
                 ) CATCH(std::exception const& e,
@@ -408,7 +398,7 @@ namespace RTT
                     (*it)->exception(); // calls stopHook,cleanupHook
                 )
             }
-            if (  (*it)->mTaskState == TaskCore::RunTimeError ){
+            if ((*it)->mTaskState == TaskCore::RunTimeError && (*it)->mTargetState == TaskCore::RunTimeError){
                 TRY (
                     (*it)->errorHook();
                 ) CATCH(std::exception const& e,

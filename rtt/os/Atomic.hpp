@@ -85,14 +85,29 @@ namespace RTT
 
         void sub(int i) { oro_atomic_sub( &_val, i ); }
 
+        /** Subtract a value and test if the result is zero
+         *
+         * @return true if the atomic is zero after the decrement, and false
+         *   otherwise
+         */
         bool sub_and_test(int i) { return oro_atomic_sub_and_test( &_val, i) != 0; }
 
         void inc() { oro_atomic_inc( &_val ); }
 
         void dec() { oro_atomic_dec( &_val ); }
 
+        /** Decrement and test if the result is zero
+         *
+         * @return true if the atomic is zero after the decrement, and false
+         *   otherwise
+         */
         bool dec_and_test() { return oro_atomic_dec_and_test( &_val ) != 0; }
 
+        /** Increment and test if the result is zero
+         *
+         * @return true if the atomic is zero after the increment, and false
+         *   otherwise
+         */
         bool inc_and_test() { return oro_atomic_inc_and_test( &_val ) != 0; }
     };
 

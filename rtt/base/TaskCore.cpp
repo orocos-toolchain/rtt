@@ -182,7 +182,7 @@ namespace RTT {
             mTargetState = mTaskState = mInitialState;
             return true;
         }
-        if (mTaskState == RunTimeError ) {
+        if (mTaskState == RunTimeError && mTargetState >= Running) {
             mTargetState = mTaskState = Running;
             return true;
         }

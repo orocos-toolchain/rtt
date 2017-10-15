@@ -60,6 +60,7 @@ namespace RTT
 
         ConnectionManager::ConnectionManager(PortInterface* port)
             : mport(port)
+            , cur_channel(NULL)
         {
         }
 
@@ -89,9 +90,9 @@ namespace RTT
         void ConnectionManager::updateCurrentChannel(bool reset_current)
         {
             if (connections.empty())
-                cur_channel = ChannelDescriptor();
+                cur_channel = NULL;
             else if (reset_current)
-                cur_channel = connections.front();
+                cur_channel = &(connections.front());
         }
 
         bool ConnectionManager::disconnect(PortInterface* port)
@@ -116,7 +117,7 @@ namespace RTT
             std::list<ChannelDescriptor> all_connections;
             { RTT::os::MutexLock lock(connection_lock);
                 all_connections.splice(all_connections.end(), connections);
-                cur_channel = ChannelDescriptor();
+                cur_channel = NULL;
             }
             std::for_each(all_connections.begin(), all_connections.end(),
                     boost::bind(&ConnectionManager::eraseConnection, this, _1));
@@ -130,9 +131,9 @@ namespace RTT
         { RTT::os::MutexLock lock(connection_lock);
             assert(conn_id);
             ChannelDescriptor descriptor = boost::make_tuple(conn_id, channel, policy);
-            if (connections.empty())
-                cur_channel = descriptor;
-            connections.push_back(descriptor);
+            connections.insert(connections.end(), descriptor);
+            if (connections.size() == 1)
+                cur_channel = &(connections.front());
         }
 
         bool ConnectionManager::removeConnection(ConnID* conn_id)
@@ -144,8 +145,11 @@ namespace RTT
                 if (conn_it == connections.end())
                     return false;
                 descriptor = *conn_it;
+                // Verify whether cur_channel is conn_it before we erase, as
+                // cur_channel is a pointer to an element in connections
+                bool reset_current = cur_channel && (cur_channel->get<1>() == descriptor.get<1>());
                 connections.erase(conn_it);
-                updateCurrentChannel( cur_channel.get<1>() == descriptor.get<1>() );
+                updateCurrentChannel(reset_current);
             }
 
             // disconnect needs to know if we're from Out->In (forward) or from In->Out

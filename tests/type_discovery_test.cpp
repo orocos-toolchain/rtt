@@ -26,7 +26,6 @@
 #include <internal/DataSources.hpp>
 #include <types/type_discovery.hpp>
 #include <os/fosi.h>
-#include <boost/lambda/lambda.hpp>
 
 #include "datasource_fixture.hpp"
 #include "types/StructTypeInfo.hpp"
@@ -34,7 +33,6 @@
 #include "types/SequenceTypeInfo.hpp"
 #include "types/BoostArrayTypeInfo.hpp"
 
-using namespace boost::lambda;
 using namespace boost::archive;
 using namespace boost::serialization;
 
@@ -60,9 +58,6 @@ BOOST_AUTO_TEST_CASE( testATypeDiscovery )
     BOOST_CHECK_EQUAL( out.mnames.size(), 5 );
     BOOST_CHECK_EQUAL( out.mparts.size(), 5 );
     BOOST_CHECK_EQUAL( out.mparent, atype);
-
-//    for_each( out.mnames.begin(), out.mnames.end(), cout << lambda::_1 <<", " );
-//    cout <<endl;
 
     BOOST_REQUIRE_EQUAL( out.mparts.size(), 5);
 
@@ -110,9 +105,6 @@ BOOST_AUTO_TEST_CASE( testBTypeDiscovery )
     BOOST_CHECK_EQUAL( out.mnames.size(), 5 );
     BOOST_CHECK_EQUAL( out.mparts.size(), 5 );
     BOOST_CHECK_EQUAL( out.mparent, atype);
-
-//    for_each( out.mnames.begin(), out.mnames.end(), cout << lambda::_1 <<", " );
-//    cout <<endl;
 
     BOOST_REQUIRE_EQUAL( out.mparts.size(), 5);
 

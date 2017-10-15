@@ -119,6 +119,7 @@ namespace RTT
              * @param priority The priority of the thread, this is interpreted by your RTOS.
              * @param period   The period in seconds (eg 0.001) of the thread, or zero if not periodic.
              * @param cpu_affinity The cpu affinity of the thread, this is interpreted by your RTOS.
+             *                     If 0, the new thread inherits the affinity of its creator (the default).
              * @param name     The name of the Thread. May be used by your OS to identify the thread.
              *                 the thread's own virtual functions are executed.
              */
@@ -220,9 +221,10 @@ namespace RTT
             virtual int getPriority() const;
 
             virtual unsigned int getPid() const;
+
             /**
              * Set cpu affinity for this thread
-             * @cpu_affinity The cpu affinity of the thread (@see rtos_task_set_cpu_affinity).
+             * @param cpu_affinity The cpu affinity of the thread (@see rtos_task_set_cpu_affinity).
              * @return true if the mask has been applied
              */
             virtual bool setCpuAffinity(unsigned cpu_affinity);
