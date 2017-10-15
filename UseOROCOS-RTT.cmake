@@ -372,7 +372,7 @@ macro( orocos_library LIB_TARGET_NAME )
 
     orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER} )
     orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER} )
-    orocos_set_install_rpath( ${LIB_TARGET_NAME} "${USE_OROCOS_LIBRARY_DIRS};${OROCOS-RTT_LIBRARY_DIRS};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins;${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}" )
+    orocos_set_install_rpath( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARY_DIRS} )
 
     TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} 
       ${OROCOS-RTT_LIBRARIES} 
@@ -982,7 +982,14 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
     if(${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS)
       list(REMOVE_DUPLICATES ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS)
     endif()
-
+    
+    if(ORO_USE_CATKIN)
+        if(${PROJECT_NAME}_EXPORTED_LIBRARIES)
+                list(REMOVE_ITEM ${PROJECT_NAME}_EXPORTED_LIBRARIES ${PROJECT_NAME}_generate_messages_cpp)
+                list(REMOVE_ITEM ${PROJECT_NAME}_EXPORTED_LIBRARIES ${PROJECT_NAME}_generate_messages_lisp)
+                list(REMOVE_ITEM ${PROJECT_NAME}_EXPORTED_LIBRARIES ${PROJECT_NAME}_generate_messages_py)
+        endif()
+    endif()
     # Store a list of exported targets, libraries and include directories on the cache so that other packages within the same workspace can use them.
     set(${PC_NAME}_OROCOS_PACKAGE True CACHE INTERNAL "Mark ${PC_NAME} package as an Orocos package built in this workspace")
     if(${PROJECT_NAME}_EXPORTED_TARGETS)

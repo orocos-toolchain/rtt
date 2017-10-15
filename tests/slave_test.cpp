@@ -150,7 +150,10 @@ BOOST_AUTO_TEST_CASE( testSlaveOperationCall )
 
     // Note: master is not running!
     RTT::SendHandle<void()> handle = callSlaveOperation.send();
-    sleep(1);
+    int wait = 5;
+    while( !handle.collectIfDone() && wait-- ) {
+        sleep(1);
+    }
     BOOST_CHECK( handle.collectIfDone() );
     BOOST_CHECK_EQUAL( slave.own_thread_operation_called_counter, 1 );
     BOOST_CHECK_EQUAL( client.callback_operation_called_counter, 0 );
@@ -168,7 +171,10 @@ BOOST_AUTO_TEST_CASE( testSlaveOperationCallWithCallback )
 
     // Note: master is not running!
     RTT::SendHandle<void()> handle = callSlaveOperation.send();
-    sleep(1);
+    int wait = 5;
+    while( !handle.collectIfDone() && wait-- ) {
+        sleep(1);
+    }
     BOOST_CHECK( handle.collectIfDone() );
     BOOST_CHECK_EQUAL( slave.own_thread_operation_called_counter, 1 );
     BOOST_CHECK_EQUAL( client.callback_operation_called_counter, 1 );

@@ -126,6 +126,8 @@ extern "C" {
 #define ORO_SCHED_RT    0 /** LXRT Hard real-time */
 #define ORO_SCHED_OTHER 1 /** LXRT Soft real-time */
 
+#define ORO_WAIT_ABS 0 /** Not supported for the lxrt target */
+#define ORO_WAIT_REL 1 /** Not supported for the lxrt target */
 
 
 

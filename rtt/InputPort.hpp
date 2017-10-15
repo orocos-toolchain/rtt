@@ -118,8 +118,8 @@ namespace RTT
         /** Read all new samples that are available on this port, and returns
          * the last one.
          *
-         * Returns RTT::NewSample if at least one new sample was available, and
-         * either RTT::OldSample or RTT::NoSample otherwise.
+         * Returns RTT::NewData if at least one new sample was available, and
+         * either RTT::OldData or RTT::NoData otherwise.
          */
         FlowStatus readNewest(base::DataSourceBase::shared_ptr source, bool copy_old_data = true)
         {
@@ -152,7 +152,7 @@ namespace RTT
         {
             FlowStatus result = NoData;
             // read and iterate if necessary.
-            cmanager.select_reader_channel( boost::bind( &InputPort::do_read, this, boost::ref(sample), boost::ref(result), boost::lambda::_1, boost::lambda::_2), copy_old_data );
+            cmanager.select_reader_channel( boost::bind( &InputPort::do_read, this, boost::ref(sample), boost::ref(result), _1, _2 ), copy_old_data );
             return result;
         }
 
@@ -160,8 +160,8 @@ namespace RTT
         /** Read all new samples that are available on this port, and returns
          * the last one.
          *
-         * Returns RTT::NewSample if at least one new sample was available, and
-         * either RTT::OldSample or RTT::NoSample otherwise.
+         * Returns RTT::NewData if at least one new sample was available, and
+         * either RTT::OldData or RTT::NoData otherwise.
          */
         FlowStatus readNewest(typename base::ChannelElement<T>::reference_t sample, bool copy_old_data = true)
         {

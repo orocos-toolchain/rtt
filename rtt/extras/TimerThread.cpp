@@ -44,6 +44,7 @@
 #include "../Logger.hpp"
 #include <algorithm>
 #include "../os/MutexLock.hpp"
+#include "../os/MainThread.hpp"
 
 namespace RTT {
     using namespace extras;
@@ -60,7 +61,7 @@ namespace RTT {
 
     TimerThreadPtr TimerThread::Instance(int scheduler, int pri, double per)
     {
-      return Instance(scheduler, pri, per, ~0);
+      return Instance(scheduler, pri, per, 0);
     }
 
     TimerThreadPtr TimerThread::Instance(int scheduler, int pri, double per, unsigned cpu_affinity)
@@ -68,6 +69,7 @@ namespace RTT {
         // Since the period is stored as nsecs, we convert per to NS in order
         // to get a match.
         os::CheckPriority(scheduler, pri);
+        if (cpu_affinity == 0) cpu_affinity = os::MainThread::Instance()->getCpuAffinity();
         TimerThreadList::iterator it = TimerThreads.begin();
         while ( it != TimerThreads.end() ) {
             TimerThreadPtr tptr = it->lock();
@@ -77,7 +79,10 @@ namespace RTT {
                 it = TimerThreads.begin();
                 continue;
             }
-            if ( tptr->getScheduler() == scheduler && tptr->getPriority() == pri && tptr->getPeriodNS() == Seconds_to_nsecs(per) ) {
+            if ( tptr->getScheduler() == scheduler &&
+                 tptr->getPriority() == pri &&
+                 tptr->getPeriodNS() == Seconds_to_nsecs(per) &&
+                 tptr->getCpuAffinity() == cpu_affinity ) {
                 return tptr;
             }
             ++it;

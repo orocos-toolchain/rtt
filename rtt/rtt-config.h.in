@@ -6,6 +6,11 @@
 #define RTT_VERSION_MINOR @RTT_VERSION_MINOR@
 #define RTT_VERSION_PATCH @RTT_VERSION_PATCH@
 
+#define RTT_VERSION_GTE(major,minor,patch) \
+    ((RTT_VERSION_MAJOR > major) || (RTT_VERSION_MAJOR == major && \
+     (RTT_VERSION_MINOR > minor) || (RTT_VERSION_MINOR == minor && \
+     (RTT_VERSION_PATCH >= patch))))
+
 #cmakedefine ORO_DISABLE_PORT_DATA_SCRIPTING
 
 // if not defined, show an error

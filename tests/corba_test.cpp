@@ -32,6 +32,7 @@
 #include <rtt/transports/corba/RemotePorts.hpp>
 #include <transports/corba/ServiceC.h>
 #include <transports/corba/CorbaLib.hpp>
+#include <transports/corba/CorbaConnPolicy.hpp>
 
 #include "operations_fixture.hpp"
 
@@ -484,16 +485,13 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 
 BOOST_AUTO_TEST_CASE( testPortConnections )
 {
-    // This test tests the differen port-to-port connections.
+    // This test tests the different port-to-port connections.
     ts  = corba::TaskContextServer::Create( tc, false ); //no-naming
     ts2 = corba::TaskContextServer::Create( t2, false ); //no-naming
 
     // Create a default CORBA policy specification
-    RTT::corba::CConnPolicy policy;
-    policy.type = RTT::corba::CData;
+    RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::data());
     policy.init = false;
-    policy.lock_policy = RTT::corba::CLockFree;
-    policy.size = 0;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = ts->server()->ports();
@@ -601,6 +599,95 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
     mo2->disconnect();
 }
 
+BOOST_AUTO_TEST_CASE( testRemotePortDisconnect )
+{
+    ts  = corba::TaskContextServer::Create( tc, false ); //no-naming
+    tp  = corba::TaskContextProxy::Create( ts->server(), true );
+    ts2  = corba::TaskContextServer::Create( t2, false ); //no-naming
+    tp2  = corba::TaskContextProxy::Create( ts2->server(), true );
+
+    // Create a default CORBA policy specification
+    RTT::ConnPolicy policy = ConnPolicy::data();
+    policy.init = false;
+    policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
+
+    base::PortInterface* untyped_port;
+
+    //mi1
+    untyped_port = tp->ports()->getPort("mi");
+    BOOST_CHECK(untyped_port);
+    base::InputPortInterface* read_port1 = dynamic_cast<base::InputPortInterface*>(tp->ports()->getPort("mi"));
+    BOOST_CHECK(read_port1);
+
+    //mi2
+    untyped_port = tp2->ports()->getPort("mi");
+    BOOST_CHECK(untyped_port);
+    base::InputPortInterface* read_port2 = dynamic_cast<base::InputPortInterface*>(tp2->ports()->getPort("mi"));
+    BOOST_CHECK(read_port2);
+
+    //mo2
+    untyped_port = tp2->ports()->getPort("mo");
+    BOOST_CHECK(untyped_port);
+    base::OutputPortInterface* write_port2 = dynamic_cast<base::OutputPortInterface*>(tp2->ports()->getPort("mo"));
+    BOOST_CHECK(write_port2);
+
+    //mo1
+    untyped_port = tp->ports()->getPort("mo");
+    BOOST_CHECK(untyped_port);
+    base::OutputPortInterface* write_port1 = dynamic_cast<base::OutputPortInterface*>(tp->ports()->getPort("mo"));
+    BOOST_CHECK(write_port1);
+
+    // Just make sure 'read_port' and 'write_port' are actually proxies and not
+    // the real thing
+    BOOST_CHECK(dynamic_cast<corba::RemoteInputPort*>(read_port1));
+    BOOST_CHECK(dynamic_cast<corba::RemoteInputPort*>(read_port2));
+    BOOST_CHECK(dynamic_cast<corba::RemoteOutputPort*>(write_port1));
+    BOOST_CHECK(dynamic_cast<corba::RemoteOutputPort*>(write_port2));
+
+    //create remote connections:
+    write_port2->connectTo(read_port1, policy);
+    BOOST_CHECK(read_port1->connected());
+    BOOST_CHECK(write_port2->connected());
+
+    //second connection to this input port
+    write_port1->connectTo(read_port1, policy);
+    BOOST_CHECK(write_port1->connected());
+
+    //disconnect single port connection (both remote), same tcs object.
+    write_port1->disconnect(read_port1);
+    BOOST_CHECK(read_port1->connected());
+    BOOST_CHECK(!write_port1->connected());
+
+    //disconnect single port connection, both remote, different tcs.
+    write_port2->disconnect(read_port1);
+    BOOST_CHECK(!read_port1->connected());
+
+    //check disconnecting call on reader port. (build connection again beforehand).
+    write_port2->connectTo(read_port1, policy);
+    BOOST_CHECK(read_port1->connected());
+    BOOST_CHECK(write_port2->connected());
+    BOOST_CHECK(read_port1->disconnect(write_port2));
+    BOOST_CHECK(!read_port1->connected());
+    BOOST_CHECK(!write_port2->connected());
+
+    //check connect and disconnect certain port, remote output to local input
+    //should give false cause not supported yet!
+    write_port2->connectTo(mi1, policy);
+    BOOST_CHECK(mi1->connected());
+    BOOST_CHECK(write_port2->connected());
+    BOOST_CHECK(!write_port2->disconnect(mi1));
+    mi1->disconnect(); //remove all connections works, so required for cleanup.
+
+    //check disconnect remote input port from local output port.
+    mo2->connectTo(read_port1, policy);
+    BOOST_CHECK(read_port1->connected());
+    BOOST_CHECK(mo2->connected());
+    BOOST_CHECK(read_port1->disconnect(mo2));
+    BOOST_CHECK(!mo2->connected());
+    BOOST_CHECK(!read_port1->connected());
+
+}
+
 BOOST_AUTO_TEST_CASE( testDataHalfs )
 {
     double result;
@@ -608,11 +695,8 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
     ts  = corba::TaskContextServer::Create( tc, false ); //no-naming
 
     // Create a default CORBA policy specification
-    RTT::corba::CConnPolicy policy;
-    policy.type = RTT::corba::CData;
+    RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::data());
     policy.init = false;
-    policy.lock_policy = RTT::corba::CLockFree;
-    policy.size = 0;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = ts->server()->ports();
@@ -665,11 +749,8 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     ts  = corba::TaskContextServer::Create( tc, false ); //no-naming
 
     // Create a default CORBA policy specification
-    RTT::corba::CConnPolicy policy;
-    policy.type = RTT::corba::CBuffer;
+    RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::buffer(10));
     policy.init = false;
-    policy.lock_policy = RTT::corba::CLockFree;
-    policy.size = 10;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = ts->server()->ports();

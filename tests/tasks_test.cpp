@@ -542,6 +542,17 @@ BOOST_AUTO_TEST_CASE( testAllocation )
 
 BOOST_AUTO_TEST_SUITE_END()
 
+#if defined( OROCOS_TARGET_GNULINUX )
+BOOST_AUTO_TEST_CASE( testThreadName )
+{
+    Activity activity(0, 0, "thread_name_34567890");
+    RTT::os::ThreadInterface *thread = activity.thread();
+    char buffer[256];
+    pthread_getname_np(thread->getTask()->thread, buffer, sizeof(buffer));
+    BOOST_CHECK_EQUAL(std::string(buffer), std::string("d_name_34567890"));
+}
+#endif
+
 void ActivitiesTest::testAddRunnableInterface()
 {
     bool adding_prio = periodic_act->run( t_run_int_prio );

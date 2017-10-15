@@ -75,7 +75,7 @@ namespace RTT
          * @param circular Set flag to true to make this buffer circular. If not circular, new values are discarded on full.
          */
         BufferLocked( size_type size, const T& initial_value = T(), bool circular = false )
-            : cap(size), buf(), mcircular(circular)
+            : cap(size), buf(), mcircular(circular), droppedSamples(0)
         {
             data_sample(initial_value);
         }
@@ -101,8 +101,12 @@ namespace RTT
         {
             os::MutexLock locker(lock);
             if ( cap == (size_type)buf.size() ) {
+                //buffer is full, we either overwrite a sample, or drop the given one
+                droppedSamples++;
                 if (!mcircular)
+                {
                     return false;
+                }
                 else
                     buf.pop_front();
             }
@@ -117,12 +121,17 @@ namespace RTT
             if (mcircular && (size_type)items.size() >= cap ) {
                 // clear out current data and reset iterator to first element we're going to take.
                 buf.clear();
+                //note the ignored samples are added below to the dropped samples.
+                droppedSamples += cap;
                 itl = items.begin() + ( items.size() - cap );
             } else if ( mcircular && (size_type)(buf.size() + items.size()) > cap) {
                 // drop excess elements from front
                 assert( (size_type)items.size() < cap );
                 while ( (size_type)(buf.size() + items.size()) > cap )
+                {
+                    droppedSamples++;
                     buf.pop_front();
+                }
                 // itl still points at first element of items.
             }
             while ( ((size_type)buf.size() != cap) && (itl != items.end()) ) {
@@ -130,10 +139,14 @@ namespace RTT
                 ++itl;
             }
             // this is in any case the number of elements taken from items.
+            size_type writtenSamples = itl - items.begin(); 
+            
             if (mcircular)
-                assert( (size_type)(itl - items.begin() ) == (size_type)items.size() );
-            return (itl - items.begin());
-
+                assert( writtenSamples == (size_type)items.size() );
+            
+            droppedSamples += items.size() - writtenSamples;
+            
+            return writtenSamples;
         }
         bool Pop( reference_t item )
         {
@@ -204,12 +217,18 @@ namespace RTT
             os::MutexLock locker(lock);
             return (size_type)buf.size() ==  cap;
         }
+        
+        size_type dropped() const
+        {
+            return droppedSamples;
+        }
     private:
         size_type cap;
         std::deque<T> buf;
         value_t lastSample;
         mutable os::Mutex lock;
         const bool mcircular;
+        size_type droppedSamples;
     };
 }}
 
