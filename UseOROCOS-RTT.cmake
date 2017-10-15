@@ -303,6 +303,11 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       endif()
     endif()
 
+    # Add exported target dependencies
+    if(USE_OROCOS_EXPORTED_TARGETS)
+      add_dependencies( ${COMPONENT_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
+    endif()
+
     # Install
     # On win32, component runtime (.dll) should go in orocos folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
@@ -387,6 +392,12 @@ macro( orocos_library LIB_TARGET_NAME )
       endif()
     endif()
 
+    # Add exported target dependencies
+    if(USE_OROCOS_EXPORTED_TARGETS)
+      add_dependencies( ${LIB_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
+    endif()
+
+    # Install
     INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
 
     # Necessary for .pc file generation
@@ -454,6 +465,11 @@ macro( orocos_library LIB_TARGET_NAME )
       endif()
     endif()
 
+    # Add exported target dependencies
+    if(USE_OROCOS_EXPORTED_TARGETS)
+      add_dependencies( ${EXE_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
+    endif()
+
     # We install the exe, the user must make sure that the install dir is not
     # beneath the ROS package (if any).
     INSTALL(TARGETS ${EXE_TARGET_NAME} RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
@@ -510,6 +526,11 @@ macro( orocos_library LIB_TARGET_NAME )
       if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
         message(STATUS "[UseOrocos] Linking target '${EXE_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
       endif()
+    endif()
+
+    # Add exported target dependencies
+    if(USE_OROCOS_EXPORTED_TARGETS)
+      add_dependencies( ${EXE_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
     endif()
   endmacro( orocos_configure_executable )
 
@@ -633,6 +654,11 @@ macro( orocos_library LIB_TARGET_NAME )
       endif()
     endif()
 
+    # Add exported target dependencies
+    if(USE_OROCOS_EXPORTED_TARGETS)
+      add_dependencies( ${LIB_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
+    endif()
+
     # On win32, typekit runtime (.dll) should go in orocos/types folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
       INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_DIR})
@@ -714,6 +740,11 @@ macro( orocos_library LIB_TARGET_NAME )
       if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
         message(STATUS "[UseOrocos] Linking target '${LIB_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
       endif()
+    endif()
+
+    # Add exported target dependencies
+    if(USE_OROCOS_EXPORTED_TARGETS)
+      add_dependencies( ${LIB_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
     endif()
 
     # On win32, plugins runtime (.dll) should go in orocos/plugins folder
