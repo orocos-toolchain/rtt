@@ -982,14 +982,7 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
     if(${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS)
       list(REMOVE_DUPLICATES ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS)
     endif()
-    
-    if(ORO_USE_CATKIN)
-        if(${PROJECT_NAME}_EXPORTED_LIBRARIES)
-                list(REMOVE_ITEM ${PROJECT_NAME}_EXPORTED_LIBRARIES ${PROJECT_NAME}_generate_messages_cpp)
-                list(REMOVE_ITEM ${PROJECT_NAME}_EXPORTED_LIBRARIES ${PROJECT_NAME}_generate_messages_lisp)
-                list(REMOVE_ITEM ${PROJECT_NAME}_EXPORTED_LIBRARIES ${PROJECT_NAME}_generate_messages_py)
-        endif()
-    endif()
+
     # Store a list of exported targets, libraries and include directories on the cache so that other packages within the same workspace can use them.
     set(${PC_NAME}_OROCOS_PACKAGE True CACHE INTERNAL "Mark ${PC_NAME} package as an Orocos package built in this workspace")
     if(${PROJECT_NAME}_EXPORTED_TARGETS)
