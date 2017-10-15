@@ -75,10 +75,11 @@ namespace RTT
         Thread::setPeriod(0,0);
     }
 
-    Activity::Activity(int scheduler, int priority, RunnableInterface* r, const std::string& name )
-        : ActivityInterface(r), os::Thread(scheduler, priority, 0.0, 0, name )
-    {
-    }
+     Activity::Activity(int scheduler, int priority, RunnableInterface* r, const std::string& name )
+         : ActivityInterface(r), os::Thread(scheduler, priority, 0.0, 0, name ),
+           update_period(0.0), mtimeout(false), mstopRequested(false), mabswaitpolicy(false)
+     {
+     }
 
      Activity::Activity(int scheduler, int priority, Seconds period, RunnableInterface* r, const std::string& name )
          : ActivityInterface(r), os::Thread(scheduler, priority, period, 0, name ),
