@@ -134,6 +134,6 @@ namespace RTT
         StateDescription* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacementdss ) const;
 
     };
-}};
+}}
 
 #endif

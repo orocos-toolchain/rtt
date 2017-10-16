@@ -16,6 +16,8 @@ namespace RTT
         class RTT_API StreamFactory
         {
         public:
+        virtual ~StreamFactory() {};
+
         /**
          * @name Conversion to/from text
          * Used to convert data to human readable text and vice versa.

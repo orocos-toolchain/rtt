@@ -72,8 +72,13 @@ namespace RTT
     void TypeInfoRepository::Release() {
         typerepos.reset();
     }
-
-    TypeInfo* TypeInfoRepository::type( const std::string& name ) const
+    
+    void TypeInfoRepository::setAutoLoader(const boost::function<bool (const std::string &)> &loader)
+    {
+        loadTypeKitForName = loader;
+    }
+    
+    TypeInfo* TypeInfoRepository::typeInternal( const std::string& name ) const
     {
         MutexLock lock(type_lock);
         map_t::const_iterator i = data.find( name );
@@ -82,10 +87,25 @@ namespace RTT
             string tkname = "/" + boost::replace_all_copy(boost::replace_all_copy(name, string("."), "/"), "<","</");
             i = data.find( tkname );
             if ( i == data.end())
+            {
                 return 0;
+            }
         }
         // found
         return i->second;
+    }
+
+    TypeInfo* TypeInfoRepository::type( const std::string& name ) const
+    {
+        TypeInfo *ret = typeInternal(name);
+        
+        if(!ret && loadTypeKitForName)
+        {
+            if(loadTypeKitForName(name))
+                ret = typeInternal(name);
+        }
+            
+        return ret;
     }
 
     TypeInfoRepository::~TypeInfoRepository()

@@ -42,6 +42,7 @@
 #include "DataFlowI.h"
 #include "CorbaTypeTransporter.hpp"
 #include "CorbaDispatcher.hpp"
+#include "ApplicationServer.hpp"
 
 namespace RTT {
 
@@ -69,6 +70,8 @@ namespace RTT {
 
         PortableServer::ObjectId_var oid;
 
+        std::string localUri;
+
         ConnPolicy policy;
 
         public:
@@ -92,6 +95,8 @@ namespace RTT {
                 oid = mpoa->activate_object(this);
                 // Force creation of dispatcher.
                 CorbaDispatcher::Instance(msender);
+                
+                localUri = ApplicationServer::orb->object_to_string(_this());
             }
 
             ~RemoteChannelElement()
@@ -389,6 +394,36 @@ namespace RTT {
                 return true;
             }
 
+            virtual bool isRemoteElement() const
+            {
+                return true;
+            }
+            
+            virtual std::string getRemoteURI() const
+            {
+                //check for output element case
+                RTT::base::ChannelElementBase *base = const_cast<RemoteChannelElement<T> *>(this);
+                if(base->getOutput())
+                    return RTT::base::ChannelElementBase::getRemoteURI();
+                
+                std::string uri = ApplicationServer::orb->object_to_string(remote_side);
+                return uri;
+            }
+            
+            virtual std::string getLocalURI() const
+            {
+                //check for input element case
+                RTT::base::ChannelElementBase *base = const_cast<RemoteChannelElement<T> *>(this);
+                if(base->getInput())
+                    return RTT::base::ChannelElementBase::getLocalURI();
+                
+                return localUri;
+            }
+            
+            virtual std::string getElementName() const
+            {
+                return "CorbaRemoteChannelElement";
+            }
         };
     }
 }

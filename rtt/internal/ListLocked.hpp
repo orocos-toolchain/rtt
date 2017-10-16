@@ -254,7 +254,7 @@ namespace RTT
             {
             if(pred(cur->data))
             {
-                cur = mlist.erase_and_dispose(cur, boost::bind(&ListLocked::give_back, this, ::_1) );
+                cur = mlist.erase_and_dispose(cur, boost::bind(&ListLocked::give_back, this, _1) );
                 deleted = true;
             }
             else

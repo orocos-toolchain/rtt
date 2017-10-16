@@ -96,6 +96,10 @@ namespace RTT
             return this->cid; 
         }
 
+        std::string getElementName() const {
+            return std::string("ConnInputEndpoint");
+        }
+
     };
 
 }}
