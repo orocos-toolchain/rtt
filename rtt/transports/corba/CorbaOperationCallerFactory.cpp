@@ -91,6 +91,16 @@ const TypeInfo* CorbaOperationCallerFactory::getArgumentType(unsigned int i) con
             tname = mdescription->arguments[i-1].type.in();
         }
 
+        // COperation mdescription contains fully-qualified argument types as returned
+        // by OperationInterfacePart::getArgumentList() and DataSourceTypeInfo<T>::getType(),
+        // while COperationInterface::getArgumentType() would return the unqualified type
+        // name as DataSourceTypeInfo<T>::getType().
+        // ==> Strip qualifiers from tname before lookup in the TypeInfoRepository.
+        std::string::size_type separator = tname.find(' ');
+        if ( separator != std::string::npos ) {
+            tname = tname.substr(0, separator);
+        }
+
     } else {
         try {
             tname = mfact->getArgumentType( method.c_str(), i);
