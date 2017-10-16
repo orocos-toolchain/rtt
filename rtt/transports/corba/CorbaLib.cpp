@@ -115,11 +115,10 @@ namespace RTT {
 
             virtual base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy) const { return 0; }
 
-            virtual CRemoteChannelElement_i* createChannelElement_i(DataFlowInterface*, ::PortableServer::POA* poa, bool, bool) const {
+            virtual CRemoteChannelElement_i* createChannelElement_i(DataFlowInterface*, ::PortableServer::POA* poa, const ConnPolicy &) const {
                 Logger::In in("CorbaFallBackProtocol");
                 log(Error) << "Could create Channel : data type not known to CORBA Transport." <<Logger::endl;
                 return 0;
-
             }
 
             virtual base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port,
