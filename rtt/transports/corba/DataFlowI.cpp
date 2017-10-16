@@ -494,6 +494,9 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
     bool is_signalling = false;
 #endif
     PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull, is_signalling);
+    // transporter could be the CorbaFallBackProtocol => createChannelElement_i() returns null pointer
+    if (!this_element)
+        throw CNoCorbaTransport();
     this_element->setCDataFlowInterface(this);
 
     // Attach the corba channel element first (so OOB is after corba).
