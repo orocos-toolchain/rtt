@@ -178,7 +178,7 @@ namespace RTT {
              * be used after this function returns true.
              * @return false if \a tc was not loaded by this ComponentLoader.
              */
-            bool unloadComponent( RTT::TaskContext* tc, std::string const& name="" );
+            bool unloadComponent( RTT::TaskContext* tc );
 
             /**
              * Lists all Component created by loadComponent().
