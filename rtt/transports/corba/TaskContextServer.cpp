@@ -160,7 +160,6 @@ namespace RTT
                 if (CORBA::is_nil( rootNC ) ) {
                     std::string  err("CTaskContext '" + mregistered_name + "' could not find CORBA Naming Service.");
                     if (require_name_service) {
-                        servers.erase(mtaskcontext);
                         log(Error) << err << endlog();
                         servers.erase(mtaskcontext);
                         throw IllegalServer(err);
