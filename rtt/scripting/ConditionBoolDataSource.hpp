@@ -70,6 +70,6 @@ namespace RTT
     void reset();
     ConditionBoolDataSource* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
   };
-}};
+}}
 
 #endif

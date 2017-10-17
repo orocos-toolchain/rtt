@@ -21,15 +21,12 @@
 #include <rtt-fwd.hpp>
 #include <internal/DataSources.hpp>
 #include <os/fosi.h>
-#include <boost/lambda/lambda.hpp>
 
 #include "datasource_fixture.hpp"
 #include "marsh/PropertyBagIntrospector.hpp"
 #include "types/EnumTypeInfo.hpp"
 #include "marsh/PropertyLoader.hpp"
 #include "TaskContext.hpp"
-
-using namespace boost::lambda;
 
 typedef enum
 {

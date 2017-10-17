@@ -68,7 +68,8 @@ namespace RTT
         bool installTypeInfoObject(TypeInfo* ti) {
             // Install the factories for primitive types
             ti->setValueFactory( this->getSharedPtr() );
-            ti->setStreamFactory( this->getSharedPtr() );
+	    if (use_ostream)
+	      ti->setStreamFactory( this->getSharedPtr() );
 
             // Install the type info object for T
             internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = ti;
@@ -88,21 +89,15 @@ namespace RTT
 
         virtual std::ostream& write( std::ostream& os, base::DataSourceBase::shared_ptr in ) const {
             typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::DataSource<T> >( in );
-            if ( d && use_ostream )
+            if ( d ) {
                 types::TypeStreamSelector<T, use_ostream>::write( os, d->rvalue() );
-            else {
-#ifdef OS_HAVE_STREAMS
-                std::string output = std::string("(")+ in->getTypeName() +")";
-                os << output;
-#endif
             }
             return os;
-            //return os << "("<< tname <<")"
         }
 
         virtual std::istream& read( std::istream& os, base::DataSourceBase::shared_ptr out ) const {
             typename internal::AssignableDataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( out );
-            if ( d && use_ostream ) {
+            if ( d ) {
                 types::TypeStreamSelector<T, use_ostream>::read( os, d->set() );
                 d->updated(); // because use of set().
             }

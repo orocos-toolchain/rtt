@@ -43,6 +43,7 @@
 #include "TimeService.hpp"
 #include "Mutex.hpp"
 #include "Semaphore.hpp"
+#include "Condition.hpp"
 #include "ThreadInterface.hpp"
 #include "../base/RunnableInterface.hpp"
 #include <vector>
@@ -76,12 +77,23 @@ namespace RTT
         Semaphore msem;
         mutable Mutex m;
         typedef TimeService::nsecs Time;
+
+        struct TimerInfo
+        {
+            TimerInfo() : expires(0), period(0) {}
+            TimerInfo(const TimerInfo& other) { *this = other; }
+            TimerInfo& operator=(const TimerInfo& other) { this->expires = other.expires; this->period = other.period; return *this; }
+            Time expires; // was .first
+            Time period;  // was .second
+            Condition expired;
+        };
+
         /**
          * Index in vector is the timer id.
          * 1st Time is the absolute time upon which the timer expires.
          * 2nd Time is the optional period of the timer.
          */
-        typedef std::vector<std::pair<Time, Time> > TimerIds;
+        typedef std::vector<TimerInfo> TimerIds;
         TimerIds mtimers;
         bool mdo_quit;
 
@@ -161,6 +173,23 @@ namespace RTT
          * @param timer_id The number of the timer, starting from zero.
          */
         bool killTimer(TimerId timer_id);
+
+        /**
+         * Wait for a timer to expire.
+         * @param timer_id The number of the timer, starting from zero.
+         * @returns true if timer has expired or if it was killed and false if the timer is not armed
+         */
+        bool waitFor(RTT::os::Timer::TimerId id);
+
+        /**
+         * Wait for a timer to expire with timeout.
+         * @param timer_id The number of the timer, starting from zero.
+         * @param  abs_time The absolute time to wait until before the condition happens.
+         * Use rtos_get_time_ns() to get the current time and Seconds_to_nsecs to add a
+         * certain amount to the result.
+         * @returns true if timer has expired or if it was killed before abs_time and false if the timer is not armed
+         */
+        bool waitForUntil(RTT::os::Timer::TimerId id, nsecs abs_time);
 
     };
 }}

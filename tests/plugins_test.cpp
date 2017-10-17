@@ -24,6 +24,7 @@
 #include "TaskContext.hpp"
 #include "plugin/Plugin.hpp"
 #include "plugin/PluginLoader.hpp"
+#include "internal/GlobalService.hpp"
 
 /* For internal use only - check if extension contains a version. */
 RTT_API bool isExtensionVersion(const std::string& ext);
@@ -219,10 +220,15 @@ BOOST_AUTO_TEST_CASE( testServicePlugins )
 
     BOOST_CHECK( pl->isLoaded("service_plugin") == false);
     BOOST_CHECK( pl->isLoaded("serviceplugin") == false);
+    BOOST_CHECK( pl->isLoaded("global_service_plugin") == false);
+    BOOST_CHECK( pl->isLoaded("globalserviceplugin") == false);
     pl->loadPlugin("testproject",".;..");
     BOOST_CHECK( pl->isLoaded("service_plugin") );
     BOOST_CHECK( pl->isLoaded("serviceplugin") );
+    BOOST_CHECK( pl->isLoaded("global_service_plugin") );
+    BOOST_CHECK( pl->isLoaded("globalserviceplugin") );
 
+    BOOST_CHECK( RTT::internal::GlobalService::Instance()->hasService("the_global_service") );
 }
 
 BOOST_AUTO_TEST_CASE( testServicePlugin )

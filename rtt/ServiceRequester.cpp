@@ -67,7 +67,7 @@ namespace RTT
             log(Error) << "OperationCaller with name '" + isb.getName() + "' already present." << endlog();
             return false;
         }
-        mmethods.insert(make_pair<std::string, OperationCallerBaseInvoker*> (isb.getName(), &isb));
+        mmethods.insert(make_pair(isb.getName(), &isb));
         return true;
     }
 

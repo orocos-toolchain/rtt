@@ -4,9 +4,14 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
 
 # for CMake 2.6 corrected behaviour (see "cmake --help-policy CMP0003")
-IF(COMMAND cmake_policy AND ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} GREATER 4)
+IF(POLICY CMP0003)
   CMAKE_POLICY(SET CMP0003 NEW)
-ENDIF(COMMAND cmake_policy AND ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} GREATER 4)
+ENDIF(POLICY CMP0003)
+
+# Suppress cmake policy warning in included rtt_macros.cmake file in CMake >= 3.0.2 (see "cmake --help-policy CMP0026")
+if(POLICY CMP0026)
+  cmake_policy(SET CMP0026 OLD)
+endif()
 
 ###################################################
 #                                                 #
@@ -16,13 +21,13 @@ ENDIF(COMMAND cmake_policy AND ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_
 
 PROJECT(orocos-rtt)
 
-SET( RTT_VERSION 2.7.0 )
+SET( RTT_VERSION 2.8.3 )
 STRING( REGEX MATCHALL "[0-9]+" RTT_VERSIONS ${RTT_VERSION} )
 LIST( GET RTT_VERSIONS 0 RTT_VERSION_MAJOR)
 LIST( GET RTT_VERSIONS 1 RTT_VERSION_MINOR)
 LIST( GET RTT_VERSIONS 2 RTT_VERSION_PATCH)
-
-MESSAGE( "Orocos RTT version ${VERSION} (${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}.${RTT_VERSION_PATCH})" )
+SET( RTT_SOVERSION ${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR} )
+MESSAGE( "Orocos RTT version ${RTT_VERSION}" )
 
 SET( PROJ_SOURCE_DIR ${orocos-rtt_SOURCE_DIR} )
 SET( PROJ_BINARY_DIR ${orocos-rtt_BINARY_DIR} )
@@ -49,18 +54,6 @@ IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
       )
   ENDIF(MSVC)
 ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-
-# Tell deployer to use ROSlib support.
-set(ROSLIB_SUPPORT TRUE)
-include(config/FindRoslib.cmake)
-
-#Use these variables to store build-local flags.
-#They are used when the targets are configured.
-IF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
-  SET ( CMAKE_CXX_FLAGS_ADD "${CMAKE_CXX_FLAGS}" CACHE STRING "Specify here your additional C++ flags.")
-  SET ( CMAKE_C_FLAGS_ADD "${CMAKE_C_FLAGS}"  CACHE STRING "Specify here your additional C flags.")
-  SET ( CMAKE_LD_FLAGS_ADD "${CMAKE_LD_FLAGS}"  CACHE STRING "Specify here your additional link flags.")
-ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
 
 # Export file name
 set(LIBRARY_EXPORT_FILE "orocos-rtt-${OROCOS_TARGET}-libraries")
@@ -179,7 +172,14 @@ INSTALL(FILES UseOROCOS-RTT.cmake UseOROCOS-RTT-helpers.cmake config/cmake_unins
 # Install package.xml
 INSTALL(FILES package.xml DESTINATION share/rtt)
 
-# Install an env-hook if catkin is found
+# Install an env-hook in etc/orocos/${OROCOS_TARGET}/profile.d
+configure_file(env-hooks/00.rtt.sh.in ${CMAKE_CURRENT_BINARY_DIR}/env-hooks/00.rtt.sh @ONLY)
+install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/env-hooks/00.rtt.sh
+  DESTINATION etc/orocos/profile.d
+)
+
+# Install a catkin env-hook if catkin is installed
 find_package(catkin QUIET)
 if(catkin_FOUND)
   catkin_add_env_hooks(00.rtt SHELLS sh DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/env-hooks)

@@ -80,7 +80,7 @@ public:
 
 };
 
-}}; //namespace RTT
+}} //namespace RTT
 
 #endif //_HOMING_INTERFACE_HPP
 

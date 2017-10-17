@@ -32,7 +32,7 @@ using namespace RTT;
 using namespace RTT::detail;
 using namespace std;
 
-class StateTest
+class RtStringStateTest
     : public OperationsFixture
 {
 public:
@@ -47,7 +47,7 @@ public:
 
     std::string sline;
 public:
-    StateTest()
+    RtStringStateTest()
         :
          sa( ScriptingService::Create(tc) )
     {
@@ -58,11 +58,11 @@ public:
         i = 0;
         SimulationThread::Instance()->stop();
     }
-    ~StateTest(){
+    ~RtStringStateTest(){
     }
 };
 
-BOOST_FIXTURE_TEST_SUITE( RtStringTestSuite, StateTest )
+BOOST_FIXTURE_TEST_SUITE( RtStringTestSuite, RtStringStateTest )
 
 BOOST_AUTO_TEST_CASE( testCreateRtString )
 {
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE( testRtstringConversion )
 
 BOOST_AUTO_TEST_SUITE_END()
 
-void StateTest::doState(  const std::string& name, const std::string& prog, TaskContext* tc, bool test )
+void RtStringStateTest::doState(  const std::string& name, const std::string& prog, TaskContext* tc, bool test )
 {
     BOOST_CHECK( tc->engine() );
 
@@ -204,7 +204,7 @@ void StateTest::doState(  const std::string& name, const std::string& prog, Task
     checkState(name, tc, test);
 }
 
-void StateTest::parseState(const std::string& prog, TaskContext* tc, bool test )
+void RtStringStateTest::parseState(const std::string& prog, TaskContext* tc, bool test )
 {
     // Alternative way: test ScriptingService as well.
     try {
@@ -228,7 +228,7 @@ void StateTest::parseState(const std::string& prog, TaskContext* tc, bool test )
     }
 }
 
-void StateTest::runState(const std::string& name, TaskContext* tc, bool test )
+void RtStringStateTest::runState(const std::string& name, TaskContext* tc, bool test )
 {
     StateMachinePtr sm = sa->getStateMachine(name);
     BOOST_REQUIRE( sm );
@@ -243,7 +243,7 @@ void StateTest::runState(const std::string& name, TaskContext* tc, bool test )
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
 }
 
-void StateTest::checkState(const std::string& name, TaskContext* tc, bool test )
+void RtStringStateTest::checkState(const std::string& name, TaskContext* tc, bool test )
 {
     StateMachinePtr sm = sa->getStateMachine(name);
     BOOST_REQUIRE( sm );
@@ -299,7 +299,7 @@ void StateTest::checkState(const std::string& name, TaskContext* tc, bool test )
     }
 }
 
-void StateTest::finishState(std::string const& name, TaskContext* tc, bool test)
+void RtStringStateTest::finishState(std::string const& name, TaskContext* tc, bool test)
 {
     StateMachinePtr sm = sa->getStateMachine(name);
     BOOST_REQUIRE( sm );

@@ -74,183 +74,187 @@ namespace RTT
 
     std::map<TaskContext*, std::string> TaskContextServer::iors;
 
-  TaskContextServer::~TaskContextServer()
-  {
-    Logger::In in("~TaskContextServer()");
-    servers.erase(mtaskcontext);
+    TaskContextServer::~TaskContextServer()
+    {
+        Logger::In in("~TaskContextServer()");
+        servers.erase(mtaskcontext);
 
-    // Remove taskcontext ior reference
-    iors.erase(mtaskcontext);
+        // Remove taskcontext ior reference
+        iors.erase(mtaskcontext);
 
-    PortableServer::ObjectId_var oid = mpoa->servant_to_id(mtask_i.in());
-    mpoa->deactivate_object(oid);
+        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mtask_i.in());
+        mpoa->deactivate_object(oid);
 
-    if (muse_naming) {
-        try {
-            CORBA::Object_var rootObj = orb->resolve_initial_references("NameService");
-            CosNaming::NamingContext_var rootNC = CosNaming::NamingContext::_narrow(rootObj.in());
+        if (muse_naming) {
+            try {
+                CORBA::Object_var rootObj = orb->resolve_initial_references("NameService");
+                CosNaming::NamingContext_var rootNC = CosNaming::NamingContext::_narrow(rootObj.in());
 
-            if (CORBA::is_nil( rootNC.in() ) ) {
-                log(Warning) << "CTaskContext '"<< mregistered_name << "' could not find CORBA Naming Service."<<endlog();
-            } else {
-                // Nameserver found...
-                CosNaming::Name name;
-                name.length(2);
-                name[0].id = CORBA::string_dup("TaskContexts");
-                name[1].id = CORBA::string_dup( mregistered_name.c_str() );
-                try {
-                    rootNC->unbind(name);
-                    log(Info) << "Successfully removed CTaskContext '"<< mregistered_name <<"' from CORBA Naming Service."<<endlog();
+                if (CORBA::is_nil( rootNC.in() ) ) {
+                    log(Warning) << "CTaskContext '"<< mregistered_name << "' could not find CORBA Naming Service."<<endlog();
+                } else {
+                    // Nameserver found...
+                    CosNaming::Name name;
+                    name.length(2);
+                    name[0].id = CORBA::string_dup("TaskContexts");
+                    name[1].id = CORBA::string_dup( mregistered_name.c_str() );
+                    try {
+                        rootNC->unbind(name);
+                        log(Info) << "Successfully removed CTaskContext '"<< mregistered_name <<"' from CORBA Naming Service."<<endlog();
+                    }
+                    catch( CosNaming::NamingContext::NotFound ) {
+                        log(Info) << "CTaskContext '"<< mregistered_name << "' task was already unbound."<<endlog();
+                    }
+                    catch( ... ) {
+                        log(Warning) << "CTaskContext '"<< mregistered_name << "' unbinding failed."<<endlog();
+                    }
                 }
-                catch( CosNaming::NamingContext::NotFound ) {
-                    log(Info) << "CTaskContext '"<< mregistered_name << "' task was already unbound."<<endlog();
-                }
-                catch( ... ) {
-                    log(Warning) << "CTaskContext '"<< mregistered_name << "' unbinding failed."<<endlog();
-                }
+            } catch (...) {
+                log(Warning) << "CTaskContext '"<< mregistered_name << "' unbinding failed from CORBA Naming Service."<<endlog();
             }
-        } catch (...) {
-            log(Warning) << "CTaskContext '"<< mregistered_name << "' unbinding failed from CORBA Naming Service."<<endlog();
         }
     }
-  }
 
 
-  void TaskContextServer::initTaskContextServer(bool require_name_service)
-  {
-      Logger::In in("TaskContextServer()");
-      servers[mtaskcontext] = this;
-      try {
-          // Each server has its own POA.
-          // The server's objects have their own poa as well.
-          CORBA::Object_var poa_object =
-                  orb->resolve_initial_references ("RootPOA");
-          mpoa = PortableServer::POA::_narrow(poa_object);
-          PortableServer::POAManager_var poa_manager =
-                  mpoa->the_POAManager ();
+    void TaskContextServer::initTaskContextServer(bool require_name_service)
+    {
+        Logger::In in("TaskContextServer()");
+        servers[mtaskcontext] = this;
+        try {
+            // Each server has its own POA.
+            // The server's objects have their own poa as well.
+            CORBA::Object_var poa_object =
+                orb->resolve_initial_references ("RootPOA");
+            mpoa = PortableServer::POA::_narrow(poa_object);
+            PortableServer::POAManager_var poa_manager =
+                mpoa->the_POAManager ();
 
-          //poa = POAUtility::create_basic_POA( poa, poa_manager, taskc->getName().c_str(), 0, 1);
-          //            poa_manager->activate ();
+            //poa = POAUtility::create_basic_POA( poa, poa_manager, taskc->getName().c_str(), 0, 1);
+            //            poa_manager->activate ();
 
-          // TODO : Use a better suited POA than create_basic_POA, use the 'session' or so type
-          // But watch out: we need implicit activation, our you will get exceptions upon ->_this()
-          // The POA for the Server's objects:
-          //             PortableServer::POA_var objpoa = POAUtility::create_basic_POA(poa,
-          //                                                               poa_manager,
-          //                                                               std::string(taskc->getName() + "OBJPOA").c_str(),
-          //                                                               0, 0); // Not persistent, allow implicit.
+            // TODO : Use a better suited POA than create_basic_POA, use the 'session' or so type
+            // But watch out: we need implicit activation, our you will get exceptions upon ->_this()
+            // The POA for the Server's objects:
+            //   PortableServer::POA_var objpoa = POAUtility::create_basic_POA(poa,
+            //                                                                 poa_manager,
+            //                                                                 std::string(taskc->getName() + "OBJPOA").c_str(),
+            //                                                                 0, 0); // Not persistent, allow implicit.
 
-          // The servant : TODO : cleanup servant in destructor !
-          RTT_corba_CTaskContext_i* serv;
-          mtask_i = serv = new RTT_corba_CTaskContext_i( mtaskcontext, mpoa );
-          mtask   = serv->activate_this();
+            // The servant : TODO : cleanup servant in destructor !
+            RTT_corba_CTaskContext_i* serv;
+            mtask_i = serv = new RTT_corba_CTaskContext_i( mtaskcontext, mpoa );
+            mtask   = serv->activate_this();
 
-          // Store reference to iors
-          CORBA::String_var ior = orb->object_to_string( mtask.in() );
-          iors[mtaskcontext] = std::string( ior.in() );
+            // Store reference to iors
+            CORBA::String_var ior = orb->object_to_string( mtask.in() );
+            iors[mtaskcontext] = std::string( ior.in() );
 
-          if ( muse_naming ) {
-              CORBA::Object_var rootObj;
-              CosNaming::NamingContext_var rootNC;
-              try {
-                  rootObj = orb->resolve_initial_references("NameService");
-                  rootNC = CosNaming::NamingContext::_narrow(rootObj);
-              } catch (...) {}
+            if ( muse_naming ) {
+                CORBA::Object_var rootObj;
+                CosNaming::NamingContext_var rootNC;
+                try {
+                    rootObj = orb->resolve_initial_references("NameService");
+                    rootNC = CosNaming::NamingContext::_narrow(rootObj);
+                } catch (...) {}
 
-              if (CORBA::is_nil( rootNC ) ) {
-                  std::string  err("CTaskContext '" + mregistered_name + "' could not find CORBA Naming Service.");
-                  if (require_name_service) {
-                      servers.erase(mtaskcontext);
-                      log(Error) << err << endlog();
-                      servers.erase(mtaskcontext);
-                      throw IllegalServer(err);
-                  }
-                  else
-                  {
-                      log(Warning) << err << endlog();
-                      log() <<"Writing IOR to 'std::cerr' and file '" << mregistered_name <<".ior'"<<endlog();
+                if (CORBA::is_nil( rootNC ) ) {
+                    std::string  err("CTaskContext '" + mregistered_name + "' could not find CORBA Naming Service.");
+                    if (require_name_service) {
+                        servers.erase(mtaskcontext);
+                        log(Error) << err << endlog();
+                        servers.erase(mtaskcontext);
+                        throw IllegalServer(err);
+                    }
+                    else
+                    {
+                        log(Warning) << err << endlog();
+#ifndef ORO_NO_EMIT_CORBA_IOR
+                        log() <<"Writing IOR to 'std::cerr' and file '" << mregistered_name <<".ior'"<<endlog();
 
-                      // this part only publishes the IOR to a file.
-                      CORBA::String_var ior = orb->object_to_string( mtask.in() );
-                      std::cerr << ior.in() <<std::endl;
-                      {
-                          // write to a file as well.
-                          std::string iorname( mregistered_name );
-                          iorname += ".ior";
-                          std::ofstream file_ior( iorname.c_str() );
-                          file_ior << ior.in() <<std::endl;
-                      }
-                      return;
-                  }
-              }
-              log(Info) << "CTaskContext '"<< mregistered_name << "' found CORBA Naming Service."<<endlog();
-              // Nameserver found...
-              CosNaming::Name name;
-              name.length(1);
-              name[0].id = CORBA::string_dup("TaskContexts");
-              CosNaming::NamingContext_var controlNC;
-              try {
-                  controlNC = rootNC->bind_new_context(name);
-              }
-              catch( CosNaming::NamingContext::AlreadyBound&) {
-                  log(Debug) << "NamingContext 'TaskContexts' already bound to CORBA Naming Service."<<endlog();
-                  // NOP.
-              }
+                        // this part only publishes the IOR to a file.
+                        CORBA::String_var ior = orb->object_to_string( mtask.in() );
+                        std::cerr << ior.in() <<std::endl;
+                        {
+                            // write to a file as well.
+                            std::string iorname( mregistered_name );
+                            iorname += ".ior";
+                            std::ofstream file_ior( iorname.c_str() );
+                            file_ior << ior.in() <<std::endl;
+                        }
+#endif
+                        return;
+                    }
+                }
+                log(Info) << "CTaskContext '"<< mregistered_name << "' found CORBA Naming Service."<<endlog();
+                // Nameserver found...
+                CosNaming::Name name;
+                name.length(1);
+                name[0].id = CORBA::string_dup("TaskContexts");
+                CosNaming::NamingContext_var controlNC;
+                try {
+                    controlNC = rootNC->bind_new_context(name);
+                }
+                catch( CosNaming::NamingContext::AlreadyBound&) {
+                    log(Debug) << "NamingContext 'TaskContexts' already bound to CORBA Naming Service."<<endlog();
+                    // NOP.
+                }
 
-              name.length(2);
-              name[1].id = CORBA::string_dup( mregistered_name.c_str() );
-              try {
-                  rootNC->bind(name, mtask );
-                  log(Info) << "Successfully added CTaskContext '"<< mregistered_name <<"' to CORBA Naming Service."<<endlog();
-              }
-              catch( CosNaming::NamingContext::AlreadyBound&) {
-                  log(Warning) << "CTaskContext '"<< mregistered_name << "' already bound to CORBA Naming Service."<<endlog();
-                  log() <<"Trying to rebind...";
-                  try {
-                      rootNC->rebind(name, mtask);
-                  } catch( ... ) {
-                      log() << " failed!"<<endlog();
-                      return;
-                  }
-                  log() << " done. New CTaskContext bound to Naming Service."<<endlog();
-              }
-          } // use_naming
-          else {
-              log(Info) <<"CTaskContext '"<< mregistered_name << "' is not using the CORBA Naming Service."<<endlog();
-              log() <<"Writing IOR to 'std::cerr' and file '" << mregistered_name <<".ior'"<<endlog();
+                name.length(2);
+                name[1].id = CORBA::string_dup( mregistered_name.c_str() );
+                try {
+                    rootNC->bind(name, mtask );
+                    log(Info) << "Successfully added CTaskContext '"<< mregistered_name <<"' to CORBA Naming Service."<<endlog();
+                }
+                catch( CosNaming::NamingContext::AlreadyBound&) {
+                    log(Warning) << "CTaskContext '"<< mregistered_name << "' already bound to CORBA Naming Service."<<endlog();
+                    log() <<"Trying to rebind...";
+                    try {
+                        rootNC->rebind(name, mtask);
+                    } catch( ... ) {
+                        log() << " failed!"<<endlog();
+                        return;
+                    }
+                    log() << " done. New CTaskContext bound to Naming Service."<<endlog();
+                }
+            } // use_naming
+            else {
+                log(Info) <<"CTaskContext '"<< mregistered_name << "' is not using the CORBA Naming Service."<<endlog();
+#ifndef ORO_NO_EMIT_CORBA_IOR
+                log() <<"Writing IOR to 'std::cerr' and file '" << mregistered_name <<".ior'"<<endlog();
 
-              // this part only publishes the IOR to a file.
-              CORBA::String_var ior = orb->object_to_string( mtask.in() );
-              std::cerr << ior.in() <<std::endl;
-              {
-                  // write to a file as well.
-                  std::string iorname( mregistered_name );
-                  iorname += ".ior";
-                  std::ofstream file_ior( iorname.c_str() );
-                  file_ior << ior.in() <<std::endl;
-              }
-              return;
-          }
-      }
-      catch (CORBA::Exception &e) {
-          log(Error) << "CORBA exception raised!" << endlog();
-          log() << CORBA_EXCEPTION_INFO(e) << endlog();
-      }
+                // this part only publishes the IOR to a file.
+                CORBA::String_var ior = orb->object_to_string( mtask.in() );
+                std::cerr << ior.in() <<std::endl;
+                {
+                    // write to a file as well.
+                    std::string iorname( mregistered_name );
+                    iorname += ".ior";
+                    std::ofstream file_ior( iorname.c_str() );
+                    file_ior << ior.in() <<std::endl;
+                }
+#endif
+                return;
+            }
+        }
+        catch (CORBA::Exception &e) {
+            log(Error) << "CORBA exception raised!" << endlog();
+            log() << CORBA_EXCEPTION_INFO(e) << endlog();
+        }
 
-  }
+    }
 
-  TaskContextServer::TaskContextServer(TaskContext* taskc, const string& alias, bool use_naming, bool require_name_service)
-  : mtaskcontext(taskc), muse_naming(use_naming), mregistered_name(alias)
-  {
-      this->initTaskContextServer(require_name_service);
-  }
+    TaskContextServer::TaskContextServer(TaskContext* taskc, const string& alias, bool use_naming, bool require_name_service)
+    : mtaskcontext(taskc), muse_naming(use_naming), mregistered_name(alias)
+    {
+        this->initTaskContextServer(require_name_service);
+    }
 
 
-  TaskContextServer::TaskContextServer(TaskContext* taskc, bool use_naming, bool require_name_service)
-  : mtaskcontext(taskc), muse_naming(use_naming), mregistered_name(taskc->getName())
-  {
-      this->initTaskContextServer(require_name_service);
-  }
+    TaskContextServer::TaskContextServer(TaskContext* taskc, bool use_naming, bool require_name_service)
+    : mtaskcontext(taskc), muse_naming(use_naming), mregistered_name(taskc->getName())
+    {
+        this->initTaskContextServer(require_name_service);
+    }
 
     void TaskContextServer::CleanupServers() {
         if ( !CORBA::is_nil(orb) && !is_shutdown) {

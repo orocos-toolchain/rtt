@@ -347,7 +347,7 @@ namespace RTT
         if ( new_act == 0) {
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
             new_act = new SequentialActivity();
-#elseif defined(ORO_ACT_DEFAULT_ACTIVITY)
+#elif defined(ORO_ACT_DEFAULT_ACTIVITY)
             new_act = new Activity();
 #endif
         }
@@ -384,6 +384,7 @@ namespace RTT
     void TaskContext::clear()
     {
         tcservice->clear();
+        tcrequests->clear();
     }
 
     bool TaskContext::ready()
@@ -424,8 +425,14 @@ namespace RTT
 
     void TaskContext::dataOnPort(PortInterface* port)
     {
-        portqueue->enqueue( port );
-        this->getActivity()->trigger();
+        if ( this->dataOnPortHook(port) ) {
+            portqueue->enqueue( port );
+            this->getActivity()->trigger();
+        }
+    }
+
+    bool TaskContext::dataOnPortHook( base::PortInterface* ) {
+        return this->isRunning();
     }
 
     void TaskContext::dataOnPortCallback(InputPortInterface* port, TaskContext::SlotFunction callback) {

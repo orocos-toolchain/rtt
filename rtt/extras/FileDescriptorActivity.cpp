@@ -55,7 +55,9 @@
 #else
 #include <sys/select.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <errno.h>
+
 #endif
 
 #include <boost/cstdint.hpp>
@@ -63,10 +65,7 @@
 using namespace RTT;
 using namespace extras;
 using namespace base;
-const char FileDescriptorActivity::CMD_BREAK_LOOP;
-const char FileDescriptorActivity::CMD_TRIGGER;
-const char FileDescriptorActivity::CMD_UPDATE_SETS;
-
+const char FileDescriptorActivity::CMD_ANY_COMMAND;
 
 /**
  * Create a FileDescriptorActivity with a given priority and RunnableInterface
@@ -83,6 +82,9 @@ FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* 
     , m_period(0)
     , m_has_error(false)
     , m_has_timeout(false)
+    , m_break_loop(false)
+    , m_trigger(false)
+    , m_update_sets(false)
 {
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
@@ -105,6 +107,9 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Runn
     , m_period(0)
     , m_has_error(false)
     , m_has_timeout(false)
+    , m_break_loop(false)
+    , m_trigger(false)
+    , m_update_sets(false)
 {
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
@@ -118,6 +123,9 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Seco
     , m_period(period >= 0.0 ? period : 0.0)        // intended period
     , m_has_error(false)
     , m_has_timeout(false)
+    , m_break_loop(false)
+    , m_trigger(false)
+    , m_update_sets(false)
 {
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
@@ -131,6 +139,9 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Seco
     , m_period(period >= 0.0 ? period : 0.0)        // intended period
     , m_has_error(false)
     , m_has_timeout(false)
+    , m_break_loop(false)
+    , m_trigger(false)
+    , m_update_sets(false)
 {
     FD_ZERO(&m_fd_set);
     FD_ZERO(&m_fd_work);
@@ -200,9 +211,11 @@ void FileDescriptorActivity::clearAllWatches()
 }
 void FileDescriptorActivity::triggerUpdateSets()
 {
-    // i works around warn_unused_result
-    int i = write(m_interrupt_pipe[1], &CMD_UPDATE_SETS, 1);
-    i = i;
+    { RTT::os::MutexLock lock(m_command_mutex);
+        m_update_sets = true;
+    }
+    int unused; (void)unused;
+    unused = write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
 }
 bool FileDescriptorActivity::isUpdated(int fd) const
 { return FD_ISSET(fd, &m_fd_work); }
@@ -225,6 +238,27 @@ bool FileDescriptorActivity::start()
         return false;
     }
 
+#ifndef WIN32
+    // set m_interrupt_pipe to non-blocking
+    int flags = 0;
+    if ((flags = fcntl(m_interrupt_pipe[0], F_GETFL, 0)) == -1 ||
+        fcntl(m_interrupt_pipe[0], F_SETFL, flags | O_NONBLOCK) == -1 ||
+        (flags = fcntl(m_interrupt_pipe[1], F_GETFL, 0)) == -1 ||
+        fcntl(m_interrupt_pipe[1], F_SETFL, flags | O_NONBLOCK) == -1)
+    {
+        close(m_interrupt_pipe[0]);
+        close(m_interrupt_pipe[1]);
+        m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
+        log(Error) << "FileDescriptorActivity: could not set the control pipe to non-blocking mode" << endlog();
+        return false;
+    }
+#endif
+
+    // reset flags
+    m_break_loop = false;
+    m_trigger = false;
+    m_update_sets = false;
+
     if (!Activity::start())
     {
         close(m_interrupt_pipe[0]);
@@ -238,9 +272,14 @@ bool FileDescriptorActivity::start()
 
 bool FileDescriptorActivity::trigger()
 { 
-    if (isActive() ) 
-        return write(m_interrupt_pipe[1], &CMD_TRIGGER, 1) == 1; 
-    else
+    if (isActive() ) {
+        { RTT::os::MutexLock lock(m_command_mutex);
+            m_trigger = true;
+        }
+        int unused; (void)unused;
+        unused = write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
+        return true;
+    } else
         return false;
 }
 
@@ -252,7 +291,7 @@ struct fd_watch {
         if (fd != -1) 
             close(fd);
         fd = -1;
-    };
+    }
 };
 
 void FileDescriptorActivity::loop()
@@ -301,29 +340,18 @@ void FileDescriptorActivity::loop()
             m_has_timeout = true;
         }
 
-        bool do_break = false, do_trigger = true;
+        // Empty all commands queued in the pipe
         if (ret > 0 && FD_ISSET(pipe, &m_fd_work)) // breakLoop or trigger requests
-        { // Empty all commands queued in the pipe
-
+        {
             // These variables are used in order to loop with select(). See the
             // while() condition below.
             fd_set watch_pipe;
             timeval timeout;
-
-            do_trigger = false;
+            char dummy;
             do
             {
-                boost::uint8_t code;
-                if (read(pipe, &code, 1) == 1)
-                {
-                    if (code == CMD_BREAK_LOOP)
-                    {
-                        do_break = true;
-                    }
-                    else if (code == CMD_UPDATE_SETS){}
-                    else
-                        do_trigger = true;
-                }
+                int unused; (void)unused;
+                unused = read(pipe, &dummy, 1);
 
                 // Initialize the values for the next select() call
                 FD_ZERO(&watch_pipe);
@@ -332,9 +360,24 @@ void FileDescriptorActivity::loop()
                 timeout.tv_usec = 0;
             }
             while(select(pipe + 1, &watch_pipe, NULL, NULL, &timeout) > 0);
+        }
 
-            if (do_break)
+        // We check the flags after the command queue was emptied as we could miss commands otherwise:
+        bool do_trigger = true;
+        { RTT::os::MutexLock lock(m_command_mutex);
+            // This section should be really fast to not block threads calling trigger(), breakLoop() or watch().
+            if (m_trigger) {
+                do_trigger = true;
+                m_trigger = false;
+            }
+            if (m_update_sets) {
+                m_update_sets = false;
+                do_trigger = false;
+            }
+            if (m_break_loop) {
+                m_break_loop = false;
                 break;
+            }
         }
 
         if (do_trigger)
@@ -356,12 +399,11 @@ void FileDescriptorActivity::loop()
 
 bool FileDescriptorActivity::breakLoop()
 {
-    if (write(m_interrupt_pipe[1], &CMD_BREAK_LOOP, 1) != 1)
-        return false;
-
-    // either OS::SingleThread properly waits for loop() to return, or we are
-    // called from within loop() [for instance because updateHook() called
-    // fatal()]. In both cases, just return.
+    { RTT::os::MutexLock lock(m_command_mutex);
+        m_break_loop = true;
+    }
+    int unused; (void)unused;
+    unused = write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
     return true;
 }
 

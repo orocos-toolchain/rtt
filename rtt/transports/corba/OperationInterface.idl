@@ -62,7 +62,7 @@ module RTT
       string name;
     };
     
-    enum CSendStatus { CSendFailure, CSendNotReady, CSendSuccess };
+    enum CSendStatus { CCollectFailure, CSendFailure, CSendNotReady, CSendSuccess };
 
     /**
      * Is thrown if the calling or sending of an operation was

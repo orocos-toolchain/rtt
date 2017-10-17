@@ -42,6 +42,7 @@
 #include "DataFlowI.h"
 #include "CorbaTypeTransporter.hpp"
 #include "CorbaDispatcher.hpp"
+#include "ApplicationServer.hpp"
 
 namespace RTT {
 
@@ -59,9 +60,6 @@ namespace RTT {
 	    : public CRemoteChannelElement_i
 	    , public base::ChannelElement<T>
 	{
-	    typename internal::ValueDataSource<T>::shared_ptr value_data_source;
-	    typename internal::LateReferenceDataSource<T>::shared_ptr ref_data_source;
-	    typename internal::LateConstReferenceDataSource<T>::shared_ptr const_ref_data_source;
 
 	    /**
 	     * Becomes false if we couldn't transfer data to remote
@@ -72,18 +70,11 @@ namespace RTT {
 	     */
 	    bool pull;
 
-            /** This is used on to read the channel */
-            typename base::ChannelElement<T>::value_t sample;
-
 	    DataFlowInterface* msender;
-
-            /** This is used on the writing side, to avoid allocating an Any for
-             * each write
-             */
-            CORBA::Any* write_any;
 
             PortableServer::ObjectId_var oid;
 
+            std::string localUri;
 	public:
 	    /**
 	     * Create a channel element for remote data exchange.
@@ -91,13 +82,9 @@ namespace RTT {
 	     * @param poa The POA that manages the underlying CRemoteChannelElement_i.
 	     */
 	    RemoteChannelElement(CorbaTypeTransporter const& transport, DataFlowInterface* sender, PortableServer::POA_ptr poa, bool is_pull)
-	    : CRemoteChannelElement_i(transport, poa),
-	      value_data_source(new internal::ValueDataSource<T>),
-	      ref_data_source(new internal::LateReferenceDataSource<T>),
-	      const_ref_data_source(new internal::LateConstReferenceDataSource<T>),
-              valid(true), pull(is_pull),
-	      msender(sender),
-              write_any(new CORBA::Any)
+        : CRemoteChannelElement_i(transport, poa)
+        , valid(true), pull(is_pull)
+        , msender(sender)
             {
                 // Big note about cleanup: The RTT will dispose this object through
 	            // the ChannelElement<T> refcounting. So we only need to inform the
@@ -108,11 +95,12 @@ namespace RTT {
                 oid = mpoa->activate_object(this);
                 // Force creation of dispatcher.
                 CorbaDispatcher::Instance(msender);
+                
+                localUri = ApplicationServer::orb->object_to_string(_this());
             }
 
             ~RemoteChannelElement()
             {
-                delete write_any;
             }
 
             /** Increase the reference count, called from the CORBA side */
@@ -126,10 +114,10 @@ namespace RTT {
             /**
              * CORBA IDL function.
              */
-            CORBA::Boolean remoteSignal() ACE_THROW_SPEC ((
+            void remoteSignal() ACE_THROW_SPEC ((
           	      CORBA::SystemException
           	    ))
-            { return base::ChannelElement<T>::signal(); }
+            { base::ChannelElement<T>::signal(); }
 
             bool signal()
             {
@@ -153,7 +141,7 @@ namespace RTT {
                 // in push mode, transfer all data, in pull mode, only signal once for each sample.
                 if ( pull ) {
                     try
-                    { valid = remote_side->remoteSignal(); }
+                    { remote_side->remoteSignal(); }
 #ifdef CORBA_IS_OMNIORB
                     catch(CORBA::SystemException& e)
                     {
@@ -167,6 +155,9 @@ namespace RTT {
                         valid = false;
                     }
                 } else {
+                    /** This is used on to read the channel */
+                    typename base::ChannelElement<T>::value_t sample;
+
                     //log(Debug) <<"...read..."<<endlog();
                     while ( this->read(sample, false) == NewData && valid) {
                         //log(Debug) <<"...write..."<<endlog();
@@ -257,8 +248,11 @@ namespace RTT {
                 {
                     if ( remote_side && (cfs = remote_side->read(remote_value, copy_old_data) ) )
                     {
-                        ref_data_source->setPointer(&sample);
-                        transport.updateFromAny(&remote_value.in(), ref_data_source);
+                        if (cfs == CNewData || (cfs == COldData && copy_old_data)) {
+                            internal::LateReferenceDataSource<T> ref_data_source(&sample);
+                            ref_data_source.ref();
+                            transport.updateFromAny(&remote_value.in(), &ref_data_source);
+                        }
                         return (FlowStatus)cfs;
                     }
                     else
@@ -289,18 +283,20 @@ namespace RTT {
             {
 
                 FlowStatus fs;
-                if ( (fs = base::ChannelElement<T>::read(value_data_source->set(), copy_old_data)) )
-                {
-                    sample = transport.createAny(value_data_source);
+                typename internal::ValueDataSource<T> value_data_source;
+                value_data_source.ref();
+                fs = base::ChannelElement<T>::read(value_data_source.set(), copy_old_data);
+                if (fs == NewData || (fs == OldData && copy_old_data)) {
+                    sample = transport.createAny(&value_data_source);
                     if ( sample != 0) {
                         return (CFlowStatus)fs;
                     }
                     // this is a programmatic error and should never happen during run-time.
-                    log(Error) << "CORBA Transport failed to create Any for " << value_data_source->getTypeName() << " while it should have!" <<endlog();
+                    log(Error) << "CORBA Transport failed to create Any for " << value_data_source.getTypeName() << " while it should have!" <<endlog();
                 }
                 // we *must* return something in sample.
                 sample = new CORBA::Any();
-                return CNoData;
+                return (CFlowStatus)fs;
             }
 
             bool write(typename base::ChannelElement<T>::param_t sample)
@@ -312,12 +308,18 @@ namespace RTT {
                 assert( remote_side.in() != 0 && "Got write() without remote side. Need buffer OR remote side but neither was present.");
                 try
                 {
+                      /** This is used on the writing side, to avoid allocating an Any for
+                       * each write
+                       */
+                    CORBA::Any write_any;
+                    internal::LateConstReferenceDataSource<T> const_ref_data_source(&sample);
+                    const_ref_data_source.ref();
+
                     // There is a trick. We allocate on the stack, but need to
                     // provide shared pointers. Manually increment refence count
                     // (the stack "owns" the object)
-                    const_ref_data_source->setPointer(&sample);
-                    transport.updateAny(const_ref_data_source, *write_any);
-                    remote_side->write(*write_any); 
+                    transport.updateAny(&const_ref_data_source, write_any);
+                    remote_side->write(write_any); 
                     return true;
                 }
 #ifdef CORBA_IS_OMNIORB
@@ -341,8 +343,10 @@ namespace RTT {
           	      CORBA::SystemException
           	    ))
             {
-                transport.updateFromAny(&sample, value_data_source);
-                return base::ChannelElement<T>::write(value_data_source->rvalue());
+                typename internal::ValueDataSource<T> value_data_source;
+                value_data_source.ref();
+                transport.updateFromAny(&sample, &value_data_source);
+                return base::ChannelElement<T>::write(value_data_source.rvalue());
             }
 
             virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
@@ -368,6 +372,36 @@ namespace RTT {
                 return true;
             }
 
+            virtual bool isRemoteElement() const
+            {
+                return true;
+            }
+            
+            virtual std::string getRemoteURI() const
+            {
+                //check for output element case
+                RTT::base::ChannelElementBase *base = const_cast<RemoteChannelElement<T> *>(this);
+                if(base->getOutput())
+                    return RTT::base::ChannelElementBase::getRemoteURI();
+                
+                std::string uri = ApplicationServer::orb->object_to_string(remote_side);
+                return uri;
+            }
+            
+            virtual std::string getLocalURI() const
+            {
+                //check for input element case
+                RTT::base::ChannelElementBase *base = const_cast<RemoteChannelElement<T> *>(this);
+                if(base->getInput())
+                    return RTT::base::ChannelElementBase::getLocalURI();
+                
+                return localUri;
+            }
+            
+            virtual std::string getElementName() const
+            {
+                return "CorbaRemoteChannelElement";
+            }
         };
     }
 }

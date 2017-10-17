@@ -129,7 +129,7 @@ namespace RTT
 
     };
 
-}};
+}}
 
 
 #endif

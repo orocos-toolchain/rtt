@@ -57,7 +57,7 @@ public:
         ports()->addEventPort( mi1 );
         ports()->addPort( mo1 );
         this->createOperationCallerFactories( this );
-        ts = corba::TaskContextServer::Create( this, true ); //use-naming
+        ts = corba::TaskContextServer::Create( this, /* use_naming = */ true );
         this->start();
         addOperation("callBackPeer", &TheServer::callBackPeer, this,ClientThread);
         addOperation("callBackPeerOwn", &TheServer::callBackPeer, this,OwnThread);
@@ -99,7 +99,7 @@ public:
 
 int ORO_main(int argc, char** argv)
 {
-#ifdef OR_RT_MALLOC
+#ifdef OS_RT_MALLOC
 	void*   rtMem=0;
 	size_t  freeMem=0;
 

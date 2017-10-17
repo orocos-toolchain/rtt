@@ -12,6 +12,7 @@ namespace RTT {
         class RTT_API CompositionFactory
         {
         public:
+        virtual ~CompositionFactory() {};
 
         /**
          * Compose a type (target) from a DataSourceBase (source) containing its members.
