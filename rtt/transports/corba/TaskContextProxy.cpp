@@ -168,7 +168,7 @@ namespace RTT
 
         this->synchronize();
     }
-    
+
     TaskContextProxy::TaskContextProxy( ::RTT::corba::CTaskContext_ptr taskc)
         : TaskContext("CORBAProxy"), mtask( corba::CTaskContext::_duplicate(taskc) )
     {
