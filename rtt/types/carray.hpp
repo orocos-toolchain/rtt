@@ -39,6 +39,7 @@
 #ifndef ORO_CARRAY_HPP_
 #define ORO_CARRAY_HPP_
 
+#include <boost/version.hpp>
 #include <boost/serialization/array.hpp>
 #include <boost/array.hpp>
 
@@ -96,7 +97,11 @@ namespace RTT
              * the original data.
              * @param orig
              */
+#if BOOST_VERSION >= 106100
+            carray( boost::serialization::array_wrapper<T> const& orig)
+#else
             carray( boost::serialization::array<T> const& orig)
+#endif
             : m_t( orig.address() ), m_element_count( orig.count() ) {
                 if (m_element_count == 0)
                     m_t = 0;
@@ -146,12 +151,48 @@ namespace RTT
              * the contents of the remaining elements is left unmodified. If it's greater,
              * the excess elements are ignored.
              */
-            const carray<T>& operator=( const carray<T>& orig ) {
+            template <class OtherT>
+            const carray<T>& operator=( const carray<OtherT>& orig ) {
                 if (&orig != this)
                     for(std::size_t i = 0; i != orig.count() && i != count(); ++i)
                         m_t[i] = orig.address()[i];
                 return *this;
             }
+
+            /**
+             * Assignment only copies max(this->count(), orig.count()) elements
+             * from orig to this object. If orig.count() is smaller than this->count()
+             * the contents of the remaining elements is left unmodified. If it's greater,
+             * the excess elements are ignored.
+             * @param orig
+             */
+            template <class OtherT>
+#if BOOST_VERSION >= 106100
+            const carray<T>& operator=( boost::serialization::array_wrapper<OtherT> const& orig ) {
+#else
+            const carray<T>& operator=( boost::serialization::array<OtherT> const& orig ) {
+#endif
+                if (orig.address() != m_t)
+                    for(std::size_t i = 0; i != orig.count() && i != count(); ++i)
+                        m_t[i] = orig.address()[i];
+                return *this;
+            }
+
+            /**
+             * Assignment only copies max(this->count(), orig.size()) elements
+             * from orig to this object. If orig.size() is smaller than this->count()
+             * the contents of the remaining elements is left unmodified. If it's greater,
+             * the excess elements are ignored.
+             * @param orig
+             */
+            template <class OtherT, std::size_t OtherN>
+            const carray<T>& operator=( const boost::array<OtherT,OtherN>& orig ) {
+                if (orig.data() != m_t)
+                    for(std::size_t i = 0; i != orig.size() && i != count(); ++i)
+                        m_t[i] = orig[i];
+                return *this;
+            }
+
         private:
             value_type* m_t;
             std::size_t m_element_count;

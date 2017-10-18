@@ -49,6 +49,9 @@ extern "C"
 #define ORO_SCHED_RT    0
 #define ORO_SCHED_OTHER 0
 
+#define ORO_WAIT_ABS 0 /** Not supported for the ecos target */
+#define ORO_WAIT_REL 1 /** Not supported for the ecos target */
+
     typedef long long NANO_TIME;
     typedef cyg_tick_count_t TICK_TIME;
 

@@ -41,6 +41,7 @@
 #include "threads.hpp"
 #include "../Logger.hpp"
 #include "MutexLock.hpp"
+#include "MainThread.hpp"
 
 #include "../rtt-config.h"
 #include "../internal/CatchConfig.hpp"
@@ -433,7 +434,7 @@ namespace RTT {
                 // always take this lock, but after breakLoop was called !
                 MutexTimedLock lock(breaker, getStopTimeout()); 
                 if ( !lock.isSuccessful() ) {
-                    log(Error) << "Failed to stop thread " << this->getName() << ": breakLoop() returned true, but loop() function did not return after 1 second."<<endlog();
+                    log(Error) << "Failed to stop thread " << this->getName() << ": breakLoop() returned true, but loop() function did not return after " << getStopTimeout() <<" seconds."<<endlog();
                     running = true;
                     return false;
                 }
@@ -444,7 +445,7 @@ namespace RTT {
                     // drop out of periodic mode.
                     rtos_task_make_periodic(&rtos_task, 0);
                 } else {
-                    log(Error) << "Failed to stop thread " << this->getName() << ": step() function did not return after "<< 5*getPeriod() <<" seconds."<<endlog();
+                    log(Error) << "Failed to stop thread " << this->getName() << ": step() function did not return after "<< getStopTimeout() <<" seconds."<<endlog();
                     running = true;
                     return false;
                 }

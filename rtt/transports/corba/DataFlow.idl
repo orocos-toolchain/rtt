@@ -11,7 +11,7 @@ module RTT
   module corba
   {
     enum CFlowStatus { CNoData, COldData, CNewData };
-    enum CConnectionModel { CData, CBuffer };
+    enum CConnectionModel { CData, CBuffer, CCircularBuffer };
     enum CLockPolicy { CUnsync, CLocked, CLockFree };
     struct CConnPolicy
     {
@@ -79,7 +79,7 @@ module RTT
          * is available for reading.
          * @return false if this channel became invalidated.
          */
-        boolean remoteSignal();
+        oneway void remoteSignal();
 
         /**
          * Used by the 'remote' side to inform this channel element

@@ -32,6 +32,7 @@
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
+#include <boost/version.hpp>
 
 using boost::unit_test::test_suite;
 
@@ -116,4 +117,8 @@ public:
 
 };
 
+#if BOOST_VERSION >= 106000
+BOOST_GLOBAL_FIXTURE( InitOrocos );
+#else
 BOOST_GLOBAL_FIXTURE( InitOrocos )
+#endif

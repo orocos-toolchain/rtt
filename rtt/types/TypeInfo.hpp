@@ -263,7 +263,15 @@ namespace RTT
          */
         std::ostream& write(std::ostream& os, base::DataSourceBase::shared_ptr in ) const
         {
-            return mstrf ? mstrf->write(os, in) : os;
+            if ( mstrf ) {
+                return mstrf->write(os,in);
+            } else {
+#ifdef OS_HAVE_STREAMS
+                std::string output = std::string("(")+ in->getTypeName() +")";
+                os << output;
+#endif
+                return os;
+            }
         }
 
         /**

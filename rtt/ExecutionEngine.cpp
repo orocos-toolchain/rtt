@@ -45,12 +45,9 @@
 #include "internal/MWSRQueue.hpp"
 #include "TaskContext.hpp"
 #include "internal/CatchConfig.hpp"
+#include "extras/SlaveActivity.hpp"
 
 #include <boost/bind.hpp>
-#include <boost/ref.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#include <functional>
 #include <algorithm>
 
 #define ORONUM_EE_MQUEUE_SIZE 100
@@ -71,7 +68,8 @@ namespace RTT
     ExecutionEngine::ExecutionEngine( TaskCore* owner )
         : taskc(owner),
           mqueue(new MWSRQueue<DisposableInterface*>(ORONUM_EE_MQUEUE_SIZE) ),
-          f_queue( new MWSRQueue<ExecutableInterface*>(ORONUM_EE_MQUEUE_SIZE) )
+          f_queue( new MWSRQueue<ExecutableInterface*>(ORONUM_EE_MQUEUE_SIZE) ),
+          mmaster(0)
     {
     }
 
@@ -157,8 +155,8 @@ namespace RTT
             found = true; // always true in order to be able to quit waitForMessages.
         }
         virtual void dispose() {}
-        virtual bool isError() const { return false;}
-
+        virtual bool isError() const { return false; }
+        bool done() const { return !mf->isLoaded() || found; }
     };
 
     bool ExecutionEngine::removeFunction( ExecutableInterface* f )
@@ -178,7 +176,7 @@ namespace RTT
             // Running: create message on stack.
             RemoveMsg rmsg(f,this);
             if ( this->process(&rmsg) )
-                this->waitForMessages( ! lambda::bind(&ExecutableInterface::isLoaded, f) || lambda::bind(&RemoveMsg::found,boost::ref(rmsg)) );
+                this->waitForMessages( boost::bind(&RemoveMsg::done, &rmsg) );
             if (!rmsg.found)
                 return false;
         }
@@ -238,23 +236,18 @@ namespace RTT
             msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
     }
 
-    void ExecutionEngine::takeoverMessages( ExecutionEngine *remote )
-    {
-        DisposableInterface* com(0);
-        {
-            while ( remote->mqueue->dequeue( com ) ) {
-                assert( com );
-                mqueue->enqueue( com );
-            }
-        }
-    }
-
     bool ExecutionEngine::process( DisposableInterface* c )
     {
+        // forward message to master ExecutionEngine if available
+        if (mmaster) {
+            return mmaster->process(c);
+        }
+
         if ( c && this->getActivity() ) {
             // We only reject running functions when we're in the FatalError state.
             if (taskc && taskc->mTaskState == TaskCore::FatalError )
                 return false;
+
             bool result = mqueue->enqueue( c );
             this->getActivity()->trigger();
             msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
@@ -265,6 +258,12 @@ namespace RTT
 
     void ExecutionEngine::waitForMessages(const boost::function<bool(void)>& pred)
     {
+        // forward the call to the master ExecutionEngine which is processing messages for us...
+        if (mmaster) {
+            mmaster->waitForMessages(pred);
+            return;
+        }
+
         if (this->getActivity()->thread()->isSelf())
             waitAndProcessMessages(pred);
         else
@@ -280,6 +279,22 @@ namespace RTT
             waitForMessagesInternal(pred); // same as for messages.
     }
 
+    void ExecutionEngine::setMaster(ExecutionEngine *master)
+    {
+        mmaster = master;
+    }
+
+    void ExecutionEngine::setActivity( base::ActivityInterface* task )
+    {
+        extras::SlaveActivity *slave_activity = dynamic_cast<extras::SlaveActivity *>(task);
+        if (slave_activity && slave_activity->getMaster()) {
+            ExecutionEngine *master = dynamic_cast<ExecutionEngine *>(slave_activity->getMaster()->getRunner());
+            setMaster(master);
+        } else {
+            setMaster(0);
+        }
+        RTT::base::RunnableInterface::setActivity(task);
+    }
 
     void ExecutionEngine::waitForMessagesInternal(boost::function<bool(void)> const& pred)
     {
@@ -353,7 +368,7 @@ namespace RTT
                 )
             }
             // in case start() or updateHook() called error(), this will be called:
-            if (  taskc->mTaskState == TaskCore::RunTimeError ) {
+            if (taskc->mTaskState == TaskCore::RunTimeError && taskc->mTargetState >= TaskCore::Running) {
                 TRY (
                     taskc->errorHook();
                 ) CATCH(std::exception const& e,
@@ -383,7 +398,7 @@ namespace RTT
                     (*it)->exception(); // calls stopHook,cleanupHook
                 )
             }
-            if (  (*it)->mTaskState == TaskCore::RunTimeError ){
+            if ((*it)->mTaskState == TaskCore::RunTimeError && (*it)->mTargetState == TaskCore::RunTimeError){
                 TRY (
                     (*it)->errorHook();
                 ) CATCH(std::exception const& e,

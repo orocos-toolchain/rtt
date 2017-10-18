@@ -94,6 +94,16 @@ namespace RTT
     TaskContextProxy::TaskContextProxy(std::string name, bool is_ior)
         : TaskContext("NotFound")
     {
+        initFromURIOrTaskname(name, is_ior);
+    }
+
+    TaskContextProxy::TaskContextProxy(): TaskContext("NotFound")
+    {
+
+    }
+
+    void TaskContextProxy::initFromURIOrTaskname(string name, bool is_ior)
+    {
         Logger::In in("TaskContextProxy");
         this->clear();
         this->setActivity( new SequentialActivity() );
@@ -139,7 +149,7 @@ namespace RTT
             CORBA::String_var nm = mtask->getName(); // force connect to object.
             std::string newname( nm.in() );
             this->provides()->setName( newname );
-            Logger::log() << Logger::Info << "Successfully connected to TaskContextServer '"+newname+"'."<<endlog();
+            Logger::log() << Logger::Info << "Successfully connected to TaskContextServer '"+name+"'."<<endlog();
             proxies[this] = mtask.in();
         }
         catch (CORBA::Exception &e) {

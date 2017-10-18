@@ -56,7 +56,7 @@ namespace RTT {
         void intrusive_ptr_release(const RTT::base::DataSourceBase* p )
         {
             p->deref();
-        };
+        }
 
     }
 

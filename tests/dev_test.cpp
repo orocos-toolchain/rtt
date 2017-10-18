@@ -47,7 +47,8 @@ BOOST_FIXTURE_TEST_SUITE( DevTestSuite, DevTest )
 
 BOOST_AUTO_TEST_CASE( testClasses)
 {
-    DigitalInput din(true, false); // init, invert
+    bool din_state = true;
+    DigitalInput din(din_state, false); // init, invert
     DigitalOutput dout(false); // init.
     AnalogInput ain(0,0);
     AnalogOutput aout(0,0);

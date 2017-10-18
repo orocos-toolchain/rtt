@@ -215,6 +215,7 @@ namespace RTT {
         if ( smStatus != Status::inactive && smStatus != Status::unloaded && smStatus != Status::error) {
             TRACE( "Will start." );
             smStatus = Status::running;
+            os::MutexLock lock(execlock);
             runState( current );
             return true;
         }
@@ -317,6 +318,7 @@ namespace RTT {
         case Status::requesting:
             if ( this->executePending() ) {   // if all steps done,
                 this->requestNextState();
+                this->executePending();       // execute steps of next state
                 TRACE("Is active now.");
                 smStatus = Status::active;
             }
@@ -328,12 +330,15 @@ namespace RTT {
             if ( this->executePending() == false)
                 break;
             // if all pending done:
-            this->requestNextState(); // one state at a time
+            this->requestNextState();     // one state at a time
+            this->executePending();       // execute steps of next state
             break;
         case Status::paused:
             if (mstep) {
-                if ( this->executePending(true) )    // if all steps done,
+                if ( this->executePending(true) ) {    // if all steps done,
                     this->requestNextState(true); // one state at a time
+                    this->executePending(true);       // execute steps of next state
+                }
                 TRACE("Did a step.");
                 mstep = false;
             }
@@ -375,6 +380,7 @@ namespace RTT {
     bool StateMachine::requestInitialState()
     {
         TRACE_INIT();
+        os::MutexLock lock(execlock);
         // all conditions that must be satisfied to enter the initial state :
         if ( interruptible() && ( current == initstate || current == finistate ) )
         {
@@ -390,6 +396,7 @@ namespace RTT {
     bool StateMachine::requestFinalState()
     {
         TRACE_INIT();
+        os::MutexLock lock(execlock);
         // if we are inactive or in transition, don't do anything.
         if ( current == 0 || ( !inError() && !interruptible() ) ) {
             TRACE("Won't enter final state.");
@@ -416,7 +423,6 @@ namespace RTT {
                     if (transProg->start() == false )
                         smStatus = Status::error;
                     currentTrans = transProg;
-                    currentProg = transProg;
                     // manually reset reqstep, or the next iteration would skip transition checks.
                     reqstep = stateMap.find( current )->second.begin();
                     // from now on, we are in transition to self !
@@ -445,20 +451,13 @@ namespace RTT {
                         smStatus = Status::error;
 
                 }
+                next = newState;
                 currentTrans = transProg;
                 // if error in current Exit, skip it.
                 if ( currentExit && currentExit->inError() )
                     currentExit = 0;
-                else
-                    leaveState( current );
-                enterState( newState );
+                leaveState(current);
             }
-
-        // if not stepping, try to execute exit/entry directly.
-        // if stepping, postpone this
-        if ( !stepping )
-            this->executePending(stepping);
-
         // schedule a run for the next 'step'.
         // if handle above finished, run will be called directly
         // in executePending. if handle was not finished
@@ -549,8 +548,8 @@ namespace RTT {
 
         log(Debug) << "Creating Signal handler for Operation '"<< ename <<"' from state "<< (from ? from->getName() : string("(global)")) << " to state " << ( to ? to->getName() : string("(global)") ) <<Logger::endl;
 #ifdef ORO_SIGNALLING_OPERATIONS
-        // this->getEngine() is still null at this point, since the SM is unloaded().
-        handle = sp->produceSignal( ename, new CommandFunction( boost::bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto) ), args, target_engine );
+        // don't deliver this signal asynchronously, we want it right away.
+        handle = sp->produceSignal( ename, new CommandFunction( boost::bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto) ), args, 0 );
 #endif
         if ( !handle.ready() ) {
             Logger::log() << Logger::Error << "Could not setup handle for event '"<<ename<<"'."<<Logger::endl;
@@ -571,17 +570,18 @@ namespace RTT {
     {
         TRACE_INIT();
         // called by event to begin Transition to 'to'.
-        // This interrupts the current run program at an interruption point ?
+        // This interrupts the current run program at yield point
         // the transition and/or exit program can cleanup...
 
-        // this will never be called if the event connection is destroyed, unless called from the
-        // CompletionProcessor (asyn event arrival). Therefore we must add extra checks :
-        // only transition if this event was meant for this state and we are not
+        MutexLock lock(execlock); // recursive
+
+        if ( !current)
+            return true;
+
+        // Only transition if this event was meant for this state and we are not
         // in transition already.
         // If condition fails, check precondition 'else' state (if present) and
         // execute else program (may be null).
-        if ( !current)
-            return true;
 
         if (from == 0)
             from  = current;
@@ -620,6 +620,7 @@ namespace RTT {
     StateInterface* StateMachine::requestNextState(bool stepping)
     {
         TRACE_INIT();
+        os::MutexLock lock(execlock);
         // bad idea, user, don't run this if we're not active...
         if( current == 0 )
             return 0;
@@ -735,6 +736,7 @@ namespace RTT {
 
     StateInterface* StateMachine::nextState()
     {
+        os::MutexLock lock(execlock);
         // bad idea, user, don't run this if we're not active...
         if ( current == 0 )
             return 0;
@@ -788,6 +790,7 @@ namespace RTT {
 
     bool StateMachine::requestStateChange( StateInterface * s_n )
     {
+        os::MutexLock lock(execlock);
         // bad idea, user, don't run this if we're not active...
         if( current == 0 )
             return false;
@@ -802,6 +805,7 @@ namespace RTT {
         if ( current == s_n )
         {
             changeState( s_n, 0 );
+            executePending();
             return true;
         }
 
@@ -816,6 +820,7 @@ namespace RTT {
                  && checkConditions( s_n ) == 1 ) {
                 changeState( s_n, get<4>(*it1).get() );
                 // the request was accepted
+                executePending();
                 return true;
             }
 
@@ -834,6 +839,7 @@ namespace RTT {
                  && checkConditions( s_n ) == 1 ) {
                 changeState( s_n, get<4>(*it1).get() );
                 // the request was accepted
+                executePending();
                 return true;
             }
 
@@ -841,6 +847,7 @@ namespace RTT {
         if ( finistate == s_n )
         {
             changeState( s_n, 0 );
+            executePending();
             return true;
         }
 
@@ -848,6 +855,7 @@ namespace RTT {
         if ( initstate == s_n && current == finistate)
         {
             changeState( s_n, 0 );
+            executePending();
             return true;
         }
 
@@ -932,9 +940,6 @@ namespace RTT {
             currentExit->reset();
             if (currentExit->start() == false)
                 smStatus = Status::error;
-
-            if (currentProg == 0 )
-                currentProg = currentExit;
         }
     }
 
@@ -947,8 +952,6 @@ namespace RTT {
             currentRun->reset();
             if (currentRun->start() == false)
                 smStatus = Status::error;
-            if (currentProg == 0 )
-                currentProg = currentRun;
         }
     }
 
@@ -960,8 +963,6 @@ namespace RTT {
             currentHandle->reset();
             if (currentHandle->start() == false)
                 smStatus = Status::error;
-            if (currentProg == 0 )
-                currentProg = currentHandle;
         }
     }
 
@@ -976,14 +977,11 @@ namespace RTT {
         for ( it= stateMap.find(s)->second.begin(); it != stateMap.find(s)->second.end(); ++it)
             get<0>(*it)->reset();
 
-        next = s;
         currentEntry = s->getEntryProgram();
         if ( currentEntry ) {
             currentEntry->reset();
             if (currentEntry->start() == false)
                 smStatus = Status::error;
-            if (currentProg == 0 )
-                currentProg = currentEntry;
         }
     }
 
@@ -1001,6 +999,22 @@ namespace RTT {
         if ( inError() )
             return false;
 
+        TRACE("executePending..." );
+
+        if ( currentEntry ) {
+            TRACE("Executing entry program of '"+ (current ? current->getName() : "(null)") +"'" );
+            if ( this->executeProgram(currentEntry, stepping) == false )
+                return false;
+            // done.
+            TRACE("Finished  entry program of '"+ (current ? current->getName() : "(null)") +"'" );
+            // in stepping mode, delay 'true' one executePending().
+            if ( stepping ) {
+                currentProg = currentRun;
+                return false;
+            }
+        }
+        // from this point on, events must be enabled.
+
         // first try to execute transition program on behalf of current state.
         if ( currentTrans ) {
             TRACE("Executing transition program from '"+ (current ? current->getName() : "(null)") + "' to '"+ ( next ? next->getName() : "(null)")+"'" );
@@ -1012,7 +1026,7 @@ namespace RTT {
                 if ( this->executeProgram(currentTrans, stepping) == false )
                     return false;
             // done.
-            TRACE("Finished  transition program from '"+ current->getName() + "' to '"+next->getName()+"'" );
+            TRACE("Finished  transition program from '"+ (current ? current->getName() : "(null)") + "' to '"+ ( next ? next->getName() : "(null)")+"'" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
                 currentProg = currentExit ? currentExit : (currentEntry ? currentEntry : currentRun);
@@ -1022,11 +1036,11 @@ namespace RTT {
 
         // last is exit
         if ( currentExit ) {
-            TRACE("Executing exit program from '"+ current->getName() + "' (going to '"+ (next ? next->getName() : "(null)") +"')" );
+            TRACE("Executing exit program from '"+ (current ? current->getName() : "(null)") + "' (going to '"+ (next ? next->getName() : "(null)") +"')" );
             if ( this->executeProgram(currentExit, stepping) == false )
                 return false;
             // done.
-            TRACE("Finished  exit program from '"+ current->getName() + "' (going to '"+ (next ? next->getName() : "(null)") +"')" );
+            TRACE("Finished  exit program from '"+ (current ? current->getName() : "(null)") + "' (going to '"+ (next ? next->getName() : "(null)") +"')" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
                 currentProg = (currentEntry ? currentEntry : currentRun);
@@ -1034,6 +1048,8 @@ namespace RTT {
             }
         }
 
+        // we only get here if all entry/transition/exit programs have been executed.
+        // so now we schedule a new entry program for the next state.
 
         // only reset the reqstep if we changed state.
         // if we did not change state, it will be reset in requestNextState().
@@ -1056,30 +1072,31 @@ namespace RTT {
             disableEvents(current);
             current = next;
             enableEvents(current);
+            enterState(current);
 
         }
 
+        // give new current a chance to execute the entry program and run program :
         if ( currentEntry ) {
-            TRACE("Executing entry program of '"+ current->getName() +"'" );
+            TRACE("Executing entry program of '"+ (current ? current->getName() : "(null)") +"'" );
             if ( this->executeProgram(currentEntry, stepping) == false )
                 return false;
             // done.
-            TRACE("Finished  entry program of '"+ current->getName() +"'" );
+            TRACE("Finished  entry program of '"+ (current ? current->getName() : "(null)") +"'" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
                 currentProg = currentRun;
                 return false;
             }
         }
-        // from this point on, events must be enabled.
 
         // Handle is executed after the transitions failed.
         if ( currentHandle ) {
-            TRACE("Executing handle program of '"+ current->getName() +"'" );
+            TRACE("Executing handle program of '"+ (current ? current->getName() : "(null)") +"'" );
             if ( this->executeProgram(currentHandle, stepping) == false )
                 return false;
             // done.
-            TRACE("Finished  handle program of '"+ current->getName() +"'" );
+            TRACE("Finished  handle program of '"+ (current ? current->getName() : "(null)") +"'" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
                 currentProg = currentRun;
@@ -1089,15 +1106,14 @@ namespace RTT {
 
         // Run is executed before the transitions.
         if ( currentRun ) {
-            TRACE("Executing run program of '"+ current->getName() +"'" );
+            TRACE("Executing run program of '"+ (current ? current->getName() : "(null)") +"'" );
             if ( this->executeProgram(currentRun, stepping) == false )
                 return false;
             // done.
-            TRACE("Finished  run program of '"+ current->getName() +"'" );
+            TRACE("Finished  run program of '"+ (current ? current->getName() : "(null)") +"'" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping )
                 return false;
-
         }
 
         return true; // all pending is done
@@ -1114,7 +1130,7 @@ namespace RTT {
             currentProg->step();
         else
             currentProg->execute();
-        if ( currentProg->inError() ) {
+        if ( currentProg && currentProg->inError() ) {
             smStatus = Status::error;
             smpStatus = nill;
             TRACE("Encountered run-time error at line " << this->getLineNumber() );
@@ -1163,6 +1179,7 @@ namespace RTT {
             TRACE("Won't activate: already active.");
             return false;
         }
+        os::MutexLock lock(execlock);
 
         smpStatus = nill;
 
@@ -1180,13 +1197,15 @@ namespace RTT {
             }
         }
 
-        //current = getInitialState();
+        current = getInitialState();
+        next    = getInitialState();
         enterState( getInitialState() );
         reqstep = stateMap.find( next )->second.begin();
         reqend = stateMap.find( next )->second.end();
 
         // Enable all event handlers
         enableGlobalEvents();
+        enableEvents(current);
 
         // execute the entry program of the initial state.
         if ( !inError() ) {
@@ -1226,9 +1245,10 @@ namespace RTT {
             currentTrans = 0;
         // if we stalled, in previous deactivate
         // even skip/stop exit program.
-        if ( next != 0 && current )
+        if ( next != 0 && current ) {
             leaveState( current );
-        else {
+            disableEvents(current);
+        } else {
             currentExit = 0;
             currentTrans = 0;
         }

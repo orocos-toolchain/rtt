@@ -18,6 +18,7 @@
 #  OROCOS-RTT_FOUND: Boolean that indicates if OROCOS-RTT was found
 #  OROCOS-RTT_INCLUDE_DIRS: Paths to the necessary header files
 #  OROCOS-RTT_LIBRARIES: Libraries to link against to use OROCOS-RTT
+#  OROCOS-RTT_LIBRARY_DIRS: Link directories for OROCOS-RTT
 #  OROCOS-RTT_DEFINITIONS: Definitions to use when compiling code that uses OROCOS-RTT
 #
 #  OROCOS-RTT_PATH: Path of the RTT installation directory (its CMAKE_INSTALL_PREFIX).
@@ -144,6 +145,12 @@ if(TARGET ${OROCOS-RTT-MQUEUE_TARGET})
 endif()
 endif()
 
+# Link directories
+get_filename_component(OROCOS-RTT_PATH "${SELF_DIR}/../../.." ABSOLUTE)
+get_filename_component(OROCOS-RTT_COMPONENT_PATH "${SELF_DIR}/../../../lib/orocos${OROCOS_SUFFIX}" ABSOLUTE)
+get_filename_component(OROCOS-RTT_PLUGINS_PATH "${SELF_DIR}/../../../lib/orocos${OROCOS_SUFFIX}/plugins" ABSOLUTE)
+get_filename_component(OROCOS-RTT_TYPES_PATH   "${SELF_DIR}/../../../lib/orocos${OROCOS_SUFFIX}/types"   ABSOLUTE)
+set(OROCOS-RTT_LIBRARY_DIRS "${OROCOS-RTT_PATH}/lib;${OROCOS-RTT_COMPONENT_PATH};${OROCOS-RTT_PLUGINS_PATH};${OROCOS-RTT_TYPES_PATH}")
 
 # Definitions
 set(OROCOS-RTT_DEFINITIONS "-DOROCOS_TARGET=${OROCOS_TARGET}")
@@ -166,11 +173,6 @@ endif()
 ########################################################################################################################
 
 # Default component search path
-get_filename_component(OROCOS-RTT_PATH "${SELF_DIR}/../../.." ABSOLUTE)
-get_filename_component(OROCOS-RTT_COMPONENT_PATH "${SELF_DIR}/../../../lib/orocos${OROCOS_SUFFIX}" ABSOLUTE)
-get_filename_component(OROCOS-RTT_PLUGINS_PATH "${SELF_DIR}/../../../lib/orocos${OROCOS_SUFFIX}/plugins" ABSOLUTE)
-get_filename_component(OROCOS-RTT_TYPES_PATH   "${SELF_DIR}/../../../lib/orocos${OROCOS_SUFFIX}/types"   ABSOLUTE)
-
 list(APPEND OROCOS-RTT_PLUGIN_PATH "${OROCOS-RTT_PLUGINS_PATH}"
                                       "${OROCOS-RTT_TYPES_PATH}")
 

@@ -125,7 +125,7 @@ namespace RTT
             virtual unsigned int nbOfInputs() const = 0;
 
     };
-}};
+}}
 
 
 

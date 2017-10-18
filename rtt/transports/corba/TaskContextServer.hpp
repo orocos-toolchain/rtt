@@ -83,11 +83,19 @@ namespace RTT
          * Private constructor which creates a new servant.
          */
         TaskContextServer(TaskContext* taskcontext, bool use_naming, bool require_name_service);
+        /**
+         * Private constructor which creates a new servant using an alias
+         */
+        TaskContextServer(TaskContext* taskcontext,const std::string& alias, bool use_naming, bool require_name_service);
+
+        // initialize a new servant
+        void initTaskContextServer(bool require_name_service);
 
         PortableServer::ServantBase_var mtask_i;
         corba::CTaskContext_var mtask;
         TaskContext* mtaskcontext;
         bool muse_naming;
+        std::string mregistered_name;
 
         /**
          * Internal shutdown function, used
@@ -153,6 +161,18 @@ namespace RTT
 
         /**
          * Factory method: create a CORBA server for an existing TaskContext.
+         * @param tc The TaskContext to serve.
+         * @param alias Alias to use as name when registering the CORBA server.
+         * @param use_naming Set to \a false in order not to use the Corba Naming Service.
+         * @param require_naming Set to \a true to require that the Corba Naming Service be found.
+         * @retval 0 if the ORB is not initialised, or if require_name_service==true and the
+         * name service was not found
+         * @return A new or previously created CORBA server for \a tc.
+         */
+        static TaskContextServer* Create(TaskContext* tc, const std::string& alias, bool use_naming = true, bool require_name_service = false);
+
+        /**
+         * Factory method: create a CORBA server for an existing TaskContext.
          * Same as above, but immediately return the Corba object. Also checks if
          * \a tc is TaskContextProxy and returns the server of the proxy if so.
          * @param tc The TaskContext to serve.
@@ -165,6 +185,22 @@ namespace RTT
          * need to _duplicate it.
          */
         static CTaskContext_ptr CreateServer(TaskContext* tc, bool use_naming = true, bool require_name_service = false);
+
+        /**
+         * Factory method: create a CORBA server for an existing TaskContext.
+         * Same as above, but immediately return the Corba object. Also checks if
+         * \a tc is TaskContextProxy and returns the server of the proxy if so.
+         * @param tc The TaskContext to serve.
+         * @param alias Alias to use as name when registering the CORBA server.
+         * @param use_naming Set to \a false in order not to use the Corba Naming Service.
+         * @param require_naming Set to \a true to require that the Corba Naming Service be found.
+         * @retval 0 if the ORB is not initialised, or if require_name_service==true and the
+         * name service was not found
+         * @return A new or previously created CORBA server for \a tc. Since this
+         * is a factory function, you need to store the object in a _var and don't
+         * need to _duplicate it.
+         */
+        static CTaskContext_ptr CreateServer(TaskContext* tc, const std::string& alias, bool use_naming = true, bool require_name_service = false);
 
         /**
          * Deletes a TaskContext server for a given taskcontext.

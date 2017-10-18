@@ -74,6 +74,7 @@
 #include "../../internal/OperationCallerC.hpp"
 #include "../../internal/SendHandleC.hpp"
 #include "../../Logger.hpp"
+#include "../../internal/GlobalEngine.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;
@@ -132,7 +133,7 @@ bool sourcevector_to_anysequence( vector<DataSourceBase::shared_ptr> const& sour
         if (ss == SendSuccess) {
            sourcevector_to_anysequence( cargs, *args.ptr() );
         }
-        return CSendStatus(static_cast<int>(ss) + 1);
+        return CSendStatus(static_cast<int>(ss) + 2);
     } catch(std::runtime_error& e) {
         throw ::RTT::corba::CCallError(e.what());
     }
@@ -147,7 +148,7 @@ bool sourcevector_to_anysequence( vector<DataSourceBase::shared_ptr> const& sour
         if (ss == SendSuccess) {
             sourcevector_to_anysequence( cargs, *args.ptr() );
         }
-        return CSendStatus(static_cast<int>(ss) + 1);
+        return CSendStatus(static_cast<int>(ss) + 2);
     } catch(std::runtime_error& e) {
         throw ::RTT::corba::CCallError(e.what());
     }
@@ -156,7 +157,7 @@ bool sourcevector_to_anysequence( vector<DataSourceBase::shared_ptr> const& sour
 ::RTT::corba::CSendStatus RTT_corba_CSendHandle_i::checkStatus (
     void)
 {
-    return CSendStatus( static_cast<int>(mhandle.collectIfDone()) + 1 );
+    return CSendStatus( static_cast<int>(mhandle.collectIfDone()) + 2 );
 }
 
 ::CORBA::Any * RTT_corba_CSendHandle_i::ret (
@@ -326,7 +327,7 @@ void RTT_corba_COperationInterface_i::checkOperation (
         throw ::RTT::corba::CNoSuchNameException( operation );
     try {
         OperationInterfacePart* mofp = mfact->getPart(operation);
-        OperationCallerC mc(mofp, operation, 0);
+        OperationCallerC mc(mofp, operation, internal::GlobalEngine::Instance());
         for (unsigned int i = 0; i < mofp->arity() && i < args.length(); ++i) {
             const TypeInfo* ti = mofp->getArgumentType(i+1);
             assert(ti);
@@ -364,7 +365,7 @@ void RTT_corba_COperationInterface_i::checkOperation (
         throw ::RTT::corba::CNoSuchNameException( operation );
     // convert Corba args to C++ args.
     try {
-        OperationCallerC orig(mfact->getPart(operation), operation, 0);
+        OperationCallerC orig(mfact->getPart(operation), operation, internal::GlobalEngine::Instance());
         vector<DataSourceBase::shared_ptr> results;
         for (size_t i =0; i != args.length(); ++i) {
             const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
@@ -421,7 +422,7 @@ void RTT_corba_COperationInterface_i::checkOperation (
         throw ::RTT::corba::CNoSuchNameException( operation );
     // convert Corba args to C++ args.
     try {
-        OperationCallerC orig(mfact->getPart(operation), operation, 0);
+        OperationCallerC orig(mfact->getPart(operation), operation, internal::GlobalEngine::Instance());
         for (size_t i =0; i != args.length(); ++i) {
             const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
             CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );

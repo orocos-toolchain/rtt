@@ -41,11 +41,15 @@ ENDMACRO( GLOBAL_ADD_SRC )
 #
 macro(ADD_RTT_TYPEKIT name version)
   ADD_LIBRARY(${name}-${OROCOS_TARGET}_plugin SHARED ${ARGN})
+  STRING( REGEX MATCHALL "[0-9]+" versions ${version} )
+  LIST( GET versions 0 version_major)
+  LIST( GET versions 1 version_minor)
+  LIST( GET versions 2 version_patch)
   SET_TARGET_PROPERTIES( ${name}-${OROCOS_TARGET}_plugin PROPERTIES
     VERSION "${version}"
+    SOVERSION "${version_major}.${version_minor}"
     OUTPUT_NAME ${name}-${OROCOS_TARGET}
     COMPILE_DEFINITIONS "${RTT_DEFINITIONS}"
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
     INSTALL_RPATH_USE_LINK_PATH 1
     INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX};${CMAKE_INSTALL_PREFIX}/lib;${AC_INSTALL_DIR}"
 	INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/types"
@@ -110,11 +114,15 @@ endmacro(ADD_RTT_TYPEKIT name)
 #
 macro(ADD_RTT_PLUGIN name version)
   ADD_LIBRARY(${name}-${OROCOS_TARGET}_plugin SHARED ${ARGN})
+  STRING( REGEX MATCHALL "[0-9]+" versions ${version} )
+  LIST( GET versions 0 version_major)
+  LIST( GET versions 1 version_minor)
+  LIST( GET versions 2 version_patch)
   SET_TARGET_PROPERTIES( ${name}-${OROCOS_TARGET}_plugin PROPERTIES
     VERSION "${version}"
+    SOVERSION "${version_major}.${version_minor}"
     OUTPUT_NAME ${name}-${OROCOS_TARGET}
     COMPILE_DEFINITIONS "${RTT_DEFINITIONS}"
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
     INSTALL_RPATH_USE_LINK_PATH 1
     INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/types;${CMAKE_INSTALL_PREFIX}/lib;${AC_INSTALL_DIR}"
 	INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/plugins"
