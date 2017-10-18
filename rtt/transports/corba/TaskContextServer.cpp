@@ -135,10 +135,10 @@ namespace RTT
             // TODO : Use a better suited POA than create_basic_POA, use the 'session' or so type
             // But watch out: we need implicit activation, our you will get exceptions upon ->_this()
             // The POA for the Server's objects:
-//             PortableServer::POA_var objpoa = POAUtility::create_basic_POA(poa,
-//                                                               poa_manager,
-//                                                               std::string(taskc->getName() + "OBJPOA").c_str(),
-//                                                               0, 0); // Not persistent, allow implicit.
+            //   PortableServer::POA_var objpoa = POAUtility::create_basic_POA(poa,
+            //                                                                 poa_manager,
+            //                                                                 std::string(taskc->getName() + "OBJPOA").c_str(),
+            //                                                                 0, 0); // Not persistent, allow implicit.
 
             // The servant : TODO : cleanup servant in destructor !
             RTT_corba_CTaskContext_i* serv;
@@ -160,7 +160,6 @@ namespace RTT
                 if (CORBA::is_nil( rootNC ) ) {
                     std::string  err("CTaskContext '" + mregistered_name + "' could not find CORBA Naming Service.");
                     if (require_name_service) {
-                        servers.erase(mtaskcontext);
                         log(Error) << err << endlog();
                         servers.erase(mtaskcontext);
                         throw IllegalServer(err);
