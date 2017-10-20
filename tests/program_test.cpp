@@ -486,31 +486,43 @@ BOOST_AUTO_TEST_CASE(testProgramCallFoo)
         + "do test.assert( tvar_i == +4 ) \n"
         + "}";
     this->doProgram( prog, tc );
-    Attribute<int> i = tc->provides()->getAttribute("tvar_i");
-    BOOST_REQUIRE_EQUAL( 4, i.get() );
+    BOOST_REQUIRE_EQUAL( 4, var_i );
     this->finishProgram( tc, "x");
 }
 
-BOOST_AUTO_TEST_CASE(testProgramDoFoo)
+BOOST_AUTO_TEST_CASE(testProgramSendFoo)
 {
     // see if modifying an attribute works.
-    string prog = string("export function foo {\n")
-        + "  do test.assert( tvar_i == +2 ) \n"
+    string prog = string("export function foo(int arg) {\n")
+        + "  do test.assert( tvar_i == arg ) \n"
         + "  do test.assert( tvar_i != tconst_i ) \n"
-        + "  set tvar_i = +4\n"
-        + "  do test.assert( tvar_i == +4 ) \n"
+        + "  set tvar_i = tvar_i+2\n"
+        + "  do test.assert( tvar_i == arg + 2 ) \n"
         + "}\n"
         + "program x { \n"
         + "do test.assert( tvar_i == -1 ) \n"
         + "do test.assert( tvar_i == tconst_i ) \n"
-        + "set tvar_i = +2\n"
-        + "do test.assert( tvar_i == +2 )\n"
-        + "do foo()\n"
-        + "do test.assert( tvar_i == +4 ) \n"
+        + "set tvar_i = +2\n" // 10
+        + "var SendHandle sh\n"
+        + "sh = foo.send(tvar_i)\n"
+        + "while(sh.collectIfDone() != SendSuccess)\n"
+        + "   yield\n"
+        + "do test.assert( sh.collectIfDone() == SendSuccess )\n"
+        + "do test.assert( tvar_i == +4 )\n"
+
+        // test parallel send
+        + "var SendHandle sh1, sh2\n"
+        + "sh1 = foo.send(tvar_i)\n"
+        + "sh2 = foo.send(tvar_i + 2)\n"
+        + "while(sh2.collectIfDone() != SendSuccess)\n"
+        + "   yield\n"
+        + "do test.assert( tvar_i == +8 )\n"
+        + "do test.assert( sh1.collectIfDone() == SendSuccess )\n"
+        + "do test.assert( sh2.collectIfDone() == SendSuccess )\n"
+        + "do test.assert( tvar_i == +8 )\n"
         + "}";
     this->doProgram( prog, tc );
-    Attribute<int> i = tc->provides()->getAttribute("tvar_i");
-    BOOST_REQUIRE_EQUAL( 4, i.get() );
+    BOOST_REQUIRE_EQUAL( 8, var_i );
     this->finishProgram( tc, "x");
 }
 
@@ -537,8 +549,7 @@ BOOST_AUTO_TEST_CASE(testProgramCmdFoo)
         + "do test.assert( tss == SendSuccess )\n"
         + "}";
     this->doProgram( prog, tc );
-    Attribute<int> i = tc->provides()->getAttribute("tvar_i");
-    BOOST_REQUIRE_EQUAL( 8, i.get() );
+    BOOST_REQUIRE_EQUAL( 8, var_i );
     this->finishProgram( tc, "x");
 }
 
