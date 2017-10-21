@@ -185,10 +185,13 @@ namespace RTT
          * no memory will be allocated.
          *
          * @param pull A copy of the data.
+         * @param copy_old_data If true, also copy the data if the data object
+         *                      has not been updated since the last call.
+         * @param copy_sample   If true, copy the data unconditionally.
          */
-        virtual FlowStatus Get( DataType& pull, bool copy_old_data = true ) const
+        virtual FlowStatus Get( DataType& pull, bool copy_old_data, bool copy_sample ) const
         {
-            if (!initialized) {
+            if (!initialized && !copy_sample) {
                 return NoData;
             }
 
@@ -212,13 +215,27 @@ namespace RTT
             if (result == NewData) {
                 pull = reading->data;               // takes some time
                 reading->status = OldData;          // CAS?
-            } else if ((result == OldData) && copy_old_data) {
+            } else if (((result == OldData) && copy_old_data) || copy_sample) {
                 pull = reading->data;               // takes some time
             }
 
             // XXX smp_mb
             oro_atomic_dec(&reading->counter);       // release buffer
             return result;
+        }
+
+        /**
+         * Get a copy of the Data (non allocating).
+         * If pull has reserved enough memory to store the copy,
+         * no memory will be allocated.
+         *
+         * @param pull A copy of the data.
+         * @param copy_old_data If true, also copy the data if the data object
+         *                      has not been updated since the last call.
+         */
+        virtual FlowStatus Get( DataType& pull, bool copy_old_data = true ) const
+        {
+            return Get( pull, copy_old_data, /* copy_sample = */ false );
         }
 
         /**
