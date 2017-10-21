@@ -111,13 +111,14 @@ public:
     }
 };
 
-#define ASSERT_PORT_SIGNALLING(code, read_port) \
+#define ASSERT_PORT_SIGNALLING(code, read_port) do { \
     signalled_port = 0; \
     code; \
     rtos_disable_rt_warning(); \
     usleep(100000); \
     rtos_enable_rt_warning(); \
-    BOOST_CHECK( read_port == signalled_port );
+    BOOST_CHECK( read_port == signalled_port ); \
+} while(0)
 
 void MQueueTest::testPortDataConnection()
 {
@@ -133,7 +134,7 @@ void MQueueTest::testPortDataConnection()
     BOOST_CHECK( NoData == mr2->read(value) );
 
     // Check if writing works (including signalling)
-    ASSERT_PORT_SIGNALLING(mw1->write(1.0), mr2)
+    ASSERT_PORT_SIGNALLING(mw1->write(1.0), mr2);
     BOOST_CHECK( mr2->read(value) );
     BOOST_CHECK_EQUAL( 1.0, value );
     ASSERT_PORT_SIGNALLING(mw1->write(2.0), mr2);

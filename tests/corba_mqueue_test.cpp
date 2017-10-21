@@ -75,11 +75,12 @@ void CorbaMQueueTest::new_data_listener(base::PortInterface* port)
 }
 
 
-#define ASSERT_PORT_SIGNALLING(code, read_port) \
+#define ASSERT_PORT_SIGNALLING(code, read_port) do { \
     signalled_port = 0; \
     code; \
     usleep(100000); \
-    BOOST_CHECK( read_port == signalled_port );
+    BOOST_CHECK( read_port == signalled_port ); \
+} while(0)
 
 void CorbaMQueueTest::testPortDataConnection()
 {
@@ -94,7 +95,7 @@ void CorbaMQueueTest::testPortDataConnection()
     BOOST_CHECK( !mr2->read(value) );
 
     // Check if writing works (including signalling)
-    ASSERT_PORT_SIGNALLING(mw1->write(1.0), mr2)
+    ASSERT_PORT_SIGNALLING(mw1->write(1.0), mr2);
     BOOST_CHECK( mr2->read(value) );
     BOOST_CHECK_EQUAL( 1.0, value );
     ASSERT_PORT_SIGNALLING(mw1->write(2.0), mr2);
