@@ -81,6 +81,18 @@ namespace RTT
          * Get a copy of the Data of this data object.
          *
          * @param pull A copy of the data.
+         * @param copy_old_data If true, also copy the data if the data object
+         *                      has not been updated since the last call.
+         * @param copy_sample   If true, copy the data unconditionally.
+         */
+        virtual FlowStatus Get( DataType& pull, bool copy_old_data, bool copy_sample ) const = 0;
+
+        /**
+         * Get a copy of the Data of this data object.
+         *
+         * @param pull A copy of the data.
+         * @param copy_old_data If true, also copy the data if the data object
+         *                      has not been updated since the last call.
          */
         virtual FlowStatus Get( DataType& pull, bool copy_old_data = true ) const = 0;
 

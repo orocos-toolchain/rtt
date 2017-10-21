@@ -94,7 +94,9 @@ namespace RTT { namespace internal {
 
         virtual T data_sample()
         {
-            return data->Get();
+            T sample;
+            (void) data->Get(sample, true, /* copy_sample = */ true);
+            return sample;
         }
 
         /** Returns a pointer to the ConnPolicy that has been used to construct the underlying data object.
