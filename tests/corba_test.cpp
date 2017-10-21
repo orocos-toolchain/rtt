@@ -694,9 +694,11 @@ BOOST_AUTO_TEST_CASE( testSharedConnections )
     BOOST_ASSERT( mi3->getManager()->getSharedConnection() );
     BOOST_CHECK_EQUAL( mi2->getManager()->getSharedConnection()->getName(), mi3->getManager()->getSharedConnection()->getName() );
     BOOST_CHECK_EQUAL( mi3->read(value), NoData );
+#ifndef RTT_CORBA_PORTS_DISABLE_SIGNAL
     testPortDataConnection(); // communication between mo and mi should work the same as for private connections
     BOOST_CHECK_EQUAL( mi3->read(value), OldData );
     BOOST_CHECK_EQUAL( value, 2.0 );
+#endif // RTT_CORBA_PORTS_DISABLE_SIGNAL
     BOOST_CHECK_EQUAL( mo2->write(3.0), WriteSuccess );
     value = 0.0;
     BOOST_CHECK_EQUAL( mi3->read(value), NewData );
@@ -723,9 +725,11 @@ BOOST_AUTO_TEST_CASE( testSharedConnections )
     BOOST_CHECK( mo1->getSharedBuffer() );
     BOOST_CHECK( mo2->getSharedBuffer() );
     BOOST_CHECK_EQUAL( mi3->read(value), NoData );
+#ifndef RTT_CORBA_PORTS_DISABLE_SIGNAL
     testPortDataConnection(); // communication between mo and mi should work the same as for private connections
     BOOST_CHECK_EQUAL( mi3->read(value), OldData );
     BOOST_CHECK_EQUAL( value, 2.0 );
+#endif // RTT_CORBA_PORTS_DISABLE_SIGNAL
     BOOST_CHECK_EQUAL( mo1->write(3.0), WriteSuccess );
     BOOST_CHECK_EQUAL( mo2->write(4.0), WriteSuccess );
     value = 0.0;
