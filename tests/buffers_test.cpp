@@ -119,10 +119,10 @@ public:
 };
 
 template <class Worker>
-class ThreadPool : public std::vector< std::pair< shared_ptr<Worker>, shared_ptr<ThreadInterface> > >
+class ThreadPool : public std::vector< std::pair< boost::shared_ptr<Worker>, boost::shared_ptr<ThreadInterface> > >
 {
 public:
-    typedef std::vector< std::pair< shared_ptr<Worker>, shared_ptr<ThreadInterface> > > Threads;
+    typedef std::vector< std::pair< boost::shared_ptr<Worker>, boost::shared_ptr<ThreadInterface> > > Threads;
     typedef typename Threads::value_type value_type;
     typedef typename Threads::iterator iterator;
     typedef typename Threads::const_iterator const_iterator;
