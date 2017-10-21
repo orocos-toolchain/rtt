@@ -81,15 +81,19 @@ namespace RTT
          */
         typedef T DataType;
 
-        virtual FlowStatus Get( DataType& pull, bool copy_old_data = true ) const {
+        virtual FlowStatus Get( DataType& pull, bool copy_old_data, bool copy_sample ) const {
             FlowStatus result = status;
             if (status == NewData) {
                 pull = data;
                 status = OldData;
-            } else if ((status == OldData) && copy_old_data) {
+            } else if (((status == OldData) && copy_old_data) || copy_sample) {
                 pull = data;
             }
             return result;
+        }
+
+        virtual FlowStatus Get( DataType& pull, bool copy_old_data = true ) const {
+            return Get( pull, copy_old_data, /* copy_sample = */ false );
         }
 
         virtual DataType Get() const {
