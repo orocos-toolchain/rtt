@@ -101,25 +101,30 @@ void CorbaMQueueIPCTest::new_data_listener(base::PortInterface* port)
     signalled_port = port;
 }
 
-
-#define ASSERT_PORT_SIGNALLING(code, read_port) \
+#define ASSERT_PORT_SIGNALLING(code, read_port) do { \
     signalled_port = 0; \
+    int wait = 0; \
     code; \
-    usleep(100000); \
-    BOOST_CHECK( read_port == signalled_port );
+    while (read_port != signalled_port && wait++ != 5) \
+        usleep(100000); \
+    BOOST_CHECK( read_port == signalled_port ); \
+} while(0)
 
-bool wait_for_helper;
-#define wait_for( cond, times ) \
-    wait = 0; \
+#define wait_for( cond, times ) do { \
+    bool wait_for_helper; \
+    int wait = 0; \
     while( (wait_for_helper = !(cond)) && wait++ != times ) \
-      usleep(100000); \
-    if (wait_for_helper) BOOST_CHECK( cond );
+        usleep(100000); \
+    if (wait_for_helper) BOOST_CHECK( cond ); \
+} while(0)
 
-#define wait_for_equal( a, b, times ) \
-    wait = 0; \
+#define wait_for_equal( a, b, times ) do { \
+    bool wait_for_helper; \
+    int wait = 0; \
     while( (wait_for_helper = ((a) != (b))) && wait++ != times ) \
-      usleep(100000); \
-    if (wait_for_helper) BOOST_CHECK_EQUAL( a, b );
+        usleep(100000); \
+    if (wait_for_helper) BOOST_CHECK_EQUAL( a, b ); \
+} while(0)
 
 void CorbaMQueueIPCTest::testPortDataConnection()
 {
@@ -134,7 +139,7 @@ void CorbaMQueueIPCTest::testPortDataConnection()
     BOOST_CHECK( !mr1->read(value) );
 
     // Check if writing works (including signalling)
-    ASSERT_PORT_SIGNALLING(mw1->write(1.0), mr1)
+    ASSERT_PORT_SIGNALLING(mw1->write(1.0), mr1);
     BOOST_CHECK( mr1->read(value) );
     BOOST_CHECK_EQUAL( 1.0, value );
     ASSERT_PORT_SIGNALLING(mw1->write(2.0), mr1);
