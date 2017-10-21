@@ -654,16 +654,28 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     mo->write( 3.33 );
     wait_for_equal( cce->read( sample.out(), true), CNewData, 5 );
     sample >>= result;
+#ifndef RTT_CORBA_PORTS_WRITE_ONEWAY
     BOOST_CHECK_EQUAL( result, 6.33);
+#else
+    BOOST_CHECK( (result == 6.33) || (result == 3.33) );
+#endif
     wait_for_equal( cce->read( sample.out(), true ), CNewData, 10 );
     sample >>= result;
+#ifndef RTT_CORBA_PORTS_WRITE_ONEWAY
     BOOST_CHECK_EQUAL( result, 3.33);
+#else
+    BOOST_CHECK( (result == 6.33) || (result == 3.33) );
+#endif
 
     // Check re-read of old data.
     sample <<= 0.0;
     BOOST_CHECK_EQUAL( cce->read( sample.out(), true ), COldData );
     sample >>= result;
+#ifndef RTT_CORBA_PORTS_WRITE_ONEWAY
     BOOST_CHECK_EQUAL( result, 3.33);
+#else
+    BOOST_CHECK( (result == 6.33) || (result == 3.33) );
+#endif
 
     cce->disconnect();
     mo->disconnect();
