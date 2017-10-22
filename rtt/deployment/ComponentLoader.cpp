@@ -759,7 +759,7 @@ bool ComponentLoader::unloadComponent( RTT::TaskContext* tc ) {
     if (!tc)
         return false;
     CompList::iterator it = comps.begin();
-    while ( it != comps.end() ) {
+    for(; it != comps.end(); ++it ) {
         if ( it->second.instance == tc) break;
     }
 
