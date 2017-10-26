@@ -192,7 +192,7 @@ namespace RTT
                         {
                             long long v;
                             if ( sscanf(value_string.c_str(), "%lld", &v) == 1)
-                                bag_stack.top().first->add( new Property<long long>( name, description, v ) );
+                                bag_stack.top().first->ownProperty( new Property<long long>( name, description, v ) );
                             else
                                 throw SAXException(std::string("Wrong value for property '"+type+"'." \
                                                                " Value should contain an integer value, got '"+ value_string +"'.").c_str());
@@ -201,7 +201,7 @@ namespace RTT
                         {
                             unsigned long long v;
                             if ( sscanf(value_string.c_str(), "%llu", &v) == 1)
-                                bag_stack.top().first->add( new Property<unsigned long long>( name, description, v ) );
+                                bag_stack.top().first->ownProperty( new Property<unsigned long long>( name, description, v ) );
                             else
                                 throw SAXException(std::string("Wrong value for property '"+type+"'." \
                                                                " Value should contain an integer value, got '"+ value_string +"'.").c_str());
