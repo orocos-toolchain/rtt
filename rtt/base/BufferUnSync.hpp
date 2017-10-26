@@ -76,13 +76,13 @@ namespace RTT
         /**
          * Create a buffer of size \a size.
          */
-        BufferUnSync( size_type size, const T& initial_value, const Options &options = Options() )
+        BufferUnSync( size_type size, param_t initial_value, const Options &options = Options() )
             : cap(size), buf(), mcircular(options.circular()), initialized(false), droppedSamples(0)
         {
             data_sample(initial_value);
         }
 
-        virtual bool data_sample( const T& sample, bool reset = true )
+        virtual bool data_sample( param_t sample, bool reset = true )
         {
             if (!initialized || reset) {
                 buf.resize(cap, sample);
@@ -93,7 +93,7 @@ namespace RTT
             }
         }
 
-        virtual T data_sample() const
+        virtual value_t data_sample() const
         {
             return lastSample;
         }
@@ -121,9 +121,9 @@ namespace RTT
             return true;
         }
 
-        size_type Push(const std::vector<T>& items)
+        size_type Push(const std::vector<value_t>& items)
         {
-            typename std::vector<T>::const_iterator itl( items.begin() );
+            typename std::vector<value_t>::const_iterator itl( items.begin() );
             if (mcircular && (size_type)items.size() >= cap ) {
                 // clear out current data and reset iterator to first element we're going to take.
                 buf.clear();
@@ -162,7 +162,7 @@ namespace RTT
             return NewData;
         }
 
-        size_type Pop(std::vector<T>& items )
+        size_type Pop(std::vector<value_t>& items )
         {
             int quant = 0;
             items.clear();
@@ -220,7 +220,7 @@ namespace RTT
         }
     private:
         size_type cap;
-        std::deque<T> buf;
+        std::deque<value_t> buf;
         value_t lastSample;
         const bool mcircular;
         bool initialized;
