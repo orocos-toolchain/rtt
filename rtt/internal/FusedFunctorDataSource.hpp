@@ -45,6 +45,7 @@
 #include "BindStorage.hpp"
 #include "../ExecutionEngine.hpp"
 #include "../os/oro_allocator.hpp"
+#include "UnMember.hpp"
 #include <boost/bind.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/function.hpp>
