@@ -43,6 +43,7 @@
 #include "DataObjectInterface.hpp"
 #include "../Logger.hpp"
 #include "../types/Types.hpp"
+#include "../internal/DataSourceTypeInfo.hpp"
 
 namespace RTT
 { namespace base {
@@ -80,8 +81,11 @@ namespace RTT
         : public DataObjectInterface<T>
     {
     public:
+        typedef typename DataObjectInterface<T>::value_t value_t;
+        typedef typename DataObjectInterface<T>::reference_t reference_t;
+        typedef typename DataObjectInterface<T>::param_t param_t;
+
         typedef typename DataObjectBase::Options Options;
-        typedef typename DataObjectInterface<T>::DataType DataType;
 
         /**
          * @brief The maximum number of threads.
@@ -107,7 +111,7 @@ namespace RTT
             {
                 oro_atomic_set(&counter, 0);
             }
-            DataType data;
+            value_t data;
             FlowStatus status;
             mutable oro_atomic_t counter;
             DataBuf* next;
@@ -150,7 +154,7 @@ namespace RTT
          * @param max_threads The maximum number of threads accessing this DataObject.
          * @note You have to specify the maximum number of threads explicitly
          */
-        DataObjectLockFree( const T& initial_value, const Options &options = Options() )
+        DataObjectLockFree( param_t initial_value, const Options &options = Options() )
             : MAX_THREADS(options.max_threads()), BUF_LEN( options.max_threads() + 2),
               read_ptr(0),
               write_ptr(0),
@@ -169,12 +173,12 @@ namespace RTT
         /**
          * Get a copy of the data.
          * This method will allocate memory twice if data is not a value type.
-         * Use Get(DataType&) for the non-allocating version.
+         * Use Get(reference_t) for the non-allocating version.
          *
          * @return A copy of the data.
          */
-        virtual DataType Get() const {
-            DataType cache = DataType();
+        virtual value_t Get() const {
+            value_t cache = value_t();
             Get(cache);
             return cache;
         }
@@ -189,7 +193,7 @@ namespace RTT
          *                      has not been updated since the last call.
          * @param copy_sample   If true, copy the data unconditionally.
          */
-        virtual FlowStatus Get( DataType& pull, bool copy_old_data, bool copy_sample ) const
+        virtual FlowStatus Get( reference_t pull, bool copy_old_data, bool copy_sample ) const
         {
             if (!initialized && !copy_sample) {
                 return NoData;
@@ -233,7 +237,7 @@ namespace RTT
          * @param copy_old_data If true, also copy the data if the data object
          *                      has not been updated since the last call.
          */
-        virtual FlowStatus Get( DataType& pull, bool copy_old_data = true ) const
+        virtual FlowStatus Get( reference_t pull, bool copy_old_data = true ) const
         {
             return Get( pull, copy_old_data, /* copy_sample = */ false );
         }
@@ -243,7 +247,7 @@ namespace RTT
          *
          * @param push The data which must be set.
          */
-        virtual bool Set( const DataType& push )
+        virtual bool Set( param_t push )
         {
             /**
              * This method can not be called concurrently (only one
@@ -255,10 +259,9 @@ namespace RTT
              */
 
             if (!initialized) {
-                types::TypeInfo *ti = types::Types()->getTypeInfo<DataType>();
-                log(Error) << "You set a lock-free data object of type " << (ti ? ti->getTypeName() : "(unknown)") << " without initializing it with a data sample. "
+                log(Error) << "You set a lock-free data object of type " << internal::DataSourceTypeInfo<T>::getType() << " without initializing it with a data sample. "
                            << "This might not be real-time safe." << endlog();
-                data_sample(DataType(), true);
+                data_sample(value_t(), true);
             }
 
             // writeout in any case
@@ -281,7 +284,7 @@ namespace RTT
             return true;
         }
 
-        virtual bool data_sample( const DataType& sample, bool reset = true ) {
+        virtual bool data_sample( param_t sample, bool reset = true ) {
             if (!initialized || reset) {
                 // prepare the buffer.
                 for (unsigned int i = 0; i < BUF_LEN; ++i) {
@@ -295,6 +298,15 @@ namespace RTT
             } else {
                 return initialized;
             }
+        }
+
+        /**
+         * Reads back a data sample.
+         */
+        virtual value_t data_sample() const {
+            value_t sample;
+            (void) Get(sample, /* copy_old_data = */ true, /* copy_sample = */ true);
+            return sample;
         }
 
         // This is actually a copy of Get(), but it only sets the status to NoData once a valid buffer has been found.
