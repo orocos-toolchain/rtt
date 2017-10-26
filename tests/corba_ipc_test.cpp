@@ -42,10 +42,10 @@
 using namespace RTT;
 using namespace RTT::detail;
 
-class CorbaTest : public TaskContext
+class CorbaTest
 {
 public:
-    CorbaTest() : TaskContext("CorbaTest") { this->setUp(); }
+    CorbaTest() { this->setUp(); }
     ~CorbaTest() { this->tearDown(); }
 
     TaskContext* tc;
@@ -76,8 +76,8 @@ public:
     void testPortDisconnected();
 
     void callBackPeer(TaskContext* peer, string const& opname) {
-        OperationCaller<void(TaskContext*, string const&)> op1( peer->getOperation(opname), this->engine());
-        OperationCaller<void()> resetCallBackPeer( peer->getOperation("resetCallBackPeer"), this->engine());
+        OperationCaller<void(TaskContext*, string const&)> op1( peer->getOperation(opname), tc->engine() );
+        OperationCaller<void()> resetCallBackPeer( peer->getOperation("resetCallBackPeer"), tc->engine() );
         int count = ++callBackPeer_count;
 
         if (callBackPeer_step == INITIAL) {
@@ -90,13 +90,13 @@ public:
         if (callBackPeer_step == CALL) {
             callBackPeer_step = SEND;
             log(Info) << "Test calls server:" << count <<endlog();
-            op1(this, "callBackPeer");
+            op1(tc, "callBackPeer");
             log(Info) << "Test finishes server call:"<<count <<endlog();
         }
         else if (callBackPeer_step == SEND) {
             callBackPeer_step = FINAL;
             log(Info) << "Test sends server:"<<count <<endlog();
-            handle = op1.send(this, "callBackPeerOwn");
+            handle = op1.send(tc, "callBackPeerOwn");
             log(Info) << "Test finishes server send:"<< count <<endlog();
         }
         log(Info) << "Test finishes callBackPeer():"<< count <<endlog();
@@ -124,8 +124,8 @@ CorbaTest::setUp()
     callBackPeer_count = 0;
     callBackPeer_step = INITIAL;
 
-    addOperation("callBackPeer", &CorbaTest::callBackPeer, this,ClientThread);
-    addOperation("callBackPeerOwn", &CorbaTest::callBackPeer, this,OwnThread);
+    tc->addOperation("callBackPeer", &CorbaTest::callBackPeer, this,ClientThread);
+    tc->addOperation("callBackPeerOwn", &CorbaTest::callBackPeer, this,OwnThread);
 }
 
 
