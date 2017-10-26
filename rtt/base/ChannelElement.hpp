@@ -162,11 +162,7 @@ namespace RTT { namespace base {
         {
             FlowStatus result = NoData;
             // read and iterate if necessary.
-#ifdef USE_CPP11
-            select_reader_channel( bind( &MultipleInputsChannelElement<T>::do_read, this, boost::ref(sample), boost::ref(result), _1, _2), copy_old_data );
-#else
-            select_reader_channel( boost::bind( &MultipleInputsChannelElement<T>::do_read, this, boost::ref(sample), boost::ref(result), ::_1, ::_2), copy_old_data );
-#endif
+            select_reader_channel( boost::bind( &MultipleInputsChannelElement<T>::do_read, this, boost::ref(sample), boost::ref(result), _1, _2), copy_old_data );
             return result;
         }
 
