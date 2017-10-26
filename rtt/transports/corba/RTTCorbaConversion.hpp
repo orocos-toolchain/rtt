@@ -257,14 +257,12 @@ namespace RTT {
 
       /**
       * Use for the conversion from a stl container to a sequence<string>
+      *
+      * Note: T needs to have reference semantics, but we cannot explicitly use a reference argument
+      * because it would break TAO. See https://github.com/orocos-toolchain/rtt/commit/7cd62561b72467a9dd79757ae22714931d0fa1c9.
       */
-      template<class dummy>
-      static bool toCorbaType(dummy dest, const StdType& src) {
-        dest = src.c_str();
-        return true;
-      }
-
-      static bool toCorbaType(CorbaType dest, const StdType& src) {
+      template<class T>
+      static bool toCorbaType(T dest, const StdType& src) {
         dest = src.c_str();
         return true;
       }

@@ -77,6 +77,7 @@
 #endif
 #include "../../OperationInterface.hpp"
 #include "../../internal/SendHandleC.hpp"
+#include "../../internal/OperationInterfacePartFused.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -125,6 +126,9 @@ class  RTT_corba_COperationInterface_i
 {
       RTT::OperationInterface* mfact;
       PortableServer::POA_var mpoa;
+      RTT::Operation<bool(std::string)> loadPluginOperation;
+      RTT::internal::OperationInterfacePartFused<bool(std::string)> loadPluginOperationPart;
+
   public:
     //Constructor
       RTT_corba_COperationInterface_i(RTT::OperationInterface* mfact, PortableServer::POA_ptr the_poa);
@@ -194,6 +198,9 @@ private:
   RTT_corba_CSendHandle_i* sendOperationInternal (
       const char * operation,
       const ::RTT::corba::CAnyArguments & args);
+
+  RTT::OperationInterfacePart *findOperation ( const char *operation );
+  bool loadPlugin ( const std::string& pluginPath );
 };
 
 
