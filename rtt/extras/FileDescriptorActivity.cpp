@@ -338,8 +338,15 @@ void FileDescriptorActivity::loop()
         m_has_error   = false;
         m_has_timeout = false;
         m_has_ioready = false;
-        if (ret == -1)
+        if (ret < 0)
         {
+            if (errno == EINTR)
+            {
+                // A signal was caught; see signal(7). We should not handle this
+                // here and simply continue waiting. Could be as trivial as
+                // a SIGWINCH (Window resize signal).
+                continue;
+            }
             log(Error) << "FileDescriptorActivity: error in select(), errno = " << errno << endlog();
             m_has_error = true;
         }
