@@ -182,7 +182,7 @@ void FileDescriptorActivity::setTimeout_us(int timeout_us)
     }
 }
 void FileDescriptorActivity::watch(int fd)
-{ RTT::os::MutexLock lock(m_lock);
+{ RTT::os::MutexLock lock(m_fd_lock);
     if (fd < 0)
     {
         log(Error) << "negative file descriptor given to FileDescriptorActivity::watch" << endlog();
@@ -194,13 +194,13 @@ void FileDescriptorActivity::watch(int fd)
     triggerUpdateSets();
 }
 void FileDescriptorActivity::unwatch(int fd)
-{ RTT::os::MutexLock lock(m_lock);
+{ RTT::os::MutexLock lock(m_fd_lock);
     m_watched_fds.erase(fd);
     FD_CLR(fd, &m_fd_set);
     triggerUpdateSets();
 }
 void FileDescriptorActivity::clearAllWatches()
-{ RTT::os::MutexLock lock(m_lock);
+{ RTT::os::MutexLock lock(m_fd_lock);
     m_watched_fds.clear();
     FD_ZERO(&m_fd_set);
     triggerUpdateSets();
@@ -226,7 +226,7 @@ bool FileDescriptorActivity::hasError() const
 bool FileDescriptorActivity::hasTimeout() const
 { return m_has_timeout; }
 bool FileDescriptorActivity::isWatched(int fd) const
-{ RTT::os::MutexLock lock(m_lock);
+{ RTT::os::MutexLock lock(m_fd_lock);
     return FD_ISSET(fd, &m_fd_set); }
 
 bool FileDescriptorActivity::start()
@@ -308,7 +308,7 @@ void FileDescriptorActivity::loop()
     while(true)
     {
         int max_fd;
-        { RTT::os::MutexLock lock(m_lock);
+        { RTT::os::MutexLock lock(m_fd_lock);
             if (m_watched_fds.empty())
                 max_fd = pipe;
             else

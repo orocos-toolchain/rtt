@@ -110,7 +110,7 @@ namespace RTT { namespace extras {
         int  m_timeout_us;		//! timeout in microseconds
         Seconds m_period;		//! intended period
         /** Lock that protects the access to m_fd_set and m_watched_fds */
-        mutable RTT::os::Mutex m_lock;
+        mutable RTT::os::Mutex m_fd_lock;
         fd_set m_fd_set;
         fd_set m_fd_work;
         bool m_has_error;
