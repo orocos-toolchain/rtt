@@ -868,26 +868,25 @@ BOOST_AUTO_TEST_CASE( testStateYieldbyCmd )
         + " initial state INIT {\n"
         + " var double d = 0.0\n"
         + " run {\n"
-        + "test.assertEqual( test.i, 0 )\n"
-        + "var SendStatus ss\n"
-        + "ss = test.increaseCmd.cmd() \n"
-        + "test.assert( ss == SendSuccess )\n"
-        + "test.assertEqual( test.i, 1 )\n"
-        + "ss = test.increaseCmd.cmd()\n"
-        + "test.assert( ss == SendSuccess )\n"
-        + "test.assertEqual( test.i , 2 )\n"
+        + "   test.assertEqual( test.i, 0 )\n"
+        + "   var SendStatus ss\n"
+        + "   ss = test.increaseCmd.cmd() \n"
+        + "   test.assert( ss == SendSuccess )\n"
+        + "   test.assertEqual( test.i, 1 )\n"
+        + "   ss = test.increaseCmd.cmd()\n"
+        + "   test.assert( ss == SendSuccess )\n"
+        + "   test.assertEqual( test.i , 2 )\n"
 
-        + "tss = methods.vo0.cmd() \n" // bug : does not evaluate conditions !
-        + "test.assert( tss == SendSuccess )\n"
-        + "tss = methods.vo0.cmd()\n"
-        + "test.assert( tss == SendSuccess )\n"
-
+        + "   tss = methods.vo0.cmd() \n" // bug : does not evaluate conditions !
+        + "   test.assert( tss == SendSuccess )\n"
+        + "   tss = methods.vo0.cmd()\n"
+        + "   test.assert( tss == SendSuccess )\n"
         + " }\n"
         + " transitions {\n"
         + "       select FINI\n"
         + " }\n"
         + " }\n"
-        + " final state FINI {\n" // Failure state.
+        + " final state FINI {\n" // Success state.
         + " entry { do test.assert(true); }\n"
         + " }\n"
         + " }\n"
@@ -938,7 +937,7 @@ BOOST_AUTO_TEST_CASE( testStateSendFunction )
         + "       select FINI\n"
         + " }\n"
         + " }\n"
-        + " final state FINI {\n" // Failure state.
+        + " final state FINI {\n" // Success state.
         + " entry { do test.assert(true); }\n"
         + " }\n"
         + " }\n"
@@ -965,26 +964,26 @@ BOOST_AUTO_TEST_CASE( testStateCmdFunction )
         + "   var SendStatus ss\n"
         + "   tvar_i = 0\n"
 
-        + "   ss = foo.cmd(tvar_i) \n"
+        + "   ss = foo.cmd(tvar_i)\n"
         + "   test.assert( ss == SendSuccess )\n"
         + "   test.assertEqual( tvar_i, 2 )\n"
 
-        + "ss = foo.cmd(tvar_i)\n"
-        + "test.assert( ss == SendSuccess )\n"
-        + "test.assertEqual( tvar_i , 4 )\n"
+        + "   ss = foo.cmd(tvar_i)\n"
+        + "   test.assert( ss == SendSuccess )\n"
+        + "   test.assertEqual( tvar_i , 4 )\n"
 
-        + "tss = foo.cmd(tvar_i) \n"
-        + "test.assert( tss == SendSuccess )\n"
-        + "tss = foo.cmd(tvar_i)\n"
-        + "test.assert( tss == SendSuccess )\n"
-        + "test.assertEqual( tvar_i , 8 )\n"
+        + "   tss = foo.cmd(tvar_i)\n"
+        + "   test.assert( tss == SendSuccess )\n"
+        + "   tss = foo.cmd(tvar_i)\n"
+        + "   test.assert( tss == SendSuccess )\n"
+        + "   test.assertEqual( tvar_i , 8 )\n"
 
         + " }\n"
         + " transitions {\n"
         + "       select FINI\n"
         + " }\n"
         + " }\n"
-        + " final state FINI {\n" // Failure state.
+        + " final state FINI {\n" // Success state.
         + " entry { do test.assert(true); }\n"
         + " }\n"
         + " }\n"
