@@ -128,9 +128,11 @@ IF ( OS_RT_MALLOC )
     IF (OS_RT_MALLOC_DEBUG)
         SET( TLSF_FLAGS "${TLSF_FLAGS} -D_DEBUG_TLSF_")
     ENDIF (OS_RT_MALLOC_DEBUG)
-    
+    SET( TLSF_FLAGS "${TLSF_FLAGS} -fno-strict-aliasing")
     SET_SOURCE_FILES_PROPERTIES( os/tlsf/tlsf.c PROPERTIES
                                 COMPILE_FLAGS "${TLSF_FLAGS}")
+
+    set(TLSF_FLAGS "${TLSF_FLAGS}" CACHE INTERNAL "")
 
     GET_SOURCE_FILE_PROPERTY( TLSF os/tlsf/tlsf.c COMPILE_FLAGS)
     MESSAGE( "TLSF settings: ${TLSF}")

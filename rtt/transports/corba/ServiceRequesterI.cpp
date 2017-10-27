@@ -161,7 +161,9 @@ char * RTT_corba_CServiceRequester_i::getRequestName (
         log(Error) << "No such OperationCaller: " << oname << " in "<< mservice->getRequestName()<<endlog();
         return false;
     }
-    if ( svc->getArity(oname.c_str()) == -1) {
+    try {
+        (void) svc->getArity(oname.c_str());
+    } catch( ::RTT::corba::CNoSuchNameException& ) {
         CORBA::String_var svcname = svc->getName();
         log(Error) << "No such Operation: " << oname << " in "<< svcname.in() << endlog();
         return false;
