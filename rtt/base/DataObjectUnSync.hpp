@@ -55,10 +55,14 @@ namespace RTT
     class DataObjectUnSync
         : public DataObjectInterface<T>
     {
+        typedef typename DataObjectInterface<T>::value_t value_t;
+        typedef typename DataObjectInterface<T>::reference_t reference_t;
+        typedef typename DataObjectInterface<T>::param_t param_t;
+
         /**
          * One element of Data.
          */
-        T data;
+        value_t data;
 
         mutable FlowStatus status;
         bool initialized;
@@ -73,42 +77,33 @@ namespace RTT
         /**
          * Construct a DataObjectUnSync with initial value.
          */
-        DataObjectUnSync( const T& initial_value )
+        DataObjectUnSync( param_t initial_value )
             : data(initial_value), status(NoData), initialized(true) {}
 
-        /**
-         * The type of the data.
-         */
-        typedef T DataType;
-
-        virtual FlowStatus Get( DataType& pull, bool copy_old_data, bool copy_sample ) const {
+        virtual FlowStatus Get( reference_t pull, bool copy_old_data = true ) const {
             FlowStatus result = status;
             if (status == NewData) {
                 pull = data;
                 status = OldData;
-            } else if (((status == OldData) && copy_old_data) || copy_sample) {
+            } else if ((status == OldData) && copy_old_data) {
                 pull = data;
             }
             return result;
         }
 
-        virtual FlowStatus Get( DataType& pull, bool copy_old_data = true ) const {
-            return Get( pull, copy_old_data, /* copy_sample = */ false );
-        }
-
-        virtual DataType Get() const {
-            DataType cache = DataType();
+        virtual value_t Get() const {
+            value_t cache = value_t();
             Get(cache);
             return cache;
         }
 
-        virtual bool Set( const DataType& push ) {
+        virtual bool Set( param_t push ) {
             data = push;
             status = NewData;
             return true;
         }
 
-        virtual bool data_sample( const DataType& sample, bool reset ) {
+        virtual bool data_sample( param_t sample, bool reset ) {
             if (!initialized || reset) {
                 Set(sample);
                 initialized = true;
@@ -118,7 +113,10 @@ namespace RTT
             }
         }
 
-        virtual T data_sample() const
+        /**
+         * Reads back a data sample.
+         */
+        virtual value_t data_sample() const
         {
             return data;
         }
