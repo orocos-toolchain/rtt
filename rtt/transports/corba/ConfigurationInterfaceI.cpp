@@ -155,10 +155,9 @@ RTT_corba_CConfigurationInterface_i::~RTT_corba_CConfigurationInterface_i (void)
     size_t index = 0;
     for( ; it != allprops.end(); ++it, ++index, ++dit) {
         ::RTT::corba::CConfigurationInterface::CProperty prop;
-        base::DataSourceBase::shared_ptr ds = getPropertyDataSource(*it);
         prop.name = CORBA::string_dup( it->c_str() );
         prop.description = CORBA::string_dup( dit->c_str() );
-        prop.type_name = CORBA::string_dup( ds->getTypeName().c_str() );
+        prop.type_name = getPropertyType((*it).c_str());
         ret[index] = prop;
     }
     return ret._retn();

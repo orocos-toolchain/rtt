@@ -309,8 +309,12 @@ namespace RTT
                 else
                     parent->setValue( ti->buildConstant( cdescription.attributes[i].name.in(), ds));
             } else {
-                log(Error) << "Looking up Attribute " << cdescription.attributes[i].type_name.in();
-                Logger::log() <<": type not known. Check your RTT_COMPONENT_PATH ( \""<<getenv("RTT_COMPONENT_PATH")<<" \")."<<endlog();
+                log(Error) << "Looking up Attribute '" << cdescription.attributes[i].name.in() << "' of type " << cdescription.attributes[i].type_name.in() << ": ";
+                if (!ti) {
+                    log() << ": type not known. Check your RTT_COMPONENT_PATH ( \""<<getenv("RTT_COMPONENT_PATH")<<" \")." << endlog();
+                } else {
+                    log() << ": type does not support CORBA (no transport plugin loaded)" << endlog();
+                }
             }
         }
 
@@ -337,8 +341,14 @@ namespace RTT
                 TypeInfo const* type_info = type_repo->type(cdescription.ports[i].type_name.in());
                 if (!type_info)
                 {
-                    log(Warning) << "remote port " << cdescription.ports[i].name
-                        << " has a type that cannot be marshalled over CORBA: " << cdescription.ports[i].type_name << ". "
+                    log(Warning) << "remote port '" << cdescription.ports[i].name << "' "
+                        << " has unknown type " << cdescription.ports[i].type_name << " and cannot be marshalled over CORBA. "
+                        << "It is ignored by TaskContextProxy" << endlog();
+                }
+                else if (!type_info->hasProtocol(ORO_CORBA_PROTOCOL_ID))
+                {
+                    log(Warning) << "remote port '" << cdescription.ports[i].name << "' "
+                        << " has type " << cdescription.ports[i].type_name << " which cannot be marshalled over CORBA. "
                         << "It is ignored by TaskContextProxy" << endlog();
                 }
                 else
