@@ -138,6 +138,7 @@ namespace RTT
     }
 
     bool ServiceRequester::connectTo( Service::shared_ptr sp) {
+        if (!sp) return false;
         for (OperationCallers::iterator it = mmethods.begin(); it != mmethods.end(); ++it) {
             if ( !it->second->ready() ) {
                 if (sp->hasOperation( it->first )) {
