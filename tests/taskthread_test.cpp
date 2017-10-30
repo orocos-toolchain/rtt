@@ -21,6 +21,7 @@
 
 #include "taskthread_test.hpp"
 
+#include <cstdlib>
 #include <iostream>
 
 #include <extras/Activities.hpp>
@@ -206,11 +207,15 @@ BOOST_AUTO_TEST_CASE(testPeriodic )
     }
 
     // Different CPU affinity
-    unsigned cpu_affinity = 1; // first CPU only
-    if ( mtask.thread()->getCpuAffinity() != cpu_affinity ) {
-        PeriodicActivity m4task(ORO_SCHED_OTHER, 15, 0.01, cpu_affinity);
-        BOOST_CHECK( mtask.thread() != m4task.thread() );
-        BOOST_CHECK_EQUAL( cpu_affinity, m4task.thread()->getCpuAffinity() );
+    if (std::getenv("CI") != NULL) {
+        BOOST_TEST_MESSAGE("Skipping CPU affinity test in testPeriodic because it can fail on integration servers.");
+    } else {
+        unsigned cpu_affinity = 1; // first CPU only
+        if ( mtask.thread()->getCpuAffinity() != cpu_affinity ) {
+            PeriodicActivity m4task(ORO_SCHED_OTHER, 15, 0.01, cpu_affinity);
+            BOOST_CHECK( mtask.thread() != m4task.thread() );
+            BOOST_CHECK_EQUAL( cpu_affinity, m4task.thread()->getCpuAffinity() );
+        }
     }
 
     // Starting thread if thread not running

@@ -541,11 +541,6 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
 
 BOOST_AUTO_TEST_CASE( testDataHalfs )
 {
-    if(std::getenv("CI") != NULL) {
-      BOOST_TEST_MESSAGE("Skipping testAffinity because it can fail on integration servers.");
-      return;
-    }
-
     double result;
     // This test tests the differen port-to-port connections.
     tp = corba::TaskContextProxy::Create( "peerDH" , /* is_ior = */ false);
@@ -607,11 +602,6 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
 
 BOOST_AUTO_TEST_CASE( testBufferHalfs )
 {
-    if(std::getenv("CI") != NULL) {
-      BOOST_TEST_MESSAGE("Skipping testAffinity because it can fail on integration servers.");
-      return;
-    }
-
     double result;
 
     // This test tests the differen port-to-port connections.
