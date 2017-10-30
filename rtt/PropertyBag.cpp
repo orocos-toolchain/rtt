@@ -233,7 +233,7 @@ namespace RTT
 
         for( const_iterator i = orig.mproperties.begin(); i != orig.mproperties.end(); ++i) {
             if ( orig.ownsProperty( *i ) ) {
-                PropertyBase* copy = (*i)->copy();
+                PropertyBase* copy = (*i)->create( (*i)->getDataSource() );
                 this->ownProperty( copy );
             } else {
                 this->add( *i );
@@ -615,7 +615,7 @@ namespace RTT
                             temp->update( (*sit) );
                         }
                         // step 3 : add result to target bag.
-                        target.add( temp );
+                        target.ownProperty( temp );
                     }
             }
             ++it;

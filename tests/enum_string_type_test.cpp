@@ -21,15 +21,12 @@
 #include <rtt-fwd.hpp>
 #include <internal/DataSources.hpp>
 #include <os/fosi.h>
-#include <boost/lambda/lambda.hpp>
 
 #include "datasource_fixture.hpp"
 #include "marsh/PropertyBagIntrospector.hpp"
 #include "types/EnumTypeInfo.hpp"
 #include "marsh/PropertyLoader.hpp"
 #include "TaskContext.hpp"
-
-using namespace boost::lambda;
 
 typedef enum
 {
@@ -74,7 +71,6 @@ public:
 
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE( EnumTypeTestSuite, EnumTypeTest )
-
 // Tests enum to string conversions
 BOOST_AUTO_TEST_CASE( testEnumStringConversion )
 {
