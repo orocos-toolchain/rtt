@@ -141,6 +141,12 @@ char * RTT_corba_CTaskContext_i::getDescription (
     return mtask->stop();
 }
 
+::CORBA::Boolean RTT_corba_CTaskContext_i::recover(
+    void)
+{
+    return mtask->recover();
+}
+
 ::CORBA::Boolean RTT_corba_CTaskContext_i::cleanup (
     void)
 {
