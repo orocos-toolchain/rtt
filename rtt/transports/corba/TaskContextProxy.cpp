@@ -594,6 +594,18 @@ namespace RTT
         }
         return false;
     }
+    
+    bool TaskContextProxy::inException() const
+    {
+        try {
+            if (! CORBA::is_nil(mtask) )
+                return mtask->inException();
+        } catch(...) {
+            mtask = CTaskContext::_nil();
+        }
+        return false;
+    }
+
 
     TaskContext::TaskState TaskContextProxy::getTaskState() const {
         try {

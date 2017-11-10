@@ -173,6 +173,10 @@ public:
   ::CORBA::Boolean inRunTimeError (
       void);
 
+  virtual 
+  ::CORBA::Boolean inException(
+      void);
+  
   virtual
   ::RTT::corba::CDataFlowInterface_ptr ports (
       void);

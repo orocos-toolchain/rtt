@@ -197,6 +197,8 @@ namespace RTT
 
         virtual bool inRunTimeError() const;
 
+        virtual bool inException() const;
+
         virtual TaskState getTaskState() const;
 
         virtual void setName(const std::string& n);
