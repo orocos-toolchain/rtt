@@ -123,12 +123,18 @@ module RTT
 	     */
 	    boolean inFatalError();
 
-	    /**
-	     * Is this component in a RunTime error state ?
-	     * @see RTT::base::TaskCore::inRunTimeError()
-	     */
-	    boolean inRunTimeError();
+            /**
+             * Is this component in a RunTime error state ?
+             * @see RTT::base::TaskCore::inRunTimeError()
+             */
+            boolean inRunTimeError();
 
+            /**
+             * Is this component in an Exception error state ?
+             * @see RTT::base::TaskCore::inException()
+             */
+            boolean inException();
+	    
 	    /** @} */
 
 	    /**

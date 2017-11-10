@@ -191,6 +191,12 @@ char * RTT_corba_CTaskContext_i::getDescription (
     return mtask->inRunTimeError();
 }
 
+::CORBA::Boolean RTT_corba_CTaskContext_i::inException(
+    void)
+{
+    return mtask->inException();
+}
+
 ::RTT::corba::CDataFlowInterface_ptr RTT_corba_CTaskContext_i::ports (
     void)
 {
