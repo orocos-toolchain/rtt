@@ -145,6 +145,10 @@ public:
   ::CORBA::Boolean cleanup (
       void);
 
+  virtual 
+  ::CORBA::Boolean recover(
+      void);
+  
   virtual
   ::CORBA::Boolean resetException(
       void);
