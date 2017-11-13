@@ -58,11 +58,13 @@ namespace RTT {}
 #include "Attribute.hpp"
 #include "Port.hpp"
 
+#ifndef DOXYGEN
 namespace BFL {
 }
 
 namespace KDL {
 }
+#endif
 
 /**
  * The project wide Orocos namespace contains all user classes
