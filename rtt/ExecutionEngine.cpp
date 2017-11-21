@@ -335,7 +335,10 @@ namespace RTT
     void ExecutionEngine::waitAndProcessMessages(boost::function<bool(void)> const& pred)
     {
         assert( mmaster == 0 );
-        while ( !pred() ){
+        if ( pred() )
+            return;
+
+        while ( true ){
             // may not be called while holding the msg_lock !!!
             this->processMessages();
             {
@@ -354,18 +357,7 @@ namespace RTT
     void ExecutionEngine::waitAndProcessFunctions(boost::function<bool(void)> const& pred)
     {
         while ( !pred() ){
-            // may not be called while holding the msg_lock !!!
             this->processFunctions();
-            {
-                // only to be called from the thread executing step().
-                // We must lock because the cond variable will unlock msg_lock.
-                os::MutexLock lock(msg_lock);
-                if (!pred()) {
-                    msg_cond.wait(msg_lock); // now processMessages may run.
-                } else {
-                    return; // do not process messages when pred() == true;
-                }
-            }
         }
     }
 

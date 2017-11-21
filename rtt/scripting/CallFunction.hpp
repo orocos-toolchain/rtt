@@ -102,6 +102,9 @@ namespace RTT
                 if ( _foo->needsStart() ) // _foo might be auto-started in runFunction()
                     _foo->start();
                 if ( maccept ) {
+                    // Trigger the update step of mrunner. If the activity is periodic, this is a no-op.
+                    mrunner->getActivity()->timeout();
+
                     // block for the result: foo stopped or in error
                     //mcaller->waitForFunctions(boost::bind(&CallFunction::fooDone,this) );
                     mrunner->waitForFunctions(boost::bind(&CallFunction::fooDone,this) );
