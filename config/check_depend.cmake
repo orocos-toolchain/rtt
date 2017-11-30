@@ -177,6 +177,14 @@ if(OROCOS_TARGET STREQUAL "xenomai")
   endforeach()
 
   list(APPEND OROCOS-RTT_DEFINITIONS ${XENOMAI_DEFINITIONS})
+  
+  # TLSF is included in Xenomai 3 (libalchemy)
+  # And the symbols are read from this
+  # so we need to match the defines in 
+  # xenomai3/lib/boilerplate/tlsf/tlsf.c
+  if(XENOMAI_VERSION_MAJOR EQUAL 3)
+      add_definitions(-DTLSF_USE_LOCKS=0)
+  endif()
 
   # Direct input only for .pc file:
   list(APPEND RTT_USER_LDFLAGS ${XENOMAI_LDFLAGS} )
