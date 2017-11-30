@@ -173,7 +173,7 @@ if(OROCOS_TARGET STREQUAL "xenomai")
 
   foreach(xeno_flag ${XENOMAI_COMPILE_DEFINITIONS})
       string(REPLACE "-D" "" f ${xeno_flag})
-      list(APPEND ${f} XENOMAI_DEFINITIONS)
+      list(APPEND XENOMAI_DEFINITIONS ${f})
   endforeach()
 
   list(APPEND OROCOS-RTT_DEFINITIONS ${XENOMAI_DEFINITIONS})
