@@ -111,11 +111,15 @@ CMAKE_DEPENDENT_OPTION(OS_RT_MALLOC "Enable RT memory management" ON "OS_HAS_TLS
 
 IF ( OS_RT_MALLOC )
     SET(TLSF_FLAGS "-Wextra -Wall -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wno-long-long -Wstrict-aliasing=2")
+    OPTION( OS_RT_MALLOC_LOCKS "Enable RT memory management with lock support" ON)
     OPTION( OS_RT_MALLOC_SBRK "Enable RT memory management with sbrk support" ON)
     OPTION( OS_RT_MALLOC_MMAP "Enable RT memory management with mmap support" ON)
     OPTION( OS_RT_MALLOC_STATS "Enable RT memory management with statistics" ON)
     OPTION( OS_RT_MALLOC_DEBUG "Enable RT memory management debugging" OFF)
     
+    IF (OS_RT_MALLOC_LOCKS)
+        SET( TLSF_FLAGS "${TLSF_FLAGS} -DUSE_LOCKS")
+    ENDIF (OS_RT_MALLOC_LOCKS)
     IF (OS_RT_MALLOC_SBRK)
         SET( TLSF_FLAGS "${TLSF_FLAGS} -DUSE_SBRK")
     ENDIF (OS_RT_MALLOC_SBRK)
