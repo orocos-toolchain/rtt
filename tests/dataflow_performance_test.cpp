@@ -294,18 +294,28 @@ template <typename T, PortTypes> struct Adaptor;
 
 #if !RTT_VERSION_GTE(2,8,99)
     typedef enum { WriteSuccess, WriteFailure, NotConnected } WriteStatus;
-    typedef enum { UnspecifiedReadPolicy, ReadUnordered, ReadShared } ReadPolicy;
-    typedef enum { UnspecifiedWritePolicy, WritePrivate, WriteShared } WritePolicy;
+    typedef enum { UnspecifiedBufferPolicy, PerConnection, PerInputPort, PerOutputPort, Shared } BufferPolicy;
 
     // dummy RTT v2.8.99 compatible ConnPolicy
     struct ConnPolicy : public RTT::ConnPolicy {
         static const bool PUSH = false;
         static const bool PULL = true;
 
-        ReadPolicy read_policy;
-        WritePolicy write_policy;
-        bool mandatory;
+        int buffer_policy;
         int max_threads;
+        bool mandatory;
+
+        ConnPolicy() :  RTT::ConnPolicy(), buffer_policy(), max_threads(), mandatory() {}
+        explicit ConnPolicy(int type) : RTT::ConnPolicy(type), buffer_policy(), max_threads(), mandatory() {}
+        explicit ConnPolicy(int type, int lock_policy) : RTT::ConnPolicy(type, lock_policy), buffer_policy(), max_threads(), mandatory() {}
+
+        ConnPolicy &operator==(const RTT::ConnPolicy &other) {
+            static_cast<RTT::ConnPolicy&>(*this) = other;
+            buffer_policy = 0;
+            max_threads = 0;
+            mandatory = false;
+            return *this;
+        }
     };
 
 #else
@@ -411,9 +421,9 @@ template <typename T, PortTypes> struct Adaptor;
         }
 
         std::string pull;
-        switch(cp.pull) {
-            case ConnPolicy::PUSH: pull = "PUSH"; break;
-            case ConnPolicy::PULL: pull = "PULL"; break;
+        switch(int(cp.pull)) {
+            case int(ConnPolicy::PUSH): pull = "PUSH"; break;
+            case int(ConnPolicy::PULL): pull = "PULL"; break;
         }
 
         os << pull << " ";
