@@ -51,8 +51,15 @@ namespace RTT
      * return \a false.
      */
     template< class T, class V, class W >
-    bool CAS( volatile T* addr, const V& expected, const W& value) {
+    inline bool CAS( volatile T* addr, const V& expected, const W& value) {
         return expected == oro_cmpxchg(addr, expected, value);
+    }
+
+    /**
+     * Overload of Compare And Swap for oro_atomic_t.
+     */
+    inline bool CAS( volatile oro_atomic_t* addr, const int expected, const int value) {
+        return expected == oro_cmpxchg(&oro_atomic_read(addr), expected, value);
     }
 
 }}
