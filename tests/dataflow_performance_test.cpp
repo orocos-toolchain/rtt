@@ -1231,6 +1231,21 @@ public:
                   << "  " << std::setw(9) << total_write_timer_by_status[WriteSuccess].count()
                   << " " << std::setw(9) << total_write_timer_by_status[WriteFailure].count()
                   << std::endl;
+        std::cout << std::left
+                  << " " << std::setw(30) << "Average"
+                  << " " << std::setw(16) << ""
+                  << " " << std::setw(9)  << total_write_timer.count() / writers.size()
+                  << " " << std::setw(12) << total_write_timer.total().monotonic / writers.size()
+                  << " " << std::setw(12) << (total_write_timer.total().monotonic / total_write_timer.count()) / writers.size()
+                  << " " << std::setw(12) << total_write_timer.max().monotonic / writers.size()
+                  << " " << std::setw(12) << total_write_timer.total().cputime / writers.size()
+                  << " " << std::setw(12) << (total_write_timer.total().cputime / total_write_timer.count()) / writers.size()
+                  << " " << std::setw(12) << total_write_timer.max().cputime / writers.size()
+                  << " " << std::setw(9) << ""
+                  << " " << std::setw(9) << ""
+                  << "  " << std::setw(9) << total_write_timer_by_status[WriteSuccess].count() / writers.size()
+                  << " " << std::setw(9) << total_write_timer_by_status[WriteFailure].count() / writers.size()
+                  << std::endl;
         std::cout << std::endl;
 
         Timer total_read_timer;
