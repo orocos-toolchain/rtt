@@ -973,14 +973,6 @@ public:
     TestRunner(const std::string &name, const TestOptions &options)
         : options_(options)
     {
-#if RTT_VERSION_GTE(2,8,99)
-        if ((options_.policy.buffer_policy == PerInputPort || options_.policy.buffer_policy == Shared) &&
-            options_.policy.type == ConnPolicy::DATA &&
-            options_.policy.lock_policy == ConnPolicy::LOCK_FREE) {
-            options_.policy.lock_policy = ConnPolicy::LOCKED;
-            log(Warning) << "Falling back to locking policy LOCKED for a shared input data object connection!" << endlog();
-        }
-#endif
 
         for(std::size_t index = 0; index < options_.NumberOfWriters; ++index) {
             WriterPtr writer(new Writer<T,PortType>(name + "Writer", index, options_.SampleSize, options_.KeepLastWrittenValue));
@@ -1280,7 +1272,7 @@ BOOST_AUTO_TEST_CASE( dataConnections )
     typedef TestRunner<SampleType,PortType> RunnerType;
 
     options.policy.type = ConnPolicy::DATA;
-    options.policy.lock_policy = ConnPolicy::LOCK_FREE;
+//    options.policy.lock_policy = ConnPolicy::LOCK_FREE;
 
 #if (RTT_VERSION_MAJOR >= 2)
     // 7 writers, 1 reader, PerConnection
@@ -1425,7 +1417,7 @@ BOOST_AUTO_TEST_CASE( bufferConnections )
 
     options.policy.type = ConnPolicy::BUFFER;
     options.policy.size = 100;
-    options.policy.lock_policy = ConnPolicy::LOCK_FREE;
+//    options.policy.lock_policy = ConnPolicy::LOCK_FREE;
 
 #if (RTT_VERSION_MAJOR >= 2)
     // 7 writers, 1 reader, PerConnection
@@ -1568,7 +1560,7 @@ BOOST_AUTO_TEST_CASE( emptyReads )
     const PortTypes PortType = DataPortType;
     typedef TestRunner<SampleType,PortType> RunnerType;
 
-    options.policy.lock_policy = ConnPolicy::LOCKED;
+//    options.policy.lock_policy = ConnPolicy::LOCKED;
     options.WriteMode = TestOptions::NoWrite;
     options.ReadMode = TestOptions::ReadSynchronous;
 

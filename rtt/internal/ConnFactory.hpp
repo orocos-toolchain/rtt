@@ -163,11 +163,6 @@ namespace RTT
                 {
 #ifndef OROBLD_OS_NO_ASM
                 case ConnPolicy::LOCK_FREE:
-                    // DataObjectLockFree does not support multiple writers. We have to enforce lock policy LOCKED in this case.
-                    if (policy.buffer_policy == PerInputPort || policy.buffer_policy == Shared) {
-                        RTT::log(Error) << "Lock-free data objects do not allow multiple writers at this moment and therefore cannot be used in connection with the PerInputPort or Shared buffer policies." << endlog();
-                        return NULL;
-                    }
                     data_object.reset( new base::DataObjectLockFree<T>(initial_value, policy) );
                     break;
 #else
