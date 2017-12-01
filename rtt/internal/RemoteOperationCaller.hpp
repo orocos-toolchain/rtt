@@ -422,6 +422,7 @@ namespace RTT
                 // add the arguments to the method.
                 this->sendargs.initArgs( this->mmeth );
                 this->sendargs.initRet(  this->mmeth );
+                this->base::OperationCallerInterface::setCaller(caller);
             }
 
             RemoteOperationCaller(const SendHandleC& sh )
@@ -442,6 +443,7 @@ namespace RTT
                 // add the arguments to the method.
                 this->sendargs.initArgs( this->mmeth );
                 this->sendargs.initRet(  this->mmeth );
+                this->base::OperationCallerInterface::setCaller(caller);
             }
 
             virtual base::OperationCallerBase<OperationCallerT>* cloneI(ExecutionEngine* caller) const {
