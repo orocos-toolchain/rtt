@@ -442,7 +442,11 @@ template <typename T, PortTypes> struct Adaptor;
 #endif
 
 struct CopyAndAssignmentCountedDetails {
-    CopyAndAssignmentCountedDetails() { oro_atomic_set(&copies, 0); oro_atomic_set(&assignments, 0); oro_atomic_set(&refcount, 0); }
+    CopyAndAssignmentCountedDetails() {
+        oro_atomic_set(&copies, 0);
+        oro_atomic_set(&assignments, 0);
+        oro_atomic_set(&refcount, 0);
+    }
     oro_atomic_t copies;
     oro_atomic_t assignments;
     oro_atomic_t refcount;
@@ -458,11 +462,35 @@ public:
     typedef Derived value_type;
     typedef CopyAndAssignmentCounted<Derived> this_type;
 
-    CopyAndAssignmentCounted() : Derived(), _counter_details(new CopyAndAssignmentCountedDetails) {}
-    CopyAndAssignmentCounted(const value_type &value) : Derived(value), _counter_details(new CopyAndAssignmentCountedDetails) {}
-    CopyAndAssignmentCounted(const this_type &other) : Derived(other), _counter_details(other._counter_details) { oro_atomic_inc(&(_counter_details->copies)); }
+    CopyAndAssignmentCounted()
+        : Derived(), _counter_details(new CopyAndAssignmentCountedDetails)
+    {
+        ORO_ATOMIC_SETUP(&_write_guard, 1);
+    }
+    CopyAndAssignmentCounted(const value_type &value)
+        : Derived(value), _counter_details(new CopyAndAssignmentCountedDetails)
+    {
+      ORO_ATOMIC_SETUP(&_write_guard, 1);
+    }
+    CopyAndAssignmentCounted(const this_type &other)
+        : Derived(other), _counter_details(other._counter_details)
+    {
+      ORO_ATOMIC_SETUP(&_write_guard, 1);
+        oro_atomic_inc(&(_counter_details->copies));
+    }
+    ~CopyAndAssignmentCounted() {
+        ORO_ATOMIC_CLEANUP(&_write_guard);
+    }
+
     this_type &operator=(const value_type &) { throw std::runtime_error("Cannot assign CopyAndAssignmentCounted type from its value_type directly!"); }
-    this_type &operator=(const this_type &other) { static_cast<value_type &>(*this) = other; _counter_details = other._counter_details; oro_atomic_inc(&(_counter_details->assignments)); return *static_cast<this_type *>(this); }
+    this_type &operator=(const this_type &other) {
+        BOOST_ASSERT_MSG(oro_atomic_dec_and_test(&_write_guard), "Conflicting assignment detected!");
+        static_cast<value_type &>(*this) = other;
+        _counter_details = other._counter_details;
+        oro_atomic_inc(&(_counter_details->assignments));
+        oro_atomic_inc(&_write_guard);
+        return *static_cast<this_type *>(this);
+    }
 
     int getCopyCount() { return oro_atomic_read(&(_counter_details->copies)); }
     int getAssignmentCount() { return oro_atomic_read(&(_counter_details->assignments)); }
@@ -475,6 +503,7 @@ public:
 
 private:
     boost::intrusive_ptr<CopyAndAssignmentCountedDetails> _counter_details;
+    oro_atomic_t _write_guard;
 };
 
 template <typename T>
