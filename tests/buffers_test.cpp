@@ -674,6 +674,7 @@ void BuffersDataFlowTest::testBufMultiThreaded(int number_of_writers, int number
     std::map<FlowStatus, int> total_reads_by_status;
     BOOST_FOREACH(ThreadPool<BufferWriter>::value_type &writer, writers) {
         total_writes += writer.first->writes;
+        total_dropped += writer.first->dropped;
         BOOST_CHECK_GT(writer.first->writes, 0);
     }
     BOOST_FOREACH(ThreadPool<BufferReader>::value_type &reader, readers) {
@@ -708,6 +709,7 @@ void BuffersDataFlowTest::testDObjMultiThreaded(int number_of_writers, int numbe
     std::map<FlowStatus, int> total_reads_by_status;
     BOOST_FOREACH(ThreadPool<DataObjectWriter>::value_type &writer, writers) {
         total_writes += writer.first->writes;
+        total_dropped += writer.first->dropped;
         BOOST_CHECK_GT(writer.first->writes, 0);
     }
     BOOST_FOREACH(ThreadPool<DataObjectReader>::value_type &reader, readers) {
@@ -1177,10 +1179,24 @@ BOOST_AUTO_TEST_CASE( testBufLocked4Writers4Readers )
     testBufMultiThreaded(4, 4);
 }
 
+BOOST_AUTO_TEST_CASE( testDObjLockFree4Writers1Reader )
+{
+    dataobj = new DataObjectLockFree<Dummy>(Dummy(), /* max_threads = */ 5);
+    testDObjMultiThreaded(4, 1);
+    delete dataobj;
+}
+
 BOOST_AUTO_TEST_CASE( testDObjLockFreeSingleWriter4Readers )
 {
     dataobj = new DataObjectLockFree<Dummy>(Dummy(), /* max_threads = */ 5);
     testDObjMultiThreaded(1, 4);
+    delete dataobj;
+}
+
+BOOST_AUTO_TEST_CASE( testDObjLockFree4Writers4Readers )
+{
+    dataobj = new DataObjectLockFree<Dummy>(Dummy(), /* max_threads = */ 8);
+    testDObjMultiThreaded(4, 4);
     delete dataobj;
 }
 
