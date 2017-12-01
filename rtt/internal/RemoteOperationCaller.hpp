@@ -410,10 +410,12 @@ namespace RTT
             /**
              * Create a RemoteOperationCaller object which executes a remote method
              *
+             * @param of The OperationFactory for methods.
              * @param name The name of this method.
-             * @param com The OperationFactory for methods.
+             * @param caller The caller's engine of this operation. Will be reset if this RemoteOperationCaller is
+             *               assigned to an OperationCaller.
              */
-            RemoteOperationCaller(OperationInterfacePart* of, std::string name, ExecutionEngine* caller)
+            RemoteOperationCaller(OperationInterfacePart* of, std::string name, ExecutionEngine* caller = 0)
             {
                 // create the method.
                 this->mmeth = OperationCallerC(of, name, caller);
@@ -432,6 +434,14 @@ namespace RTT
 
             virtual bool ready() const {
                 return this->mmeth.ready();
+            }
+
+            virtual void setCaller(ExecutionEngine* caller) {
+                // re-create the method.
+                this->mmeth = OperationCallerC(this->mmeth, caller);
+                // add the arguments to the method.
+                this->sendargs.initArgs( this->mmeth );
+                this->sendargs.initRet(  this->mmeth );
             }
 
             virtual base::OperationCallerBase<OperationCallerT>* cloneI(ExecutionEngine* caller) const {

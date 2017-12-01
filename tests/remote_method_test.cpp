@@ -30,6 +30,14 @@
 #include "unit.hpp"
 #include "operations_fixture.hpp"
 
+#define wait_for_equal( a, b, times ) do { \
+    bool wait_for_helper; \
+    int wait = 0; \
+    while( (wait_for_helper = ((a) != (b))) && wait++ != times ) \
+        usleep(100000); \
+    if (wait_for_helper) BOOST_CHECK_EQUAL( a, b ); \
+} while(0)
+
 /**
  * This test suite tests the RTT::internal::RemoteOperationCaller class
  * and its dependencies, being OperationCallerC and SendHandleC.
@@ -39,17 +47,17 @@ BOOST_FIXTURE_TEST_SUITE(  RemoteOperationCallerTestSuite,  OperationsFixture )
 BOOST_AUTO_TEST_CASE(testRemoteOperationCaller)
 {
     OperationCaller<double(void)> m0("mo");
-    boost::shared_ptr<DisposableInterface> implementation( new RemoteOperationCaller<double(void)>(tc->provides("methods")->getPart("m0"),"m0", caller->engine() ) );
+    boost::shared_ptr<DisposableInterface> implementation( new RemoteOperationCaller<double(void)>(tc->provides("methods")->getPart("m0"),"m0", 0 ) );
     m0 = implementation;
     BOOST_CHECK( m0.ready() );
 
     OperationCaller<double(int)> m1;
-    implementation.reset( new RemoteOperationCaller<double(int)>(tc->provides("methods")->getPart("m1"),"m1", caller->engine()) );
+    implementation.reset( new RemoteOperationCaller<double(int)>(tc->provides("methods")->getPart("m1"),"m1", 0) );
     m1 = implementation;
     BOOST_CHECK( m1.ready() );
     
     OperationCaller<void(void)> m0e;
-    implementation.reset( new RemoteOperationCaller<void(void)>(tc->provides("methods")->getPart("m0except"),"m0except", caller->engine()) );
+    implementation.reset( new RemoteOperationCaller<void(void)>(tc->provides("methods")->getPart("m0except"),"m0except", 0) );
     m0e = implementation;
     BOOST_CHECK( m0e.ready() );
 
@@ -312,7 +320,76 @@ BOOST_AUTO_TEST_CASE(testRemoteOperationCallerFactory)
 
     // this line may not crash:
     mvoid();
+}
 
+BOOST_AUTO_TEST_CASE(testRemoteOperationCallerSleep)
+{
+    OperationCaller<int(int)> sleepAndIncOwnThread("sleepAndIncOwnThread", caller->engine());
+
+    boost::shared_ptr<DisposableInterface> implementation( new RemoteOperationCaller<int(int)>(tc->provides("methods")->getPart("sleepAndIncOwnThread"), "sleepAndIncOwnThread", 0) );
+    sleepAndIncOwnThread = implementation;
+    BOOST_CHECK( sleepAndIncOwnThread.ready() );
+
+    i = 0;
+    sleepAndIncOwnThread.call(1);
+    sleepAndIncOwnThread.call(1);
+    sleepAndIncOwnThread.call(1);
+    BOOST_CHECK_EQUAL( 3, i );
+
+    i = 0;
+    sleepAndIncOwnThread.send(1);
+    sleepAndIncOwnThread.send(1);
+    sleepAndIncOwnThread.send(1);
+    wait_for_equal(3, i, 50 /* * 100ms */ );
+}
+
+BOOST_AUTO_TEST_CASE(testRemoteOperationCallerReferences)
+{
+    OperationCaller<const void *(const int&)> returnAddressOfConst("returnAddressOfConst", caller->engine());
+    OperationCaller<void *(int&)> returnAddressOf("returnAddressOf", caller->engine());
+
+    boost::shared_ptr<DisposableInterface> implementation( new RemoteOperationCaller<const void *(const int&)>(tc->provides("methods")->getPart("returnAddressOfConst"), "returnAddressOfConst", 0) );
+    returnAddressOfConst = implementation;
+    BOOST_CHECK( returnAddressOfConst.ready() );
+
+    implementation.reset( new RemoteOperationCaller<void *(int&)>(tc->provides("methods")->getPart("returnAddressOf"), "returnAddressOf", 0) );
+    returnAddressOf = implementation;
+    BOOST_CHECK( returnAddressOf.ready() );
+
+    int var = 0;
+
+    // call
+    BOOST_CHECK_EQUAL(&var, returnAddressOf(var));
+    BOOST_CHECK_EQUAL(&var, returnAddressOfConst(var));
+
+    // send
+    // Collecting from a RemoteOperationCaller returning void * segfaults!
+    if (false) {
+        SendHandle<void *(int&)> sh = returnAddressOf.send(var);
+        BOOST_CHECK_EQUAL(SendSuccess, sh.collect());
+        BOOST_CHECK_EQUAL(&var, sh.ret());
+    }
+
+    // compare with LocalOperationCaller...
+    // call
+    returnAddressOfConst = tc->provides("methods")->getPart("returnAddressOfConst");
+    returnAddressOf = tc->provides("methods")->getPart("returnAddressOf");
+    BOOST_CHECK_EQUAL(&var, returnAddressOf(var));
+    BOOST_CHECK_EQUAL(&var, returnAddressOfConst(var));
+
+    // send
+    {
+        SendHandle<void *(int&)> sh = returnAddressOf.send(var);
+        BOOST_CHECK_EQUAL(SendSuccess, sh.collect());
+        BOOST_CHECK_EQUAL(&var, sh.ret());
+    }
+
+    // call by value
+    OperationCaller<const void *(int)> returnAddressOfByValue("returnAddressOfByValue", caller->engine());
+    returnAddressOfByValue = tc->provides("methods")->getPart("returnAddressOfConst");
+    BOOST_CHECK(returnAddressOfByValue.ready());
+
+    BOOST_CHECK_NE(&var, returnAddressOfByValue(var));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

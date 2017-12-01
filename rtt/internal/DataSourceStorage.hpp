@@ -82,15 +82,6 @@ namespace RTT
             void result() { return; }
         };
 
-        template<>
-        struct is_arg_return<DSRStore<void> > : public mpl::false_
-        {};
-
-        template<class T>
-        struct is_arg_return<DSRStore<T> > : public mpl::true_
-        {};
-
-
         //! Partial specialisations for storing a void, not a void or reference
         //! Wraps around RStore.
         template<class R>
