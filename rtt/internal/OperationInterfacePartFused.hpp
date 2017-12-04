@@ -216,7 +216,7 @@ namespace RTT
 #if __cplusplus > 199711L
                 auto invoke_fused = boost::bind(&FusedMSignal<Signature>::invoke,
                                         boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
-                                        boost::arg<1>()
+                                        _1
                                     );
                 typedef typename boost::fusion::result_of::make_unfused< decltype(invoke_fused) >::type unfused_type;
                 return this->op->signals(boost::forward_adapter<unfused_type>(boost::fusion::make_unfused(invoke_fused)));
@@ -224,7 +224,7 @@ namespace RTT
                 return this->op->signals(
                             boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
                                                                     boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
-                                                                    boost::arg<1>()
+                                                                    _1
                                                                     )
                                                         )
                             );
@@ -233,7 +233,7 @@ namespace RTT
                 return this->op->signals(
                             boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
                                                                     boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
-                                                                    boost::arg<1>()
+                                                                    _1
                                                                     )
                                                         )
                             );
@@ -438,7 +438,7 @@ namespace RTT
 #if __cplusplus > 199711L
                     auto invoke_fused = boost::bind(&FusedMSignal<Signature>::invoke,
                                             boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
-                                            boost::arg<1>()
+                                            _1
                                         );
                     typedef typename boost::fusion::result_of::make_unfused< decltype(invoke_fused) >::type unfused_type;
                     return this->op->signals(boost::forward_adapter<unfused_type>(boost::fusion::make_unfused(invoke_fused)));
@@ -446,7 +446,7 @@ namespace RTT
                     return this->op->signals(
                                 boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
                                                                         boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
-                                                                        boost::arg<1>()
+                                                                        _1
                                                                         )
                                                             )
                                 );
@@ -455,7 +455,7 @@ namespace RTT
                     return this->op->signals(
                                 boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
                                                                         boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin()), subscriber),
-                                                                        boost::arg<1>()
+                                                                        _1
                                                                         )
                                                             )
                                 );

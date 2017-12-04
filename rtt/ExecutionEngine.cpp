@@ -48,12 +48,6 @@
 #include "extras/SlaveActivity.hpp"
 
 #include <boost/bind.hpp>
-#include <boost/ref.hpp>
-#ifndef USE_CPP11
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#endif
-#include <functional>
 #include <algorithm>
 
 #define ORONUM_EE_MQUEUE_SIZE 100
@@ -111,7 +105,6 @@ namespace RTT
             assert(foo);
             if ( foo->execute() == false ){
                 foo->unloaded();
-                os::MutexLock lock(msg_lock);
                 msg_cond.broadcast(); // required for waitForFunctions() (3rd party thread)
             } else {
                 f_queue->enqueue( foo );
@@ -145,8 +138,8 @@ namespace RTT
             found = true; // always true in order to be able to quit waitForMessages.
         }
         virtual void dispose() {}
-        virtual bool isError() const { return false;}
-
+        virtual bool isError() const { return false; }
+        bool done() const { return !mf->isLoaded() || found; }
     };
 
     bool ExecutionEngine::removeFunction( ExecutableInterface* f )
@@ -166,11 +159,7 @@ namespace RTT
             // Running: create message on stack.
             RemoveMsg rmsg(f,this);
             if ( this->process(&rmsg) )
-#ifdef USE_CPP11
-                this->waitForMessages( ! bind(&ExecutableInterface::isLoaded, f) || bind(&RemoveMsg::found,boost::ref(rmsg)) );
-#else
-                this->waitForMessages( ! lambda::bind(&ExecutableInterface::isLoaded, f) || lambda::bind(&RemoveMsg::found,boost::ref(rmsg)) );
-#endif
+                this->waitForMessages( boost::bind(&RemoveMsg::done, &rmsg) );
             if (!rmsg.found)
                 return false;
         }
@@ -220,16 +209,16 @@ namespace RTT
                 assert( com );
                 com->executeAndDispose();
             }
+            // there's no need to hold the lock during
+            // emptying the queue. But we must hold the
+            // lock once between excuteAndDispose and the
+            // broadcast to avoid the race condition in
+            // waitForMessages().
+            // This allows us to recurse into processMessages.
+            MutexLock locker( msg_lock );
         }
-
-        // there's no need to hold the lock during
-        // emptying the queue. But we must hold the
-        // lock once between excuteAndDispose and the
-        // broadcast to avoid the race condition in
-        // waitForMessages().
-        // This allows us to recurse into processMessages.
-        MutexLock locker( msg_lock );
-        msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
+        if ( com )
+            msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
     }
 
     void ExecutionEngine::processPortCallbacks()
@@ -264,10 +253,7 @@ namespace RTT
         if ( c && this->getActivity() ) {
             bool result = mqueue->enqueue( c );
             this->getActivity()->trigger();
-            {
-                os::MutexLock lock(msg_lock);
-                msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
-            }
+            msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
             return result;
         }
         return false;

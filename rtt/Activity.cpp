@@ -75,10 +75,11 @@ namespace RTT
         Thread::setPeriod(0,0);
     }
 
-    Activity::Activity(int scheduler, int priority, RunnableInterface* r, const std::string& name )
-        : ActivityInterface(r), os::Thread(scheduler, priority, 0.0, 0, name )
-    {
-    }
+     Activity::Activity(int scheduler, int priority, RunnableInterface* r, const std::string& name )
+         : ActivityInterface(r), os::Thread(scheduler, priority, 0.0, 0, name ),
+           update_period(0.0), mtimeout(false), mstopRequested(false), mabswaitpolicy(false)
+     {
+     }
 
      Activity::Activity(int scheduler, int priority, Seconds period, RunnableInterface* r, const std::string& name )
          : ActivityInterface(r), os::Thread(scheduler, priority, period, 0, name ),
@@ -146,10 +147,7 @@ namespace RTT
         if ( ! Thread::isActive() )
             return false;
         //a trigger is always allowed when active
-        {
-            os::MutexLock lock(msg_lock);
-            msg_cond.broadcast();
-        }
+        msg_cond.broadcast();
         Thread::start();
         return true;
     }
@@ -165,6 +163,7 @@ namespace RTT
             return false;
         }
         mtimeout = true;
+        msg_cond.broadcast();
         Thread::start();
         return true;
     }

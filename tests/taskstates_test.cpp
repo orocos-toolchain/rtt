@@ -606,27 +606,6 @@ BOOST_AUTO_TEST_CASE( testFailingTCStates)
     BOOST_CHECK( stc->start() == false );
 }
 
-BOOST_AUTO_TEST_CASE( testExecutionEngine)
-{
-    // no owner:
-    ExecutionEngine ee1(0);
-    ExecutionEngine ee2(0);
-
-    // test setActivity:
-    BOOST_CHECK( tsim->stop() );
-    BOOST_CHECK( tsim->run(&ee1) );
-    BOOST_CHECK( tsim->start() );
-    BOOST_CHECK( SimulationThread::Instance()->run(5) );
-
-    // this also tests setActivity:
-    BOOST_CHECK( tsim->stop() );
-    BOOST_CHECK( tsim->run(&ee2) );
-    BOOST_CHECK( tsim->start() );
-    BOOST_CHECK( SimulationThread::Instance()->run(5) );
-
-    tsim->run(0);
-}
-
 class calling_error_does_not_override_a_stop_transition_Task : public RTT::TaskContext
 {
 public:

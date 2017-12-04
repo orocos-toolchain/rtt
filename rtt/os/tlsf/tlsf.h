@@ -1,6 +1,6 @@
 /*
  * Two Levels Segregate Fit memory allocator (TLSF)
- * Version 2.4.4
+ * Version 2.4.6
  *
  * Written by Miguel Masmano Tello <mimastel@doctor.upv.es>
  *
@@ -19,6 +19,8 @@
 #ifndef _TLSF_H_
 #define _TLSF_H_
 
+#include <sys/types.h>
+
 /* We avoid name clashes with other projects and
  * only make the required function available
  */
@@ -34,10 +36,18 @@ extern "C" {
 
 #ifdef ORO_MEMORY_POOL
 extern size_t init_memory_pool(size_t, void *);
+// get size of TLSF pool
+extern size_t get_pool_size(void *);
+extern size_t get_pool_size_mp(void);
+// get size of TLSF overhead
+extern size_t get_overhead_size(void *);
+extern size_t get_overhead_size_mp(void);
+// get currently used size (includes overhead)
 extern size_t get_used_size(void *);
-extern size_t get_used_size_mp();
+extern size_t get_used_size_mp(void);
+// get max used size (includes overhead)
 extern size_t get_max_size(void *);
-extern size_t get_max_size_mp();
+extern size_t get_max_size_mp(void);
 extern void destroy_memory_pool(void *);
 extern size_t add_new_area(void *, size_t, void *);
 extern void *malloc_ex(size_t, void *);
@@ -50,6 +60,13 @@ extern void *tlsf_malloc(size_t size);
 extern void tlsf_free(void *ptr);
 extern void *tlsf_realloc(void *ptr, size_t size);
 extern void *tlsf_calloc(size_t nelem, size_t elem_size);
+
+#if _DEBUG_TLSF_
+// dump default memory pool to file ff
+extern void print_tlsf_mp(FILE* ff);
+// dump all blocks of default memory pool to file ff
+extern void print_all_blocks_mp(FILE* ff);
+#endif
 
 #ifdef	__cplusplus
 }

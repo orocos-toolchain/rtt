@@ -450,7 +450,7 @@ namespace RTT
             // create a new shared connection instance
             if (!shared_connection) {
                 RTT::OutputPort<T> *output_p = dynamic_cast<RTT::OutputPort<T> *>(output_port);
-                typename base::ChannelElementBase::shared_ptr buffer = buildDataStorage<T>(policy, (output_p ? output_p->getLastWrittenValue() : T()));
+                typename base::ChannelElement<T>::shared_ptr buffer = buildDataStorage<T>(policy, (output_p ? output_p->getLastWrittenValue() : T()));
                 if (!buffer) return SharedConnectionBase::shared_ptr();
                 shared_connection.reset(new SharedConnection<T>(buffer.get(), policy));
             }

@@ -54,6 +54,7 @@ namespace RTT { namespace internal {
         const ConnPolicy policy;
 
     public:
+        typedef typename base::ChannelElement<T>::value_t value_t;
         typedef typename base::ChannelElement<T>::param_t param_t;
         typedef typename base::ChannelElement<T>::reference_t reference_t;
 
@@ -92,9 +93,9 @@ namespace RTT { namespace internal {
             return base::ChannelElement<T>::data_sample(sample, reset);
         }
 
-        virtual T data_sample()
+        virtual value_t data_sample()
         {
-            return data->Get();
+            return data->data_sample();
         }
 
         /** Returns a pointer to the ConnPolicy that has been used to construct the underlying data object.

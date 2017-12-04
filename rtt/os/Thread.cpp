@@ -41,6 +41,7 @@
 #include "threads.hpp"
 #include "../Logger.hpp"
 #include "MutexLock.hpp"
+#include "MainThread.hpp"
 
 #include "../rtt-config.h"
 #include "../internal/CatchConfig.hpp"

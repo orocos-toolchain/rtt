@@ -144,9 +144,9 @@ namespace internal {
         bool mstorage_initialized;
 
     public:
-        SharedConnection(base::ChannelElementBase* storage, const ConnPolicy &policy)
+        SharedConnection(typename base::ChannelElement<T> *storage, const ConnPolicy &policy)
             : SharedConnectionBase(policy)
-            , mstorage(storage->template narrow<T>())
+            , mstorage(storage)
             , mstorage_initialized(false)
         {}
         virtual ~SharedConnection() {}
@@ -200,6 +200,7 @@ namespace internal {
          */
         virtual WriteStatus data_sample(param_t sample, bool reset = true)
         {
+            // ignore reset, only the first caller can initialize the data/buffer object
             if (!mstorage_initialized) {
                 mstorage->data_sample(sample, reset);
                 mstorage_initialized = true;

@@ -2,13 +2,13 @@
 
 : ${OROCOS_TARGET:=@OROCOS_TARGET@}
 
-for path in `echo $CMAKE_PREFIX_PATH | tr : ' '` "@CMAKE_INSTALL_PREFIX@"; do
-  if [ ! -d "$path/lib/orocos" ]; then
+for file_path in `echo $CMAKE_PREFIX_PATH | tr : ' '` "@CMAKE_INSTALL_PREFIX@"; do
+  if [ ! -d "$file_path/lib/orocos" ]; then
     continue
   elif [ -z "$RTT_COMPONENT_PATH" ]; then
-    RTT_COMPONENT_PATH="$path/lib/orocos"
-  elif ! echo "$RTT_COMPONENT_PATH" | grep -q "$path/lib/orocos"; then
-    RTT_COMPONENT_PATH="$RTT_COMPONENT_PATH:$path/lib/orocos"
+    RTT_COMPONENT_PATH="$file_path/lib/orocos"
+  elif ! echo "$RTT_COMPONENT_PATH" | grep -q "$file_path/lib/orocos"; then
+    RTT_COMPONENT_PATH="$RTT_COMPONENT_PATH:$file_path/lib/orocos"
   fi
 done
 
