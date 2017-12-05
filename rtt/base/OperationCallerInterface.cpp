@@ -35,7 +35,7 @@ bool OperationCallerInterface::isSend()
 {
     if ( met == ClientThread ) return false;
     // OwnThread case:
-    if ( myengine->getActivity()->thread()->isSelf() ) return false;
+    if ( myengine->isSelf() ) return false;
     return true; // all other OwnThread cases
 }
 

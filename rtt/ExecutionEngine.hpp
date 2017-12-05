@@ -180,6 +180,23 @@ namespace RTT
          */
         virtual void setActivity( base::ActivityInterface* task );
 
+        /**
+         * Get the thread that processes messages send to this engine.
+         * @sa reimplementation of base::RunnableInterface::getThread()
+         *
+         * @return a pointer to the thread, or 0 if there is no activity assigned.
+         */
+        virtual os::ThreadInterface* getThread() const;
+
+        /**
+         * Check if the thread that processes messages send to this engine is the same as the calling thread.
+         * This method is typically used to check if operation or function calls can be inlined or even must
+         * be inlined to resolve potential dead-locks.
+         * @return true if it is safe to process messages directly that otherwise would have been passed
+         *              to ExecutionEngine::process(base::DisposableInterface *)
+         */
+        bool isSelf() const;
+
     protected:
         /**
          * Call this if you wish to block on a message arriving in the Execution Engine.

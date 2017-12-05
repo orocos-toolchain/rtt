@@ -286,7 +286,7 @@ namespace RTT
             return;
         }
 
-        if (this->getActivity()->thread()->isSelf())
+        if (isSelf())
             waitAndProcessMessages(pred);
         else
             waitForMessagesInternal(pred);
@@ -307,6 +307,19 @@ namespace RTT
             setMaster(0);
         }
         RTT::base::RunnableInterface::setActivity(task);
+    }
+
+    os::ThreadInterface* ExecutionEngine::getThread() const {
+        // forward to the master ExecutionEngine if available
+        if (mmaster) {
+            return mmaster->getThread();
+        }
+        return base::RunnableInterface::getThread();
+    }
+
+    bool ExecutionEngine::isSelf() const {
+        os::ThreadInterface *thread = this->getThread();
+        return (thread && thread->isSelf());
     }
 
     void ExecutionEngine::waitForMessagesInternal(boost::function<bool(void)> const& pred)

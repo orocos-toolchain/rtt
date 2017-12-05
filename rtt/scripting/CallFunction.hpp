@@ -125,7 +125,7 @@ namespace RTT
                 //
                 //    @sa analogous to OperationCallerInterface::isSend()
                 //
-                bool isself = mrunner->getThread()->isSelf();
+                bool isself = mrunner->isSelf();
                 if (isself) {
                     maccept = true;
                     this->executeAndDispose();
