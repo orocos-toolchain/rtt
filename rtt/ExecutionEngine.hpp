@@ -149,17 +149,6 @@ namespace RTT
         void waitForMessages(const boost::function<bool(void)>& pred);
 
         /**
-         * Call this if you wish to block on a function completing in the Execution Engine.
-         * Each time a function completes, waitForFunctions will return
-         * when pred() returns true.
-         * @param pred As long as !pred() blocks the calling thread. If pred() == true
-         * when entering this function, returns immediately.
-         *
-         * This function is for internal use only and is required for asynchronous function invocations.
-         */
-        void waitForFunctions(const boost::function<bool(void)>& pred);
-
-        /**
          * Stops executing the updateHook of \a task.
          * This is an explicit synchronisation point, which guarantees
          * that updateHook is no longer executed when this function returns true.
@@ -220,20 +209,6 @@ namespace RTT
          * recurse if we get an asynchronous call-back.
          */
         void waitAndProcessMessages(boost::function<bool(void)> const& pred);
-
-        /**
-         * Call this if you wish to block on a function completing in the Execution Engine
-         * and execute it.
-         * @param pred As long as !pred() waits and processes functions. If pred() == true
-         * when entering this function, then no functions will be processed and this function
-         * returns immediately.
-         *
-         * This function is for internal use only and is required for asynchronous function invocations.
-         *
-         * @note waitAndProcessFunctions will call in turn this->processFunctions() and may as a consequence
-         * recurse if we get an asynchronous call-back.
-         */
-        void waitAndProcessFunctions(boost::function<bool(void)> const& pred);
 
         /**
          * The parent or 'owner' of this ExecutionEngine, may be null.
