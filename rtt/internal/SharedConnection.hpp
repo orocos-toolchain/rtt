@@ -148,7 +148,11 @@ namespace internal {
             : SharedConnectionBase(policy)
             , mstorage(storage)
             , mstorage_initialized(false)
-        {}
+        {
+            assert(policy.buffer_policy == Shared);
+            // forward buffer policy to the underlying MultipleInputsMultipleOutputsChannelElement<T> instance
+            (void) this->setBufferPolicy(policy.buffer_policy);
+        }
         virtual ~SharedConnection() {}
 
         using base::MultipleInputsMultipleOutputsChannelElement<T>::signal;
