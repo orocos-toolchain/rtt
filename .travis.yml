@@ -11,10 +11,13 @@ before_install:
 
 install:
   - export EXTRA_CMAKE_ARGS="-DENABLE_TESTS=ON -DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB"
+  - export CFLAGS="-std=c99 -Wall -Wextra -Wno-unused-parameter"
+  - export CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
   - mkdir -p build && cd build
   - cmake .. -DCMAKE_INSTALL_PREFIX=$(pwd)/install $EXTRA_CMAKE_ARGS
   - make -j2 install
 
 script:
   # Run tests
+  - export BOOST_TEST_LOG_LEVEL=message
   - make -j1 check

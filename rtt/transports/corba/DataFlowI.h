@@ -233,7 +233,7 @@ namespace RTT {
           	    ));
         };
     }
-};
+}
 
 
 #endif /* DATAFLOWI_H_  */

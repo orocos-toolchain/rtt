@@ -259,9 +259,9 @@ BOOST_AUTO_TEST_CASE(testFileDescriptor_Timeout )
     BOOST_CHECK( mcomp.start() == true );
 
 	// no activity
-    usleep(1000000/4);
+    usleep(1000000 / RATE * 4.5);    // ~4.5 timeout periods
     BOOST_CHECK_EQUAL( 0, mcomp.countError );
-    BOOST_CHECK_CLOSE_FRACTION( 4., (double)mcomp.countTimeout, 2. );
+    BOOST_CHECK_EQUAL( 4, mcomp.countTimeout );
     BOOST_CHECK_EQUAL( 0, mcomp.countRead );
     BOOST_CHECK_LE( 0, mcomp.countUpdate );
 
@@ -269,16 +269,16 @@ BOOST_AUTO_TEST_CASE(testFileDescriptor_Timeout )
 	rc = write(mcomp.fd[1], &ch, sizeof(ch));
 	if (1 != rc) std::cerr << "rc=" << rc << " errno=" << errno << ":" << strerror(errno) << std::endl;
     BOOST_CHECK_EQUAL( 1, rc );
-    usleep(1000000/RATE);	// ~1 timeout period
+    usleep(1000000 / RATE * 1.5);    // ~1.5 timeout periods
     BOOST_CHECK_EQUAL( 0, mcomp.countError );
-    BOOST_CHECK_CLOSE_FRACTION( 4. , (double)mcomp.countTimeout, 1. );
+    BOOST_CHECK_EQUAL( 5, mcomp.countTimeout );
     BOOST_CHECK_EQUAL( 1, mcomp.countRead );
     BOOST_CHECK_LE( 0, mcomp.countUpdate );
 
 	// no activity
-    usleep(1000000/3);
+    usleep(1000000 / RATE * 3);    // ~3 timeout periods
     BOOST_CHECK_EQUAL( 0, mcomp.countError );
-    BOOST_CHECK_CLOSE_FRACTION( 4. + 3., (double)mcomp.countTimeout, 2. );
+    BOOST_CHECK_EQUAL( 5 + 3, mcomp.countTimeout );
     BOOST_CHECK_EQUAL( 1, mcomp.countRead );
     BOOST_CHECK_LE( 0, mcomp.countUpdate );
 }

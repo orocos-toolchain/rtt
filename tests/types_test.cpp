@@ -137,6 +137,7 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
     BOOST_CHECK_EQUAL( copy.get(), str.get() );
 
 }
+
 BOOST_AUTO_TEST_CASE( testTypes )
 {
     Types()->addType( new StructTypeInfo<AType,false>("astruct"));
@@ -269,8 +270,24 @@ BOOST_AUTO_TEST_CASE( testTypes )
     // execute
     executePrograms(prog);
     executeStates(state);
+}
 
+BOOST_AUTO_TEST_CASE( testAliases )
+{
+    Types()->addType( new StructTypeInfo<AType,false>("astruct"));
+    Types()->addType( new StructTypeInfo<AType,false>("aalias1"));
+    Types()->type("astruct")->addAlias("aalias2");
 
+    BOOST_CHECK( Types()->type("astruct") != 0 );
+    BOOST_CHECK( Types()->type("aalias1") != 0 );
+    BOOST_CHECK( Types()->type("aalias2") != 0 );
+
+    BOOST_CHECK_EQUAL( Types()->type("astruct"), Types()->type("aalias1") );
+    BOOST_CHECK_EQUAL( Types()->type("astruct"), Types()->type("aalias2") );
+
+    BOOST_CHECK_EQUAL( "astruct", Types()->type("astruct")->getTypeNames()[0] );
+    BOOST_CHECK_EQUAL( "aalias1", Types()->type("astruct")->getTypeNames()[1] );
+    BOOST_CHECK_EQUAL( "aalias2", Types()->type("astruct")->getTypeNames()[2] );
 }
 
 BOOST_AUTO_TEST_CASE( testCharType )

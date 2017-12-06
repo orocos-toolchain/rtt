@@ -27,8 +27,8 @@ STRING( REGEX MATCHALL "[0-9]+" RTT_VERSIONS ${RTT_VERSION} )
 LIST( GET RTT_VERSIONS 0 RTT_VERSION_MAJOR)
 LIST( GET RTT_VERSIONS 1 RTT_VERSION_MINOR)
 LIST( GET RTT_VERSIONS 2 RTT_VERSION_PATCH)
-
-MESSAGE( "Orocos RTT version ${VERSION} (${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}.${RTT_VERSION_PATCH})" )
+SET( RTT_SOVERSION ${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR} )
+MESSAGE( "Orocos RTT version ${RTT_VERSION}" )
 
 SET( PROJ_SOURCE_DIR ${orocos-rtt_SOURCE_DIR} )
 SET( PROJ_BINARY_DIR ${orocos-rtt_BINARY_DIR} )
@@ -42,11 +42,6 @@ if (NOT EXISTS ${PROJ_SOURCE_DIR}/orocos-rtt.cmake)
     "See orocos-rtt.default.cmake")
   INCLUDE(${PROJ_SOURCE_DIR}/orocos-rtt.default.cmake)
 endif ()
-
-OPTION(USE_CPP11 "Turn on to replace boost::bind with cpp11 bind." OFF)
-if(USE_CPP11)
-  ADD_DEFINITIONS(-DUSE_CPP11)
-endif(USE_CPP11)
 
 # On Windows, the default CMAKE_INSTALL_PREFIX is either:
 # C:\Program Files\orocos-rtt or C:\Program Files (x86)\orocos-rtt
@@ -178,7 +173,14 @@ INSTALL(FILES UseOROCOS-RTT.cmake UseOROCOS-RTT-helpers.cmake config/cmake_unins
 # Install package.xml
 INSTALL(FILES package.xml DESTINATION share/rtt)
 
-# Install an env-hook if catkin is found
+# Install an env-hook in etc/orocos/${OROCOS_TARGET}/profile.d
+configure_file(env-hooks/00.rtt.sh.in ${CMAKE_CURRENT_BINARY_DIR}/env-hooks/00.rtt.sh @ONLY)
+install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/env-hooks/00.rtt.sh
+  DESTINATION etc/orocos/profile.d
+)
+
+# Install a catkin env-hook if catkin is installed
 find_package(catkin QUIET)
 if(catkin_FOUND)
   catkin_add_env_hooks(00.rtt SHELLS sh DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/env-hooks)

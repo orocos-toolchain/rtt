@@ -77,13 +77,11 @@ namespace RTT
            */
           virtual CORBA::Any* createAny( base::DataSourceBase::shared_ptr source) const
           {
-              typename internal::LateReferenceDataSource<T>::shared_ptr d_ref = boost::dynamic_pointer_cast< internal::LateReferenceDataSource<T> >( source );
-              if ( d_ref )
-                  return AnyConversion<PropertyType>::createAny( d_ref->set());
-
-              typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::DataSource<T> >( source );
-              if ( d )
-                  return AnyConversion<PropertyType>::createAny( d->get());
+              typename internal::DataSource<T>::shared_ptr d = internal::DataSource<T>::narrow( source.get() );
+              if ( d ) {
+                  if ( !d->evaluate() ) return 0;
+                  return AnyConversion<PropertyType>::createAny( d->rvalue());
+              }
 
               return 0;
           }
@@ -93,13 +91,11 @@ namespace RTT
            */
           virtual bool updateAny( base::DataSourceBase::shared_ptr source, CORBA::Any& any) const
           {
-              typename internal::LateConstReferenceDataSource<T>::shared_ptr d_ref = boost::dynamic_pointer_cast< internal::LateConstReferenceDataSource<T> >( source );
-              if ( d_ref )
-                  return AnyConversion<PropertyType>::updateAny( d_ref->rvalue(), any);
-
-              typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::DataSource<T> >( source );
-              if ( d )
-                  return AnyConversion<PropertyType>::updateAny( d->get(), any);
+              typename internal::DataSource<T>::shared_ptr d = internal::DataSource<T>::narrow( source.get() );
+              if ( d ) {
+                  if ( !d->evaluate() ) return false;
+                  return AnyConversion<PropertyType>::updateAny( d->rvalue(), any);
+              }
 
               return false;
           }
@@ -117,22 +113,12 @@ namespace RTT
            */
           virtual bool updateFromAny(const CORBA::Any* any, base::DataSourceBase::shared_ptr target) const
           {
-            typename internal::LateReferenceDataSource<T>::shared_ptr ad_ref = boost::dynamic_pointer_cast< internal::LateReferenceDataSource<T> >( target );
-            if ( ad_ref ) {
-                if (AnyConversion<PropertyType>::update(*any, ad_ref->set() ) ) {
-                    return true;
-                }
-                return false;
-            }
-
             typename internal::AssignableDataSource<T>::shared_ptr ad = internal::AssignableDataSource<T>::narrow( target.get() );
             if ( ad ) {
-                PropertyType value = PropertyType();
-                if (AnyConversion<PropertyType>::update(*any, value ) ) {
-                    ad->set( value );
-                    return true;
+                if ( AnyConversion<PropertyType>::update(*any, ad->set() ) ) {
+                     ad->updated();
+                     return true;
                 }
-                return false;
             }
 
             return false;
