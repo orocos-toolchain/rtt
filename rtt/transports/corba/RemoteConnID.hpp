@@ -66,6 +66,8 @@ namespace RTT
 
             bool isSameID(ConnID const& id) const;
             ConnID* clone() const;
+            virtual std::string typeString() const;
+            virtual std::string portName() const;
         };
 
     }

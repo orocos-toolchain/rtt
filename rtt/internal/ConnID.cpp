@@ -47,6 +47,10 @@
 
 using namespace RTT::internal;
 
+std::string ConnID::portName() const {
+    return "";
+}
+
 SimpleConnID::SimpleConnID(const ConnID* orig ) : cid( orig == 0 ? this : orig) {}
 bool SimpleConnID::isSameID(ConnID const& id) const {
     SimpleConnID const* real_id = dynamic_cast<SimpleConnID const*>(&id);
@@ -56,4 +60,8 @@ bool SimpleConnID::isSameID(ConnID const& id) const {
 }
 ConnID* SimpleConnID::clone() const {
     return new SimpleConnID( this->cid );
+}
+
+std::string SimpleConnID::typeString() const {
+    return "SimpleConnID";
 }

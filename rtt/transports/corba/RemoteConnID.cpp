@@ -61,3 +61,11 @@ bool RemoteConnID::isSameID(ConnID const& id) const
 RTT::internal::ConnID* RemoteConnID::clone() const {
     return new RemoteConnID( this->dataflow.in(), this->name);
 }
+
+std::string RemoteConnID::typeString() const {
+    return "RemoteConnID";
+}
+
+std::string RemoteConnID::portName() const {
+    return name;
+}
