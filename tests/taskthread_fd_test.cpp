@@ -218,6 +218,9 @@ BOOST_AUTO_TEST_CASE(testFileDescriptor_Write )
 	mtask->unwatch(mcomp.fd[0]);
     BOOST_CHECK( mtask->isWatched(mcomp.fd[0]) == false );
 
+    // sleep to give the FileDescriptorActivity some time to update the internal file descriptor set
+    usleep(100000/10);
+
 	++ch;
 	rc = write(mcomp.fd[1], &ch, sizeof(ch));
 	if (1 != rc) std::cerr << "rc=" << rc << " errno=" << errno << ":" << strerror(errno) << std::endl;

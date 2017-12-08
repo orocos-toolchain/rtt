@@ -389,13 +389,35 @@ void FileDescriptorActivity::loop()
             oro_atomic_set(&m_trigger, 0);
             do_trigger = true;
         }
+        if (oro_atomic_read(&m_update_sets) > 0) {
+            oro_atomic_set(&m_update_sets, 0);
+
+            // Check if file descriptors that have work also have been removed in the current cycle and
+            // already ignore them. This is a corner case and still triggering an IOReady event would
+            // probably be fine in real-world applications, but it can break the task-test unit test
+            // depending on timing.
+            //
+            // The simple solution would be to continue without triggering the component, but we might miss
+            // triggers or activities on other file descriptors then.
+            //
+            // Disabled for now and patched in the unit test.
+            //
+//            { RTT::os::MutexLock lock(m_fd_lock);
+//                fd_set copy;
+//                FD_ZERO(&copy);
+//                m_has_ioready = false;
+//                for(int i = 0; i <= max_fd; ++i) {
+//                    if (FD_ISSET(i, &m_fd_set) && FD_ISSET(i, &m_fd_work)) {
+//                        FD_SET(i, &copy);
+//                        m_has_ioready = true;
+//                    }
+//                }
+//                m_fd_work = copy;
+//            }
+        }
         if (oro_atomic_read(&m_break_loop) > 0) {
             oro_atomic_set(&m_break_loop, 0);
             break;
-        }
-        if (oro_atomic_read(&m_update_sets) > 0) {
-            oro_atomic_set(&m_update_sets, 0);
-            continue;
         }
 
         // Execute activity...
