@@ -107,14 +107,14 @@ namespace RTT
          */
         struct DataBuf {
             DataBuf()
-                : data(), status(NoData), read_counter(), write_counter(), next()
+                : data(), status(NoData), read_counter(), write_lock(), next()
             {
                 oro_atomic_set(&read_counter, 0);
-                oro_atomic_set(&write_counter, 0);
+                oro_atomic_set(&write_lock, -1);
             }
             value_t data;
             FlowStatus status;
-            mutable oro_atomic_t read_counter, write_counter;
+            mutable oro_atomic_t read_counter, write_lock;
             DataBuf* next;
         };
 
@@ -260,18 +260,25 @@ namespace RTT
                 data_sample(value_t(), true);
             }
 
-            PtrType writing;
-            do {
-                writing = write_ptr;            // copy buffer location
-                oro_atomic_inc(&writing->write_counter); // lock buffer, no more writes
-                // XXX smp_mb
-                if ( writing != write_ptr )     // if write_ptr changed,
-                    oro_atomic_dec(&writing->write_counter); // better to start over.
-                else if ( oro_atomic_read(&writing->write_counter) > 1 )
-                    oro_atomic_dec(&writing->write_counter); // better to start over.
-                else
-                    break;
-            } while ( true );
+            PtrType writing = write_ptr;            // copy buffer location
+            if (!oro_atomic_inc_and_test(&writing->write_lock)) {
+                // abort, another thread already successfully locked this buffer element
+                oro_atomic_dec(&writing->write_lock);
+                return false;
+            }
+
+            // Additional check that resolves the following race condition:
+            //  - writer A copies the write_ptr and acquires the lock writing->write_lock
+            //  - writer B copies the write_ptr
+            //  - writer A continues to update and increments the write_ptr
+            //  - writer A releases the lock writing->write_lock
+            //  - writer B acquires the lock successfully, but for the same buffer element that already
+            //    has been written by writer A and can potentially be accessed by readers now!
+            if ( writing != write_ptr ) {
+                // abort, another thread already updated the write_ptr, which could imply that read_ptr == writing now
+                oro_atomic_dec(&writing->write_lock);
+                return false;
+            }
             // from here on we are sure that 'writing'
             // is a valid buffer to write to and we
             // have exclusive access
@@ -283,12 +290,11 @@ namespace RTT
             // if next field is occupied (by read_ptr or counter),
             // go to next and check again...
             while ( oro_atomic_read( &write_ptr->next->read_counter ) != 0 ||
-                    oro_atomic_read( &write_ptr->next->write_counter ) != 0 ||
                     write_ptr->next == read_ptr )
                 {
                     write_ptr = write_ptr->next;
                     if (write_ptr == writing) {
-                        oro_atomic_dec(&writing->write_counter);
+                        oro_atomic_dec(&writing->write_lock);
                         return false; // nothing found, too many writers or readers !
                     }
                 }
@@ -296,7 +302,7 @@ namespace RTT
             // we will be able to move, so replace read_ptr
             read_ptr  = writing;
             write_ptr = write_ptr->next; // we checked this in the while loop
-            oro_atomic_dec(&writing->write_counter);
+            oro_atomic_dec(&writing->write_lock);
             return true;
         }
 
