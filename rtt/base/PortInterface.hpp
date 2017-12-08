@@ -238,6 +238,14 @@ namespace RTT
          * Returns a pointer to the shared connection element this port may be connected to.
          */
         virtual internal::SharedConnectionBase::shared_ptr getSharedConnection() const;
+
+    private:
+        /**
+         * @brief Lists all connections this port has, up to depth levels.
+         * @param depth Levels to explore: 1 (or less) will only explore direct
+         *              connections.
+         */
+        void listPortConnections(int depth) const;
     };
 
 }}
