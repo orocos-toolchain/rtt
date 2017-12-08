@@ -490,9 +490,9 @@ public:
     this_type &operator=(const value_type &) { throw std::runtime_error("Cannot assign CopyAndAssignmentCounted type from its value_type directly!"); }
     this_type &operator=(const this_type &other) {
         if (this == &other) return *this;
-        BOOST_ASSERT_MSG(oro_atomic_dec_and_test(&_write_guard), "Conflicting assignment detected: instance is concurrently being assigned by another thread!");
+        BOOST_REQUIRE_MESSAGE(oro_atomic_dec_and_test(&_write_guard), "Conflicting assignment detected: instance is concurrently being assigned by another thread!");
         oro_atomic_inc(&other._read_guard);
-        BOOST_ASSERT_MSG(oro_atomic_dec_and_test(&_read_guard), "Conflicting assignment detected: instance being assigned is concurrently read by another thread!");
+        BOOST_REQUIRE_MESSAGE(oro_atomic_dec_and_test(&_read_guard), "Conflicting assignment detected: instance being assigned is concurrently read by another thread!");
         static_cast<value_type &>(*this) = other;
         _counter_details = other._counter_details;
         oro_atomic_inc(&(_counter_details->assignments));
