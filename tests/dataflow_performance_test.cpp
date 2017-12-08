@@ -490,12 +490,20 @@ public:
     this_type &operator=(const value_type &) { throw std::runtime_error("Cannot assign CopyAndAssignmentCounted type from its value_type directly!"); }
     this_type &operator=(const this_type &other) {
         if (this == &other) return *this;
-        BOOST_REQUIRE_MESSAGE(oro_atomic_dec_and_test(&_write_guard), "Conflicting assignment detected: instance is concurrently being assigned by another thread!");
+
+        // lock guards to detect concurrent reading and writing
+        if (!oro_atomic_dec_and_test(&_write_guard))
+            throw std::runtime_error("Conflicting assignment detected: instance is concurrently being assigned by another thread!");
         oro_atomic_inc(&other._read_guard);
-        BOOST_REQUIRE_MESSAGE(oro_atomic_dec_and_test(&_read_guard), "Conflicting assignment detected: instance being assigned is concurrently read by another thread!");
+        if (!oro_atomic_dec_and_test(&_read_guard))
+            throw std::runtime_error("Conflicting assignment detected: instance being assigned is concurrently read by another thread!");
+
+        // copy
         static_cast<value_type &>(*this) = other;
         _counter_details = other._counter_details;
         oro_atomic_inc(&(_counter_details->assignments));
+
+        // cleanup guards
         oro_atomic_inc(&_read_guard);
         oro_atomic_dec(&other._read_guard);
         oro_atomic_inc(&_write_guard);
@@ -740,6 +748,10 @@ public:
         number_of_cycles_ = 0;
         desired_number_of_cycles_ = n;
         return *this;
+    }
+
+    ~ReaderWriterTaskContextBase() {
+        BOOST_REQUIRE(!this->inException());
     }
 
     void afterUpdateHook(bool trigger)
