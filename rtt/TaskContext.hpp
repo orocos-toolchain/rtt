@@ -691,6 +691,13 @@ namespace RTT
          * setActivity. By default, a extras::SequentialActivity is assigned.
          */
         base::ActivityInterface::shared_ptr our_act;
+
+        /**
+         * Lists all connections this component' ports have, up to depth levels.
+         * @param depth Levels to explore: 1 (or less) will only explore direct
+         *              connections.
+         */
+        void listPortConnections(int depth) const;
     };
 
     /**

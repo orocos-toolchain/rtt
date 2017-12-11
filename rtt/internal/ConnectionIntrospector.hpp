@@ -41,6 +41,7 @@ public:
             const ConnectionManager::ChannelDescriptor& descriptor,
             bool forward, int curr_depth);
     ConnectionIntrospector(const base::PortInterface* port);
+    ConnectionIntrospector(const TaskContext* tc);
 
     bool operator==(const ConnectionIntrospector& other) const;
 
