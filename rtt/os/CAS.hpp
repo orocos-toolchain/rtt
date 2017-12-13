@@ -59,7 +59,9 @@ namespace RTT
      * Overload of Compare And Swap for oro_atomic_t.
      */
     inline bool CAS( volatile oro_atomic_t* addr, const int expected, const int value) {
-        return expected == oro_cmpxchg(&oro_atomic_read(addr), expected, value);
+        // assume that oro_atomic_read(addr) returns a reference
+        volatile int &ref = oro_atomic_read(addr);
+        return expected == oro_cmpxchg(&ref, expected, value);
     }
 
 }}
