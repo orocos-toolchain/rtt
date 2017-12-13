@@ -295,7 +295,7 @@ namespace RTT
                     write_ptr = write_ptr->next;
                     if (write_ptr == writing) {
                         oro_atomic_dec(&writing->write_lock);
-                        return false; // nothing found, too many writers or readers !
+                        return false; // nothing found, too many readers !
                     }
                 }
 
