@@ -216,10 +216,16 @@ namespace RTT
          * in order to allow connection introspection.
          * @return null if no such manager is available, or the manager
          * otherwise.
-         * @see ConnectionManager::getChannels() for a list of all
+         * @see ConnectionManager::getConnections() for a list of all
          * connections of this port.
          */
         virtual internal::ConnectionManager* getManager() { return &cmanager; }
+
+        /**
+         * Const variant of getManager().
+         * @copydoc getManager()
+         */
+        virtual const internal::ConnectionManager* getManager() const { return &cmanager; }
 
         /**
          * Returns the input or output endpoint of this port (if any).
