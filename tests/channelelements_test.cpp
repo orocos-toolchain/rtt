@@ -133,17 +133,6 @@ BOOST_AUTO_TEST_CASE( testMultipleInputsChannelElementConnection )
     BOOST_CHECK_EQUAL( out1->getOutput(), in );
     BOOST_CHECK_EQUAL( out2->getOutput(), in );
 
-    // test signalling
-    BOOST_CHECK( !in->getBufferPolicy() );
-    in->setBufferPolicy( PerInputPort, true );
-    BOOST_CHECK( !in->currentInput() );
-    out1->signal();
-    BOOST_CHECK_EQUAL( in->currentInput(), out1 );
-    out2->signal();
-    BOOST_CHECK_EQUAL( in->currentInput(), out2 );
-    in->setBufferPolicy( PerConnection, true );
-    BOOST_CHECK_EQUAL( in->currentInput(), out1 );
-
     // disconnect input
     in->disconnect(false);
     BOOST_CHECK( !in->connected() );
