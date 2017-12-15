@@ -464,19 +464,19 @@ public:
     typedef CopyAndAssignmentCounted<Derived> this_type;
 
     CopyAndAssignmentCounted()
-        : Derived(), _counter_details(new CopyAndAssignmentCountedDetails)
+        : Derived(), sleep_usecs_during_assignment(0), _counter_details(new CopyAndAssignmentCountedDetails)
     {
         ORO_ATOMIC_SETUP(&_write_guard, 1);
         ORO_ATOMIC_SETUP(&_read_guard, 1);
     }
     CopyAndAssignmentCounted(const value_type &value)
-        : Derived(value), _counter_details(new CopyAndAssignmentCountedDetails)
+        : Derived(value), sleep_usecs_during_assignment(0), _counter_details(new CopyAndAssignmentCountedDetails)
     {
         ORO_ATOMIC_SETUP(&_write_guard, 1);
         ORO_ATOMIC_SETUP(&_read_guard, 1);
     }
     CopyAndAssignmentCounted(const this_type &other)
-        : Derived(other), _counter_details(other._counter_details)
+        : Derived(other), sleep_usecs_during_assignment(0), _counter_details(other._counter_details)
     {
         ORO_ATOMIC_SETUP(&_write_guard, 1);
         ORO_ATOMIC_SETUP(&_read_guard, 1);
@@ -502,6 +502,8 @@ public:
         static_cast<value_type &>(*this) = other;
         _counter_details = other._counter_details;
         oro_atomic_inc(&(_counter_details->assignments));
+        if (sleep_usecs_during_assignment > 0) usleep(sleep_usecs_during_assignment);
+        if (other.sleep_usecs_during_assignment > 0) usleep(other.sleep_usecs_during_assignment);
 
         // cleanup guards
         oro_atomic_inc(&_read_guard);
@@ -518,6 +520,9 @@ public:
     }
 
     this_type detachedCopy() const { return this_type(static_cast<const value_type &>(*this)); }
+
+public:
+    int sleep_usecs_during_assignment;
 
 private:
     boost::intrusive_ptr<CopyAndAssignmentCountedDetails> _counter_details;
@@ -751,7 +756,7 @@ public:
     }
 
     ~ReaderWriterTaskContextBase() {
-        BOOST_REQUIRE(!this->inException());
+        BOOST_REQUIRE_MESSAGE(!this->inException(), exception_reason_);
     }
 
     void afterUpdateHook(bool trigger)
@@ -777,6 +782,7 @@ public:
 
     void waitUntilFinished()
     {
+        if (inException()) return;
         MutexLock lock(mutex_);
         while(number_of_cycles_ < desired_number_of_cycles_) {
             finished_.wait(mutex_);
@@ -801,6 +807,8 @@ protected:
 
     std::size_t number_of_cycles_;
     std::size_t desired_number_of_cycles_;
+
+    std::string exception_reason_;
 };
 
 template <typename T, PortTypes PortType>
@@ -839,13 +847,18 @@ public:
 
     void updateHook()
     {
-        WriteStatus fs = WriteSuccess;
-        {
-            Timer::Section section(timer);
-            fs = AdaptorType::write(output_port, sample);
+        try {
+            WriteStatus fs = WriteSuccess;
+            {
+                Timer::Section section(timer);
+                fs = AdaptorType::write(output_port, sample);
+            }
+            timer_by_status[fs].updateFrom(timer);
+            this->afterUpdateHook(/* trigger = */ true);
+        } catch(std::exception &e) {
+            exception_reason_ = e.what();
+            throw;
         }
-        timer_by_status[fs].updateFrom(timer);
-        this->afterUpdateHook(/* trigger = */ true);
     }
 
     bool breakUpdateHook()
@@ -887,17 +900,22 @@ public:
 
     void updateHook()
     {
-        FlowStatus fs = NewData;
-        while(fs == NewData) {
-            {
-                Timer::Section section(timer);
-                fs = Adaptor<SampleType,PortType>::read(input_port, sample, copy_old_data_);
+        try {
+            FlowStatus fs = NewData;
+            while(fs == NewData) {
+                {
+                    Timer::Section section(timer);
+                    fs = Adaptor<SampleType,PortType>::read(input_port, sample, copy_old_data_);
+                }
+                timer_by_status[fs].updateFrom(timer);
+                if (!read_loop_) break;
             }
-            timer_by_status[fs].updateFrom(timer);
-            if (!read_loop_) break;
-        }
 
-        this->afterUpdateHook(/* trigger = */ false);
+            this->afterUpdateHook(/* trigger = */ false);
+        } catch(std::exception &e) {
+            exception_reason_ = e.what();
+            throw;
+        }
     }
 
     bool breakUpdateHook()
@@ -927,7 +945,8 @@ struct TestOptions {
     bool KeepLastWrittenValue;
     bool ReadLoop;
     bool CopyOldData;
-
+    int SleepUsecsDuringWriteAssignment;
+    int SleepUsecsDuringReadAssignment;
     int SchedulerType;
     int ThreadPriority;
     std::bitset<16> CpuAffinity;
@@ -942,6 +961,8 @@ struct TestOptions {
           KeepLastWrittenValue(false),
           ReadLoop(false),
           CopyOldData(false),
+          SleepUsecsDuringWriteAssignment(1),
+          SleepUsecsDuringReadAssignment(10),
           SchedulerType(ORO_SCHED_RT),
           ThreadPriority(HighestPriority),
           CpuAffinity(getDefaultCpuAffinity() & std::bitset<16>(0x000f)) // run with at most 4 cores
@@ -982,6 +1003,10 @@ std::ostream &operator<<(std::ostream &os, const TestOptions &options)
     os << " * Writers:                 " << options.NumberOfWriters << std::endl;
     os << " * Readers:                 " << options.NumberOfReaders << std::endl;
     os << " * Cycles:                  " << options.NumberOfCycles << std::endl;
+    os << " *" << std::endl;
+    os << " * Sleep during write:      " << options.SleepUsecsDuringWriteAssignment << " usecs" << std::endl;
+    os << " * Sleep during read:       " << options.SleepUsecsDuringReadAssignment << " usecs" << std::endl;
+    os << " *" << std::endl;
     os << " * Scheduler:               " << schedulerTypeToString(options.SchedulerType) << std::endl;
     os << " * Priority:                " << options.ThreadPriority << std::endl;
     os << " * CPU affinity:            " << options.CpuAffinity << " (" << options.CpuAffinity.count() << " cores)" << std::endl;
@@ -1055,6 +1080,7 @@ public:
             default:
                 break;
             }
+            writer->sample.sleep_usecs_during_assignment = options.SleepUsecsDuringWriteAssignment;
         }
 
         for(std::size_t index = 0; index < options_.NumberOfReaders; ++index) {
@@ -1076,6 +1102,7 @@ public:
             default:
                 break;
             }
+            reader->sample.sleep_usecs_during_assignment = options.SleepUsecsDuringReadAssignment;
         }
     }
 

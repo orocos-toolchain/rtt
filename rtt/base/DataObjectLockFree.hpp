@@ -289,11 +289,12 @@ namespace RTT
 
             // if next field is occupied (by read_ptr or counter),
             // go to next and check again...
-            while ( oro_atomic_read( &write_ptr->next->read_counter ) != 0 ||
-                    write_ptr->next == read_ptr )
+            PtrType next_write_ptr = writing->next;
+            while ( oro_atomic_read( &next_write_ptr->read_counter ) != 0 ||
+                    next_write_ptr == read_ptr )
                 {
-                    write_ptr = write_ptr->next;
-                    if (write_ptr == writing) {
+                    next_write_ptr = next_write_ptr->next;
+                    if (next_write_ptr == writing) {
                         oro_atomic_dec(&writing->write_lock);
                         return false; // nothing found, too many readers !
                     }
@@ -301,7 +302,7 @@ namespace RTT
 
             // we will be able to move, so replace read_ptr
             read_ptr  = writing;
-            write_ptr = write_ptr->next; // we checked this in the while loop
+            write_ptr = next_write_ptr; // we checked this in the while loop
             oro_atomic_dec(&writing->write_lock);
             return true;
         }
