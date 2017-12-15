@@ -68,7 +68,9 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
   # This is for not allowing undefined symbols when using gcc
   if (CMAKE_COMPILER_IS_GNUCXX AND NOT APPLE)
-    SET(USE_OROCOS_LDFLAGS_OTHER "-Wl,-z,defs")
+    if (NOT CMAKE_CXX_FLAGS MATCHES "-fsanitize")
+      SET(USE_OROCOS_LDFLAGS_OTHER "-Wl,-z,defs")
+    endif()
   else (CMAKE_COMPILER_IS_GNUCXX AND NOT APPLE)
     SET(USE_OROCOS_LDFLAGS_OTHER " ")
   endif (CMAKE_COMPILER_IS_GNUCXX AND NOT APPLE)
