@@ -67,8 +67,28 @@ namespace RTT
         bool isqueued;
         bool maccept;
 
-        bool fooDone() {
+        /**
+         * Check if the function either finished successfully or encountered
+         * an error or yielded. Use this as a predicate to wait for partial
+         * completion.
+         */
+        bool checkIfDoneOrYielded() {
             return (!maccept || _foo->inError() || _foo->isStopped());
+        }
+
+        /**
+         * Check if the function either finished successfully or encountered
+         * an error. Use this as a predicate to wait for full completion.
+         * @throws false if the function encountered an error
+         */
+        bool checkIfDone() {
+            if ( _foo->inError() ) {
+                throw false;
+            } else if ( _foo->isStopped() ) {
+                return true;
+            } else {
+                return false;
+            }
         }
 
     public:
@@ -109,37 +129,29 @@ namespace RTT
          *
          */
         virtual bool execute() {
-            // this is async behaviour :
-            if (isqueued == false ) {
-                isqueued = true;
-                if (!minit->execute()) return false;
-                _foo->loaded(mrunner);
-                // we ignore the ret value of start(). It could have been auto-started during loading() of the function.
-                if ( _foo->needsStart() )
-                    _foo->start();
+            if (isqueued) return true;
+            isqueued = true;
 
-                // 0. If the calling thread is the same as the executor, inline
-                //    the function (execute it immediately). Other than the
-                //    following step 1 this does not give other operations the
+            // prepare execution
+            if (!minit->execute()) return false;
+            _foo->loaded(mrunner);
+            // we ignore the ret value of start(). It could have been auto-started during loading() of the function.
+            if ( _foo->needsStart() )
+                _foo->start();
+
+            if ( mrunner->isSelf() ) { // The calling thread is the same as the executor (synchronous function call).
+
+                // 1. Inline the function (execute it immediately). Other than the
+                //    following step 2, this does not give other operations the
                 //    chance to execute.
                 //
                 //    @sa analogous to OperationCallerInterface::isSend()
                 //
-                bool isself = mrunner->isSelf();
-                if (isself) {
-                    maccept = true;
-                    this->executeAndDispose();
-                    if ( _foo->inError() ) {
-                        throw false;
-                    } else if ( _foo->isStopped() ) {
-                        return true;
-                    }
+                maccept = true;
+                this->executeAndDispose();
+                if ( checkIfDone() ) return true;
 
-                    // The function yielded!
-                    assert( maccept == false );
-                }
-
-                // 1. Enqueue as a message callback (for the callback step)
+                // 2. While not done, enqueue as a message callback (for the callback step)
                 //    ==> mrunner will call executeAndDispose() (see below)
                 //
                 //    If the caller thread is the same as the executor and the
@@ -154,46 +166,47 @@ namespace RTT
                     if ( !maccept ) return false;
 
                     // block for the result: foo stopped or in error or yielded
-                    mrunner->waitForMessages(boost::bind(&CallFunction::fooDone, this) );
-                    if ( _foo->inError() ) {
-                        throw false;
-                    } else if ( _foo->isStopped() ) {
-                        return true;
-                    }
+                    mrunner->waitForMessages(boost::bind(&CallFunction::checkIfDoneOrYielded, this) );
+                } while( !checkIfDone() );
 
-                    // The function yielded!
-                    assert( maccept == false );
-                } while(isself);
+                return true;
 
-                // The function yielded and the calling thread is not the same as the executor.
-                assert(!isself);
+            } else { // The caller thread is different from the executor (asynchronous function call).
 
-                // 2. If not yet finished or in error, enqueue as a function (update step)
+                // 1. Enqueue as a message callback (for the callback step)
+                //    ==> mrunner will call executeAndDispose() (see below)
+                //
+                maccept = mrunner->process( this );
+                if ( !maccept ) return false;
+
+                // block for the result: foo stopped or in error or yielded
+                mrunner->waitForMessages(boost::bind(&CallFunction::checkIfDoneOrYielded, this) );
+                if ( checkIfDone() ) return true;
+
+                // 2. If not yet done, enqueue as a function and wait for the next update step
                 //    ==> mrunner will run _foo until it finishs
+                //
                 // Note: There is no guarantee that the function will not already execute again in the same cycle,
                 //       once as a message and once as function. Not really a problem...
+                //
                 maccept = mrunner->runFunction( _foo.get() );
                 if ( !maccept ) return false;
 
                 // block for the result: foo stopped or in error
-                mrunner->waitForMessages(boost::bind(&CallFunction::fooDone, this) );
-                if ( _foo->inError() ) {
-                    throw false;
-                } else if ( _foo->isStopped() ) {
-                    return true;
-                }
+                mrunner->waitForMessages(boost::bind(&CallFunction::checkIfDone, this) );
+                if ( checkIfDone() ) return true;
 
                 return false;
             }
-            return true;
         }
 
         /**
-         * Message callback that executes the function once.
+         * Message callback that executes the function until it finishes or
+         * yields.
          *
          * Will be processed in the mrunner engine. If necessary, enqueue the
-         * function in the function queue for later synchronous execution
-         * (@see execute()).
+         * function in the function queue for later synchronous execution if it
+         * did not finish after a single call (@see execute()).
          *
          * @implements RTT::base::DisposableInterface::executeAndDispose()
          */

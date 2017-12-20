@@ -42,6 +42,8 @@
 #include "../rtt-fwd.hpp"
 #include "../rtt-config.h"
 
+#include <cassert>
+
 namespace RTT
 {
     namespace base {
@@ -61,7 +63,8 @@ namespace RTT
             ExecutionEngine* engine;
         public:
             /**
-             * Called by the ExecutionEngine \a ee to tell
+             * Called by the ExecutionEngine \a ee or before
+             * synchronous execution to tell
              * this object it is being loaded. The engine
              * pointer is set first and the user's loading() function
              * is called next.
@@ -72,10 +75,12 @@ namespace RTT
                     engine = ee;
                     this->loading();
                 }
+                assert(ee == engine);
             }
 
             /**
-             * Called by the ExecutionEngine \a ee to tell
+             * Called by the ExecutionEngine \a ee or after
+             * synchronous execution to tell
              * this object it is being unloaded. The
              * user's loading() function
              * is called first and the engine pointer is cleared next.
