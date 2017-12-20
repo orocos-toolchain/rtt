@@ -98,7 +98,8 @@ namespace RTT
                    )[ boost::bind(&ProgramGraphParser::endifstatement, this) ];
 
     // ifblock is used for a group of statements or one statement (see also whilestatement)
-    ifblock = ( ch_p('{') >> *line >> closecurly ) | statement;
+    // The semicolon after a single statement is optional, but do not emit an error if there is a semicolon before the else clause.
+    ifblock = ( ch_p('{') >> *line >> closecurly ) | ( statement >> !commonparser.notassertingeos );
 
     whilestatement =
         (keyword_p("while")
