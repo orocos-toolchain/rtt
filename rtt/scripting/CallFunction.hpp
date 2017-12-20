@@ -64,7 +64,6 @@ namespace RTT
         ExecutionEngine* mrunner;
         ExecutionEngine* mcaller;
         boost::shared_ptr<ProgramInterface> _foo;
-        bool isqueued;
         bool maccept;
 
         /**
@@ -105,7 +104,7 @@ namespace RTT
                       )
         : minit(init_com),
         mrunner(p), mcaller(caller),
-        _foo( foo ), isqueued(false), maccept(false)
+        _foo( foo ), maccept(false)
         {
         }
 
@@ -129,9 +128,6 @@ namespace RTT
          *
          */
         virtual bool execute() {
-            if (isqueued) return true;
-            isqueued = true;
-
             // prepare execution
             if (!minit->execute()) return false;
             _foo->loaded(mrunner);
@@ -213,8 +209,10 @@ namespace RTT
         virtual void executeAndDispose() {
             if ( _foo->execute() == false ) {
                 _foo->unloaded();
+            } else {
+                // need to execute again
+                maccept = false;
             }
-            maccept = false;
             // ExecutionEngine will eventually wake up the caller waiting in mrunner->waitForMessages().
         }
 
@@ -223,11 +221,10 @@ namespace RTT
 
         virtual void reset() {
             maccept = false;
-            isqueued = false;
         }
 
         virtual bool valid() const {
-            return isqueued && maccept;
+            return maccept;
         }
 
         virtual void readArguments() {
