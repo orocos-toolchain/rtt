@@ -177,10 +177,25 @@ namespace internal {
                << " COMPONENT\n";
         } else if (this->depth == 0) {
             // For depth 0, only log the port.
+            std::string connection_summary;
+            const int connection_nr = this->sub_connections.size();
+            switch (connection_nr) {
+            case 0:
+                connection_summary = "No";
+                break;
+            case 1:
+                connection_summary = "Single";
+                break;
+            default:
+                connection_summary = "Multiple";
+                break;
+            }
             os << std::string(currIndent, ' ')
                << (this->is_forward ? " IN " : " OUT ")
                << (this->is_forward ? this->in_port
-                                         : this->out_port) << ":\n";
+                                         : this->out_port)
+               << " with " << connection_summary << " connection(s) (#"
+               << connection_nr << ")" << ":\n";
         } else if (this->depth > 0) {
             // Positive depth, log the full connection information.
             os << std::string(currIndent, ' ')
