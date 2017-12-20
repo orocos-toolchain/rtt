@@ -79,7 +79,7 @@ namespace internal {
         in_port.owner_name = tc->getName();
         is_forward = true;
         depth = -1;
-        if (tc->ports()) {
+        if (tc->ports() && !(tc->ports()->getPortNames().empty())) {
             DataFlowInterface::PortNames port_names = tc->ports()->getPortNames();
             for (size_t j = 0; j < port_names.size(); ++j) {
                 const std::string& port_name = port_names.at(j);
@@ -87,6 +87,9 @@ namespace internal {
                 ConnectionIntrospector ci(port_ptr);
                 sub_connections.push_back(ci);
             }
+            in_port.is_remote = false;
+        } else {
+            in_port.is_remote = true;
         }
     }
 
