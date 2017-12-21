@@ -105,7 +105,7 @@ namespace RTT
 
         this->addOperation("trigger", &TaskContext::trigger, this, ClientThread).doc("Trigger the update method for execution in the thread of this task.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task.");
         this->addOperation("loadService", &TaskContext::loadService, this, ClientThread).doc("Loads a service known to RTT into this component.").arg("service_name","The name with which the service is registered by in the PluginLoader.");
-        this->addOperation("port_connections", &TaskContext::listPortConnections, this, ClientThread).doc("Logs a list of connections for all ports in this component.")
+        this->addOperation("showPortConnections", &TaskContext::showPortConnections, this, ClientThread).doc("Logs a list of connections for all ports in this component.")
                 .arg("depth", "Number of levels to look for: 1 will only list direct connections, more than 1 will also look at connected ports connections.");
 
         this->addAttribute("TriggerOnStart",mTriggerOnStart);
@@ -454,7 +454,7 @@ namespace RTT
         }
     }
 
-    void TaskContext::listPortConnections(int depth) const
+    void TaskContext::showPortConnections(int depth) const
     {
         if (depth < 1) {depth = 1;}
 

@@ -697,7 +697,7 @@ namespace RTT
          * @param depth Levels to explore: 1 (or less) will only explore direct
          *              connections.
          */
-        void listPortConnections(int depth) const;
+        void showPortConnections(int depth) const;
     };
 
     /**

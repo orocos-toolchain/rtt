@@ -88,9 +88,8 @@ Service* PortInterface::createPortObject()
     typedef void (PortInterface::*disconnect_all)();
     to->addSynchronousOperation("disconnect", static_cast<disconnect_all>(&PortInterface::disconnect), this).doc("Disconnects this port from any connection it is part of.");
 
-    typedef void (PortInterface::*PortConnections)(int) const;
-    PortConnections port_connections = &PortInterface::listPortConnections;
-    to->addSynchronousOperation("port_connections", port_connections, this).doc(
+    to->addSynchronousOperation("showPortConnections",
+        &PortInterface::showPortConnections, this).doc(
             "Logs a list of connections for this port.").arg(
                 "depth", "Number of levels to look for: 1 will only list direct"
                 " connections, more than 1 will also look at connected ports "
@@ -120,7 +119,7 @@ internal::SharedConnectionBase::shared_ptr PortInterface::getSharedConnection() 
     return cmanager.getSharedConnection();
 }
 
-void PortInterface::listPortConnections(int depth) const
+void PortInterface::showPortConnections(int depth) const
 {
     if (depth < 1) {depth = 1;}
 
