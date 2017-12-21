@@ -43,14 +43,20 @@ namespace internal {
 
     ConnectionIntrospector::ConnectionIntrospector(
             const ConnectionManager::ChannelDescriptor& descriptor,
+            const PortQualifier& port,
             bool forward, int curr_depth) {
         is_forward = forward;
         connection_id = descriptor.get<0>();
         connection_policy = descriptor.get<2>();
-        in_port = PortQualifier(
-                    descriptor.get<1>()->getOutputEndPoint()->getPort());
-        out_port = PortQualifier(
-                    descriptor.get<1>()->getInputEndPoint()->getPort());
+        if (is_forward) {
+            in_port = PortQualifier(
+                        descriptor.get<1>()->getOutputEndPoint()->getPort());
+            out_port = port;
+        } else {
+            in_port = port;
+            out_port = PortQualifier(
+                        descriptor.get<1>()->getInputEndPoint()->getPort());
+        }
         depth = curr_depth;
     }
 
@@ -145,7 +151,7 @@ namespace internal {
                      it != connections.end(); ++it) {
                     // Push back one connection, and add the node to the "to_visit" list.
                     ConnectionIntrospector
-                            conn_descriptor(*it, !node.is_forward, curr_depth + 1);
+                            conn_descriptor(*it, port, !node.is_forward, curr_depth + 1);
                     if (visited.count(conn_descriptor)) {
                         continue;
                     }

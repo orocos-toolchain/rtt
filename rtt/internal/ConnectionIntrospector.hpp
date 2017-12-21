@@ -39,6 +39,7 @@ public:
 
     ConnectionIntrospector(
             const ConnectionManager::ChannelDescriptor& descriptor,
+            const PortQualifier& port,
             bool forward, int curr_depth);
     ConnectionIntrospector(const base::PortInterface* port);
     ConnectionIntrospector(const TaskContext* tc);
