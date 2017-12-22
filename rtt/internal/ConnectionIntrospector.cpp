@@ -140,24 +140,36 @@ namespace internal {
             if (curr_depth >= depth) {
                 continue;
             }
-            std::list<ConnectionIntrospector>& connection_list = node.sub_connections;
             PortQualifier& port = node.is_forward ? node.in_port : node.out_port;
 
             // Would be false for remote ports.
             if (!port.is_remote) {
-                std::list<ConnectionManager::ChannelDescriptor>
-                        connections = port.port_ptr->getManager()->getConnections();
-                for (std::list<ConnectionManager::ChannelDescriptor>::const_iterator it = connections.begin();
-                     it != connections.end(); ++it) {
-                    // Push back one connection, and add the node to the "to_visit" list.
-                    ConnectionIntrospector
-                            conn_descriptor(*it, port, !node.is_forward, curr_depth + 1);
-                    if (visited.count(conn_descriptor)) {
+                std::list<ConnectionIntrospector> ci_list;
+                if (!node.sub_connections.empty()) {
+                    // Inspecting an already created list, append extra connections.
+                    ci_list.insert(ci_list.end(), node.sub_connections.begin(),
+                                   node.sub_connections.end());
+                    node.sub_connections.clear();
+                } else if (port.port_ptr && port.port_ptr->getManager()) {
+                    // Perform conversion from ChannelDescriptor.
+                    std::list<ConnectionManager::ChannelDescriptor>
+                            connections = port.port_ptr->getManager()->getConnections();
+                    for (std::list<ConnectionManager::ChannelDescriptor>::const_iterator
+                            it = connections.begin(); it != connections.end(); ++it) {
+                        ci_list.push_back(ConnectionIntrospector(
+                                *it, port, !node.is_forward, curr_depth + 1));
+                    }
+                }
+                // Check whether connections have already been visited,
+                // otherwise add them to the to_visit list.
+                for (std::list<ConnectionIntrospector>::const_iterator
+                        it = ci_list.begin(); it != ci_list.end(); ++it) {
+                    if (visited.count(*it)) {
                         continue;
                     }
-                    visited.insert(conn_descriptor);
-                    connection_list.push_back(conn_descriptor);
-                    to_visit.push_back(&(connection_list.back()));
+                    visited.insert(*it);
+                    node.sub_connections.push_back(*it);
+                    to_visit.push_back(&(node.sub_connections.back()));
                 }
             } else {
                 if (node.connection_id) {
