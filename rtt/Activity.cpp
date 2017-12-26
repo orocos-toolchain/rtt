@@ -230,8 +230,8 @@ namespace RTT
                     else if (overruns != 0) {
                         --overruns;
                     }
-                    if ( !mabswaitpolicy && wakeup < now ) {
-                        wakeup = wakeup + ((now-wakeup)/nsperiod+1)*nsperiod; // assumes that (now-wakeup)/nsperiod rounds down !
+                    if ( !mabswaitpolicy ) {
+                        wakeup = now + nsperiod;
                     }
                     mtimeout = true;
                 }
