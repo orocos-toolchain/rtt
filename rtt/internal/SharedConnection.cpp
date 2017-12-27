@@ -63,6 +63,16 @@ ConnID* SharedConnID::clone() const
     return new SharedConnID(this->connection);
 }
 
+std::string SharedConnID::typeString() const
+{
+    return "SharedConnID";
+}
+
+std::string SharedConnID::portName() const
+{
+    return this->connection->getName();
+}
+
 #ifdef ORO_HAVE_BOOST_UUID
 static boost::uuids::random_generator uuid_generator;
 #endif
