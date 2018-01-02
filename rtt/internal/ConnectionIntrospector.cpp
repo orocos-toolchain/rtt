@@ -218,10 +218,12 @@ namespace internal {
             // Positive depth, log the full connection information.
             os << std::string(currIndent, ' ')
                << (this->is_forward ? " -> IN " : " <- OUT ")
+               << ((this->is_forward ? this->in_port
+                                         : this->out_port).is_remote ?
+                      "(remote) " : "")
                << (this->is_forward ? this->in_port
                                          : this->out_port)
-               << " : (" << this->connection_id->typeString()
-               << " = " << this->connection_policy << ")\n";
+               << " : (" << this->connection_policy << ")\n";
         }
         for (std::list< ConnectionIntrospector >::const_iterator
                 it = this->sub_connections.begin();
