@@ -45,6 +45,7 @@
 #include "ProgramInterface.hpp"
 #include "../internal/DataSource.hpp"
 #include "../ExecutionEngine.hpp"
+#include "../Logger.hpp"
 #include <boost/shared_ptr.hpp>
 #include <boost/bind.hpp>
 
@@ -146,6 +147,10 @@ namespace RTT
                 maccept = true;
                 this->executeAndDispose();
                 if ( checkIfDone() ) return true;
+                log(Warning) << "Execution of function '" << _foo->getName() << " did not finish in one cycle "
+                                "and paused in line " << _foo->getLineNumber() << ", e.g. because of a yield statement." << nlog()
+                             << "As it was called from the executing thread, execution will continue immediately to avoid a dead-lock." << nlog()
+                             << "This behavior might be unexpected and can cause busy-wait loops." << endlog();
 
                 // 2. While not done, enqueue as a message callback (for the callback step)
                 //    ==> mrunner will call executeAndDispose() (see below)
