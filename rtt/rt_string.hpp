@@ -40,6 +40,7 @@
 #define _RTT_RT_STRING_HPP 1
 
 #include "os/oro_allocator.hpp"
+#include "rtt-config.h"
 #include <string>
 #include <sstream>
 
@@ -63,6 +64,15 @@ namespace RTT
      std::string s1("Hello world");
      OCL::String s2(s1.c_str());
      */
+}
+
+namespace std
+{
+    /**
+     * Extern template declaration
+     */
+    RTT_EXT_IMPL template class basic_string<char, char_traits<char>, RTT::os::rt_allocator<char> >;
+    RTT_EXT_IMPL template class basic_ostringstream<char, char_traits<char>, RTT::os::rt_allocator<char> >;
 }
 
 #endif
