@@ -454,8 +454,7 @@ namespace RTT {
 
                 try
                 {
-                    remote_side->channelReady(toCORBA(policy));
-                    return true;
+                    return remote_side->channelReady(toCORBA(policy));
                 }
 #ifdef CORBA_IS_OMNIORB
                 catch(CORBA::SystemException& e)
