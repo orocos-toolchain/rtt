@@ -100,7 +100,7 @@ void MQSendRecv::setupStream(base::DataSourceBase::shared_ptr ds, base::PortInte
     if (mis_sender)
         oflag |= O_WRONLY | O_NONBLOCK;
     else
-        oflag |= O_RDONLY | O_NONBLOCK;
+        oflag |= O_RDONLY; //reading is always blocking (see mqReady() )
     mqdes = mq_open(policy.name_id.c_str(), oflag, S_IREAD | S_IWRITE, &mattr);
 
     if (mqdes < 0)
