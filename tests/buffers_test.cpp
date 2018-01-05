@@ -689,10 +689,19 @@ void BuffersDataFlowTest::testBufMultiThreaded(int number_of_writers, int number
 
     if (buffer != circular) {
         BOOST_CHECK_EQUAL(total_writes, (total_reads_by_status[NewData] + buffer->size()));
-        BOOST_WARN_EQUAL(0, total_dropped);
     } else {
         BOOST_CHECK_GE(total_writes, (total_reads_by_status[NewData] + buffer->size()));
-        BOOST_CHECK_EQUAL(0, total_dropped);
+    }
+
+    if (writers.size() == 1) {
+        if (buffer != circular) {
+            BOOST_WARN_EQUAL(0, total_dropped);
+        } else {
+            BOOST_CHECK_EQUAL(0, total_dropped);
+        }
+    } else {
+        // Ignore dropped samples in case of multiple writers:
+        // It's normal that some samples will be dropped.
     }
 }
 
@@ -726,7 +735,12 @@ void BuffersDataFlowTest::testDObjMultiThreaded(int number_of_writers, int numbe
 
     // BOOST_CHECK_EQUAL(total_writes, total_reads_by_status[NewData]);
     BOOST_CHECK_GE(total_writes, total_reads_by_status[NewData]);
-    BOOST_WARN_EQUAL(total_dropped, 0);
+    if (writers.size() == 1) {
+        BOOST_CHECK_EQUAL(total_dropped, 0);
+    } else {
+        // Ignore dropped samples in case of multiple writers:
+        // It's normal that some samples will be dropped.
+    }
 }
 
 class BuffersMPoolTest
