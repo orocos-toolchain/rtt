@@ -922,10 +922,10 @@ BOOST_AUTO_TEST_CASE(testEventPortSignalling)
     OutputPort<double> wp1("Write");
     InputPort<double>  rp1("Read");
 
-    BOOST_ASSERT(tce->configure());
-    BOOST_ASSERT(tce->isConfigured());
+    BOOST_REQUIRE(tce->configure());
+    BOOST_REQUIRE(tce->isConfigured());
 
-    BOOST_ASSERT(slsim->isActive());
+    BOOST_REQUIRE(slsim->isActive());
 
 
     tce->start();
