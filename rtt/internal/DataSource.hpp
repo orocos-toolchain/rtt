@@ -236,5 +236,15 @@ namespace RTT
 #ifndef ORO_CORELIB_DATASOURCES_HPP
 #include "DataSource.inl"
 #endif
+
+/*
+ * Extern template declarations for core data source types
+ * (instantiated in DataSources.cpp)
+ */
+RTT_EXT_IMPL template class RTT_API RTT::internal::DataSource< bool >;
+RTT_EXT_IMPL template class RTT_API RTT::internal::AssignableDataSource< bool >;
+RTT_EXT_IMPL template class RTT_API RTT::internal::DataSource< std::string >;
+RTT_EXT_IMPL template class RTT_API RTT::internal::AssignableDataSource< std::string >;
+
 #endif
 

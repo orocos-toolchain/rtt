@@ -16,6 +16,12 @@ namespace RTT
     {
     }
 
+    /**
+     * Specialisation for std::string to keep capacity when clone() is called.
+     */
+    template<>
+    ValueDataSource<std::string>::ValueDataSource(std::string t );
+
     template<typename T>
     ValueDataSource<T>::ValueDataSource( )
         : mdata()
@@ -27,6 +33,12 @@ namespace RTT
     {
         mdata = t;
     }
+
+    /**
+     * Specialisation for std::string to keep capacity when set( ... ) is called.
+     */
+    template<>
+    void ValueDataSource<std::string>::set(  AssignableDataSource<std::string>::param_t t );
 
     template<typename T>
     ValueDataSource<T>* ValueDataSource<T>::clone() const
