@@ -172,7 +172,7 @@ namespace RTT { namespace base {
         /** Signals that there is new data available on this channel
          * Forwards to \ref signal() unless overwritten in a derived class.
          */
-        virtual bool signalFrom(ChannelElementBase *caller) { return signal(); }
+        virtual bool signalFrom(ChannelElementBase *) { return signal(); }
 
         /**
          * This is called on the output half of a new connection by the connection

@@ -675,6 +675,7 @@ void BuffersDataFlowTest::testBufMultiThreaded(int number_of_writers, int number
     BOOST_FOREACH(ThreadPool<BufferWriter>::value_type &writer, writers) {
         BOOST_REQUIRE( !writer.second->isRunning() );
         total_writes += writer.first->writes;
+        total_dropped += writer.first->dropped;
         BOOST_CHECK_GT(writer.first->writes, 0);
     }
     BOOST_FOREACH(ThreadPool<BufferReader>::value_type &reader, readers) {
@@ -688,10 +689,19 @@ void BuffersDataFlowTest::testBufMultiThreaded(int number_of_writers, int number
 
     if (buffer != circular) {
         BOOST_CHECK_EQUAL(total_writes, (total_reads_by_status[NewData] + buffer->size()));
-        BOOST_WARN_EQUAL(0, total_dropped);
     } else {
         BOOST_CHECK_GE(total_writes, (total_reads_by_status[NewData] + buffer->size()));
-        BOOST_CHECK_EQUAL(0, total_dropped);
+    }
+
+    if (writers.size() == 1) {
+        if (buffer != circular) {
+            BOOST_WARN_EQUAL(0, total_dropped);
+        } else {
+            BOOST_CHECK_EQUAL(0, total_dropped);
+        }
+    } else {
+        // Ignore dropped samples in case of multiple writers:
+        // It's normal that some samples will be dropped.
     }
 }
 
@@ -711,6 +721,7 @@ void BuffersDataFlowTest::testDObjMultiThreaded(int number_of_writers, int numbe
     BOOST_FOREACH(ThreadPool<DataObjectWriter>::value_type &writer, writers) {
         BOOST_REQUIRE( !writer.second->isRunning() );
         total_writes += writer.first->writes;
+        total_dropped += writer.first->dropped;
         BOOST_CHECK_GT(writer.first->writes, 0);
     }
     BOOST_FOREACH(ThreadPool<DataObjectReader>::value_type &reader, readers) {
@@ -724,7 +735,12 @@ void BuffersDataFlowTest::testDObjMultiThreaded(int number_of_writers, int numbe
 
     // BOOST_CHECK_EQUAL(total_writes, total_reads_by_status[NewData]);
     BOOST_CHECK_GE(total_writes, total_reads_by_status[NewData]);
-    BOOST_WARN_EQUAL(total_dropped, 0);
+    if (writers.size() == 1) {
+        BOOST_CHECK_EQUAL(total_dropped, 0);
+    } else {
+        // Ignore dropped samples in case of multiple writers:
+        // It's normal that some samples will be dropped.
+    }
 }
 
 class BuffersMPoolTest
@@ -1178,10 +1194,24 @@ BOOST_AUTO_TEST_CASE( testBufLocked4Writers4Readers )
     delete buffer;
 }
 
+BOOST_AUTO_TEST_CASE( testDObjLockFree4Writers1Reader )
+{
+    dataobj = new DataObjectLockFree<Dummy>(Dummy(), /* max_threads = */ 5);
+    testDObjMultiThreaded(4, 1);
+    delete dataobj;
+}
+
 BOOST_AUTO_TEST_CASE( testDObjLockFreeSingleWriter4Readers )
 {
     dataobj = new DataObjectLockFree<Dummy>(Dummy(), /* max_threads = */ 5);
     testDObjMultiThreaded(1, 4);
+    delete dataobj;
+}
+
+BOOST_AUTO_TEST_CASE( testDObjLockFree4Writers4Readers )
+{
+    dataobj = new DataObjectLockFree<Dummy>(Dummy(), /* max_threads = */ 8);
+    testDObjMultiThreaded(4, 4);
     delete dataobj;
 }
 

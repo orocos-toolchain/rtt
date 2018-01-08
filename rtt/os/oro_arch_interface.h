@@ -55,12 +55,22 @@ void oro_atomic_set(oro_atomic_t* a, int n);
 void oro_atomic_add(oro_atomic_t *a, int n);
 
 /**
- * Substract n from a
+ * Add n to a and return the new value
+ */
+int oro_atomic_add_return(oro_atomic_t *a, int n);
+
+/**
+ * Subtract n from a
  */
 void oro_atomic_sub(int n, oro_atomic_t *a, int n);
 
 /**
- * Substract n from a and test for zero
+ * Subtract n from a and return the new value
+ */
+int oro_atomic_sub_return(int n, oro_atomic_t *a, int n);
+
+/**
+ * Subtract n from a and test for zero
  */
 int oro_atomic_sub_and_test(oro_atomic_t *a, int n);
 
@@ -70,9 +80,19 @@ int oro_atomic_sub_and_test(oro_atomic_t *a, int n);
 void oro_atomic_inc(oro_atomic_t *a);
 
 /**
+ * Increment a atomically and return the new value
+ */
+int oro_atomic_inc_return(oro_atomic_t *a);
+
+/**
  * Decrement a atomically
  */
 void oro_atomic_dec(oro_atomic_t *a);
+
+/**
+ * Decrement a atomically and return the new value
+ */
+int oro_atomic_dec_return(oro_atomic_t *a);
 
 /**
  * Decrement a atomically and test for zero.
