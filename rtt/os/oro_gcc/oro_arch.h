@@ -27,7 +27,15 @@ static __inline__ void oro_atomic_add(oro_atomic_t *a_int, int n)
 }
 
 /**
- * Substract n from a_int
+ * Add n to a_int and return the new value
+ */
+static __inline__ int oro_atomic_add_return(oro_atomic_t *a_int, int n)
+{
+    return __sync_add_and_fetch(&a_int->cnt, n);
+}
+
+/**
+ * Subtract n from a_int
  */
 static __inline__ void oro_atomic_sub(oro_atomic_t *a_int, int n)
 {
@@ -35,7 +43,15 @@ static __inline__ void oro_atomic_sub(oro_atomic_t *a_int, int n)
 }
 
 /**
- * Substract n from a_int and test for zero
+ * Subtract n from a_int and return the new value
+ */
+static __inline__ int oro_atomic_sub_return(oro_atomic_t *a_int, int n)
+{
+    return __sync_sub_and_fetch(&a_int->cnt, n);
+}
+
+/**
+ * Subtract n from a_int and test for zero
  */
 static __inline__ int oro_atomic_sub_and_test(oro_atomic_t *a_int, int n)
 {
@@ -51,11 +67,27 @@ static __inline__ void oro_atomic_inc(oro_atomic_t *a_int)
 }
 
 /**
+ * Increment a_int atomically and return the new value
+ */
+static __inline__ int oro_atomic_inc_return(oro_atomic_t *a_int)
+{
+    return __sync_fetch_and_add(&a_int->cnt, 1);
+}
+
+/**
  * Decrement a_int atomically
  */
 static __inline__ void oro_atomic_dec(oro_atomic_t *a_int)
 {
     (void)__sync_fetch_and_sub(&a_int->cnt, 1);
+}
+
+/**
+ * Decrement a_int atomically and return the new value
+ */
+static __inline__ int oro_atomic_dec_return(oro_atomic_t *a_int)
+{
+    return __sync_fetch_and_sub(&a_int->cnt, 1);
 }
 
 /**
