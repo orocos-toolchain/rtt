@@ -140,7 +140,7 @@ namespace RTT { namespace base {
         typedef typename ChannelElement<T>::reference_t reference_t;
 
         MultipleInputsChannelElement()
-            : last_read()
+            : last()
         {}
 
         /**
@@ -164,6 +164,8 @@ namespace RTT { namespace base {
         virtual FlowStatus read(reference_t sample, bool copy_old_data = true)
         {
             FlowStatus result = NoData;
+            RTT::os::SharedMutexLock lock(inputs_lock);
+
             // read and iterate if necessary.
 #ifdef USE_CPP11
             select_reader_channel( bind( &MultipleInputsChannelElement<T>::do_read, this, boost::ref(sample), boost::ref(result), _1, _2), copy_old_data );
@@ -173,27 +175,13 @@ namespace RTT { namespace base {
             return result;
         }
 
+    private:
         typename ChannelElement<T>::shared_ptr currentInput() {
-            typename ChannelElement<T>::shared_ptr last;
-            BufferPolicy buffer_policy = getBufferPolicy();
-            if (!buffer_policy) buffer_policy = BufferPolicy(ConnPolicy::Default().buffer_policy);
-            switch(buffer_policy) {
-            case PerConnection:
-            case PerOutputPort:
-                last = last_read;
-                if ( !last && !inputs.empty() ) last = inputs.front()->template narrow<T>();
-                break;
-            case PerInputPort:
-            case Shared:
-                last = last_signalled->narrow<T>();
-                break;
-            default:
-                return typename ChannelElement<T>::shared_ptr();
-            }
+            typename ChannelElement<T>::shared_ptr last = this->last;
+            if ( !last && !inputs.empty() ) last = inputs.front()->template narrow<T>();
             return last;
         }
 
-    private:
         bool do_read(reference_t sample, FlowStatus& result, bool copy_old_data, typename ChannelElement<T>::shared_ptr& input)
         {
             assert( result != NewData );
@@ -221,7 +209,6 @@ namespace RTT { namespace base {
          */
         template<typename Pred>
         void select_reader_channel(Pred pred, bool copy_old_data) {
-            RTT::os::SharedMutexLock lock(inputs_lock);
             typename ChannelElement<T>::shared_ptr new_input =
                 find_if(pred, copy_old_data);
 
@@ -230,7 +217,7 @@ namespace RTT { namespace base {
                 // We don't clear the current channel (to get it to NoData state), because there is a race
                 // between find_if and this line. We have to accept (in other parts of the code) that eventually,
                 // all channels return 'OldData'.
-                last_read = new_input.get();
+                last = new_input.get();
             }
         }
 
@@ -245,14 +232,12 @@ namespace RTT { namespace base {
                 if ( pred( copy_old_data, current ) )
                     return current;
 
-            if (buffer_policy == PerConnection || buffer_policy == PerOutputPort) {
-                for (Inputs::iterator it = inputs.begin(); it != inputs.end(); ++it) {
-                    if (*it == current) continue;
-                    typename ChannelElement<T>::shared_ptr input = (*it)->narrow<T>();
-                    assert(input);
-                    if ( pred(false, input) == true)
-                        return input;
-                }
+            for (Inputs::iterator it = inputs.begin(); it != inputs.end(); ++it) {
+                if (*it == current) continue;
+                typename ChannelElement<T>::shared_ptr input = (*it)->narrow<T>();
+                assert(input);
+                if ( pred(false, input) == true)
+                    return input;
             }
 
             return typename ChannelElement<T>::shared_ptr();
@@ -261,12 +246,12 @@ namespace RTT { namespace base {
     protected:
         virtual void removeInput(ChannelElementBase::shared_ptr const& input)
         {
+            if (last == input) last = 0;
             MultipleInputsChannelElementBase::removeInput(input);
-            if (last_read == input) last_read = 0;
         }
 
     private:
-        ChannelElement<T> *last_read;
+        ChannelElement<T> *last;
     };
 
     /** A typed version of MultipleOutputsChannelElementBase.

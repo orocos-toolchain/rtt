@@ -221,14 +221,6 @@ namespace RTT
             typename internal::ConnInputEndpoint<T>::shared_ptr endpoint = port.getEndpoint();
             typename base::ChannelElement<T>::shared_ptr buffer = port.getSharedBuffer();
 
-            // Set buffer policy of the port
-            if (!(endpoint->setBufferPolicy(policy.buffer_policy))) {
-                log(Error) << "You mixed incompatible buffer policies for output port " << port.getName() << ": "
-                           << "The new connection requests a " << policy.buffer_policy << " policy, "
-                           << "but the port already has a " << endpoint->getBufferPolicy() << " policy." << endlog();
-                return typename internal::ConnOutputEndpoint<T>::shared_ptr();
-            }
-
             // Note: PerInputPort implies PUSH and PerOutputPort implies PULL
             bool pull = policy.pull;
             if (policy.buffer_policy == PerInputPort) pull = ConnPolicy::PUSH;
@@ -306,14 +298,6 @@ namespace RTT
         {
             typename internal::ConnOutputEndpoint<T>::shared_ptr endpoint = port.getEndpoint();
             typename base::ChannelElement<T>::shared_ptr buffer = port.getSharedBuffer();
-
-            // Set buffer policy of the port
-            if (!(endpoint->setBufferPolicy(policy.buffer_policy))) {
-                log(Error) << "You mixed incompatible buffer policies for input port " << port.getName() << ": "
-                           << "The new connection requests a " << policy.buffer_policy << " policy, "
-                           << "but the port already has a " << endpoint->getBufferPolicy() << " policy." << endlog();
-                return typename internal::ConnOutputEndpoint<T>::shared_ptr();
-            }
 
             // Note: PerInputPort implies PUSH and PerOutputPort implies PULL
             bool pull = policy.pull;

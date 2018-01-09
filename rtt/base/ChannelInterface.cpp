@@ -38,7 +38,6 @@
 
 #include "../internal/Channels.hpp"
 #include "../os/Atomic.hpp"
-#include "../os/CAS.hpp"
 #include "../os/MutexLock.hpp"
 #include <boost/lexical_cast.hpp>
 
@@ -46,7 +45,6 @@ using namespace RTT;
 using namespace RTT::detail;
 
 ChannelElementBase::ChannelElementBase()
-    : buffer_policy(UnspecifiedBufferPolicy)
 {
     ORO_ATOMIC_SETUP(&refcount,0);
 }
@@ -210,22 +208,6 @@ const ConnPolicy* ChannelElementBase::getConnPolicy() const {
     return 0;
 }
 
-bool ChannelElementBase::setBufferPolicy(int policy, bool force)
-{
-    RTT::os::MutexLock lock(buffer_policy_lock);
-    if (!buffer_policy || force) {
-        buffer_policy = policy;
-        return true;
-    }
-    return buffer_policy == policy;
-}
-
-BufferPolicy ChannelElementBase::getBufferPolicy() const
-{
-    RTT::os::SharedMutexLock lock(buffer_policy_lock);
-    return BufferPolicy(buffer_policy);
-}
-
 bool ChannelElementBase::isRemoteElement() const {
     return false;
 }
@@ -247,7 +229,6 @@ std::string ChannelElementBase::getElementName() const {
 }
 
 MultipleInputsChannelElementBase::MultipleInputsChannelElementBase()
-    : last_signalled()
 {}
 
 bool MultipleInputsChannelElementBase::addInput(ChannelElementBase::shared_ptr const& input)
@@ -263,8 +244,6 @@ bool MultipleInputsChannelElementBase::addInput(ChannelElementBase::shared_ptr c
 void MultipleInputsChannelElementBase::removeInput(ChannelElementBase::shared_ptr const& input)
 {
     inputs.remove(input);
-    os::CAS(&last_signalled, input.get(), 0);
-    if (inputs.empty()) setBufferPolicy(UnspecifiedBufferPolicy, true);
 }
 
 bool MultipleInputsChannelElementBase::connected()
@@ -334,9 +313,8 @@ bool MultipleInputsChannelElementBase::disconnect(ChannelElementBase::shared_ptr
     return ChannelElementBase::disconnect(channel, forward);
 }
 
-bool MultipleInputsChannelElementBase::signalFrom(ChannelElementBase *caller)
+bool MultipleInputsChannelElementBase::signalFrom(ChannelElementBase *)
 {
-    last_signalled = caller;
     return signal();
 }
 
@@ -367,7 +345,6 @@ bool MultipleOutputsChannelElementBase::addOutput(ChannelElementBase::shared_ptr
 void MultipleOutputsChannelElementBase::removeOutput(ChannelElementBase::shared_ptr const& output)
 {
     outputs.remove_if(boost::bind(&Output::operator==, _1, output));
-    if (outputs.empty()) setBufferPolicy(UnspecifiedBufferPolicy, true);
 }
 
 bool MultipleOutputsChannelElementBase::connected()
