@@ -495,6 +495,20 @@ namespace RTT
         return false;
     }
 
+    bool TaskContextProxy::recover()
+    {
+        try {
+            if (! CORBA::is_nil(mtask) )
+                return mtask->recover();
+        } catch(...) {
+            mtask = CTaskContext::_nil();
+            this->setName("NotFound");
+            this->clear();
+        }
+        return false;
+    }
+
+    
     bool TaskContextProxy::activate() {
         try {
             if (! CORBA::is_nil(mtask) )
@@ -580,6 +594,18 @@ namespace RTT
         }
         return false;
     }
+    
+    bool TaskContextProxy::inException() const
+    {
+        try {
+            if (! CORBA::is_nil(mtask) )
+                return mtask->inException();
+        } catch(...) {
+            mtask = CTaskContext::_nil();
+        }
+        return false;
+    }
+
 
     TaskContext::TaskState TaskContextProxy::getTaskState() const {
         try {
