@@ -74,17 +74,17 @@ namespace RTT
             }
         }
 
-            /**
-             * Execute the functionality of all commands.
-             * Commands will be executed in the order they have been added
-             */
-            virtual bool execute() {
-            	for (std::vector<base::ActionInterface*>::iterator it=vect.begin();it!=vect.end();it++) {
-            		if ( !(*it)->execute() )
-                        return false;
-            	}
-                return true;
-			};
+        /**
+         * Execute the functionality of all commands.
+         * Commands will be executed in the order they have been added
+         */
+        virtual bool execute() {
+            for (std::vector<base::ActionInterface*>::iterator it=vect.begin();it!=vect.end();it++) {
+                if ( !(*it)->execute() )
+                    return false;
+            }
+            return true;
+        }
 
         void readArguments() {
             for (std::vector<base::ActionInterface*>::iterator it=vect.begin();it!=vect.end();it++)
@@ -105,7 +105,7 @@ namespace RTT
          */
         virtual void add(base::ActionInterface * com) {
             vect.push_back(com);
-        };
+        }
 
         virtual base::ActionInterface* clone() const
         {

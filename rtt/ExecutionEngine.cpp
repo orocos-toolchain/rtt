@@ -286,19 +286,10 @@ namespace RTT
             return;
         }
 
-        if (this->getActivity()->thread()->isSelf())
+        if (isSelf())
             waitAndProcessMessages(pred);
         else
             waitForMessagesInternal(pred);
-    }
-
-
-    void ExecutionEngine::waitForFunctions(const boost::function<bool(void)>& pred)
-    {
-        if (this->getActivity()->thread()->isSelf())
-            waitAndProcessFunctions(pred);
-        else
-            waitForMessagesInternal(pred); // NOT the same as for messages: functions signal the slave engine directly!
     }
 
     void ExecutionEngine::setMaster(ExecutionEngine *master)
@@ -318,10 +309,22 @@ namespace RTT
         RTT::base::RunnableInterface::setActivity(task);
     }
 
+    os::ThreadInterface* ExecutionEngine::getThread() const {
+        // forward to the master ExecutionEngine if available
+        if (mmaster) {
+            return mmaster->getThread();
+        }
+        return base::RunnableInterface::getThread();
+    }
+
+    bool ExecutionEngine::isSelf() const {
+        os::ThreadInterface *thread = this->getThread();
+        return (thread && thread->isSelf());
+    }
+
     void ExecutionEngine::waitForMessagesInternal(boost::function<bool(void)> const& pred)
     {
-        // Note: waitForMessagesInternal() can be called from waitForFunctions even if this is a slave engine!
-        // assert( mmaster == 0 );
+        assert( mmaster == 0 );
         if ( pred() )
             return;
         // only to be called from the thread not executing step().
@@ -335,27 +338,13 @@ namespace RTT
     void ExecutionEngine::waitAndProcessMessages(boost::function<bool(void)> const& pred)
     {
         assert( mmaster == 0 );
-        while ( !pred() ){
+        // optimization for the case the predicate is already true
+        if ( pred() )
+            return;
+
+        while ( true ) {
             // may not be called while holding the msg_lock !!!
             this->processMessages();
-            {
-                // only to be called from the thread executing step().
-                // We must lock because the cond variable will unlock msg_lock.
-                os::MutexLock lock(msg_lock);
-                if (!pred()) {
-                    msg_cond.wait(msg_lock); // now processMessages may run.
-                } else {
-                    return; // do not process messages when pred() == true;
-                }
-            }
-        }
-    }
-
-    void ExecutionEngine::waitAndProcessFunctions(boost::function<bool(void)> const& pred)
-    {
-        while ( !pred() ){
-            // may not be called while holding the msg_lock !!!
-            this->processFunctions();
             {
                 // only to be called from the thread executing step().
                 // We must lock because the cond variable will unlock msg_lock.

@@ -149,17 +149,6 @@ namespace RTT
         void waitForMessages(const boost::function<bool(void)>& pred);
 
         /**
-         * Call this if you wish to block on a function completing in the Execution Engine.
-         * Each time a function completes, waitForFunctions will return
-         * when pred() returns true.
-         * @param pred As long as !pred() blocks the calling thread. If pred() == true
-         * when entering this function, returns immediately.
-         *
-         * This function is for internal use only and is required for asynchronous function invocations.
-         */
-        void waitForFunctions(const boost::function<bool(void)>& pred);
-
-        /**
          * Stops executing the updateHook of \a task.
          * This is an explicit synchronisation point, which guarantees
          * that updateHook is no longer executed when this function returns true.
@@ -191,6 +180,23 @@ namespace RTT
          */
         virtual void setActivity( base::ActivityInterface* task );
 
+        /**
+         * Get the thread that processes messages send to this engine.
+         * @sa reimplementation of base::RunnableInterface::getThread()
+         *
+         * @return a pointer to the thread, or 0 if there is no activity assigned.
+         */
+        virtual os::ThreadInterface* getThread() const;
+
+        /**
+         * Check if the thread that processes messages send to this engine is the same as the calling thread.
+         * This method is typically used to check if operation or function calls can be inlined or even must
+         * be inlined to resolve potential dead-locks.
+         * @return true if it is safe to process messages directly that otherwise would have been passed
+         *              to ExecutionEngine::process(base::DisposableInterface *)
+         */
+        bool isSelf() const;
+
     protected:
         /**
          * Call this if you wish to block on a message arriving in the Execution Engine.
@@ -220,20 +226,6 @@ namespace RTT
          * recurse if we get an asynchronous call-back.
          */
         void waitAndProcessMessages(boost::function<bool(void)> const& pred);
-
-        /**
-         * Call this if you wish to block on a function completing in the Execution Engine
-         * and execute it.
-         * @param pred As long as !pred() waits and processes functions. If pred() == true
-         * when entering this function, then no functions will be processed and this function
-         * returns immediately.
-         *
-         * This function is for internal use only and is required for asynchronous function invocations.
-         *
-         * @note waitAndProcessFunctions will call in turn this->processFunctions() and may as a consequence
-         * recurse if we get an asynchronous call-back.
-         */
-        void waitAndProcessFunctions(boost::function<bool(void)> const& pred);
 
         /**
          * The parent or 'owner' of this ExecutionEngine, may be null.
