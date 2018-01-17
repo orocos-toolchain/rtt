@@ -58,12 +58,8 @@ ConnID* LocalConnID::clone() const {
     return new LocalConnID(this->ptr);
 }
 
-std::string LocalConnID::typeString() const {
-    return "LocalConnID";
-}
-
-std::string LocalConnID::portName() const {
-    return this->ptr->getName();
+const base::PortInterface *LocalConnID::getPort() const {
+    return this->ptr;
 }
 
 bool StreamConnID::isSameID(ConnID const& id) const
@@ -78,11 +74,7 @@ ConnID* StreamConnID::clone() const {
     return new StreamConnID(this->name_id);
 }
 
-std::string StreamConnID::typeString() const {
-    return "StreamConnID";
-}
-
-std::string StreamConnID::portName() const {
+std::string StreamConnID::getName() const {
     return this->name_id;
 }
 

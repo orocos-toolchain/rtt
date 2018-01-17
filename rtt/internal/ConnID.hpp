@@ -47,6 +47,7 @@
 #define ORO_CONNID_HPP_
 
 #include "../rtt-config.h"
+#include "../rtt-fwd.hpp"
 #include <string>
 
 namespace RTT
@@ -62,8 +63,8 @@ namespace RTT
             virtual bool isSameID(ConnID const& id) const = 0;
             virtual ConnID* clone() const = 0;
             virtual ~ConnID() {}
-            virtual std::string typeString() const = 0;
-            virtual std::string portName() const;
+            virtual std::string getName() const;
+            virtual const base::PortInterface *getPort() const;
         };
 
         /**
@@ -76,7 +77,6 @@ namespace RTT
             SimpleConnID(const ConnID* orig = 0);
             virtual bool isSameID(ConnID const& id) const;
             virtual ConnID* clone() const;
-            virtual std::string typeString() const;
         };
     }
 }

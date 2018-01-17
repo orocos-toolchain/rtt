@@ -60,8 +60,7 @@ namespace internal {
             : connection(connection) {}
         virtual ConnID* clone() const;
         virtual bool isSameID(ConnID const& id) const;
-        virtual std::string typeString() const;
-        virtual std::string portName() const;
+        virtual std::string getName() const;
         template <typename T> boost::intrusive_ptr< SharedConnection<T> > getConnection() const
         {
             return boost::static_pointer_cast< SharedConnection<T> >(connection);

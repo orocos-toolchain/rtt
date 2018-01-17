@@ -44,11 +44,29 @@
  */
 
 #include "ConnID.hpp"
+#include <rtt/base/PortInterface.hpp>
+#include <rtt/DataFlowInterface.hpp>
+#include <rtt/TaskContext.hpp>
 
+using namespace RTT;
 using namespace RTT::internal;
 
-std::string ConnID::portName() const {
-    return "";
+std::string ConnID::getName() const {
+    const base::PortInterface * const port = getPort();
+    if (!port) return std::string();
+
+    const RTT::DataFlowInterface * const iface = port->getInterface();
+    if (iface) {
+        RTT::TaskContext *owner = iface->getOwner();
+        if (owner) {
+            return owner->getName() + "." + port->getName();
+        }
+    }
+    return port->getName();
+}
+
+const base::PortInterface *ConnID::getPort() const {
+    return 0;
 }
 
 SimpleConnID::SimpleConnID(const ConnID* orig ) : cid( orig == 0 ? this : orig) {}
@@ -60,8 +78,4 @@ bool SimpleConnID::isSameID(ConnID const& id) const {
 }
 ConnID* SimpleConnID::clone() const {
     return new SimpleConnID( this->cid );
-}
-
-std::string SimpleConnID::typeString() const {
-    return "SimpleConnID";
 }

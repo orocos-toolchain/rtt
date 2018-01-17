@@ -61,13 +61,14 @@ namespace RTT
         {
             const CDataFlowInterface_var dataflow;
             const std::string name;
+            const base::PortInterface * const port;
 
-            RemoteConnID(CDataFlowInterface_ptr dataflow, std::string const& name);
+            RemoteConnID(CDataFlowInterface_ptr dataflow, std::string const& name,
+                         base::PortInterface const* port = 0);
 
             bool isSameID(ConnID const& id) const;
             ConnID* clone() const;
-            virtual std::string typeString() const;
-            virtual std::string portName() const;
+            virtual const base::PortInterface *getPort() const;
         };
 
     }

@@ -63,12 +63,7 @@ ConnID* SharedConnID::clone() const
     return new SharedConnID(this->connection);
 }
 
-std::string SharedConnID::typeString() const
-{
-    return "SharedConnID";
-}
-
-std::string SharedConnID::portName() const
+std::string SharedConnID::getName() const
 {
     return this->connection->getName();
 }

@@ -173,7 +173,7 @@ namespace internal {
                 }
             } else {
                 if (node.connection_id) {
-                    port.port_name = node.connection_id->portName();
+                    port.port_name = node.connection_id->getName();
                 }
             }
         }
