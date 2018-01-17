@@ -29,8 +29,9 @@ namespace internal {
     bool ConnectionIntrospector::PortQualifier::operator==(
             const PortQualifier& other) const {
         // For simplicity, remote ports are always different for now.
-        return !this->is_remote && this->owner_name == other.owner_name &&
-                this->port_name == other.port_name;
+        return !this->is_remote && !other.is_remote &&
+                (this->owner_name == other.owner_name) &&
+                (this->port_name == other.port_name);
     }
 
     bool ConnectionIntrospector::PortQualifier::operator<(
@@ -103,7 +104,7 @@ namespace internal {
             std::list<ConnectionIntrospector>& connection_list = node.sub_connections;
             PortQualifier& port = node.is_forward ? node.in_port : node.out_port;
 
-            // Would be undefined for remote ports.
+            // Would be false for remote ports.
             if (!port.is_remote) {
                 std::list<ConnectionManager::ChannelDescriptor>
                         connections = port.port_ptr->getManager()->getConnections();
