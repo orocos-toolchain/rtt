@@ -62,6 +62,10 @@ std::string LocalConnID::typeString() const {
     return "LocalConnID";
 }
 
+std::string LocalConnID::portName() const {
+    return this->ptr->getName();
+}
+
 bool StreamConnID::isSameID(ConnID const& id) const
 {
     StreamConnID const* real_id = dynamic_cast<StreamConnID const*>(&id);
