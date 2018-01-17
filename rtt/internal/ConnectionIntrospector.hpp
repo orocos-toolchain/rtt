@@ -28,40 +28,11 @@ public:
         bool is_forward;
         bool is_remote;
 
-        PortQualifier() {}
-        PortQualifier(const base::PortInterface* port)
-                : port_ptr(port), is_remote(false) {
-            // When the port is invalid, we have a remote port.
-            if (!port_ptr) {
-                port_name = "{REMOTE_PORT}";
-                owner_name = "{REMOTE_OWNER}";
-                is_remote = true;
-                return;
-            }
-            port_name = port_ptr->getName();
-            if (port_ptr->getInterface()) {
-                owner_name = port_ptr->getInterface()->getOwner()->getName();
-            } else {
-                owner_name = "{FREE}";
-            }
-            if ( dynamic_cast<const base::InputPortInterface*>(port_ptr) ) {
-                is_forward = false;
-            } else {
-                is_forward = true;
-            }
-        }
+        PortQualifier();
+        PortQualifier(const base::PortInterface* port);
 
-        bool operator==(const PortQualifier& other) const {
-            // For simplicity, remote ports are always different for now.
-            return !this->is_remote && this->owner_name == other.owner_name &&
-                    this->port_name == other.port_name;
-        }
-
-        bool operator<(const PortQualifier& other) const {
-            if (owner_name < other.owner_name) return true;
-            if (owner_name > other.owner_name) return false;
-            return port_name < other.port_name;
-        }
+        bool operator==(const PortQualifier& other) const;
+        bool operator<(const PortQualifier& other) const;
 
         friend std::ostream& operator<<(std::ostream& os, const PortQualifier&);
     };

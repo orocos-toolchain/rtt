@@ -3,6 +3,43 @@
 namespace RTT {
 namespace internal {
 
+    ConnectionIntrospector::PortQualifier::PortQualifier() {}
+    ConnectionIntrospector::PortQualifier::PortQualifier(const base::PortInterface* port)
+            : port_ptr(port), is_remote(false) {
+        // If the port is invalid, we have a remote port.
+        if (!port_ptr) {
+            port_name = "{REMOTE_PORT}";
+            owner_name = "{REMOTE_OWNER}";
+            is_remote = true;
+            return;
+        }
+        port_name = port_ptr->getName();
+        if (port_ptr->getInterface() && port_ptr->getInterface()->getOwner()) {
+            owner_name = port_ptr->getInterface()->getOwner()->getName();
+        } else {
+            owner_name = "{FREE}";
+        }
+        if ( dynamic_cast<const base::InputPortInterface*>(port_ptr) ) {
+            is_forward = false;
+        } else {
+            is_forward = true;
+        }
+    }
+
+    bool ConnectionIntrospector::PortQualifier::operator==(
+            const PortQualifier& other) const {
+        // For simplicity, remote ports are always different for now.
+        return !this->is_remote && this->owner_name == other.owner_name &&
+                this->port_name == other.port_name;
+    }
+
+    bool ConnectionIntrospector::PortQualifier::operator<(
+            const PortQualifier& other) const {
+        if (owner_name < other.owner_name) return true;
+        if (owner_name > other.owner_name) return false;
+        return port_name < other.port_name;
+    }
+
     ConnectionIntrospector::ConnectionIntrospector(
             const ConnectionManager::ChannelDescriptor& descriptor,
             bool forward, int curr_depth) {
@@ -15,17 +52,18 @@ namespace internal {
                     descriptor.get<1>()->getInputEndPoint()->getPort());
         depth = curr_depth;
     }
+
     ConnectionIntrospector::ConnectionIntrospector(
-            const base::PortInterface* port) {
-        PortQualifier port_(port);
-        if (port_.is_forward) {
-            out_port = port_;
+            const base::PortInterface* port_ptr) {
+        PortQualifier port(port_ptr);
+        if (port.is_forward) {
+            out_port = port;
         } else {
-            in_port = port_;
+            in_port = port;
         }
         // This is the fake "incoming" port connection, so forward is the
         // opposite of the port value.
-        is_forward = !port_.is_forward;
+        is_forward = !port.is_forward;
         depth = 0;
     }
 
