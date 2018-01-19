@@ -58,6 +58,23 @@ bool PortInterface::setName(const std::string& name)
     return false;
 }
 
+std::string PortInterface::getQualifiedName() const
+{
+    std::string qualified_name = getName();
+    const RTT::DataFlowInterface *interface = getInterface();
+    if (!interface) return qualified_name;
+
+    const RTT::Service *service = interface->getService();
+    while(service) {
+        if (!service->getName().empty()) {
+            qualified_name = service->getName() + "." + qualified_name;
+        }
+        service = service->getParent().get();
+    }
+
+    return qualified_name;
+}
+
 PortInterface& PortInterface::doc(const std::string& desc) {
     mdesc = desc;
     if (iface)

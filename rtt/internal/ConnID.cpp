@@ -54,15 +54,7 @@ using namespace RTT::internal;
 std::string ConnID::getName() const {
     const base::PortInterface * const port = getPort();
     if (!port) return std::string();
-
-    const RTT::DataFlowInterface * const iface = port->getInterface();
-    if (iface) {
-        RTT::TaskContext *owner = iface->getOwner();
-        if (owner) {
-            return owner->getName() + "." + port->getName();
-        }
-    }
-    return port->getName();
+    return port->getQualifiedName();
 }
 
 const base::PortInterface *ConnID::getPort() const {

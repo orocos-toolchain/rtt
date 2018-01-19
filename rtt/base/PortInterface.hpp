@@ -87,6 +87,14 @@ namespace RTT
         bool setName(const std::string& name);
 
         /**
+         * Gets the qualified name of this Port.
+         * The qualified name starts with the owner's name (if any),
+         * eventually intermediate services and finally the port's name,
+         * separated by dots.
+         */
+        std::string getQualifiedName() const;
+
+        /**
          * Get the documentation of this port.
          * @return A description.
          */
