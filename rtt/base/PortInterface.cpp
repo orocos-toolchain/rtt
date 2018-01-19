@@ -138,7 +138,7 @@ internal::SharedConnectionBase::shared_ptr PortInterface::getSharedConnection() 
 
 void PortInterface::showPortConnections(int depth) const
 {
-    if (depth < 1) {depth = 1;}
+    if (depth < 1) depth = 1;
 
     ConnectionIntrospector ci(this);
     ci.createGraph(depth);
