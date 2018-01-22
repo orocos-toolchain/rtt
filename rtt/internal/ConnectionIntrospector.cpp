@@ -176,8 +176,6 @@ void ConnectionIntrospector::createGraphInternal(int remaining_depth, const Node
             for(ConnectionManager::Connections::const_iterator con_it = connections.begin();
                 con_it != connections.end(); ++con_it) {
                 const ConnectionManager::ChannelDescriptor &descriptor = *con_it;
-//                const ConnID *conn_id = descriptor.get<0>().get();
-//                const base::PortInterface *other_port = conn_id->getPort();
                 const base::PortInterface *other_port = descriptor.get<1>()->getPort();
                 NodePtr other;
                 if (other_port) {
@@ -243,63 +241,9 @@ ConnectionIntrospector::ConnectionPtr ConnectionIntrospector::findConnectionTo(c
     return ConnectionPtr();
 }
 
-//static std::ostream& ConnectionIntrospector::printIndented(std::ostream& os,
-//        int i) const {
-//    const int currIndent = 4 * this->depth + i;
-//    if (this->depth == -1) {
-//        // For depth -1, only log the component name.
-//        os << std::string(i, ' ') << this->in_port.owner_name
-//           << " COMPONENT\n";
-//    } else if (this->depth == 0) {
-//        // For depth 0, only log the port.
-//        std::string connection_summary;
-//        const int connection_nr = this->sub_connections.size();
-//        switch (connection_nr) {
-//        case 0:
-//            connection_summary = "No";
-//            break;
-//        case 1:
-//            connection_summary = "Single";
-//            break;
-//        default:
-//            connection_summary = "Multiple";
-//            break;
-//        }
-//        os << std::string(currIndent, ' ')
-//           << (this->is_forward ? " IN " : " OUT ")
-//           << (this->is_forward ? this->in_port
-//                                     : this->out_port)
-//           << " with " << connection_summary << " connection(s) (#"
-//           << connection_nr << ")" << ":\n";
-//    } else if (this->depth > 0) {
-//        // Positive depth, log the full connection information.
-//        os << std::string(currIndent, ' ')
-//           << (this->is_forward ? " -> IN " : " <- OUT ")
-//           << ((this->is_forward ? this->in_port
-//                                     : this->out_port).is_remote ?
-//                  "(remote) " : "")
-//           << (this->is_forward ? this->in_port
-//                                     : this->out_port)
-//           << " : (" << this->connection_policy << ")\n";
-//    }
-//    for (std::list< ConnectionIntrospector >::const_iterator
-//            it = this->sub_connections.begin();
-//         it != this->sub_connections.end(); ++it) {
-//        os << *it;
-//    }
-//    return os;
-//}
-
-//boost::function<std::ostream&(std::ostream&)>
-//ConnectionIntrospector::indent(int i) const {
-//    return boost::bind(&ConnectionIntrospector::printIndented, this, _1, i);
-//}
-
 std::ostream& operator<<(
         std::ostream& os,
         const ConnectionIntrospector& descriptor) {
-//    return descriptor.indent(0)(os);
-//    return printTo(descriptor.start_nodes_, os);
     return os;
 }
 
