@@ -181,7 +181,7 @@ void ConnectionIntrospector::createGraphInternal(int remaining_depth, const Node
                 if (other_port) {
                     other.reset( new PortNode(other_port) );
                 } else {
-                    other.reset( new Node(descriptor.get<1>().get()) );
+                    other.reset( new Node(descriptor.get<1>().get(), (descriptor.get<0>() ? descriptor.get<0>()->getName() : "")) );
                 }
 
                 // Check if the other node is already known

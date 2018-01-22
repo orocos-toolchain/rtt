@@ -65,6 +65,10 @@ RTT::internal::ConnID* RemoteConnID::clone() const {
     return new RemoteConnID( this->dataflow.in(), this->name, this->port);
 }
 
+std::string RemoteConnID::getName() const {
+    return this->name;
+}
+
 const base::PortInterface *RemoteConnID::getPort() const {
     return this->port;
 }
