@@ -119,7 +119,7 @@ private:
     void collectStartNodes(const DataFlowInterface *);
     void createGraphInternal(int remaining_depth, const Nodes& to_visit);
     NodePtr findNode(const Node &node) const;
-    ConnectionPtr findConnectionTo(const Connections &connections, const Node &node) const;
+    static ConnectionPtr findConnectionTo(const Connections &connections, const Node &node);
 
     Nodes start_nodes_;
     Nodes nodes_;

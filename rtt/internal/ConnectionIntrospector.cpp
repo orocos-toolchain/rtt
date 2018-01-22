@@ -235,7 +235,7 @@ ConnectionIntrospector::NodePtr ConnectionIntrospector::findNode(const Node &nod
     return NodePtr();
 }
 
-ConnectionIntrospector::ConnectionPtr ConnectionIntrospector::findConnectionTo(const Connections &connections, const Node &node) const {
+ConnectionIntrospector::ConnectionPtr ConnectionIntrospector::findConnectionTo(const Connections &connections, const Node &node) {
     Connections::const_iterator it;
     for(it = connections.begin(); it != connections.end(); ++it) {
         if (*((*it)->to()) == node) return *it;
