@@ -105,7 +105,7 @@ inline ConnectionIntrospector::NodePtr ConnectionIntrospector::Connection::getOu
 }
 
 inline ConnectionIntrospector::NodePtr ConnectionIntrospector::Connection::getInput() const {
-    return is_forward_ ? to() : to();
+    return is_forward_ ? to() : from();
 }
 
 inline bool ConnectionIntrospector::Connection::isForward() const {
