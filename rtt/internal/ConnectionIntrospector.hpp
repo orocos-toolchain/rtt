@@ -65,11 +65,13 @@ private:
         const_iterator begin() const;
         const_iterator end() const;
 
+        std::ostream& printIndented(std::ostream& os, int depth, int indent_lvl, const ConnectionPtr incoming_connection, Connections printed_connections) const;
     protected:
         Node(base::ChannelElementBase *endpoint, const std::string &name = std::string());
         Direction direction_;
 
     private:
+        std::string getConnectionSummary() const;
         friend class ConnectionIntrospector;
         base::ChannelElementBase::shared_ptr endpoint_;
         std::string name_;
