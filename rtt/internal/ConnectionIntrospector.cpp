@@ -3,6 +3,7 @@
 #include "../Port.hpp"
 #include "../TaskContext.hpp"
 
+#include <boost/lexical_cast.hpp>
 #include <cassert>
 
 namespace RTT {
@@ -258,7 +259,7 @@ std::string ConnectionIntrospector::Node::getConnectionSummary() const {
     }
 
     return (" with " + connection_summary + " connection(s) (#"
-            + std::to_string(connection_nr) + ")");
+            + boost::lexical_cast<std::string>(connection_nr) + ")");
 }
 
 std::ostream& ConnectionIntrospector::Node::printIndented(
@@ -320,7 +321,8 @@ std::ostream& operator<<(
          node != descriptor.start_nodes_.end(); ++node) {
         (*node)->printIndented(
                     os, descriptor.depth_, 0,
-                    ConnectionIntrospector::ConnectionPtr(), {}) << "\n";
+                    ConnectionIntrospector::ConnectionPtr(),
+                    ConnectionIntrospector::Connections()) << "\n";
     }
 
     return os;
