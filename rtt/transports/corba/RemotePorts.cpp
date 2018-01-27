@@ -85,7 +85,7 @@ PortableServer::POA_ptr RemotePort<BaseClass>::_default_POA()
 
 template<typename BaseClass>
 RTT::internal::ConnID* RemotePort<BaseClass>::getPortID() const
-{ return new RemoteConnID(dataflow, this->getName(), this); }
+{ return new RemoteConnID(dataflow, this->getQualifiedName()); }
 
 template<typename BaseClass>
 bool RemotePort<BaseClass>::createStream( const RTT::ConnPolicy& policy )

@@ -602,7 +602,6 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
 
         // Creates a proxy to the remote input port
         RemoteInputPort port(writer->getTypeInfo(), reader_interface, reader_port, mpoa);
-        port.setInterface( mdf ); // cheating !
         // Connect to proxy.
         ConnPolicy policy2 = toRTT(policy);
         bool result = writer->createConnection(port, policy2);

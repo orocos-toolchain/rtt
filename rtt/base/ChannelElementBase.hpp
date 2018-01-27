@@ -128,7 +128,6 @@ namespace RTT { namespace base {
          */
         virtual shared_ptr getInputEndPoint();
 
-
         /** Returns the next channel element in the channel's propagation
          * direction
          */
@@ -371,6 +370,11 @@ namespace RTT { namespace base {
          */
         bool signalFrom(ChannelElementBase *caller);
 
+        /**
+         * Returns a list of input elements.
+         */
+        Inputs getInputs() const;
+
     protected:
         /**
          * Sets the new input channel element of this element or adds a channel to the inputs list.
@@ -433,6 +437,11 @@ namespace RTT { namespace base {
          * Overridden implementation of \ref ChannelElementBase::disconnect(forward, channel).
          */
         virtual bool disconnect(ChannelElementBase::shared_ptr const& channel, bool forward = false);
+
+        /**
+         * Returns a list of output elements.
+         */
+        Outputs getOutputs() const;
 
     protected:
         /**

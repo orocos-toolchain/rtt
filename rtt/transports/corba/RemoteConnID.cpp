@@ -48,11 +48,9 @@
 using namespace RTT;
 using namespace RTT::corba;
 
-RemoteConnID::RemoteConnID(CDataFlowInterface_ptr dataflow, std::string const& name,
-                           base::PortInterface const* port)
+RemoteConnID::RemoteConnID(CDataFlowInterface_ptr dataflow, std::string const& name)
 : dataflow(CDataFlowInterface::_duplicate(dataflow))
-  , name(name)
-  , port(port) {}
+  , name(name) {}
 
 bool RemoteConnID::isSameID(ConnID const& id) const
         {
@@ -62,13 +60,9 @@ bool RemoteConnID::isSameID(ConnID const& id) const
         }
 
 RTT::internal::ConnID* RemoteConnID::clone() const {
-    return new RemoteConnID( this->dataflow.in(), this->name, this->port);
+    return new RemoteConnID( this->dataflow.in(), this->name);
 }
 
 std::string RemoteConnID::getName() const {
     return this->name;
-}
-
-const base::PortInterface *RemoteConnID::getPort() const {
-    return this->port;
 }
