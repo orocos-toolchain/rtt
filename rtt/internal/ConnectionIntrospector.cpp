@@ -332,7 +332,7 @@ bool ConnectionIntrospector::findOrCreateNeighbor(
     }
     node->connections_.push_back(connection);
 
-    return found;
+    return (found != 0);
 }
 
 ConnectionIntrospector::NodePtr ConnectionIntrospector::findNode(const Node &node) const {
