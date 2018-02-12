@@ -138,7 +138,7 @@ namespace RTT { namespace base {
          * Returns the last output channel element of this connection.
          * Will return the channel element the furthest away from the output port,
          * or \a this if none.
-         * @return getOutput() ? getOutput()->getInputEndPoint() : this
+         * @return getOutput() ? getOutput()->getOutputEndPoint() : this
          */
         virtual shared_ptr getOutputEndPoint();
 
