@@ -107,7 +107,7 @@ namespace RTT
          */
         struct DataBuf {
             DataBuf()
-                : data(), status(NoData), read_counter(), write_lock(), next()
+                : data(), status(NoData), next()
             {
                 oro_atomic_set(&read_counter, 0);
                 oro_atomic_set(&write_lock, -1);
