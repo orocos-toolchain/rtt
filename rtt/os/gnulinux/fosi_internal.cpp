@@ -280,16 +280,9 @@ namespace RTT
 
         if (task->wait_policy == ORO_WAIT_ABS)
         {
-          // in the case of overrun by more than 4 periods,
-          // skip all the updates before now, with the next update aligned to period
-          int maxDelayInPeriods = 4;
-          NANO_TIME period = task->period;
-          if (now - wake > maxDelayInPeriods*period) {
-            period = period * ((now - wake) / period);
-          }
           // program next period:
           // 1. convert period to timespec
-          TIME_SPEC ts = ticks2timespec( nano2ticks(period) );
+          TIME_SPEC ts = ticks2timespec( nano2ticks( task->period) );
           // 2. Add ts to periodMark (danger: tn guards for overflows!)
           NANO_TIME tn = (task->periodMark.tv_nsec + ts.tv_nsec);
           task->periodMark.tv_nsec = tn % 1000000000LL;
