@@ -83,8 +83,7 @@ namespace RTT {
 
             // Wait
             int ret = 0;
-            Time now = rtos_get_time_ns();
-            if ( wake_up_time > now )
+            if ( wake_up_time > rtos_get_time_ns() )
                 ret = msem.waitUntil( wake_up_time ); // case of no timers or running timers
             else
                 ret = -1; // case of timer overrun.
@@ -101,11 +100,6 @@ namespace RTT {
                         TimerIds::iterator tim = mtimers.begin() + next_timer_id;
                         if ( tim->period ) {
                             // periodic timer
-                            // if late by more than 4 periods, skip late updates
-                            int maxDelayInPeriods = 4;
-                            if (now - tim->expires > tim->period*maxDelayInPeriods) {
-                                tim->expires += tim->period*((now - tim->expires) / tim->period);
-                            }
                             tim->expires += tim->period;
                         } else {
                             // aperiodic timer
