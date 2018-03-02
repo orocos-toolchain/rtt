@@ -94,7 +94,7 @@ IF (BUILD_TESTING)
     endif()
 
     # repeat for each test
-    ADD_EXECUTABLE( core-test test-runner.cpp logger_test.cpp time_test.cpp ptr_test.cpp )
+    ADD_EXECUTABLE( core-test test-runner.cpp logger_test.cpp time_test.cpp ptr_test.cpp os_test.cpp )
     TARGET_LINK_LIBRARIES( core-test orocos-rtt-${OROCOS_TARGET}_dynamic ${TEST_LIBRARIES})
     SET_TARGET_PROPERTIES( core-test PROPERTIES
     COMPILE_DEFINITIONS "${COMPILE_DEFS}")

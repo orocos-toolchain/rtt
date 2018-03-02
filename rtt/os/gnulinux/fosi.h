@@ -101,7 +101,8 @@ extern "C"
     {
 
         TIME_SPEC tv;
-        clock_gettime(CLOCK_REALTIME, &tv);
+        if ( clock_gettime(CLOCK_REALTIME, &tv) != 0)
+            return 0;
         // we can not include the C++ Time.hpp header !
 #ifdef __cplusplus
         return NANO_TIME( tv.tv_sec ) * 1000000000LL + NANO_TIME( tv.tv_nsec );
@@ -122,7 +123,10 @@ extern "C"
     static inline int rtos_nanosleep( const TIME_SPEC * rqtp, TIME_SPEC * rmtp )
     {
         //    return usleep(rqtp->tv_nsec/1000L);
-        return nanosleep( rqtp, rmtp );
+        if ( nanosleep( rqtp, rmtp ) == 0 )
+            return 0;
+        else
+            return -errno;
     }
 
     /**
@@ -151,22 +155,34 @@ extern "C"
 
     static inline int rtos_sem_destroy(rt_sem_t* m )
     {
-        return sem_destroy(m);
+        if ( sem_destroy(m) == 0 )
+            return 0;
+        else
+            return -errno;
     }
 
     static inline int rtos_sem_signal(rt_sem_t* m )
     {
-        return sem_post(m);
+        if ( sem_post(m) == 0 )
+            return 0;
+        else
+            return -errno;
     }
 
     static inline int rtos_sem_wait(rt_sem_t* m )
     {
-        return sem_wait(m);
+        if ( sem_wait(m) == 0 )
+          return 0;
+      else
+          return -errno;
     }
 
     static inline int rtos_sem_trywait(rt_sem_t* m )
     {
-        return sem_trywait(m);
+        if ( sem_trywait(m) == 0 )
+          return 0;
+      else
+          return -errno;
     }
 
     static inline int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay )
@@ -186,15 +202,19 @@ extern "C"
         assert( 0 <= timevl.tv_nsec);
         assert( timevl.tv_nsec < 1000000000 );
 
-        /// \todo should really deal with errno=EINTR due to signal,
-        /// and errno=ETIMEDOUT appropriately.
-        return sem_timedwait( m, &timevl);
+        if ( sem_timedwait( m, &timevl) == 0 )
+            return 0;
+        else
+            return -errno;
     }
 
     static inline int rtos_sem_wait_until(rt_sem_t* m, NANO_TIME abs_time )
     {
         TIME_SPEC arg_time = ticks2timespec( abs_time );
-        return sem_timedwait( m, &arg_time);
+        if ( sem_timedwait( m, &arg_time) == 0 )
+            return 0;
+        else
+            return -errno;
     }
 
     static inline int rtos_sem_value(rt_sem_t* m )
@@ -202,7 +222,8 @@ extern "C"
 		int val = 0;
         if ( sem_getvalue(m, &val) == 0)
 			return val;
-		return -1;
+        else
+            return -errno;
     }
 
     // Mutex functions
@@ -212,67 +233,75 @@ extern "C"
 
     static inline int rtos_mutex_init(rt_mutex_t* m)
     {
-        return pthread_mutex_init(m, 0 );
+        return -pthread_mutex_init(m, 0 );
     }
 
     static inline int rtos_mutex_destroy(rt_mutex_t* m )
     {
-        return pthread_mutex_destroy(m);
+        return -pthread_mutex_destroy(m);
     }
 
     static inline int rtos_mutex_rec_init(rt_mutex_t* m)
     {
-        pthread_mutexattr_t ma_t;
-        pthread_mutexattr_init(&ma_t);
-		pthread_mutexattr_settype(&ma_t,PTHREAD_MUTEX_RECURSIVE_NP);
-        return pthread_mutex_init(m, &ma_t );
+        pthread_mutexattr_t attr;
+        int ret = pthread_mutexattr_init(&attr);
+        if (ret != 0) return -ret;
+
+        // make mutex recursive
+        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
+        if (ret != 0) return -ret;
+
+        ret = pthread_mutex_init(m, &attr);
+
+        pthread_mutexattr_destroy(&attr);
+        return -ret;
     }
 
     static inline int rtos_mutex_rec_destroy(rt_mutex_t* m )
     {
-        return pthread_mutex_destroy(m);
+        return -pthread_mutex_destroy(m);
     }
 
     static inline int rtos_mutex_lock( rt_mutex_t* m)
     {
-        return pthread_mutex_lock(m);
+        return -pthread_mutex_lock(m);
     }
 
     static inline int rtos_mutex_rec_lock( rt_mutex_t* m)
     {
-        return pthread_mutex_lock(m);
+        return -pthread_mutex_lock(m);
     }
 
     static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
     {
         TIME_SPEC arg_time = ticks2timespec( abs_time );
-        return pthread_mutex_timedlock(m, &arg_time);
+        return -pthread_mutex_timedlock(m, &arg_time);
     }
 
     static inline int rtos_mutex_rec_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
     {
         TIME_SPEC arg_time = ticks2timespec( abs_time );
-        return pthread_mutex_timedlock(m, &arg_time);
+        return -pthread_mutex_timedlock(m, &arg_time);
     }
 
     static inline int rtos_mutex_trylock( rt_mutex_t* m)
     {
-        return pthread_mutex_trylock(m);
+        return -pthread_mutex_trylock(m);
     }
 
     static inline int rtos_mutex_rec_trylock( rt_mutex_t* m)
     {
-        return pthread_mutex_trylock(m);
+        return -pthread_mutex_trylock(m);
     }
 
     static inline int rtos_mutex_unlock( rt_mutex_t* m)
     {
-        return pthread_mutex_unlock(m);
+        return -pthread_mutex_unlock(m);
     }
 
     static inline int rtos_mutex_rec_unlock( rt_mutex_t* m)
     {
-        return pthread_mutex_unlock(m);
+        return -pthread_mutex_unlock(m);
     }
 
     static inline void rtos_enable_rt_warning()
@@ -287,28 +316,28 @@ extern "C"
 
     static inline int rtos_cond_init(rt_cond_t *cond)
     {
-        return pthread_cond_init(cond, NULL);
+        return -pthread_cond_init(cond, NULL);
     }
 
     static inline int rtos_cond_destroy(rt_cond_t *cond)
     {
-        return pthread_cond_destroy(cond);
+        return -pthread_cond_destroy(cond);
     }
 
     static inline int rtos_cond_wait(rt_cond_t *cond, rt_mutex_t *mutex)
     {
-        return pthread_cond_wait(cond, mutex);
+        return -pthread_cond_wait(cond, mutex);
     }
 
     static inline int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, NANO_TIME abs_time)
     {
         TIME_SPEC arg_time = ticks2timespec( abs_time );
-        return pthread_cond_timedwait(cond, mutex, &arg_time);
+        return -pthread_cond_timedwait(cond, mutex, &arg_time);
     }
 
     static inline int rtos_cond_broadcast(rt_cond_t *cond)
     {
-        return pthread_cond_broadcast(cond);
+        return -pthread_cond_broadcast(cond);
     }
 
 #define rtos_printf printf
