@@ -338,16 +338,6 @@ void testAffinity2(boost::scoped_ptr<TestPeriodic>& run,
     BOOST_CHECK(t->setCpuAffinity(1 << targetCPU));
     BOOST_CHECK_EQUAL((1 << targetCPU), t->getCpuAffinity());
 
-    if ( t->getScheduler() == os::HighestPriority) {
-        r = t->start();
-        BOOST_CHECK_MESSAGE( r, "Failed to start Thread");
-        r = t->stop();
-        BOOST_CHECK_MESSAGE( r, "Failed to stop Thread");
-        BOOST_CHECK_MESSAGE( run->stepped == true, "Step not executed" );
-        BOOST_CHECK_EQUAL(targetCPU, run->cpu);
-        BOOST_CHECK_LT(0, run->succ);
-        run->reset();
-    }
     BOOST_CHECK_EQUAL(0, run->cpu);
     r = t->start();
     BOOST_CHECK_MESSAGE( r, "Failed to start Thread");
