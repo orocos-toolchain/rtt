@@ -308,7 +308,7 @@ extern "C"
             return ret;
         }
 
-        ret = pthread_cond_init(cond, NULL);
+        ret = pthread_cond_init(cond, &attr);
         pthread_condattr_destroy(&attr);
 
         return ret;
