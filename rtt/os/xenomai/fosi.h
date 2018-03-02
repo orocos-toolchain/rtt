@@ -318,7 +318,7 @@ static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
 
     static inline int rtos_mutex_rec_trylock_for( rt_rec_mutex_t* m, NANO_TIME relative_time)
     {
-        return rtos_mutex_rec_trylock_for(m, relative_time);
+        return rtos_mutex_trylock_for(m, relative_time);
     }
 
     static inline int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
