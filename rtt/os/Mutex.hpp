@@ -327,7 +327,7 @@ namespace RTT
             int ret = rtos_mutex_rec_trylock( &recm );
             if ( ret == 0 )
                 return true;
-            if ( ret == EBUSY )
+            if ( ret == -EBUSY || ret == -EWOULDBLOCK || ret == -ETIMEDOUT || ret == -EINTR )
                 return false;
 #ifndef ORO_EMBEDDED
             throw boost::system::system_error(-ret, boost::system::system_category(),
