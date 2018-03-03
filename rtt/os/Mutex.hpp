@@ -284,6 +284,8 @@ namespace RTT
         {
             if ( trylock() ) {
                 unlock();
+                // The calling thread might have locked the mutex more than once.
+                while(rtos_mutex_rec_unlock( &recm ) == 0);
                 int ret = rtos_mutex_rec_destroy( &recm );
                 if ( ret == 0 )
                     return;
