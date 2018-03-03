@@ -46,7 +46,12 @@ BOOST_AUTO_TEST_CASE( testMutex )
         MutexTryLock lock(m);
         BOOST_CHECK(lock.isSuccessful());
         MutexTryLock lock2(m);
+#if !defined(OROCOS_TARGET_XENOMAI)
         BOOST_CHECK(!lock2.isSuccessful());
+#else
+        // a Xenomai mutex is always recursive
+        BOOST_CHECK(lock2.isSuccessful());
+#endif
     }
 
     BOOST_CHECK(m.timedlock(Seconds(1.)));
@@ -55,13 +60,22 @@ BOOST_AUTO_TEST_CASE( testMutex )
         MutexTimedLock lock(m, Seconds(1.));
         BOOST_CHECK(lock.isSuccessful());
         MutexTimedLock lock2(m, Seconds(1.));
+#if !defined(OROCOS_TARGET_XENOMAI)
         BOOST_CHECK(!lock2.isSuccessful());
+#else
+        // a Xenomai mutex is always recursive
+        BOOST_CHECK(lock2.isSuccessful());
+#endif
     }
 
     BOOST_CHECK(m.timedlock(Seconds(1.)));
+#if !defined(OROCOS_TARGET_XENOMAI)
     BOOST_CHECK(!m.trylock());
     BOOST_CHECK(!m.timedlock(Seconds(1.)));
-#ifndef ORO_OS_USE_BOOST_THREAD
+#else
+    // a Xenomai mutex is always recursive
+#endif
+#if !defined(ORO_OS_USE_BOOST_THREAD)
     BOOST_CHECK_THROW(m.lock(), boost::system::system_error);
 #endif
     m.unlock();
