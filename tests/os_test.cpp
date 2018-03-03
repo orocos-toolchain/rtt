@@ -75,9 +75,6 @@ BOOST_AUTO_TEST_CASE( testMutex )
 #else
     // a Xenomai mutex is always recursive
 #endif
-#if !defined(ORO_OS_USE_BOOST_THREAD)
-    BOOST_CHECK_THROW(m.lock(), boost::system::system_error);
-#endif
     m.unlock();
 
     // Test locked mutex during destruction
