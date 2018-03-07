@@ -37,8 +37,6 @@
 #ifndef __FOSI_H
 #define __FOSI_H
 
-#define _DARWIN_C_SOURCE
-
 #define HAVE_FOSI_API
 
 #ifdef __cplusplus
@@ -46,6 +44,9 @@ extern "C"
 {
 #endif
 
+#ifndef _DARWIN_C_SOURCE
+#define _DARWIN_C_SOURCE
+#endif
 
 #include <stdio.h>
 #include <pthread.h>
@@ -53,13 +54,30 @@ extern "C"
 #include <mach/task.h>
 
 #include <errno.h>
+#include <stdbool.h>
+#include <unistd.h>
 
 #include <limits.h>
 #include <float.h>
 #include <assert.h>
 
+    // Time Related
+#include <sys/time.h>
+#include <time.h>
+#include <unistd.h>
+
+#ifndef RTT_VERIFY
+#if defined(NDEBUG)
+# define RTT_VERIFY(expr) ((void)(expr))
+#else
+# define RTT_VERIFY(expr) assert(expr)
+#endif
+#endif
+
     typedef long long NANO_TIME;
     typedef long long TICK_TIME;
+    typedef struct timespec TIME_SPEC;
+
 
     static const TICK_TIME InfiniteTicks = LLONG_MAX;
     static const NANO_TIME InfiniteNSecs = LLONG_MAX;
@@ -86,15 +104,6 @@ extern "C"
 
 #define ORO_SCHED_RT    SCHED_FIFO /** Posix FIFO scheduler */
 #define ORO_SCHED_OTHER SCHED_OTHER /** Posix normal scheduler */
-
-    /*
-     * Time Related stuff
-     */
-#include <sys/time.h>
-#include <time.h>
-#include <unistd.h>
-
-    typedef struct timespec TIME_SPEC;
 
 #ifndef CLOCK_REALTIME
     /* fake clock_gettime for systems like darwin */
@@ -139,7 +148,7 @@ extern "C"
      * This function should return ticks,
      * but we use ticks == nsecs in userspace
      */
-    static inline NANO_TIME rtos_get_time_ticks()
+    static inline NANO_TIME rtos_get_time_ticks(void)
     {
         return rtos_get_time_ns();
     }
@@ -257,24 +266,332 @@ extern "C"
     /* 		return -1; */
     /*     } */
 
-    // Mutex functions - support only those needed by TLSF
-	// opaque type
-    typedef struct rt_mutex_impl_t rt_mutex_impl_t;
-	// type created by tlsf.c (must work in C, not C++ code)
-    typedef rt_mutex_impl_t* rt_mutex_t;
-    int rtos_mutex_init(rt_mutex_t* m);
-    int rtos_mutex_destroy(rt_mutex_t* m);
-	int rtos_mutex_lock( rt_mutex_t* m);
-	int rtos_mutex_unlock( rt_mutex_t* m);
+    // Mutex functions
 
-    static inline void rtos_enable_rt_warning()
+
+    // Note: Apple's implementation of pthread_mutex_t does not have pthread_mutex_timedlock.
+    // Workaround: Pair the mutex with a condition variable that is signaled whenever the mutex is unlocked.
+    // This is also how boost::timed_mutex is implemented for the case BOOST_THREAD_USES_PTHREAD_TIMEDLOCK is
+    // not defined (cf. https://github.com/boostorg/thread/blob/boost-1.62.0/include/boost/thread/pthread/mutex.hpp#L181).
+    typedef struct {
+        pthread_mutex_t m;
+        pthread_cond_t cond;
+        bool is_locked;
+    } rt_mutex_t;
+    typedef struct {
+        pthread_mutex_t m;
+        pthread_cond_t cond;
+        bool is_locked;
+        pthread_t owner;
+        unsigned count;
+    } rt_rec_mutex_t;
+
+    static inline int rtos_mutex_init(rt_mutex_t* m)
+    {
+        pthread_mutexattr_t attr;
+        int ret = 0;
+
+        RTT_VERIFY(!(pthread_mutexattr_init(&attr)));
+        if (ret != 0) return ret;
+
+        // enable priority inheritance
+        // The mutex only protects the internal flags, so no use to enable priority inheritance.
+//        RTT_VERIFY(!(ret = pthread_mutexattr_setprotocol(&ma_t, PTHREAD_PRIO_INHERIT)));
+//        if (ret != 0) {
+//            RTT_VERIFY(!pthread_mutexattr_destroy(&attr));
+//            return ret;
+//        }
+
+        // initialize mutex
+        RTT_VERIFY(!(ret = pthread_mutex_init(&(m->m), &attr)));
+        if (ret != 0) {
+            RTT_VERIFY(!pthread_mutexattr_destroy(&attr));
+            return ret;
+        }
+        pthread_mutexattr_destroy(&attr);
+
+        // initialize condition variable (for rtos_mutex_lock_until)
+        RTT_VERIFY(!(ret = pthread_cond_init(&(m->cond), NULL)));
+        if (ret != 0) {
+            RTT_VERIFY(!pthread_mutex_destroy(&(m->m)));
+            return ret;
+        }
+
+        m->is_locked = false;
+        return ret;
+    }
+
+    static inline int rtos_mutex_destroy(rt_mutex_t* m )
+    {
+        RTT_VERIFY(!pthread_cond_destroy(&(m->cond)));
+        int ret = 0;
+        RTT_VERIFY(!(ret = pthread_mutex_destroy(&(m->m))));
+        return ret;
+    }
+
+    static inline int rtos_mutex_rec_init(rt_rec_mutex_t* m)
+    {
+        m->is_locked = false;
+        m->count = 0;
+        return rtos_mutex_init((rt_mutex_t *) m);
+    }
+
+    static inline int rtos_mutex_rec_destroy(rt_rec_mutex_t* m )
+    {
+        return rtos_mutex_destroy((rt_mutex_t *) m);
+    }
+
+    static inline int rtos_mutex_lock( rt_mutex_t* m)
+    {
+        int ret = 0;
+        RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m)))));
+        if (ret != 0) return ret;
+
+        while (m->is_locked) {
+            RTT_VERIFY(!(ret = pthread_cond_wait(&(m->cond), &(m->m))));
+            if (ret) {
+                RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
+                return ret;
+            }
+        }
+
+        m->is_locked = true;
+        RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
+        return ret;
+    }
+
+    static inline int rtos_mutex_rec_lock( rt_rec_mutex_t* m)
+    {
+        int ret = 0;
+        RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m)))));
+        if (ret != 0) return ret;
+
+        if (m->is_locked && pthread_equal(m->owner, pthread_self())) {
+            ++(m->count);
+            RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
+            return 0;
+        }
+
+        while (m->is_locked) {
+            RTT_VERIFY(!(ret = pthread_cond_wait(&(m->cond), &(m->m))));
+            if (ret) {
+                RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
+                return ret;
+            }
+        }
+
+        m->is_locked = true;
+        RTT_VERIFY(m->count == 0);
+        ++(m->count);
+        m->owner = pthread_self();
+        RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
+        return ret;
+    }
+
+    static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
+    {
+        TIME_SPEC arg_time = ticks2timespec( abs_time );
+        int ret = 0;
+        RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m)))));
+        if (ret != 0) return ret;
+
+        while (m->is_locked)
+        {
+            ret = pthread_cond_timedwait(&(m->cond), &(m->m), &arg_time);
+            if (ret == ETIMEDOUT) {
+                break;
+            }
+            RTT_VERIFY(!ret);
+        }
+
+        if (m->is_locked) {
+            RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
+            return ETIMEDOUT;
+        }
+
+        m->is_locked = true;
+        RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
+        return ret;
+    }
+
+    static inline int rtos_mutex_rec_lock_until( rt_rec_mutex_t* m, NANO_TIME abs_time)
+    {
+        TIME_SPEC arg_time = ticks2timespec( abs_time );
+        int ret = 0;
+        RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m)))));
+        if (ret != 0) return ret;
+
+        if (m->is_locked && pthread_equal(m->owner, pthread_self())) {
+            ++(m->count);
+            RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
+            return ret;
+        }
+
+        while (m->is_locked)
+        {
+            ret = pthread_cond_timedwait(&(m->cond), &(m->m), &arg_time);
+            if (ret == ETIMEDOUT) {
+                break;
+            }
+            RTT_VERIFY(!ret);
+        }
+
+        if (m->is_locked) {
+            RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
+            return ETIMEDOUT;
+        }
+
+        m->is_locked = true;
+        RTT_VERIFY(m->count == 0);
+        ++(m->count);
+        m->owner = pthread_self();
+        RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
+        return ret;
+    }
+
+    static inline int rtos_mutex_trylock( rt_mutex_t* m)
+    {
+        int ret = 0;
+        RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m)))));
+        if (ret != 0) return ret;
+
+        if (m->is_locked) {
+            RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
+            return EBUSY;
+        }
+
+        m->is_locked = true;
+        RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
+        return ret;
+    }
+
+    static inline int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
+    {
+        int ret = 0;
+        RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m)))));
+        if (ret != 0) return ret;
+
+        if (m->is_locked && !pthread_equal(m->owner, pthread_self())) {
+            RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
+            return EBUSY;
+        }
+
+        m->is_locked = true;
+        ++(m->count);
+        m->owner = pthread_self();
+        RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
+        return ret;
+    }
+
+    static inline int rtos_mutex_unlock( rt_mutex_t* m)
+    {
+        int ret = 0;
+        RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m)))));
+        if (ret != 0) return ret;
+
+        m->is_locked = false;
+
+        RTT_VERIFY(!pthread_cond_signal(&(m->cond)));
+        RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
+        return ret;
+    }
+
+    static inline int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
+    {
+        int ret = 0;
+        RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m)))));
+        if (ret != 0) return ret;
+
+        if (--(m->count) == 0) {
+            m->is_locked = false;
+        }
+
+        RTT_VERIFY(!pthread_cond_signal(&(m->cond)));
+        RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
+        return ret;
+    }
+
+    typedef pthread_cond_t rt_cond_t;
+
+    static inline int rtos_cond_init(rt_cond_t *cond)
+    {
+        int ret = 0;
+        RTT_VERIFY(!(ret = pthread_cond_init(cond, NULL)));
+        return ret;
+    }
+
+    static inline int rtos_cond_destroy(rt_cond_t *cond)
+    {
+        int ret = 0;
+        RTT_VERIFY(!(ret = pthread_cond_destroy(cond)));
+        return ret;
+    }
+
+    static inline int rtos_cond_wait(rt_cond_t *cond, rt_mutex_t *mutex)
+    {
+        int ret = 0;
+        RTT_VERIFY(!(ret = pthread_mutex_lock((&(mutex->m)))));
+        if (ret != 0) return ret;
+
+        if (!mutex->is_locked) {
+            RTT_VERIFY(!(ret = pthread_mutex_unlock((&(mutex->m)))));
+            return EINVAL;
+        }
+
+        mutex->is_locked = false;
+        RTT_VERIFY(!pthread_cond_signal(&(mutex->cond)));
+
+        RTT_VERIFY(!(ret = pthread_cond_wait(cond, &(mutex->m))));
+
+        mutex->is_locked = true;
+
+        RTT_VERIFY(!pthread_mutex_unlock(&(mutex->m)));
+        return ret;
+    }
+
+    static inline int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, NANO_TIME abs_time)
+    {
+        int ret = 0;
+        RTT_VERIFY(!(ret = pthread_mutex_lock((&(mutex->m)))));
+        if (ret != 0) return ret;
+
+        if (!mutex->is_locked) {
+            RTT_VERIFY(!(ret = pthread_mutex_unlock((&(mutex->m)))));
+            return EINVAL;
+        }
+
+        mutex->is_locked = false;
+        RTT_VERIFY(!pthread_cond_signal(&(mutex->cond)));
+
+        TIME_SPEC arg_time = ticks2timespec( abs_time );
+        ret = pthread_cond_timedwait(cond, &(mutex->m), &arg_time);
+
+        mutex->is_locked = true;
+
+        if (ret == ETIMEDOUT) {
+            RTT_VERIFY(!pthread_mutex_unlock(&(mutex->m)));
+            return ret;
+        }
+        RTT_VERIFY(!ret);
+
+        RTT_VERIFY(!pthread_mutex_unlock(&(mutex->m)));
+        return ret;
+    }
+
+    static inline int rtos_cond_broadcast(rt_cond_t *cond)
+    {
+        int ret = 0;
+        RTT_VERIFY(!(ret = pthread_cond_broadcast(cond)));
+        return ret;
+    }
+
+    static inline void rtos_enable_rt_warning(void)
     {
     }
 
-    static inline void rtos_disable_rt_warning()
+    static inline void rtos_disable_rt_warning(void)
     {
     }
-
 
 #define rtos_printf printf
 
