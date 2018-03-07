@@ -286,6 +286,14 @@ extern "C"
         unsigned count;
     } rt_rec_mutex_t;
 
+    #define _RTOS_INTERNAL_MUTEX_LOCK \
+      RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m))))); \
+      if (ret != 0) return ret
+
+    #define _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN \
+      RTT_VERIFY(!pthread_mutex_unlock(&(m->m))); \
+      return
+
     static inline int rtos_mutex_init(rt_mutex_t* m)
     {
         pthread_mutexattr_t attr;
@@ -344,39 +352,33 @@ extern "C"
     static inline int rtos_mutex_lock( rt_mutex_t* m)
     {
         int ret = 0;
-        RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m)))));
-        if (ret != 0) return ret;
+        _RTOS_INTERNAL_MUTEX_LOCK;
 
         while (m->is_locked) {
             RTT_VERIFY(!(ret = pthread_cond_wait(&(m->cond), &(m->m))));
             if (ret) {
-                RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
-                return ret;
+                _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN ret;
             }
         }
 
         m->is_locked = true;
-        RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
-        return ret;
+        _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN ret;
     }
 
     static inline int rtos_mutex_rec_lock( rt_rec_mutex_t* m)
     {
         int ret = 0;
-        RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m)))));
-        if (ret != 0) return ret;
+        _RTOS_INTERNAL_MUTEX_LOCK;
 
         if (m->is_locked && pthread_equal(m->owner, pthread_self())) {
             ++(m->count);
-            RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
-            return 0;
+            _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN ret;
         }
 
         while (m->is_locked) {
             RTT_VERIFY(!(ret = pthread_cond_wait(&(m->cond), &(m->m))));
             if (ret) {
-                RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
-                return ret;
+                _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN ret;
             }
         }
 
@@ -384,16 +386,14 @@ extern "C"
         RTT_VERIFY(m->count == 0);
         ++(m->count);
         m->owner = pthread_self();
-        RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
-        return ret;
+        _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN ret;
     }
 
     static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
     {
         TIME_SPEC arg_time = ticks2timespec( abs_time );
         int ret = 0;
-        RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m)))));
-        if (ret != 0) return ret;
+        _RTOS_INTERNAL_MUTEX_LOCK;
 
         while (m->is_locked)
         {
@@ -405,26 +405,22 @@ extern "C"
         }
 
         if (m->is_locked) {
-            RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
-            return ETIMEDOUT;
+            _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN ETIMEDOUT;
         }
 
         m->is_locked = true;
-        RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
-        return ret;
+        _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN ret;
     }
 
     static inline int rtos_mutex_rec_lock_until( rt_rec_mutex_t* m, NANO_TIME abs_time)
     {
         TIME_SPEC arg_time = ticks2timespec( abs_time );
         int ret = 0;
-        RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m)))));
-        if (ret != 0) return ret;
+        _RTOS_INTERNAL_MUTEX_LOCK;
 
         if (m->is_locked && pthread_equal(m->owner, pthread_self())) {
             ++(m->count);
-            RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
-            return ret;
+            _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN ret;
         }
 
         while (m->is_locked)
@@ -437,79 +433,70 @@ extern "C"
         }
 
         if (m->is_locked) {
-            RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
-            return ETIMEDOUT;
+            _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN ETIMEDOUT;
         }
 
         m->is_locked = true;
         RTT_VERIFY(m->count == 0);
         ++(m->count);
         m->owner = pthread_self();
-        RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
-        return ret;
+        _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN ret;
     }
 
     static inline int rtos_mutex_trylock( rt_mutex_t* m)
     {
         int ret = 0;
-        RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m)))));
-        if (ret != 0) return ret;
+        _RTOS_INTERNAL_MUTEX_LOCK;
 
         if (m->is_locked) {
-            RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
-            return EBUSY;
+            _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN EBUSY;
         }
 
         m->is_locked = true;
-        RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
-        return ret;
+        _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN ret;
     }
 
     static inline int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
     {
         int ret = 0;
-        RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m)))));
-        if (ret != 0) return ret;
+        _RTOS_INTERNAL_MUTEX_LOCK;
 
         if (m->is_locked && !pthread_equal(m->owner, pthread_self())) {
-            RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
-            return EBUSY;
+            _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN EBUSY;
         }
 
         m->is_locked = true;
         ++(m->count);
         m->owner = pthread_self();
-        RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
-        return ret;
+        _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN ret;
     }
 
     static inline int rtos_mutex_unlock( rt_mutex_t* m)
     {
         int ret = 0;
-        RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m)))));
-        if (ret != 0) return ret;
+        _RTOS_INTERNAL_MUTEX_LOCK;
 
         m->is_locked = false;
 
         RTT_VERIFY(!pthread_cond_signal(&(m->cond)));
-        RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
-        return ret;
+        _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN ret;
     }
 
     static inline int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
     {
         int ret = 0;
-        RTT_VERIFY(!(ret = pthread_mutex_lock((&(m->m)))));
-        if (ret != 0) return ret;
+        _RTOS_INTERNAL_MUTEX_LOCK;
 
         if (--(m->count) == 0) {
             m->is_locked = false;
         }
 
         RTT_VERIFY(!pthread_cond_signal(&(m->cond)));
-        RTT_VERIFY(!pthread_mutex_unlock(&(m->m)));
-        return ret;
+        _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN ret;
     }
+
+    #undef _RTOS_INTERNAL_MUTEX_LOCK
+    #undef _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN
 
     typedef pthread_cond_t rt_cond_t;
 
