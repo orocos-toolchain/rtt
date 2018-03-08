@@ -605,7 +605,7 @@ size_t init_memory_pool(size_t mem_pool_size, void *mem_pool)
     TLSF_CREATE_LOCK(&tlsf->lock);
 
     ib = process_area(GET_NEXT_BLOCK
-                      (mem_pool, ROUNDUP_SIZE(sizeof(tlsf_t))), ROUNDDOWN_SIZE(mem_pool_size - sizeof(tlsf_t)), mem_pool);
+                      (mem_pool, ROUNDUP_SIZE(sizeof(tlsf_t))), ROUNDDOWN_SIZE(mem_pool_size - ROUNDUP_SIZE(sizeof(tlsf_t))), mem_pool);
     b = GET_NEXT_BLOCK(ib->ptr.buffer, ib->size & BLOCK_SIZE);
     TLSF_VALGRIND_MEMPOOL_ALLOC_INTERNAL(mem_pool, b->ptr.buffer, (size_t) 0); // do not trigger an invalid free error in the next line
     free_ex(b->ptr.buffer, tlsf);
@@ -1282,6 +1282,7 @@ void print_all_blocks(FILE* ff, tlsf_t * tlsf)
     bhdr_t *next;
     FPRINT_MSG(ff, "\nTLSF at %p\nALL BLOCKS\n", tlsf);
     FPRINT_MSG(ff, "Sizes (bytes)\n");
+#if TLSF_STATISTIC
     FPRINT_MSG(ff, "  pool=%lu initial overhead=%lu max-possible-available=%lu\n",
                tlsf->pool_size, tlsf->overhead_size, (tlsf->pool_size - tlsf->overhead_size));
     FPRINT_MSG(ff, "  used=%lu max-used=%lu (both including initial overhead)\n",
@@ -1290,6 +1291,7 @@ void print_all_blocks(FILE* ff, tlsf_t * tlsf)
                (tlsf->used_size - tlsf->overhead_size), (tlsf->max_size - tlsf->overhead_size));
     FPRINT_MSG(ff, "  sizeof items bhdr_t=%lu area_info_t=%lu tlsf_t=%lu\n\n" ,
                sizeof(bhdr_t), sizeof(area_info_t), sizeof(tlsf_t));
+#endif
     ai = tlsf->area_head;
     while (ai) {
         next = (bhdr_t *) ((char *) ai - BHDR_OVERHEAD);
