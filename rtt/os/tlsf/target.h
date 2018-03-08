@@ -41,10 +41,22 @@
 
 #include "../fosi.h"
 
-#define TLSF_MLOCK_T            rt_mutex_t
-#define TLSF_CREATE_LOCK(l)     rtos_mutex_init (l)
-#define TLSF_DESTROY_LOCK(l)    rtos_mutex_destroy(l)
-#define TLSF_ACQUIRE_LOCK(l)    rtos_mutex_lock(l)
-#define TLSF_RELEASE_LOCK(l)    rtos_mutex_unlock(l)
+#if defined(OROPKG_OS_MACOSX)
+// Use pthread directly for TLSF.
+// The macosx implementation of rt_mutex_t has some overhead to support
+// timed locking.
+#  define TLSF_MLOCK_T            pthread_mutex_t
+#  define TLSF_CREATE_LOCK(l)     pthread_mutex_init(l, NULL)
+#  define TLSF_DESTROY_LOCK(l)    pthread_mutex_destroy(l)
+#  define TLSF_ACQUIRE_LOCK(l)    pthread_mutex_lock(l)
+#  define TLSF_RELEASE_LOCK(l)    pthread_mutex_unlock(l)
+
+#else
+#  define TLSF_MLOCK_T            rt_mutex_t
+#  define TLSF_CREATE_LOCK(l)     rtos_mutex_init (l)
+#  define TLSF_DESTROY_LOCK(l)    rtos_mutex_destroy(l)
+#  define TLSF_ACQUIRE_LOCK(l)    rtos_mutex_lock(l)
+#  define TLSF_RELEASE_LOCK(l)    rtos_mutex_unlock(l)
+#endif
 
 #endif
