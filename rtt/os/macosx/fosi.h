@@ -302,13 +302,9 @@ extern "C"
         RTT_VERIFY(!(pthread_mutexattr_init(&attr)));
         if (ret != 0) return ret;
 
-        // enable priority inheritance
         // The mutex only protects the internal flags, so no use to enable priority inheritance.
-//        RTT_VERIFY(!(ret = pthread_mutexattr_setprotocol(&ma_t, PTHREAD_PRIO_INHERIT)));
-//        if (ret != 0) {
-//            RTT_VERIFY(!pthread_mutexattr_destroy(&attr));
-//            return ret;
-//        }
+        // A thread waiting on the condition variable in pthread_cond_wait would not inherit the
+        // priority of the thread that holds the mutex.
 
         // initialize mutex
         RTT_VERIFY(!(ret = pthread_mutex_init(&(m->m), &attr)));
@@ -339,7 +335,6 @@ extern "C"
 
     static inline int rtos_mutex_rec_init(rt_rec_mutex_t* m)
     {
-        m->is_locked = false;
         m->count = 0;
         return rtos_mutex_init((rt_mutex_t *) m);
     }
