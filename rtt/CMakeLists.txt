@@ -99,6 +99,9 @@ OPTION(PLUGINS_ENABLE_SCRIPTING "Enable loading Orocos program scripts." ON)
 ### RTT-Typekit
 OPTION(PLUGINS_ENABLE_TYPEKIT "Enable default RTT typekit plugin." ON)
 
+### Orocos Device Interfaces
+OPTION(ENABLE_OROCOS_DEVICE_INTERFACES "Include Orocos Device Interface classes" OFF)
+
 ### TaskContext & Activities
 OPTION(ORO_ACT_DEFAULT_ACTIVITY "Create default Activity object (thread) for each created TaskContext." ON)
 CMAKE_DEPENDENT_OPTION(ORO_ACT_DEFAULT_SEQUENTIAL "Make the default activity a SequentialActivity (not-threaded) for each created TaskContext." OFF "ORO_ACT_DEFAULT_ACTIVITY" OFF)
