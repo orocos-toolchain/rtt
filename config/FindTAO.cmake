@@ -193,7 +193,7 @@ MACRO(ORO_ADD_CORBA_SERVERS _sources _headers)
       GET_FILENAME_COMPONENT(_filedir ${_tmp_FILE} PATH)
 
       SET(_server  ${CMAKE_CURRENT_BINARY_DIR}/${_basename}S.cpp)
-      SET(_serverh ${CMAKE_CURRENT_BINARY_DIR}/${_basename}S.h ${CMAKE_CURRENT_BINARY_DIR}/${_basename}S.inl)
+      SET(_serverh ${CMAKE_CURRENT_BINARY_DIR}/${_basename}S.h)
 
       set(DEFINE_TAO "-DCORBA_IS_TAO")
       # From TAO 1.5 onwards, the _T files are no longer generated
