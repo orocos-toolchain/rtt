@@ -42,7 +42,6 @@
 #include "../Logger.hpp"
 #include "../os/fosi.h"
 #include <limits>
-#include <boost/cstdint.hpp>
 
 namespace RTT {
     using namespace base;
