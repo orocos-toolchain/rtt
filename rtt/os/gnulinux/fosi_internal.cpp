@@ -262,7 +262,7 @@ namespace RTT
 	    // set period
 	    mytask->period = nanosecs;
 	    // set next wake-up time.
-	    mytask->periodMark = ticks2timespec( nano2ticks( rtos_get_time_monotonic_ns() + nanosecs ) );
+	    mytask->periodMark = ticks2timespec( nano2ticks( rtos_get_time_ns() + nanosecs ) );
 	}
 
 	INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs )
@@ -281,7 +281,7 @@ namespace RTT
             return 0;
 
         // record this to detect overrun.
-	    NANO_TIME now = rtos_get_time_monotonic_ns();
+	    NANO_TIME now = rtos_get_time_ns();
 	    NANO_TIME wake= task->periodMark.tv_sec * 1000000000LL + task->periodMark.tv_nsec;
 
         // inspired by nanosleep man page for this construct:
@@ -291,16 +291,9 @@ namespace RTT
 
         if (task->wait_policy == ORO_WAIT_ABS)
         {
-          // in the case of overrun by more than 4 periods,
-          // skip all the updates before now, with the next update aligned to period
-          int maxDelayInPeriods = 4;
-          NANO_TIME period = task->period;
-          if (now - wake > maxDelayInPeriods*period) {
-            period = period * ((now - wake) / period);
-          }
           // program next period:
           // 1. convert period to timespec
-          TIME_SPEC ts = ticks2timespec( nano2ticks(period) );
+          TIME_SPEC ts = ticks2timespec( nano2ticks( task->period) );
           // 2. Add ts to periodMark (danger: tn guards for overflows!)
           NANO_TIME tn = (task->periodMark.tv_nsec + ts.tv_nsec);
           task->periodMark.tv_nsec = tn % 1000000000LL;
@@ -309,7 +302,7 @@ namespace RTT
         else
         {
           TIME_SPEC ts = ticks2timespec( nano2ticks( task->period) );
-          TIME_SPEC now = ticks2timespec( rtos_get_time_monotonic_ns() );
+          TIME_SPEC now = ticks2timespec( rtos_get_time_ns() );
           NANO_TIME tn = (now.tv_nsec + ts.tv_nsec);
           task->periodMark.tv_nsec = tn % 1000000000LL;
           task->periodMark.tv_sec = ts.tv_sec + now.tv_sec + tn / 1000000000LL;
