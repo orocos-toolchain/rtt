@@ -167,12 +167,23 @@ namespace RTT
             // trim the name to fit 16 bytes restriction (including terminating
             // \0 character) of pthread_setname_np
             static const int MAX_THREAD_NAME_SIZE = 15;
+            char n[MAX_THREAD_NAME_SIZE + 1];
             const char *thread_name = task->name;
-            std::size_t thread_name_len = strlen(thread_name);
+            const std::size_t thread_name_len = strlen(thread_name);
             if (thread_name_len > MAX_THREAD_NAME_SIZE) {
-                thread_name += thread_name_len - MAX_THREAD_NAME_SIZE;
+                // result = first 7 chars + "~" + last 7 chars
+                strncpy(&n[0], thread_name, 7);
+                n[7] = '~';
+                strncpy(&n[8], &thread_name[thread_name_len - 7], 7);
+                // terminate below
             }
-            int result = pthread_setname_np(task->thread, thread_name);
+            else
+            {
+                // result = thread_name
+                strncpy(&n[0], thread_name, MAX_THREAD_NAME_SIZE);
+            }
+            n[MAX_THREAD_NAME_SIZE] = '\0'; // explicitly terminate
+            int result = pthread_setname_np(task->thread, &n[0]);
             if (result != 0) {
                 log(Warning) << "Failed to set thread name for " << task->name << ": "
                              << strerror(result) << endlog();

@@ -42,7 +42,7 @@ namespace RTT
              * @param ee The ExecutionEngine of the component that
              * owns this operation.
              */
-            void setOwner(ExecutionEngine* ee);
+            virtual void setOwner(ExecutionEngine* ee);
 
             /**
              * Sets the caller's engine of this operation.
@@ -51,7 +51,7 @@ namespace RTT
              * @param ee The ExecutionEngine of the component that
              * is calling this operation.
              */
-            void setCaller(ExecutionEngine* ee);
+            virtual void setCaller(ExecutionEngine* ee);
 
             /**
              * Sets the Thread execution policy of this object.

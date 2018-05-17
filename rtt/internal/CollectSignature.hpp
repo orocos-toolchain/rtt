@@ -257,7 +257,7 @@ namespace RTT
             SendStatus collectIfDone(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4) const
             {
                 if (cimpl)
-                    return cimpl->collect(t1, t2, t3, t4);
+                    return cimpl->collectIfDone(t1, t2, t3, t4);
                 return SendFailure;
             }
         protected:
@@ -290,7 +290,7 @@ namespace RTT
             SendStatus collectIfDone(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5) const
             {
                 if (cimpl)
-                    return cimpl->collect(t1, t2, t3, t4, t5);
+                    return cimpl->collectIfDone(t1, t2, t3, t4, t5);
                 return SendFailure;
             }
         protected:
@@ -324,7 +324,7 @@ namespace RTT
             SendStatus collectIfDone(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5, arg6_type t6) const
             {
                 if (cimpl)
-                    return cimpl->collect(t1, t2, t3, t4, t5, t6);
+                    return cimpl->collectIfDone(t1, t2, t3, t4, t5, t6);
                 return SendFailure;
             }
         protected:

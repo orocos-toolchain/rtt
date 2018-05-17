@@ -48,7 +48,7 @@ namespace RTT
 {namespace corba
 {
 
-    CORBA::ORB_var ApplicationServer::orb;
+    CORBA::ORB_var RTT_API ApplicationServer::orb;
 
     PortableServer::POA_var ApplicationServer::rootPOA;
 

@@ -303,48 +303,17 @@ endif()
 INCLUDE_DIRECTORIES( ${OROCOS-RTT_INCLUDE_DIRS} )
 
 #
-# Disable line wrapping for g++ such that eclipse can parse the errors.
+# Set compiler specific options
 #
 IF(CMAKE_COMPILER_IS_GNUCXX)
+  SET(RTT_GCC_HASVISIBILITY TRUE)
+  # Disable line wrapping for g++ such that eclipse can parse the errors.
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
 ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 IF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
   SET(RTT_GCC_HASVISIBILITY TRUE)
 ENDIF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-
-#
-# If we're using gcc, make sure the version is OK.
-#
-IF (CMAKE_COMPILER_IS_GNUCXX)
-  # this is a workaround distcc:
-  IF ( CMAKE_CXX_COMPILER_ARG1 )
-    STRING(REPLACE " " "" CMAKE_CXX_COMPILER_ARG1 ${CMAKE_CXX_COMPILER_ARG1} )
-    #MESSAGE("Invoking: '${CMAKE_CXX_COMPILER_ARG1} -dumpversion'")
-    EXECUTE_PROCESS( COMMAND ${CMAKE_CXX_COMPILER_ARG1} -dumpversion RESULT_VARIABLE CXX_HAS_VERSION OUTPUT_VARIABLE CXX_VERSION)
-  ELSE ( CMAKE_CXX_COMPILER_ARG1 )
-    #MESSAGE("Invoking: ${CMAKE_CXX_COMPILER} -dumpversion")
-    EXECUTE_PROCESS( COMMAND ${CMAKE_CXX_COMPILER} -dumpversion RESULT_VARIABLE CXX_HAS_VERSION OUTPUT_VARIABLE CXX_VERSION)
-  ENDIF ( CMAKE_CXX_COMPILER_ARG1 )
-
-  IF ( ${CXX_HAS_VERSION} EQUAL 0 )
-    # We are assuming here that -dumpversion is gcc specific.
-    IF( CXX_VERSION MATCHES "[4-6]\\.[0-9](\\.[0-9])?" )
-      MESSAGE(STATUS "Detected gcc4/5: ${CXX_VERSION}")
-      SET(RTT_GCC_HASVISIBILITY TRUE)
-    ELSE(CXX_VERSION MATCHES "[4-6]\\.[0-9](\\.[0-9])?")
-      IF( CXX_VERSION MATCHES "3\\.[0-9](\\.[0-9])?" )
-        MESSAGE(STATUS "Detected gcc3: ${CXX_VERSION}")
-      ELSE( CXX_VERSION MATCHES "3\\.[0-9](\\.[0-9])?" )
-        MESSAGE("ERROR: You seem to be using gcc version:")
-        MESSAGE("${CXX_VERSION}")
-        MESSAGE( FATAL_ERROR "ERROR: For gcc, Orocos requires version 4.x or 3.x")
-      ENDIF( CXX_VERSION MATCHES "3\\.[0-9](\\.[0-9])?" )
-    ENDIF(CXX_VERSION MATCHES "[4-6]\\.[0-9](\\.[0-9])?")
-  ELSE ( ${CXX_HAS_VERSION} EQUAL 0)
-    MESSAGE("Could not determine gcc version: ${CXX_HAS_VERSION}")
-  ENDIF ( ${CXX_HAS_VERSION} EQUAL 0)
-ENDIF()
 
 #
 # Set flags for code coverage, and setup coverage target
