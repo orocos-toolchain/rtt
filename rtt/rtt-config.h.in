@@ -78,7 +78,11 @@
 #else
    // Win32 and NOT GNU
 # if defined( WIN32 ) && !defined ( __MINGW32__ )
-#  if defined(RTT_DLL_EXPORT)
+#  if defined(RTT_STATIC)
+#    define RTT_API
+#    define RTT_EXPORT
+#    define RTT_HIDE
+#  elif defined(RTT_DLL_EXPORT)
 #   define RTT_API    __declspec(dllexport)
 #   define RTT_EXPORT __declspec(dllexport)
 #   define RTT_HIDE   

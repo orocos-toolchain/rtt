@@ -177,7 +177,7 @@ namespace RTT
         */
         virtual bool timedlock(Seconds s)
         {
-            int ret = rtos_mutex_lock_until( &m, rtos_get_time_ns() + Seconds_to_nsecs(s) );
+            int ret = rtos_mutex_trylock_for( &m, Seconds_to_nsecs(s) );
             if ( ret == 0 )
                 return true;
             if ( ret == -EBUSY || ret == -EWOULDBLOCK || ret == -ETIMEDOUT || ret == -EINTR )
@@ -189,8 +189,6 @@ namespace RTT
             assert(false && "Failed to lock an instance of RTT::os::Mutex");
             return false;
 #endif
-              return true;
-            return false;
         }
 #else
     protected:
@@ -349,7 +347,7 @@ namespace RTT
         */
         virtual bool timedlock(Seconds s)
         {
-            int ret = rtos_mutex_rec_lock_until( &recm, rtos_get_time_ns() + Seconds_to_nsecs(s) );
+            int ret = rtos_mutex_rec_trylock_for( &recm, Seconds_to_nsecs(s) );
             if ( ret == 0 )
                 return true;
             if ( ret == -EBUSY || ret == -EWOULDBLOCK || ret == -ETIMEDOUT || ret == -EINTR )
