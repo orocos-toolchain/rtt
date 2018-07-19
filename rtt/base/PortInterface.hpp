@@ -46,6 +46,7 @@
 #include "../internal/ConnID.hpp"
 #include "ChannelElementBase.hpp"
 #include "../types/rtt-types-fwd.hpp"
+#include "../os/Mutex.hpp"
 #include "../rtt-fwd.hpp"
 
 namespace RTT
@@ -62,6 +63,8 @@ namespace RTT
     protected:
         DataFlowInterface* iface;
         internal::ConnectionManager cmanager;
+        os::MutexRecursive connection_lock;
+        friend class internal::PortConnectionLock;
 
         PortInterface(const std::string& name);
 

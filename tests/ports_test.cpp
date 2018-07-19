@@ -1071,7 +1071,9 @@ public:
     {
     public:
         PortConnectorThread(PortInterface &connect_port, PortInterface &other_port, const ConnPolicy &policy = ConnPolicy())
-            : connect_port(connect_port), other_port(other_port), policy(policy), step_counter(0), connect_counter(0), disconnect_counter(0), connected(false)
+            : connect_port(connect_port), other_port(other_port), policy(policy),
+              step_counter(0), connect_counter(0), connect_failure_counter(0),
+              disconnect_counter(0), disconnect_failure_counter(0), connected(false)
         {}
         void step() {
             if (!connected) {
@@ -1079,12 +1081,16 @@ public:
                     (shared_connection && connect_port.createConnection(shared_connection, policy))) {
                     connected = true;
                     ++connect_counter;
+                } else {
+                    ++connect_failure_counter;
                 }
             } else {
                 if ((!shared_connection && connect_port.disconnect(&other_port)) ||
-                    (shared_connection && !connect_port.getManager()->removeConnection(shared_connection.get()))) {
+                    (shared_connection && connect_port.getManager()->removeConnection(shared_connection.get()))) {
                     connected = false;
                     ++disconnect_counter;
+                } else {
+                    ++disconnect_failure_counter;
                 }
             }
             this->trigger();
@@ -1098,8 +1104,8 @@ public:
         RTT::internal::SharedConnectionBase::shared_ptr shared_connection;
         ConnPolicy policy;
         unsigned step_counter;
-        unsigned connect_counter;
-        unsigned disconnect_counter;
+        unsigned connect_counter, connect_failure_counter;
+        unsigned disconnect_counter, disconnect_failure_counter;
         bool connected;
     };
 
@@ -1183,12 +1189,24 @@ BOOST_AUTO_TEST_CASE( testConcurrencyPerConnection )
     BOOST_CHECK_GE( writer.write_counter, 100 );
     BOOST_TEST_MESSAGE("Number of successful reads (NewData):         " << reader.read_counter);
     BOOST_CHECK_GE( reader.read_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects/disconnects:               " << connector.connect_counter);
+    BOOST_TEST_MESSAGE("Number of connects/disconnects:               "
+                       << connector.connect_counter << "/" << connector.disconnect_counter
+                       << " (" << connector.connect_failure_counter << "/" << connector.disconnect_failure_counter << " failures)");
     BOOST_CHECK_GE( connector.connect_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects from another output port:  " << another_output_connector.connect_counter);
+    BOOST_CHECK_EQUAL( connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( connector.disconnect_failure_counter, 0 );
+    BOOST_TEST_MESSAGE("Number of connects/disconnects from another output port:  "
+                       << another_output_connector.connect_counter << "/" << another_output_connector.disconnect_counter
+                       << " (" << another_output_connector.connect_failure_counter << "/" << another_output_connector.disconnect_failure_counter << " failures)");
     BOOST_CHECK_GE( another_output_connector.connect_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects to another input port:     " << another_input_connector.connect_counter);
+    BOOST_CHECK_EQUAL( another_output_connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( another_output_connector.disconnect_failure_counter, 0 );
+    BOOST_TEST_MESSAGE("Number of connects/disconnects to another input port:     "
+                       << another_input_connector.connect_counter << "/" << another_input_connector.disconnect_counter
+                       << " (" << another_input_connector.connect_failure_counter << "/" << another_input_connector.disconnect_failure_counter << " failures)");
     BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
+    BOOST_CHECK_EQUAL( another_input_connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( another_input_connector.disconnect_failure_counter, 0 );
 }
 
 BOOST_AUTO_TEST_CASE( testConcurrencyPerInputPort )
@@ -1206,12 +1224,24 @@ BOOST_AUTO_TEST_CASE( testConcurrencyPerInputPort )
     BOOST_CHECK_GE( writer.write_counter, 100 );
     BOOST_TEST_MESSAGE("Number of successful reads (NewData):         " << reader.read_counter);
     BOOST_CHECK_GE( reader.read_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects/disconnects:               " << connector.connect_counter);
+    BOOST_TEST_MESSAGE("Number of connects/disconnects:               "
+                       << connector.connect_counter << "/" << connector.disconnect_counter
+                       << " (" << connector.connect_failure_counter << "/" << connector.disconnect_failure_counter << " failures)");
     BOOST_CHECK_GE( connector.connect_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects from another output port:  " << another_output_connector.connect_counter);
+    BOOST_CHECK_EQUAL( connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( connector.disconnect_failure_counter, 0 );
+    BOOST_TEST_MESSAGE("Number of connects/disconnects from another output port:  "
+                       << another_output_connector.connect_counter << "/" << another_output_connector.disconnect_counter
+                       << " (" << another_output_connector.connect_failure_counter << "/" << another_output_connector.disconnect_failure_counter << " failures)");
     BOOST_CHECK_GE( another_output_connector.connect_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects to another input port:     " << another_input_connector.connect_counter);
+    BOOST_CHECK_EQUAL( another_output_connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( another_output_connector.disconnect_failure_counter, 0 );
+    BOOST_TEST_MESSAGE("Number of connects/disconnects to another input port:     "
+                       << another_input_connector.connect_counter << "/" << another_input_connector.disconnect_counter
+                       << " (" << another_input_connector.connect_failure_counter << "/" << another_input_connector.disconnect_failure_counter << " failures)");
     BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
+    BOOST_CHECK_EQUAL( another_input_connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( another_input_connector.disconnect_failure_counter, 0 );
 }
 
 BOOST_AUTO_TEST_CASE( testConcurrencyPerOutputPort )
@@ -1229,12 +1259,24 @@ BOOST_AUTO_TEST_CASE( testConcurrencyPerOutputPort )
     BOOST_CHECK_GE( writer.write_counter, 100 );
     BOOST_TEST_MESSAGE("Number of successful reads (NewData):         " << reader.read_counter);
     BOOST_CHECK_GE( reader.read_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects/disconnects:               " << connector.connect_counter);
+    BOOST_TEST_MESSAGE("Number of connects/disconnects:               "
+                       << connector.connect_counter << "/" << connector.disconnect_counter
+                       << " (" << connector.connect_failure_counter << "/" << connector.disconnect_failure_counter << " failures)");
     BOOST_CHECK_GE( connector.connect_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects from another output port:  " << another_output_connector.connect_counter);
+    BOOST_CHECK_EQUAL( connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( connector.disconnect_failure_counter, 0 );
+    BOOST_TEST_MESSAGE("Number of connects/disconnects from another output port:  "
+                       << another_output_connector.connect_counter << "/" << another_output_connector.disconnect_counter
+                       << " (" << another_output_connector.connect_failure_counter << "/" << another_output_connector.disconnect_failure_counter << " failures)");
     BOOST_CHECK_GE( another_output_connector.connect_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects to another input port:     " << another_input_connector.connect_counter);
+    BOOST_CHECK_EQUAL( another_output_connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( another_output_connector.disconnect_failure_counter, 0 );
+    BOOST_TEST_MESSAGE("Number of connects/disconnects to another input port:     "
+                       << another_input_connector.connect_counter << "/" << another_input_connector.disconnect_counter
+                       << " (" << another_input_connector.connect_failure_counter << "/" << another_input_connector.disconnect_failure_counter << " failures)");
     BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
+    BOOST_CHECK_EQUAL( another_input_connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( another_input_connector.disconnect_failure_counter, 0 );
 }
 
 BOOST_AUTO_TEST_CASE( testConcurrencySharedConnection )
@@ -1260,12 +1302,24 @@ BOOST_AUTO_TEST_CASE( testConcurrencySharedConnection )
     BOOST_CHECK_GE( writer.write_counter, 100 );
     BOOST_TEST_MESSAGE("Number of successful reads (NewData):         " << reader.read_counter);
     BOOST_CHECK_GE( reader.read_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects/disconnects:               " << connector.connect_counter);
+    BOOST_TEST_MESSAGE("Number of connects/disconnects:               "
+                       << connector.connect_counter << "/" << connector.disconnect_counter
+                       << " (" << connector.connect_failure_counter << "/" << connector.disconnect_failure_counter << " failures)");
     BOOST_CHECK_GE( connector.connect_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects from another output port:  " << another_output_connector.connect_counter);
+    BOOST_CHECK_EQUAL( connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( connector.disconnect_failure_counter, 0 );
+    BOOST_TEST_MESSAGE("Number of connects/disconnects from another output port:  "
+                       << another_output_connector.connect_counter << "/" << another_output_connector.disconnect_counter
+                       << " (" << another_output_connector.connect_failure_counter << "/" << another_output_connector.disconnect_failure_counter << " failures)");
     BOOST_CHECK_GE( another_output_connector.connect_counter, 100 );
-    BOOST_TEST_MESSAGE("Number of connects to another input port:     " << another_input_connector.connect_counter);
+    BOOST_CHECK_EQUAL( another_output_connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( another_output_connector.disconnect_failure_counter, 0 );
+    BOOST_TEST_MESSAGE("Number of connects/disconnects to another input port:     "
+                       << another_input_connector.connect_counter << "/" << another_input_connector.disconnect_counter
+                       << " (" << another_input_connector.connect_failure_counter << "/" << another_input_connector.disconnect_failure_counter << " failures)");
     BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
+    BOOST_CHECK_EQUAL( another_input_connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( another_input_connector.disconnect_failure_counter, 0 );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

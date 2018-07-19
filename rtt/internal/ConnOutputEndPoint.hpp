@@ -41,6 +41,7 @@
 
 #include "Channels.hpp"
 #include "ConnID.hpp"
+#include "PortConnectionLock.hpp"
 
 namespace RTT
 { namespace internal {
@@ -126,9 +127,14 @@ namespace RTT
 
         using Base::disconnect;
 
-        virtual bool disconnect(const base::ChannelElementBase::shared_ptr& channel, bool forward = true)
+        virtual bool disconnect(const base::ChannelElementBase::shared_ptr& channel, bool forward)
         {
             InputPort<T>* port = this->port;
+            PortConnectionLock lock(port);
+
+//            // Lock port connections if the request is coming from the remote end (forward == true)
+//            PortConnectionLock lock(forward ? port : 0);
+
             if (port && channel && forward)
             {
                 port->getManager()->removeConnection(channel.get(), /* disconnect = */ false);
@@ -142,7 +148,7 @@ namespace RTT
             // If this was the last connection, remove the buffer, too.
             // For forward == true this was already done by the base class.
             if (!this->connected() && !forward) {
-                this->disconnect(true);
+                Base::disconnect(0, true);
             }
 
             return true;

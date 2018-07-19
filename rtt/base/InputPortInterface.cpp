@@ -118,7 +118,9 @@ FlowStatus InputPortInterface::read(DataSourceBase::shared_ptr source, bool copy
 { throw std::runtime_error("calling default InputPortInterface::read(datasource) implementation"); }
 /** Returns true if this port is connected */
 bool InputPortInterface::connected() const
-{ return cmanager.connected(); }
+{
+    return getEndpoint()->connected();
+}
 
 void InputPortInterface::disconnect()
 {
@@ -132,7 +134,7 @@ bool InputPortInterface::disconnect(PortInterface* port)
 
 bool InputPortInterface::createConnection( internal::SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy )
 {
-    return internal::ConnFactory::createAndCheckSharedConnection(0, this, shared_connection, policy);
+    return internal::ConnFactory::createSharedConnection(0, this, shared_connection, policy);
 }
 
 base::ChannelElementBase::shared_ptr InputPortInterface::buildRemoteChannelOutput(

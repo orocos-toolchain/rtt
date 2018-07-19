@@ -15,6 +15,7 @@ namespace RTT {
         class SendHandleC;
         class SignalBase;
         class SimpleConnID;
+        class PortConnectionLock;
         struct GenerateDataSource;
         struct IntrusiveStorage;
         struct LocalConnID;

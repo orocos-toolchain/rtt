@@ -294,7 +294,7 @@ bool MultipleInputsChannelElementBase::disconnect(ChannelElementBase::shared_ptr
 
         // If the removed input was the last channel and forward is true, disconnect output side, too.
         if (was_last && forward) {
-            disconnect(true);
+            return disconnect(0, true);
         }
 
         return true;
@@ -396,7 +396,7 @@ bool MultipleOutputsChannelElementBase::disconnect(ChannelElementBase::shared_pt
 
         // If the removed output was the last channel, disconnect input side, too.
         if (was_last && !forward) {
-            disconnect(false);
+            return disconnect(0, false);
         }
 
         return true;
