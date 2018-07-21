@@ -176,6 +176,7 @@ if(OROCOS_TARGET STREQUAL "xenomai")
       list(APPEND XENOMAI_DEFINITIONS ${f})
   endforeach()
 
+  message(STATUS "XENOMAI_DEFINITIONS : ${XENOMAI_DEFINITIONS}")
   list(APPEND OROCOS-RTT_DEFINITIONS ${XENOMAI_DEFINITIONS})
   
   # TLSF is included in Xenomai 3 (libalchemy)

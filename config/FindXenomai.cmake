@@ -80,10 +80,38 @@ if( XENOMAI_CFLAGS_ERROR)
     message(FATAL_ERROR "Could not determine cflags with command ${XENOMAI_XENO_CONFIG} --skin=${XENOMAI_SKIN_NAME} --cflags ${XENO_CONFIG_LDFLAGS_EXTRA_ARGS}")
 endif()
 
-string(REGEX MATCHALL "-L([^ ]+)|-l([^ ]+)|.*bootstrap(-pic)?.o" XENOMAI_LIBRARY ${XENOMAI_LDFLAGS})
-string(REGEX MATCHALL "-I([^ ]+)" XENOMAI_INCLUDE_DIR ${XENOMAI_CFLAGS})
-string(REGEX MATCHALL "-D([^ ]+)" XENOMAI_COMPILE_DEFINITIONS ${XENOMAI_CFLAGS})
-string(REPLACE "-I" ";" XENOMAI_INCLUDE_DIR ${XENOMAI_INCLUDE_DIR})
+string(STRIP XENOMAI_LDFLAGS ${XENOMAI_LDFLAGS})
+string(REPLACE " " ";" _XENOMAI_LDFLAGS ${XENOMAI_LDFLAGS})
+string(REPLACE " " ";" _XENOMAI_CFLAGS ${XENOMAI_CFLAGS})
+set(XENOMAI_LIBRARY)
+set(XENOMAI_INCLUDE_DIR)
+set(XENOMAI_COMPILE_DEFINITIONS)
+set(XENOMAI_LDFLAGS)
+set(XENOMAI_CFLAGS)
+foreach(_entry ${_XENOMAI_LDFLAGS})
+  string(REGEX MATCH "^-L(.+)|^-l(.+)|^(.*bootstrap(-pic)?.o)" _lib ${_entry})
+  if(_lib)
+#    string(REGEX REPLACE "^-L" "" _lib ${_lib})
+#    string(REGEX REPLACE "^-l" "" _lib ${_lib})
+    list(APPEND XENOMAI_LIBRARY ${_lib})
+  else()
+    list(APPEND XENOMAI_LDFLAGS ${_entry})
+  endif()
+endforeach()
+foreach(_entry ${_XENOMAI_CFLAGS})
+  string(REGEX MATCH "^-I.+" _include_dir ${_entry})
+  string(REGEX MATCH "^-D.+" _compile_definition ${_entry})
+  if(_include_dir)
+    string(REGEX REPLACE "^-I" "" _include_dir ${_include_dir})
+    list(APPEND XENOMAI_INCLUDE_DIR ${_include_dir})
+  elseif(_compile_definition)
+    list(APPEND XENOMAI_COMPILE_DEFINITIONS ${_compile_definition})
+  else()
+    list(APPEND XENOMAI_CFLAGS ${_entry})
+  endif()
+endforeach()
+string(REPLACE ";" " " XENOMAI_LDFLAGS "${XENOMAI_LDFLAGS}")
+string(REPLACE ";" " " XENOMAI_CFLAGS "${XENOMAI_CFLAGS}")
 
 # Set the include dir variables and the libraries and let libfind_process do the rest.
 # NOTE: Singular variables for this library, plural for libraries this this lib depends on.
@@ -93,10 +121,11 @@ set(XENOMAI_PROCESS_LIBS XENOMAI_LIBRARY)
 message(STATUS "
 ==========================================
 Xenomai ${XENOMAI_VERSION} ${XENOMAI_SKIN_NAME} skin
-    libs    : ${XENOMAI_LIBRARY}
-    include : ${XENOMAI_INCLUDE_DIR}
-    ldflags : ${XENOMAI_LDFLAGS}
-    cflags  : ${XENOMAI_CFLAGS}
+    libs        : ${XENOMAI_LIBRARY}
+    include     : ${XENOMAI_INCLUDE_DIR}
+    definitions : ${XENOMAI_COMPILE_DEFINITIONS}
+    ldflags     : ${XENOMAI_LDFLAGS}
+    cflags      : ${XENOMAI_CFLAGS}
 ==========================================
 ")
 

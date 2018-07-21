@@ -83,6 +83,7 @@ string(REGEX MATCHALL "-L([^ ]+)|-l([^ ]+)" XENOMAI_POSIX_LIBRARY ${XENOMAI_POSI
 string(REGEX MATCHALL "-I([^ ]+)" XENOMAI_POSIX_INCLUDE_DIR ${XENOMAI_POSIX_CFLAGS})
 string(REGEX MATCHALL "-D([^ ]+)" XENOMAI_POSIX_COMPILE_DEFINITIONS ${XENOMAI_POSIX_CFLAGS})
 string(REPLACE "-I" ";" XENOMAI_POSIX_INCLUDE_DIR ${XENOMAI_POSIX_INCLUDE_DIR})
+list(REMOVE_ITEM XENOMAI_POSIX_INCLUDE_DIR "")
 
 # Set the include dir variables and the libraries and let libfind_process do the rest.
 # NOTE: Singular variables for this library, plural for libraries this this lib depends on.
