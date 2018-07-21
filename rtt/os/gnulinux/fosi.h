@@ -99,28 +99,17 @@ extern "C"
 
     static inline NANO_TIME rtos_get_time_ns( void )
     {
-
-        TIME_SPEC tv;
-        clock_gettime(CLOCK_REALTIME, &tv);
-        // we can not include the C++ Time.hpp header !
-#ifdef __cplusplus
-        return NANO_TIME( tv.tv_sec ) * 1000000000LL + NANO_TIME( tv.tv_nsec );
-#else
-        return ( NANO_TIME ) ( tv.tv_sec * 1000000000LL ) + ( NANO_TIME ) ( tv.tv_nsec );
-#endif
-    }
-
-    static inline NANO_TIME rtos_get_time_monotonic_ns( void )
-    {
-
         TIME_SPEC tv;
         clock_gettime(CLOCK_MONOTONIC, &tv);
-        // we can not include the C++ Time.hpp header !
-#ifdef __cplusplus
-        return NANO_TIME( tv.tv_sec ) * 1000000000LL + NANO_TIME( tv.tv_nsec );
-#else
         return ( NANO_TIME ) ( tv.tv_sec * 1000000000LL ) + ( NANO_TIME ) ( tv.tv_nsec );
-#endif
+    }
+
+    // internal use only, for rtos_mutex_trylock_for/rtos_mutex_rec_trylock_for!
+    static inline NANO_TIME rtos_get_realtime_ns( void )
+    {
+        TIME_SPEC tv;
+        clock_gettime(CLOCK_REALTIME, &tv);
+        return ( NANO_TIME ) ( tv.tv_sec * 1000000000LL ) + ( NANO_TIME ) ( tv.tv_nsec );
     }
 
     /**
@@ -182,34 +171,6 @@ extern "C"
         return sem_trywait(m);
     }
 
-    static inline int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay )
-    {
-		TIME_SPEC timevl, delayvl;
-        clock_gettime(CLOCK_REALTIME, &timevl);
-        delayvl = ticks2timespec(delay);
-
-        // add current time with delay, detect&correct overflows.
-        timevl.tv_sec += delayvl.tv_sec;
-        timevl.tv_nsec += delayvl.tv_nsec;
-        if ( timevl.tv_nsec >= 1000000000) {
-            ++timevl.tv_sec;
-            timevl.tv_nsec -= 1000000000;
-        }
-
-        assert( 0 <= timevl.tv_nsec);
-        assert( timevl.tv_nsec < 1000000000 );
-
-        /// \todo should really deal with errno=EINTR due to signal,
-        /// and errno=ETIMEDOUT appropriately.
-        return sem_timedwait( m, &timevl);
-    }
-
-    static inline int rtos_sem_wait_until(rt_sem_t* m, NANO_TIME abs_time )
-    {
-        TIME_SPEC arg_time = ticks2timespec( abs_time );
-        return sem_timedwait( m, &arg_time);
-    }
-
     static inline int rtos_sem_value(rt_sem_t* m )
     {
 		int val = 0;
@@ -233,15 +194,23 @@ extern "C"
         return pthread_mutex_destroy(m);
     }
 
-    static inline int rtos_mutex_rec_init(rt_mutex_t* m)
+    static inline int rtos_mutex_rec_init(rt_rec_mutex_t* m)
     {
-        pthread_mutexattr_t ma_t;
-        pthread_mutexattr_init(&ma_t);
-		pthread_mutexattr_settype(&ma_t,PTHREAD_MUTEX_RECURSIVE_NP);
-        return pthread_mutex_init(m, &ma_t );
+        pthread_mutexattr_t attr;
+        int ret = pthread_mutexattr_init(&attr);
+        if (ret != 0) return ret;
+
+        // make mutex recursive
+        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
+        if (ret != 0) return ret;
+
+        ret = pthread_mutex_init(m, &attr);
+
+        pthread_mutexattr_destroy(&attr);
+        return ret;
     }
 
-    static inline int rtos_mutex_rec_destroy(rt_mutex_t* m )
+    static inline int rtos_mutex_rec_destroy(rt_rec_mutex_t* m )
     {
         return pthread_mutex_destroy(m);
     }
@@ -251,21 +220,49 @@ extern "C"
         return pthread_mutex_lock(m);
     }
 
-    static inline int rtos_mutex_rec_lock( rt_mutex_t* m)
+    static inline int rtos_mutex_rec_lock( rt_rec_mutex_t* m)
     {
         return pthread_mutex_lock(m);
     }
 
-    static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
+    static inline int rtos_mutex_trylock_for( rt_mutex_t* m, NANO_TIME relative_time)
     {
-        TIME_SPEC arg_time = ticks2timespec( abs_time );
+        // pthread_mutex_timedlock() does not support relative timeouts, nor CLOCK_MONOTONIC.
+        // Workaround: add the relative time period to an absolute time retrieved
+        // by rtos_get_realtime_ns() using CLOCK_REALTIME (may be affected by time
+        // adjustments while waiting)
+        TIME_SPEC arg_time = ticks2timespec( rtos_get_realtime_ns() + relative_time );
         return pthread_mutex_timedlock(m, &arg_time);
     }
 
-    static inline int rtos_mutex_rec_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
+    static inline int rtos_mutex_rec_trylock_for( rt_rec_mutex_t* m, NANO_TIME relative_time)
     {
-        TIME_SPEC arg_time = ticks2timespec( abs_time );
+        // pthread_mutex_timedlock() does not support relative timeouts, nor CLOCK_MONOTONIC.
+        // Workaround: add the relative time period to an absolute time retrieved
+        // by rtos_get_realtime_ns() using CLOCK_REALTIME (may be affected by time
+        // adjustments while waiting)
+        TIME_SPEC arg_time = ticks2timespec( rtos_get_realtime_ns() + relative_time );
         return pthread_mutex_timedlock(m, &arg_time);
+    }
+
+    static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
+    {
+        // pthread_mutex_timedlock() does not accept an absolute CLOCK_MONOTONIC timestamp.
+        // Workaround: convert abs_time to a relative time using rtos_get_time_ns()
+        // and fall back to rtos_mutex_trylock_for().
+        NANO_TIME relative_time = abs_time - rtos_get_time_ns();
+        if (relative_time < 0) return ETIMEDOUT;
+        return rtos_mutex_trylock_for( m, relative_time );
+    }
+
+    static inline int rtos_mutex_rec_lock_until( rt_rec_mutex_t* m, NANO_TIME abs_time)
+    {
+        // pthread_mutex_timedlock() does not accept an absolute CLOCK_MONOTONIC timestamp.
+        // Workaround: convert abs_time to a relative time using rtos_get_time_ns()
+        // and fall back to rtos_mutex_rec_trylock_for().
+        NANO_TIME relative_time = abs_time - rtos_get_time_ns();
+        if (relative_time < 0) return ETIMEDOUT;
+        return rtos_mutex_rec_trylock_for( m, relative_time );
     }
 
     static inline int rtos_mutex_trylock( rt_mutex_t* m)
@@ -273,7 +270,7 @@ extern "C"
         return pthread_mutex_trylock(m);
     }
 
-    static inline int rtos_mutex_rec_trylock( rt_mutex_t* m)
+    static inline int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
     {
         return pthread_mutex_trylock(m);
     }
@@ -283,7 +280,7 @@ extern "C"
         return pthread_mutex_unlock(m);
     }
 
-    static inline int rtos_mutex_rec_unlock( rt_mutex_t* m)
+    static inline int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
     {
         return pthread_mutex_unlock(m);
     }
@@ -300,7 +297,21 @@ extern "C"
 
     static inline int rtos_cond_init(rt_cond_t *cond)
     {
-        return pthread_cond_init(cond, NULL);
+        pthread_condattr_t attr;
+        int ret = pthread_condattr_init(&attr);
+        if (ret != 0) return ret;
+
+        // set the clock selection condition variable attribute to CLOCK_MONOTONIC
+        ret = pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
+        if (ret != 0) {
+            pthread_condattr_destroy(&attr);
+            return ret;
+        }
+
+        ret = pthread_cond_init(cond, &attr);
+        pthread_condattr_destroy(&attr);
+
+        return ret;
     }
 
     static inline int rtos_cond_destroy(rt_cond_t *cond)

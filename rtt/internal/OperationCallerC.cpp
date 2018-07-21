@@ -120,12 +120,12 @@ namespace RTT {
     };
 
     OperationCallerC::OperationCallerC()
-        : d(0), m()
+        : d(0), ofp(0)
     {
     }
 
     OperationCallerC::OperationCallerC(OperationInterfacePart* mr, const std::string& name, ExecutionEngine* caller)
-        : d( mr ? new D( mr, name, caller) : 0 ), m(), ofp(mr), mname(name)
+        : d( mr ? new D( mr, name, caller) : 0 ), ofp(mr), mname(name)
     {
         if ( d && d->m ) {
             this->m = d->m;
@@ -139,8 +139,18 @@ namespace RTT {
     }
 
     OperationCallerC::OperationCallerC(const OperationCallerC& other)
-        : d( other.d ? new D(*other.d) : 0 ), m( other.m ? other.m : 0), ofp(other.ofp), mname(other.mname)
+        : d( other.d ? new D(*other.d) : 0 ), m( other.m ? other.m : 0), s( other.s ? other.s : 0), ofp(other.ofp), mname(other.mname)
     {
+    }
+
+    OperationCallerC::OperationCallerC(const OperationCallerC& other, ExecutionEngine* caller)
+        : d( other.d ? new D(*other.d) : 0 ), ofp(other.ofp), mname(other.mname)
+    {
+        if ( d ) {
+            d->caller = caller;
+        } else {
+            d = new D(other.ofp, other.mname, caller);
+        }
     }
 
     OperationCallerC& OperationCallerC::operator=(const OperationCallerC& other)
@@ -207,7 +217,6 @@ namespace RTT {
         }
         return *this;
     }
-
 
     bool OperationCallerC::call() {
         if (m) {
