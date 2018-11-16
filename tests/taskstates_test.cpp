@@ -727,5 +727,40 @@ BOOST_AUTO_TEST_CASE(testErrorHook_is_not_called_during_stop)
     }
 }
 
+struct TaskCore_bails_out_if_configureHook_returns_true_but_exception_was_called :
+    public RTT::TaskContext
+{
+    TaskCore_bails_out_if_configureHook_returns_true_but_exception_was_called()
+        : RTT::TaskContext("test", RTT::TaskContext::PreOperational) {}
+    bool configureHook()
+    {
+        exception();
+        return true;
+    }
+};
+BOOST_AUTO_TEST_CASE(testTaskCore_bails_out_if_configureHook_returns_true_but_exception_was_called) {
+    TaskCore_bails_out_if_configureHook_returns_true_but_exception_was_called task;
+    task.configure();
+    BOOST_REQUIRE(task.inException());
+}
+
+struct TaskCore_bails_out_if_startHook_returns_true_but_exception_was_called :
+    public RTT::TaskContext
+{
+    TaskCore_bails_out_if_startHook_returns_true_but_exception_was_called()
+        : RTT::TaskContext("test", RTT::TaskContext::PreOperational) {}
+    bool startHook()
+    {
+        exception();
+        return true;
+    }
+};
+BOOST_AUTO_TEST_CASE(testTaskCore_bails_out_if_startHook_returns_true_but_exception_was_called) {
+    TaskCore_bails_out_if_startHook_returns_true_but_exception_was_called task;
+    task.configure();
+    task.start();
+    BOOST_REQUIRE(task.inException());
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
