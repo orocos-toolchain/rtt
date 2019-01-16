@@ -201,7 +201,7 @@ extern "C"
         if (ret != 0) return ret;
 
         // make mutex recursive
-        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
+        ret = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
         if (ret != 0) return ret;
 
         ret = pthread_mutex_init(m, &attr);
