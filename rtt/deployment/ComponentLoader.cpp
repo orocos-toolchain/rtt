@@ -36,6 +36,7 @@
  ***************************************************************************/
 
 
+#define RTT_COMPONENT_HPP_INCLUDED_FROM_COMPONENTLOADER_CPP
 #include "ComponentLoader.hpp"
 #include <rtt/TaskContext.hpp>
 #include <rtt/Logger.hpp>
@@ -652,8 +653,15 @@ bool ComponentLoader::loadInProcess(string file, string libname, bool log_error)
     if ((error = dlerror()) == NULL) {
         // symbol found, register factories...
         fmap = (*getfactory)();
-        ComponentFactories::Instance().insert( fmap->begin(), fmap->end() );
-        log(Info) << "Loaded multi component library '"<< file <<"'"<<endlog();
+        for( FactoryMap::const_iterator it = fmap->begin(); it != fmap->end(); ++it ) {
+            if ( ComponentFactories::Instance().count(it->first) == 1 ) {
+                log(Warning) << "Component type name " << it->first << " already used: overriding." << endlog();
+            }
+            ComponentFactories::Instance().insert(*it);
+            log(Info) << "Loaded component type '" << it->first << "'" << endlog();
+            loading_lib.components_type.push_back( it->first );
+        }
+        log(Info) << "Loaded component library '"<< file <<"'"<<endlog();
         getcomponenttypes = (vector<string>(*)(void))(dlsym(handle, "getComponentTypeNames"));
         if ((error = dlerror()) == NULL) {
             log(Debug) << "Components:";
@@ -666,7 +674,9 @@ bool ComponentLoader::loadInProcess(string file, string libname, bool log_error)
         success = true;
     }
 
-    // Lookup createComponent (single component case):
+    if (success) return true;
+
+    // Lookup deprecated createComponent (single component case):
     dlerror();    /* Clear any existing error */
 
     RTT::TaskContext* (*factory)(std::string) = 0;
@@ -680,6 +690,8 @@ bool ComponentLoader::loadInProcess(string file, string libname, bool log_error)
     error = dlerror();
     if (error) gettype_error = error;
     if ( factory && tname ) {
+        log(Warning) << "Component library '" << libname << "' is a deprecated single component library. "
+                        "Consider to rebuild it with the latest version of RTT or it might break in the future." << endlog();
         std::string cname = (*tname)();
         if ( ComponentFactories::Instance().count(cname) == 1 ) {
             log(Warning) << "Component type name "<<cname<<" already used: overriding."<<endlog();
