@@ -42,9 +42,56 @@
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
-#include <rtt/Component.hpp>
+#include <rtt/TaskContext.hpp>
 
 namespace RTT {
+
+        /**
+         * This signature defines how a component can be instantiated.
+         */
+        typedef TaskContext* (*ComponentLoaderSignature)(std::string instance_name);
+        typedef std::map<std::string,ComponentLoaderSignature> FactoryMap;
+
+        /**
+         * A global variable storing all component factories added with
+         * \a ORO_LIST_COMPONENT_TYPE.
+         * This factory needs to be present in both static and dynamic library
+         * deployments.
+         */
+        class ComponentFactories
+        {
+            /**
+             * When static linking is used, the Component library loaders can be
+             * found in this map.
+             */
+            RTT_HIDE static FactoryMap* Factories;
+        public:
+            RTT_HIDE static FactoryMap& Instance() {
+                if ( Factories == 0)
+                    Factories = new FactoryMap();
+                return *Factories;
+            }
+        };
+
+        /**
+         * A helper class storing a single component factory
+         * in case of static library deployments.
+         */
+        template<class C>
+        class ComponentFactoryLoader
+        {
+        public:
+            ComponentFactoryLoader(std::string type_name)
+            {
+                ComponentFactories::Instance()[type_name] = &ComponentFactoryLoader<C>::createComponent;
+            }
+
+            static TaskContext* createComponent(std::string instance_name)
+            {
+                return new C(instance_name);
+            }
+        };
+
         /**
          * Locates Component libraries found on the filesystem and keeps track of loaded Components.
          * In case a no components of a component library are running, the library can be unloaded.
