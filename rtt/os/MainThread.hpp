@@ -128,8 +128,6 @@ namespace RTT
 
         virtual unsigned int getPid() const;
 
-        virtual unsigned getCpuAffinity() const;
-
         virtual void setMaxOverrun(int m);
 
         virtual int getMaxOverrun() const;
@@ -137,6 +135,8 @@ namespace RTT
         virtual void setWaitPeriodPolicy(int p);
 
         virtual void yield();
+
+        unsigned getCpuAffinity() const;
 
         /**
          * Returns zero, the number of the main() thread.

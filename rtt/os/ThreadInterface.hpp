@@ -190,11 +190,6 @@ namespace RTT
              */
             virtual unsigned int getPid() const = 0;
 
-            /**
-             * @return the cpu affinity
-             */
-            virtual unsigned getCpuAffinity() const = 0;
-
             virtual void setMaxOverrun(int m) = 0;
 
             virtual int getMaxOverrun() const = 0;
