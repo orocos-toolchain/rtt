@@ -192,7 +192,7 @@ namespace RTT
         bool Push( param_t item)
         {
             if (!mcircular) {
-                if ( capacity() == (size_type)bufs->size() )
+                if ( capacity() == (size_type)bufs->size() ) {
                     droppedSamples.inc();
                     return false;
                 }
