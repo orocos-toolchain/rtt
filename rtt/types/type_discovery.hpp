@@ -63,11 +63,18 @@
 
 #include <cassert>
 #include <boost/version.hpp>
+#if BOOST_VERSION >= 106400
+// The class name has been changed from boost::serialization::array<T> to array_wrapper<T> in Boost 1.61,
+// but the header has only be renamed in Boost 1.64. Starting from Boost 1.65 array.hpp includes array_wrapper.hpp,
+// but with 1.64 compilation fails if array_wrapper.hpp is not included.
+# include <boost/serialization/array_wrapper.hpp>
+#else
+# include <boost/serialization/array.hpp>
+#endif
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/is_bitwise_serializable.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
-#include <boost/serialization/array.hpp>
 #include <boost/archive/detail/iserializer.hpp>
 #include <boost/archive/detail/oserializer.hpp>
 #include <boost/archive/archive_exception.hpp>

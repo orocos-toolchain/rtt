@@ -141,6 +141,12 @@ char * RTT_corba_CTaskContext_i::getDescription (
     return mtask->stop();
 }
 
+::CORBA::Boolean RTT_corba_CTaskContext_i::recover(
+    void)
+{
+    return mtask->recover();
+}
+
 ::CORBA::Boolean RTT_corba_CTaskContext_i::cleanup (
     void)
 {
@@ -183,6 +189,12 @@ char * RTT_corba_CTaskContext_i::getDescription (
     void)
 {
     return mtask->inRunTimeError();
+}
+
+::CORBA::Boolean RTT_corba_CTaskContext_i::inException(
+    void)
+{
+    return mtask->inException();
 }
 
 ::RTT::corba::CDataFlowInterface_ptr RTT_corba_CTaskContext_i::ports (

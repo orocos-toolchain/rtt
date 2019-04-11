@@ -25,6 +25,7 @@
 #include <extras/SequentialActivity.hpp>
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
+#include <os/fosi.h>
 
 #include <boost/function_types/function_type.hpp>
 #include <OperationCaller.hpp>
@@ -644,7 +645,10 @@ public:
         : TaskContext("test") {}
     void updateHook() { error(); }
     void errorHook() {
-        while(getTargetState() != Stopped);
+        while(getTargetState() != Stopped) {
+            TIME_SPEC t = ticks2timespec(nano2ticks(100000000LL));
+            rtos_nanosleep(&t, 0);
+        }
         error();
         trigger();
     }
@@ -655,7 +659,9 @@ BOOST_AUTO_TEST_CASE(calling_error_does_not_override_a_stop_transition)
     {
         calling_error_does_not_override_a_stop_transition_Task task;
         task.start();
-        usleep(100);
+        while(!task.inRunTimeError()) {
+            usleep(100);
+        }
         task.stop();
         BOOST_REQUIRE_EQUAL(RTT::TaskContext::Stopped, task.getTaskState());
         BOOST_REQUIRE_EQUAL(RTT::TaskContext::Stopped, task.getTargetState());
@@ -671,7 +677,10 @@ public:
         : TaskContext("test"), mRecovered(true) {} // true is an error
     void updateHook() { error(); }
     void errorHook() {
-        while(getTargetState() != Stopped);
+        while(getTargetState() != Stopped) {
+            TIME_SPEC t = ticks2timespec(nano2ticks(100000000LL));
+            rtos_nanosleep(&t, 0);
+        }
         mRecovered = recover();
         trigger();
     }
@@ -682,7 +691,9 @@ BOOST_AUTO_TEST_CASE(calling_recover_does_not_override_a_stop_transition)
     {
         calling_recover_does_not_override_a_stop_transition_Task task;
         task.start();
-        usleep(100);
+        while(!task.inRunTimeError()) {
+            usleep(100);
+        }
         task.stop();
         BOOST_REQUIRE_EQUAL(RTT::TaskContext::Stopped, task.getTaskState());
         BOOST_REQUIRE_EQUAL(RTT::TaskContext::Stopped, task.getTargetState());
@@ -700,7 +711,8 @@ public:
         : TaskContext("test") {}
     void updateHook() { error(); }
     void errorHook() {
-        usleep(100);
+        TIME_SPEC t = ticks2timespec(nano2ticks(100000000LL));
+        rtos_nanosleep(&t, 0);
         lastErrorHook = TimeService::Instance()->getTicks();
         trigger();
     }
@@ -715,10 +727,47 @@ BOOST_AUTO_TEST_CASE(testErrorHook_is_not_called_during_stop)
     {
         errorHook_is_not_called_after_an_exit_transition_Task task;
         task.start();
-        usleep(100);
+        while(!task.inRunTimeError()) {
+            usleep(100);
+        }
         task.stop();
         BOOST_REQUIRE(task.lastErrorHook < task.lastStopHook);
     }
+}
+
+struct TaskCore_bails_out_if_configureHook_returns_true_but_exception_was_called :
+    public RTT::TaskContext
+{
+    TaskCore_bails_out_if_configureHook_returns_true_but_exception_was_called()
+        : RTT::TaskContext("test", RTT::TaskContext::PreOperational) {}
+    bool configureHook()
+    {
+        exception();
+        return true;
+    }
+};
+BOOST_AUTO_TEST_CASE(testTaskCore_bails_out_if_configureHook_returns_true_but_exception_was_called) {
+    TaskCore_bails_out_if_configureHook_returns_true_but_exception_was_called task;
+    task.configure();
+    BOOST_REQUIRE(task.inException());
+}
+
+struct TaskCore_bails_out_if_startHook_returns_true_but_exception_was_called :
+    public RTT::TaskContext
+{
+    TaskCore_bails_out_if_startHook_returns_true_but_exception_was_called()
+        : RTT::TaskContext("test", RTT::TaskContext::PreOperational) {}
+    bool startHook()
+    {
+        exception();
+        return true;
+    }
+};
+BOOST_AUTO_TEST_CASE(testTaskCore_bails_out_if_startHook_returns_true_but_exception_was_called) {
+    TaskCore_bails_out_if_startHook_returns_true_but_exception_was_called task;
+    task.configure();
+    task.start();
+    BOOST_REQUIRE(task.inException());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

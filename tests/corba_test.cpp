@@ -36,6 +36,8 @@
 
 #include "operations_fixture.hpp"
 
+#include <memory>
+
 using namespace std;
 using corba::TaskContextProxy;
 
@@ -600,7 +602,12 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
     BOOST_CHECK(!write_port->connected());
 
     // Test cloning
-    auto_ptr<base::InputPortInterface> read_clone(dynamic_cast<base::InputPortInterface*>(read_port->clone()));
+#if __cplusplus > 199711L
+    unique_ptr<base::InputPortInterface>
+#else
+    auto_ptr<base::InputPortInterface>
+#endif
+            read_clone(dynamic_cast<base::InputPortInterface*>(read_port->clone()));
     BOOST_CHECK(mo2->createConnection(*read_clone));
     BOOST_CHECK(read_clone->connected());
     BOOST_CHECK(!read_port->connected());

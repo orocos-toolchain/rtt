@@ -188,6 +188,8 @@ namespace RTT
 
         virtual bool cleanup();
 
+        virtual bool recover();
+        
         virtual bool isActive() const;
 
         virtual bool isConfigured() const;
@@ -195,6 +197,8 @@ namespace RTT
         virtual bool inFatalError() const;
 
         virtual bool inRunTimeError() const;
+
+        virtual bool inException() const;
 
         virtual TaskState getTaskState() const;
 

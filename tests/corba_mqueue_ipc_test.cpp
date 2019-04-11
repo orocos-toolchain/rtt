@@ -192,6 +192,8 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     if (!tp)
         tp = corba::TaskContextProxy::CreateFromFile( "other.ior");
 
+    BOOST_REQUIRE(tp);
+
     // Create a default CORBA policy specification
     RTT::corba::CConnPolicy policy = toCORBA( RTT::ConnPolicy() );
     policy.type = RTT::corba::CData;
@@ -212,7 +214,6 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     policy.transport = ORO_MQUEUE_PROTOCOL_ID;
     BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
     BOOST_CHECK( ports2->createConnection("mw", ports, "mr", policy) );
-    usleep(100000); // gives dispatcher time to catch up.
     testPortDataConnection();
     ports->disconnectPort("mw");
     ports2->disconnectPort("mw");
@@ -223,13 +224,10 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     policy.transport = ORO_MQUEUE_PROTOCOL_ID;
     BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
     BOOST_CHECK( ports2->createConnection("mw", ports, "mr", policy) );
-    usleep(100000);
     testPortDataConnection();
     ports2->disconnectPort("mr");
     ports->disconnectPort("mr");
     testPortDisconnected();
-
-#if 1
 
     policy.type = RTT::corba::CBuffer;
     policy.pull = false;
@@ -252,7 +250,6 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     ports->disconnectPort("mw");
     ports2->disconnectPort("mw");
     testPortDisconnected();
-#endif
 }
 
 BOOST_AUTO_TEST_SUITE_END()
