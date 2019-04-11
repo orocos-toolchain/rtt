@@ -58,9 +58,11 @@
 #else
 # include <omniORB4/CORBA.h>
 # include <omniORB4/poa.h>
+# ifndef DOXYGEN
 namespace CORBA {
     typedef Any* Any_ptr;
 }
+# endif
 # undef ACE_THROW_SPEC
 # define ACE_THROW_SPEC(x)
 # undef ACE_THROW

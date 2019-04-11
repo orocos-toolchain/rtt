@@ -564,7 +564,7 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
 BOOST_AUTO_TEST_CASE( testDataHalfs )
 {
     if(std::getenv("CI") != NULL) {
-      BOOST_TEST_MESSAGE("Skipping testAffinity because it can fail on integration servers.");
+      BOOST_TEST_MESSAGE("Skipping testDataHalfs because it can fail on integration servers.");
       return;
     }
 
@@ -632,7 +632,7 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
 BOOST_AUTO_TEST_CASE( testBufferHalfs )
 {
     if(std::getenv("CI") != NULL) {
-      BOOST_TEST_MESSAGE("Skipping testAffinity because it can fail on integration servers.");
+      BOOST_TEST_MESSAGE("Skipping testBufferHalfs because it can fail on integration servers.");
       return;
     }
 
