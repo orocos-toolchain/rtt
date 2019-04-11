@@ -94,9 +94,18 @@ namespace RTT {
         if ( mTaskState == Stopped || mTaskState == PreOperational) {
             TRY(
                 mTargetState = Stopped;
-                if (configureHook() ) {
-                    mTaskState = Stopped;
-                    return true;
+                bool successful = configureHook();
+                if (successful) {
+                    if (mTaskState != Stopped && (mTaskState == mTargetState)) {
+                        log(Error) << "in configure(): state has been changed inside the configureHook" << endlog();
+                        log(Error) << "  but configureHook returned true. Bailing out." << endlog();
+                        exception();
+                        return false;
+                    }
+                    else {
+                        mTaskState = Stopped;
+                        return true;
+                    }
                 } else {
                     mTargetState = mTaskState = PreOperational;
                     return false;
@@ -118,7 +127,8 @@ namespace RTT {
             TRY(
                 mTargetState = PreOperational;
                 cleanupHook();
-                mTaskState = PreOperational;
+                if (mTaskState == Stopped)
+                    mTaskState = PreOperational;
                 return true;
              ) CATCH(std::exception const& e,
                 log(Error) << "in cleanup(): switching to exception state because of unhandled exception" << endlog();
@@ -181,11 +191,20 @@ namespace RTT {
         if ( mTaskState == Stopped ) {
             TRY (
                 mTargetState = Running;
-                if ( startHook() ) {
-                    mTaskState = Running;
-                    if ( mTriggerOnStart )
-                        trigger(); // triggers updateHook() in case of non periodic!
-                    return true;
+                bool successful = startHook();
+                if (successful) {
+                    if (mTaskState != Running && (mTargetState == mTaskState)) {
+                        log(Error) << "in start(): state has been changed inside the startHook" << endlog();
+                        log(Error) << "  but startHook returned true. Bailing out." << endlog();
+                        exception();
+                        return false;
+                    }
+                    else {
+                        mTaskState = Running;
+                        if ( mTriggerOnStart )
+                            trigger(); // triggers updateHook() in case of non periodic!
+                        return true;
+                    }
                 }
                 mTargetState = Stopped;
             ) CATCH(std::exception const& e,
