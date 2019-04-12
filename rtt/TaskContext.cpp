@@ -345,20 +345,25 @@ namespace RTT
     {
         if (this->isRunning())
             return false;
-        if ( new_act == 0) {
+        if (!new_act) {
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
             new_act = new SequentialActivity();
 #elif defined(ORO_ACT_DEFAULT_ACTIVITY)
             new_act = new Activity();
 #endif
+        } else {
+            new_act->stop();
         }
-        new_act->stop();
-        if(our_act){
+        if (our_act) {
             our_act->stop();
         }
-        new_act->run( this->engine() );
-        our_act = ActivityInterface::shared_ptr( new_act );
-        our_act->start();
+        if (new_act) {
+            new_act->run( this->engine() );
+            our_act = ActivityInterface::shared_ptr( new_act );
+            our_act->start();
+        } else {
+            our_act.reset();
+        }
         return true;
     }
 
@@ -461,4 +466,3 @@ namespace RTT
         }
     }
 }
-
