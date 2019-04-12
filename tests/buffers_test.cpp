@@ -89,17 +89,14 @@ public:
     MWMRQueueType* aqueue;
     ThreadInterface* athread;
     ThreadInterface* bthread;
-    ListLockFree<Dummy>* listlockfree;
 
     BuffersAtomicMWMRQueueTest()
     {
         aqueue = new MWMRQueueType(QS);
-        listlockfree = new ListLockFree<Dummy>(10, 4);
     }
     ~BuffersAtomicMWMRQueueTest(){
         aqueue->clear();
         delete aqueue;
-        delete listlockfree;
     }
 };
 
@@ -1375,11 +1372,16 @@ BOOST_AUTO_TEST_CASE( testSortedList )
 BOOST_AUTO_TEST_SUITE_END()
 
 #ifdef OROPKG_OS_GNULINUX
-BOOST_FIXTURE_TEST_SUITE( BuffersStressLockFreeTestSuite, BuffersAtomicMWMRQueueTest )
 
 BOOST_AUTO_TEST_CASE( testListLockFree )
 {
-    ThreadPool< LLFWorker > pool(5, ORO_SCHED_OTHER, 0, 0.0, "LLFWorker", listlockfree);
+    // maximum of 4 threads: 3 workers and one grower
+    ListLockFree<Dummy> *listlockfree = new ListLockFree<Dummy>(10, 4);
+
+    BOOST_REQUIRE_EQUAL( 10, listlockfree->capacity() );
+    BOOST_REQUIRE_EQUAL( 0, listlockfree->size() );
+
+    ThreadPool< LLFWorker > pool(3, ORO_SCHED_OTHER, 0, 0.0, "LLFWorker", listlockfree);
     LLFGrower* grower = new LLFGrower( listlockfree );
 
     {
@@ -1416,6 +1418,7 @@ BOOST_AUTO_TEST_CASE( testListLockFree )
 
     pool.clear();
     delete grower;
+    delete listlockfree;
 }
 
 BOOST_AUTO_TEST_CASE( testAtomicMWMRQueue )
@@ -1565,5 +1568,4 @@ BOOST_AUTO_TEST_CASE( testAtomicMWSRQueue )
     delete qt;
 }
 
-BOOST_AUTO_TEST_SUITE_END()
 #endif
