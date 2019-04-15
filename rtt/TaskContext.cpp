@@ -99,6 +99,7 @@ namespace RTT
         this->addOperation("inFatalError", &TaskContext::inFatalError, this, ClientThread).doc("Check if this TaskContext is in the FatalError state.");
         this->addOperation("error", &TaskContext::error, this, ClientThread).doc("Enter the RunTimeError state (= errorHook() ).");
         this->addOperation("inRunTimeError", &TaskContext::inRunTimeError, this, ClientThread).doc("Check if this TaskContext is in the RunTimeError state.");
+        this->addOperation("inException", &TaskContext::inException, this, ClientThread).doc("Check if this TaskContext is in the Exception state.");
         this->addOperation("cleanup", &TaskContext::cleanup, this, ClientThread).doc("Reset this TaskContext to the PreOperational state ( =cleanupHook() ).");
         this->addOperation("update", &TaskContext::update, this, ClientThread).doc("Execute (call) the update method directly.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task.");
 
@@ -338,21 +339,26 @@ namespace RTT
     {
         if (this->isRunning())
             return false;
-        if ( new_act == 0) {
+        if (!new_act) {
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
             new_act = new SequentialActivity();
 #elif defined(ORO_ACT_DEFAULT_ACTIVITY)
             new_act = new Activity();
 #endif
+        } else {
+            new_act->stop();
         }
-        new_act->stop();
-        if(our_act){
+        if (our_act) {
             our_act->stop();
             our_act.reset();
         }
-        new_act->run( this->engine() );
-        our_act = ActivityInterface::shared_ptr( new_act );
-        our_act->start();
+        if (new_act) {
+            new_act->run( this->engine() );
+            our_act = ActivityInterface::shared_ptr( new_act );
+            our_act->start();
+        } else {
+            our_act.reset();
+        }
         return true;
     }
 
@@ -449,4 +455,3 @@ namespace RTT
         }
     }
 }
-

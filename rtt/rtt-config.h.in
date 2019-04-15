@@ -35,6 +35,8 @@
 #  define OROBLD_OS_ARCH_ppc
 # elif defined( __GNUC__ ) && (defined( __arm__ ) || defined( __ARM__ ) )
 #  define OROBLD_OS_ARCH_arm
+# elif defined( __GNUC__ ) && (defined( __aarch64__ ) || defined( __AARCH64__ ) )
+#  define OROBLD_OS_ARCH_aarch64
 # elif defined( __GNUC__ ) && defined( __ia64__ )
 #  error "ia64 Is not yet supported, contact the orocos-dev mailinglist for further actions."
 #  define OROBLD_OS_ARCH_ia64
@@ -65,27 +67,37 @@
    // Use RTT_HIDE to explicitly hide a symbol
 #  define RTT_HIDE   __attribute__((visibility("hidden")))
 
+#  define RTT_EXT_IMPL extern
+
 # else
 #  define RTT_API
 #  define RTT_EXPORT __attribute__((visibility("default")))
 #  define RTT_HIDE   __attribute__((visibility("hidden")))
+#  define RTT_EXT_IMPL extern
 # endif
 #else
    // Win32 and NOT GNU
 # if defined( WIN32 ) && !defined ( __MINGW32__ )
-#  if defined(RTT_DLL_EXPORT)
+#  if defined(RTT_STATIC)
+#    define RTT_API
+#    define RTT_EXPORT
+#    define RTT_HIDE
+#  elif defined(RTT_DLL_EXPORT)
 #   define RTT_API    __declspec(dllexport)
 #   define RTT_EXPORT __declspec(dllexport)
 #   define RTT_HIDE   
+#   define RTT_EXT_IMPL extern
 #  else
 #   define RTT_API	 __declspec(dllimport)
 #   define RTT_EXPORT __declspec(dllexport)
 #   define RTT_HIDE 
+#   define RTT_EXT_IMPL extern
 #  endif
 # else
 #  define RTT_API
 #  define RTT_EXPORT
 #  define RTT_HIDE
+#  define RTT_EXT_IMPL
 # endif
 #endif
 

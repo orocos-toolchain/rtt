@@ -46,4 +46,9 @@ void OperationsFixture::createOperationCallerFactories1(TaskContext* target)
     to->addOperation("o1cr", &OperationsFixture::m1cr, this, OwnThread).doc("M1cr");
 
     to->addOperation("o1", &OperationsFixture::m1, this, OwnThread).doc("M1").arg("a", "ad");
+
+    // Extra operations for RemoteOperationCaller tests
+    to->addOperation("returnAddressOf", &OperationsFixture::returnAddressOf, this);
+    to->addOperation("returnAddressOfConst", &OperationsFixture::returnAddressOfConst, this);
+    to->addOperation("sleepAndIncOwnThread", &OperationsFixture::sleepAndIncrement, this, RTT::OwnThread);
 }

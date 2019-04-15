@@ -111,34 +111,6 @@ namespace RTT
         }
 
         /**
-         * Wait on this semaphore until a maximum absolute time.
-         * @param abs_time Absolute time in seconds until which to wait on this semaphore.
-         * @retval true if the semaphore was signaled before abs_time expired.
-         * @retval false if the semaphore was not signaled.
-         * @see rtos_get_time_ns() to get the current time in nano seconds.
-         */
-        bool waitUntil( Seconds abs_time )
-        {
-            if (rtos_sem_wait_until( &sem, Seconds_to_nsecs(abs_time) ) == 0 )
-                return true;
-            return false;
-        }
-
-        /**
-         * Wait on this semaphore until a maximum absolute time.
-         * @param abs_time Absolute time in nano seconds until which to wait on this semaphore.
-         * @retval true if the semaphore was signaled before abs_time expired.
-         * @retval false if the semaphore was not signaled.
-         * @see rtos_get_time_ns() to get the current time in nano seconds.
-         */
-        bool waitUntil( nsecs abs_time )
-        {
-            if (rtos_sem_wait_until( &sem, abs_time ) == 0 )
-                return true;
-            return false;
-        }
-
-        /**
          * Return the current count of this semaphore.
          */
 #ifndef OROPKG_OS_MACOSX

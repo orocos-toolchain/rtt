@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  DataSources.cxx
+  tag: The SourceWorks  Tue Sep 7 00:55:19 CEST 2010  rt_string.hpp
 
-                        DataSources.cxx -  description
+                        rt_string.hpp -  description
                            -------------------
-    begin                : Mon June 26 2006
-    copyright            : (C) 2006 Peter Soetens
-    email                : peter.soetens@fmtc.be
+    begin                : Tue September 07 2010
+    copyright            : (C) 2010 The SourceWorks
+    email                : peter@thesourceworks.com
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -35,42 +35,13 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "rt_string.hpp"
 
-#include "DataSources.hpp"
-
-namespace RTT {
-    namespace internal { 
-
-    /**
-     * Specialisation for std::string to keep capacity when set( ... ) is called.
+namespace std
+{
+    /*
+     * Explicit template instantiation
      */
-    template<>
-    void ValueDataSource<std::string>::set( AssignableDataSource<std::string>::param_t t )
-    {
-        mdata = t.c_str();
-    }
-
-    /**
-     * Specialisation for std::string to keep capacity when clone() is called.
-     */
-    template<>
-    ValueDataSource<std::string>::ValueDataSource( std::string t )
-        : mdata( t.c_str() )
-    {
-    }
-    }
+    template class basic_string<char, char_traits<char>, RTT::os::rt_allocator<char> >;
+    template class basic_ostringstream<char, char_traits<char>, RTT::os::rt_allocator<char> >;
 }
-
-/*
- * Explicit template instantiation for core data source types
- */
-template class RTT::internal::DataSource< bool >;
-template class RTT::internal::AssignableDataSource< bool >;
-template class RTT::internal::ValueDataSource< bool >;
-template class RTT::internal::ConstantDataSource< bool >;
-template class RTT::internal::ReferenceDataSource< bool >;
-template class RTT::internal::DataSource< std::string >;
-template class RTT::internal::AssignableDataSource< std::string >;
-template class RTT::internal::ValueDataSource< std::string >;
-template class RTT::internal::ConstantDataSource< std::string >;
-template class RTT::internal::ReferenceDataSource< std::string >;
