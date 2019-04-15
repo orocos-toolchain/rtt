@@ -102,7 +102,6 @@ public:
             init_unit_test_suite(framework::master_test_suite().argc,framework::master_test_suite().argv);
 	}
 	~InitOrocos(){
-	    corba::CorbaDispatcher::ReleaseAll();
 	    corba::TaskContextServer::ShutdownOrb(true);
 	    corba::TaskContextServer::DestroyOrb();
 

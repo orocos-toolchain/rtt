@@ -54,6 +54,7 @@
 #include "RemotePorts.hpp"
 #include "RemoteConnID.hpp"
 #include <rtt/os/MutexLock.hpp>
+#include "CorbaDispatcher.hpp"
 
 #include <iostream>
 
@@ -364,11 +365,20 @@ void CDataFlowInterface_i::removeStream( const char* port, const char* stream_na
     p->removeConnection( &rcid );
 }
 
+std::string CDataFlowInterface_i::dispatcherNameFromPolicy(RTT::DataFlowInterface* interface, RTT::ConnPolicy const& policy)
+{
+    if ( policy.transport !=0 && policy.transport != ORO_CORBA_PROTOCOL_ID)
+        return CorbaDispatcher::defaultDispatcherName(interface);
+    else if (policy.name_id.empty())
+        return CorbaDispatcher::defaultDispatcherName(interface);
+    else
+        return policy.name_id;
+}
 
 CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
         const char* port_name, CConnPolicy & corba_policy) ACE_THROW_SPEC ((
          	      CORBA::SystemException
-         	      ,::RTT::corba::CNoCorbaTransport
+
                   ,::RTT::corba::CNoSuchPortException
          	    ))
 {
@@ -387,12 +397,12 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
         throw CNoCorbaTransport();
 
     CORBA_CHECK_THREAD();
-    // Convert to RTT policy.
-    ConnPolicy policy2 = toRTT(corba_policy);
+    ConnPolicy policy = toRTT(corba_policy);
+    std::string dispatcherName = dispatcherNameFromPolicy(mdf, policy);
 
     ChannelElementBase::shared_ptr end = type_info->buildChannelOutput(*port);
     CRemoteChannelElement_i* this_element =
-        transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull);
+        transporter->createOutputChannelElement_i(dispatcherName, mpoa, corba_policy.pull);
     this_element->setCDataFlowInterface(this);
 
     /*
@@ -406,10 +416,10 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
             log(Error) << "No such transport registered. Check your corba_policy.transport settings or add the transport for type "<< type_info->getTypeName() <<endlog();
             return RTT::corba::CChannelElement::_nil();
         }
-        RTT::base::ChannelElementBase::shared_ptr ceb = type_info->getProtocol(corba_policy.transport)->createStream(port, policy2, false);
+        RTT::base::ChannelElementBase::shared_ptr ceb = type_info->getProtocol(corba_policy.transport)->createStream(port, policy, false);
         // if no user supplied name, pass on the new name.
         if ( strlen( corba_policy.name_id.in()) == 0 )
-            corba_policy.name_id = CORBA::string_dup( policy2.name_id.c_str() );
+            corba_policy.name_id = CORBA::string_dup( policy.name_id.c_str() );
 
         if (ceb) {
             // override, insert oob element between corba and endpoint and add a buffer between oob and endpoint.
@@ -417,7 +427,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
             ChannelElementBase::shared_ptr buf = type_info->buildDataStorage(toRTT(corba_policy));
             ceb->setOutput( buf );
             buf->setOutput(end);
-            log(Info) <<"Receiving data for port "<< policy2.name_id << " from out-of-band protocol "<< corba_policy.transport <<endlog();
+            log(Info) <<"Receiving data for port "<< policy.name_id << " from out-of-band protocol "<< corba_policy.transport <<endlog();
         } else {
             log(Error) << "The type transporter for type "<<type_info->getTypeName()<< " failed to create an out-of-band endpoint for port " << port_name<<endlog();
             return RTT::corba::CChannelElement::_nil();
@@ -472,14 +482,15 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
 
     CORBA_CHECK_THREAD();
     // Convert to RTT policy.
-    ConnPolicy policy2 = toRTT(corba_policy);
+    ConnPolicy policy = toRTT(corba_policy);
 
     // Now create the output-side channel elements.
     ChannelElementBase::shared_ptr start = type_info->buildChannelInput(*port);
 
     // The channel element that exposes our channel in CORBA
-    CRemoteChannelElement_i* this_element;
-    PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull);
+    CRemoteChannelElement_i* this_element =
+        transporter->createInputChannelElement_i(mpoa, corba_policy.pull);
+    PortableServer::ServantBase_var servant = this_element;
     this_element->setCDataFlowInterface(this);
 
     // Attach the corba channel element first (so OOB is after corba).
@@ -497,15 +508,15 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
             log(Error) << "No such transport registered. Check your corba_policy.transport settings or add the transport for type "<< type_info->getTypeName() <<endlog();
             throw CNoCorbaTransport();
         }
-        RTT::base::ChannelElementBase::shared_ptr ceb = type_info->getProtocol(corba_policy.transport)->createStream(port, policy2, true);
+        RTT::base::ChannelElementBase::shared_ptr ceb = type_info->getProtocol(corba_policy.transport)->createStream(port, policy, true);
         // if no user supplied name, pass on the new name.
         if ( strlen( corba_policy.name_id.in()) == 0 )
-            corba_policy.name_id = CORBA::string_dup( policy2.name_id.c_str() );
+            corba_policy.name_id = CORBA::string_dup( policy.name_id.c_str() );
 
         if (ceb) {
             // OOB is added to end of chain.
             start->getOutputEndPoint()->setOutput( ceb );
-            log(Info) <<"Sending data from port "<< policy2.name_id << " to out-of-band protocol "<< corba_policy.transport <<endlog();
+            log(Info) <<"Sending data from port "<< policy.name_id << " to out-of-band protocol "<< corba_policy.transport <<endlog();
         } else {
             log(Error) << "The type transporter for type "<<type_info->getTypeName()<< " failed to create an out-of-band endpoint for port " << port_name<<endlog();
             throw CNoCorbaTransport();
@@ -519,7 +530,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
 
 
     // Attach to our output port:
-    port->addConnection( new SimpleConnID(), start->getInputEndPoint(), policy2);
+    port->addConnection( new SimpleConnID(), start->getInputEndPoint(), policy);
 
     // DO NOT DO THIS: _remove_ref() is tied to the refcount of the ChannelElementBase !
     //this_element->_remove_ref();

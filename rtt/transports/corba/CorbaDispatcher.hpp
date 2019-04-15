@@ -56,7 +56,16 @@ namespace RTT {
          */
         class CorbaDispatcher : public Activity
         {
-            typedef std::map<DataFlowInterface*,CorbaDispatcher*> DispatchMap;
+            struct DispatchEntry {
+                os::AtomicInt refcount;
+                CorbaDispatcher* dispatcher;
+
+                DispatchEntry()
+                    : dispatcher(0) {}
+                explicit DispatchEntry(CorbaDispatcher* dispatcher)
+                    : dispatcher(dispatcher) {}
+            };
+            typedef std::map<std::string, DispatchEntry> DispatchMap;
             RTT_CORBA_API static DispatchMap DispatchI;
 
             typedef internal::List<base::ChannelElementBase::shared_ptr> RCList;
@@ -85,106 +94,43 @@ namespace RTT {
                 this->stop();
             }
 
+            /** Internal access and auto-creation of dispatch entries
+             *
+             * It is a helper method, and does NOT acquire the locking mutex.
+             * Callers MUST acquire it before calling
+             */
+            static DispatchEntry& Get(std::string const& name, int scheduler = defaultScheduler, int priority = defaultPriority);
+
         public:
+            static std::string defaultDispatcherName(DataFlowInterface* iface);
+
+            static CorbaDispatcher* Instance(DataFlowInterface* iface, int scheduler = defaultScheduler, int priority = defaultPriority);
+
             /**
-             * Create a new dispatcher for a given data flow interface.
-             * This method will only lock and allocate when a new dispatcher must be created,
-             * otherwise, the access is lock-free and real-time.
-             * One dispatcher per \a iface is created.
-             * @param iface The interface to dispatch data flow messages for.
+             * Create a new dispatcher and registers it under a certain name
+             *
+             * @param name the dispatcher registration name
              * @return
              */
-            static CorbaDispatcher* Instance(DataFlowInterface* iface, int scheduler = defaultScheduler, int priority = defaultPriority) {
-                if (!mlock)
-                    mlock = new os::Mutex();
-                DispatchMap::iterator result = DispatchI.find(iface);
-                if ( result == DispatchI.end() ) {
-                    os::MutexLock lock(*mlock);
-                    // re-try to find (avoid race):
-                    result = DispatchI.find(iface);
-                    if ( result != DispatchI.end() )
-                        return result->second;
-                    // *really* not found, let's create it.
-                    std::string name;
-                    if ( iface == 0 || iface->getOwner() == 0)
-                        name = "Global";
-                    else
-                        name = iface->getOwner()->getName();
-                    name += ".CorbaDispatch";
-                    DispatchI[iface] = new CorbaDispatcher( name, scheduler, priority );
-                    DispatchI[iface]->start();
-                    return DispatchI[iface];
-                }
-                return result->second;
-            }
+            static CorbaDispatcher* Instance(std::string const& name, int scheduler = defaultScheduler, int priority = defaultPriority);
 
-            /**
-             * Releases and cleans up a specific interface from dispatching.
-             * @param iface
-             */
-            static void Release(DataFlowInterface* iface) {
-                DispatchMap::iterator result = DispatchI.find(iface);
-                if ( result != DispatchI.end() ) {
-                    os::MutexLock lock(*mlock);
-                    delete result->second;
-                    DispatchI.erase(result);
-                }
-                if ( DispatchI.empty() )
-                    delete mlock;
-                mlock = 0;
-            }
+            static CorbaDispatcher* Acquire(DataFlowInterface* interface, int scheduler = defaultScheduler, int priority = defaultPriority);
 
-            /**
-             * May be called during program termination to clean up all resources.
-             */
-            static void ReleaseAll() {
-                DispatchMap::iterator result = DispatchI.begin();
-                while ( result != DispatchI.end() ) {
-                    delete result->second;
-                    DispatchI.erase(result);
-                    result = DispatchI.begin();
-                }
-                delete mlock;
-                mlock = 0;
-            }
+            static CorbaDispatcher* Acquire(std::string const& name, int scheduler = defaultScheduler, int priority = defaultPriority);
 
-	    static void hasElement(base::ChannelElementBase::shared_ptr c0, base::ChannelElementBase::shared_ptr c1, bool& result)
-	    {
-		result = result || (c0 == c1);
-	    }
+            static void Release(std::string const& name);
+            static void Release(CorbaDispatcher* dispatcher);
 
-            void dispatchChannel( base::ChannelElementBase::shared_ptr chan ) {
-		bool has_element = false;
-		RClist.apply(boost::bind(&CorbaDispatcher::hasElement, _1, chan, boost::ref(has_element)));
-                if (!has_element)
-	            RClist.append( chan );
-                this->trigger();
-            }
+	    static void hasElement(base::ChannelElementBase::shared_ptr c0, base::ChannelElementBase::shared_ptr c1, bool& result);
 
-            void cancelChannel( base::ChannelElementBase::shared_ptr chan ) {
-                RClist.erase( chan );
-            }
+            void dispatchChannel( base::ChannelElementBase::shared_ptr chan );
 
-            bool initialize() {
-                log(Info) <<"Started " << this->getName() << "." <<endlog();
-                do_exit = false;
-                return true;
-            }
+            void cancelChannel( base::ChannelElementBase::shared_ptr chan );
 
-            void loop() {
-                while ( !RClist.empty() && !do_exit) {
-                    base::ChannelElementBase::shared_ptr chan = RClist.front();
-                    CRemoteChannelElement_i* rbase = dynamic_cast<CRemoteChannelElement_i*>(chan.get());
-                    if (rbase)
-                        rbase->transferSamples();
-                    RClist.erase( chan );
-                }
-            }
+            bool initialize();
 
-            bool breakLoop() {
-                do_exit = true;
-                return true;
-            }
+            void loop();
+            bool breakLoop();
         };
     }
 }

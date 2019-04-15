@@ -191,6 +191,9 @@ namespace RTT {
             	      ,::RTT::corba::CNoSuchPortException
             	    ));
 
+            static std::string dispatcherNameFromPolicy(
+                    RTT::DataFlowInterface* interface,
+                    RTT::ConnPolicy const& policy);
             CChannelElement_ptr buildChannelOutput(const char* reader_port, RTT::corba::CConnPolicy& policy) ACE_THROW_SPEC ((
             	      CORBA::SystemException
             	      ,::RTT::corba::CNoCorbaTransport
