@@ -37,7 +37,7 @@ matrix:
 branches:
   only:
   - master
-  - /^toolchain-.*$/
+  - /^toolchain-[\d\.]+$/
 
 before_install:
   # Set C/C++ compiler
