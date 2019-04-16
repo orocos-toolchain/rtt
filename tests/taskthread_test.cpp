@@ -236,11 +236,15 @@ BOOST_AUTO_TEST_CASE( testPeriodicActivity )
 
     // Different CPU affinity
     unsigned cpu_affinity = 1; // first CPU only
-    if ( mtask.thread()->getCpuAffinity() != (unsigned) ~0 &&
-         mtask.thread()->getCpuAffinity() != cpu_affinity ) {
+    os::Thread* my_thread = dynamic_cast<os::Thread*>(mtask.thread());
+    if ( my_thread && my_thread->getCpuAffinity() != (unsigned) ~0 &&
+         my_thread->getCpuAffinity() != cpu_affinity ) {
         PeriodicActivity m4task(ORO_SCHED_OTHER, 15, 0.01, cpu_affinity);
-        BOOST_CHECK( mtask.thread() != m4task.thread() );
-        BOOST_CHECK_EQUAL( cpu_affinity, m4task.thread()->getCpuAffinity() );
+        os::Thread* other_thread = dynamic_cast<os::Thread*>(m4task.thread());
+        BOOST_CHECK( my_thread != other_thread );
+        if (other_thread) {
+            BOOST_CHECK_EQUAL( cpu_affinity, other_thread->getCpuAffinity() );
+        }
     }
 
     // Starting thread if thread not running
