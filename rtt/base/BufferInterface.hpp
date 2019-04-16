@@ -134,12 +134,12 @@ namespace RTT
          * @nts
          * @nrt
          */
-        virtual bool data_sample( const T& sample, bool reset = true ) = 0;
+        virtual bool data_sample( param_t sample, bool reset = true ) = 0;
 
         /**
          * Reads back a data sample.
          */
-        virtual T data_sample() const = 0;
+        virtual value_t data_sample() const = 0;
     };
 }}
 
