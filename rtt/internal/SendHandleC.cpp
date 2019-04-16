@@ -44,7 +44,9 @@
 #include "Exceptions.hpp"
 #include <vector>
 
-namespace RTT {
+namespace RTT
+{ namespace internal {
+
     using namespace detail;
 
 
@@ -280,4 +282,5 @@ namespace RTT {
     DataSourceBase::shared_ptr SendHandleC::getSendHandleDataSource() { return e->s; }
 
     OperationInterfacePart* SendHandleC::getOrp() { return e->orp; }
-}
+
+}}

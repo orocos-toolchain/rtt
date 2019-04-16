@@ -1,30 +1,24 @@
+sudo: required
+dist: trusty
 language:
   - cpp
-  - python
-python:
-  - "2.7"
 compiler:
   - gcc
 before_install:
-  # Define some config vars
-  - export ROS_DISTRO=hydro
-  - export CI_SOURCE_PATH=$(pwd)
-  # Bootstrap a minimal ROS installation
-  - git clone https://github.com/jhu-lcsr/ros_ci_tools /tmp/ros_ci_tools && export PATH=/tmp/ros_ci_tools:$PATH
-  - ros_ci_bootstrap
-  # Create isolated workspace based on the ros distro
-  - source /opt/ros/$ROS_DISTRO/setup.bash
-  - mkdir -p ~/ws_isolated/src
-  - cd ~/ws_isolated
-  - ln -s $CI_SOURCE_PATH src/
-  # Install dependencies for source repos
-  - rosdep install --from-paths src --ignore-src --rosdistro $ROS_DISTRO -y > /dev/null
+  # Update package indexes and install dependencies
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq -y libxml-xpath-perl libboost-all-dev omniorb omniidl omniorb-nameserver libomniorb4-dev pkg-config
 
 install:
-  # Build in an isolated catkin workspace
   - export EXTRA_CMAKE_ARGS="-DENABLE_TESTS=ON -DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB"
-  - catkin_make_isolated --install -j2 --cmake-args $EXTRA_CMAKE_ARGS
+  - export CFLAGS="-std=c99 -Wall -Wextra -Wno-unused-parameter"
+  - export CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
+  - mkdir -p build && cd build
+  - cmake .. -DCMAKE_INSTALL_PREFIX=$(pwd)/install $EXTRA_CMAKE_ARGS
+  - make -j2 install
 
 script:
   # Run tests
-  - catkin_make_isolated --install -j1 --pkg rtt --make-args check
+  - export BOOST_TEST_LOG_LEVEL=message
+  - export ORBtraceExceptions=1
+  - make -j1 check

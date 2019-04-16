@@ -130,6 +130,7 @@ void ErrorHandler(LPTSTR lpszFunction)
         //pthread_attr_destroy( &(main_task->attr) );
 		// printf("rtos_task_delete_main");
 		free(main_task->name);
+        main_task->name = NULL;
 	    return 0;
 	}
 
@@ -350,7 +351,7 @@ void ErrorHandler(LPTSTR lpszFunction)
     	}
     	*/
 
-    	return t->name;
+        return t->name ? t->name : "(destroyed)";
     }
 
     }

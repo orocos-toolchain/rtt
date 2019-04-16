@@ -149,7 +149,7 @@ namespace RTT
             CORBA::String_var nm = mtask->getName(); // force connect to object.
             std::string newname( nm.in() );
             this->provides()->setName( newname );
-            Logger::log() << Logger::Info << "Successfully connected to TaskContextServer '"+newname+"'."<<endlog();
+            Logger::log() << Logger::Info << "Successfully connected to TaskContextServer '"+name+"'."<<endlog();
             proxies[this] = mtask.in();
         }
         catch (CORBA::Exception &e) {
@@ -168,7 +168,7 @@ namespace RTT
 
         this->synchronize();
     }
-    
+
     TaskContextProxy::TaskContextProxy( ::RTT::corba::CTaskContext_ptr taskc)
         : TaskContext("CORBAProxy"), mtask( corba::CTaskContext::_duplicate(taskc) )
     {
@@ -495,6 +495,20 @@ namespace RTT
         return false;
     }
 
+    bool TaskContextProxy::recover()
+    {
+        try {
+            if (! CORBA::is_nil(mtask) )
+                return mtask->recover();
+        } catch(...) {
+            mtask = CTaskContext::_nil();
+            this->setName("NotFound");
+            this->clear();
+        }
+        return false;
+    }
+
+    
     bool TaskContextProxy::activate() {
         try {
             if (! CORBA::is_nil(mtask) )
@@ -580,6 +594,18 @@ namespace RTT
         }
         return false;
     }
+    
+    bool TaskContextProxy::inException() const
+    {
+        try {
+            if (! CORBA::is_nil(mtask) )
+                return mtask->inException();
+        } catch(...) {
+            mtask = CTaskContext::_nil();
+        }
+        return false;
+    }
+
 
     TaskContext::TaskState TaskContextProxy::getTaskState() const {
         try {

@@ -103,7 +103,12 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
     targetbag.setType( dsb->getTypeName() );
 
     // needed for recursion.
-    auto_ptr< Property<PropertyBag> > recurse_bag( new Property<PropertyBag>("recurse_bag","Part") );
+#if __cplusplus > 199711L
+    unique_ptr< Property<PropertyBag> >
+#else
+    auto_ptr< Property<PropertyBag> >
+#endif
+            recurse_bag( new Property<PropertyBag>("recurse_bag","Part") );
     // First at the explicitly listed parts:
     for(vector<string>::iterator it = parts.begin(); it != parts.end(); ++it ) {
         DataSourceBase::shared_ptr part = dsb->getMember( *it );

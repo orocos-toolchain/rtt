@@ -15,6 +15,8 @@ namespace RTT
         class Reference 
         {
         public:
+            virtual ~Reference() {};
+
             /**
              * Sets the reference to a given pointer. The pointer must have the
              * same type as the data referenced. No type checking is done, so

@@ -84,6 +84,11 @@ namespace RTT
         OperationCallerC(const OperationCallerC& other);
 
         /**
+         * A OperationCallerC is copyable by value, with assignment of a new caller.
+         */
+        OperationCallerC(const OperationCallerC& other, ExecutionEngine* caller);
+
+        /**
          * A OperationCallerC is assignable.
          */
         OperationCallerC& operator=(const OperationCallerC& other);

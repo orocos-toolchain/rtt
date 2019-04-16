@@ -11,6 +11,8 @@
 #include "specialized_activities.hpp"
 #include <extras/FileDescriptorActivity.hpp>
 #include <iostream>
+#include <memory>
+
 #include <rtt-detail-fwd.hpp>
 using namespace RTT::detail;
 
@@ -54,7 +56,12 @@ BOOST_FIXTURE_TEST_SUITE(SecializedActivitiesSuite,SpecializedActivities)
 
 BOOST_AUTO_TEST_CASE( testFileDescriptorActivity )
 {
-    auto_ptr<TestFDActivity> activity(new TestFDActivity);
+#if __cplusplus > 199711L
+    unique_ptr<TestFDActivity>
+#else
+    auto_ptr<TestFDActivity>
+#endif
+            activity(new TestFDActivity);
     static const int USLEEP = 250000;
 
     int pipe_fds[2];

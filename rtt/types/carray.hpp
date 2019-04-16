@@ -39,7 +39,15 @@
 #ifndef ORO_CARRAY_HPP_
 #define ORO_CARRAY_HPP_
 
-#include <boost/serialization/array.hpp>
+#include <boost/version.hpp>
+#if BOOST_VERSION >= 106400
+// The class name has been changed from boost::serialization::array<T> to array_wrapper<T> in Boost 1.61,
+// but the header has only be renamed in Boost 1.64. Starting from Boost 1.65 array.hpp includes array_wrapper.hpp,
+// but with 1.64 compilation fails if array_wrapper.hpp is not included.
+# include <boost/serialization/array_wrapper.hpp>
+#else
+# include <boost/serialization/array.hpp>
+#endif
 #include <boost/array.hpp>
 
 namespace RTT
@@ -96,7 +104,11 @@ namespace RTT
              * the original data.
              * @param orig
              */
+#if BOOST_VERSION >= 106100
+            carray( boost::serialization::array_wrapper<T> const& orig)
+#else
             carray( boost::serialization::array<T> const& orig)
+#endif
             : m_t( orig.address() ), m_element_count( orig.count() ) {
                 if (m_element_count == 0)
                     m_t = 0;
@@ -162,7 +174,11 @@ namespace RTT
              * @param orig
              */
             template <class OtherT>
+#if BOOST_VERSION >= 106100
+            const carray<T>& operator=( boost::serialization::array_wrapper<OtherT> const& orig ) {
+#else
             const carray<T>& operator=( boost::serialization::array<OtherT> const& orig ) {
+#endif
                 if (orig.address() != m_t)
                     for(std::size_t i = 0; i != orig.count() && i != count(); ++i)
                         m_t[i] = orig.address()[i];

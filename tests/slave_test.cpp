@@ -98,7 +98,7 @@ public:
     void callSlaveOperation()
     {
         BOOST_TEST_MESSAGE( "[ENTER] ClientComponent::callSlaveOperation()" );
-        BOOST_ASSERT(slave_operation_caller.ready());
+        BOOST_REQUIRE(slave_operation_caller.ready());
         slave_operation_caller();
         BOOST_TEST_MESSAGE( "[EXIT]  ClientComponent::callSlaveOperation()" );
     }
@@ -146,11 +146,14 @@ BOOST_FIXTURE_TEST_SUITE(  SlaveTestSuite,  SlaveActivityTest )
 BOOST_AUTO_TEST_CASE( testSlaveOperationCall )
 {
     RTT::OperationCaller<void()> callSlaveOperation = client.getOperation("callSlaveOperation");
-    BOOST_ASSERT( callSlaveOperation.ready() );
+    BOOST_REQUIRE( callSlaveOperation.ready() );
 
     // Note: master is not running!
     RTT::SendHandle<void()> handle = callSlaveOperation.send();
-    sleep(1);
+    int wait = 5;
+    while( !handle.collectIfDone() && wait-- ) {
+        sleep(1);
+    }
     BOOST_CHECK( handle.collectIfDone() );
     BOOST_CHECK_EQUAL( slave.own_thread_operation_called_counter, 1 );
     BOOST_CHECK_EQUAL( client.callback_operation_called_counter, 0 );
@@ -160,15 +163,18 @@ BOOST_AUTO_TEST_CASE( testSlaveOperationCall )
 BOOST_AUTO_TEST_CASE( testSlaveOperationCallWithCallback )
 {
     RTT::OperationCaller<void()> callSlaveOperation = client.getOperation("callSlaveOperation");
-    BOOST_ASSERT( callSlaveOperation.ready() );
+    BOOST_REQUIRE( callSlaveOperation.ready() );
 
     // connect SlaveComponent::slave_operation_caller to ClientComponent::callbackOperation()
     slave.slave_operation_caller = client.getOperation("callbackOperation");
-    BOOST_ASSERT( slave.slave_operation_caller.ready() );
+    BOOST_REQUIRE( slave.slave_operation_caller.ready() );
 
     // Note: master is not running!
     RTT::SendHandle<void()> handle = callSlaveOperation.send();
-    sleep(1);
+    int wait = 5;
+    while( !handle.collectIfDone() && wait-- ) {
+        sleep(1);
+    }
     BOOST_CHECK( handle.collectIfDone() );
     BOOST_CHECK_EQUAL( slave.own_thread_operation_called_counter, 1 );
     BOOST_CHECK_EQUAL( client.callback_operation_called_counter, 1 );

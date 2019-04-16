@@ -12,7 +12,7 @@
 namespace RTT
 {
     template< class T>
-    Logger& Logger::operator<<( T t ) {
+    Logger& Logger::operator<<( const T &t ) {
 #ifndef OROBLD_DISABLE_LOGGING
         if ( !mayLog() )
             return *this;

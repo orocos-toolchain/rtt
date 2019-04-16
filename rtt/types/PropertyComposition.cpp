@@ -71,6 +71,7 @@ bool RTT::types::decomposePropertyBag( PropertyBag const& sourcebag, PropertyBag
         if ( isbag.ready() ) {
             // create an empty instance to recurse in:
             Property<PropertyBag>* newtarget = new Property<PropertyBag>(isbag.getName(), isbag.getDescription() );
+            newtarget->value().setType( isbag.rvalue().getType() );
             target.ownProperty( newtarget );
             if ( decomposePropertyBag(isbag.value(), newtarget->value() ) == false) {
                 assert(false && "internal error in decomposePropertyBag."); // this is a best effort function.
@@ -92,6 +93,7 @@ bool RTT::types::decomposePropertyBag( PropertyBag const& sourcebag, PropertyBag
                         // property bag ? -> further decompose
                         // create an empty instance to recurse in:
                         Property<PropertyBag>* newtarget = new Property<PropertyBag>((*sit)->getName(), (*sit)->getDescription() );
+                        newtarget->value().setType( bagds->rvalue().getType() );
                         target.ownProperty( newtarget );
                         if ( decomposePropertyBag(bagds->rvalue(), newtarget->value() ) == false) {
                             assert(false && "internal error in decomposePropertyBag."); // this is a best effort function.

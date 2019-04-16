@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:21 CET 2004  ConditionBoolDataSource.hpp
+  tag: The SourceWorks  Tue Sep 7 00:55:19 CEST 2010  rt_string.hpp
 
-                        ConditionBoolDataSource.hpp -  description
+                        rt_string.hpp -  description
                            -------------------
-    begin                : Mon January 19 2004
-    copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
+    begin                : Tue September 07 2010
+    copyright            : (C) 2010 The SourceWorks
+    email                : peter@thesourceworks.com
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -35,41 +35,13 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef CONDITIONBOOLDATASOURCE_HPP
-#define CONDITIONBOOLDATASOURCE_HPP
+#include "rt_string.hpp"
 
-#include "rtt-scripting-config.h"
-#include "ConditionInterface.hpp"
-#include "../internal/DataSource.hpp"
-
-
-namespace RTT
-{ namespace scripting {
-
-
-
-
-    /**
-     * A Condition which holds a boolean DataSource.
+namespace std
+{
+    /*
+     * Explicit template instantiation
      */
-  class RTT_SCRIPTING_API ConditionBoolDataSource
-    : public ConditionInterface
-  {
-    internal::DataSource<bool>::shared_ptr data;
-  public:
-      /**
-       * The constructor stores the internal::DataSource \a s in a shared_ptr.
-       */
-    ConditionBoolDataSource( internal::DataSource<bool>* s )
-      : data( s )
-      {
-      }
-    ~ConditionBoolDataSource();
-    bool evaluate();
-    ConditionBoolDataSource* clone() const;
-    void reset();
-    ConditionBoolDataSource* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
-  };
-}}
-
-#endif
+    template class basic_string<char, char_traits<char>, RTT::os::rt_allocator<char> >;
+    template class basic_ostringstream<char, char_traits<char>, RTT::os::rt_allocator<char> >;
+}
