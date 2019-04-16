@@ -45,6 +45,7 @@
 #include "BindStorage.hpp"
 #include "../ExecutionEngine.hpp"
 #include "../os/oro_allocator.hpp"
+#include "UnMember.hpp"
 #include <boost/bind.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/function.hpp>
@@ -549,7 +550,7 @@ namespace RTT
              * puts them into the assignable data sources and
              * executes the associated action.
              */
-            result_type invoke(typename SequenceFactory::data_type seq) {
+            result_type invoke(const typename SequenceFactory::data_type& seq) const {
                 if ( subscriber ) {
                     // asynchronous
                     shared_ptr sg = this->cloneRT();

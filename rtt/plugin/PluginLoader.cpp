@@ -318,8 +318,8 @@ namespace {
 
 static boost::shared_ptr<PluginLoader> instance2;
 
-PluginLoader::PluginLoader() { log(Debug) <<"PluginLoader Created" <<endlog(); }
-PluginLoader::~PluginLoader(){ log(Debug) <<"PluginLoader Destroyed" <<endlog(); }
+PluginLoader::PluginLoader() {}
+PluginLoader::~PluginLoader(){}
 
 
 boost::shared_ptr<PluginLoader> PluginLoader::Instance() {
@@ -371,9 +371,15 @@ bool PluginLoader::loadService(string const& servicename, TaskContext* tc) {
                 }
             } else {
                 // loadPlugin( 0 ) was already called. So drop the service in the global service.
-                if (it->is_service)
+                if (it->is_service) {
                     try {
-                        return internal::GlobalService::Instance()->addService( it->createService()  );
+                        Service::shared_ptr service = it->createService();
+                        if (service) {
+                            return internal::GlobalService::Instance()->addService( service );
+                        } else {
+                            log(Error) << "Service " << servicename << " cannot be loaded into the global service." << endlog();
+                            return false;
+                        }
                     } catch(std::exception& e) {
                         log(Error) << "Service "<< servicename <<" threw an exception during loading in global service." << endlog();
                         log(Error) << "Exception: "<< e.what() << endlog();
@@ -382,10 +388,14 @@ bool PluginLoader::loadService(string const& servicename, TaskContext* tc) {
                         log(Error) << "Service "<< servicename <<" threw an unknown exception during loading in global service. " << endlog();
                         return false;
                     }
-                log(Error) << "Plugin "<< servicename << " was found, but it's not a Service." <<endlog();
+                } else {
+                    log(Error) << "Plugin "<< servicename << " was found, but it's not a Service." <<endlog();
+                    return false;
+                }
             }
         }
     }
+
     log(Error) << "No such service or plugin: '"<< servicename << "'"<< endlog();
     return false;
 }

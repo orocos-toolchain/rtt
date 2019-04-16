@@ -18,8 +18,17 @@
 
 #include "unit.hpp"
 
+#include <boost/version.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
+#if BOOST_VERSION >= 106400
+// The class name has been changed from boost::serialization::array<T> to array_wrapper<T> in Boost 1.61,
+// but the header has only be renamed in Boost 1.64. Starting from Boost 1.65 array.hpp includes array_wrapper.hpp,
+// but with 1.64 compilation fails if array_wrapper.hpp is not included.
+# include <boost/serialization/array_wrapper.hpp>
+#else
+# include <boost/serialization/array.hpp>
+#endif
 #include <boost/serialization/vector.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 
@@ -107,7 +116,11 @@ BOOST_AUTO_TEST_CASE( testFixedStringBinaryDataArchive )
     rtos_enable_rt_warning();
     io::stream<io::array_source>  inbuf(sink,1000);
     binary_data_iarchive in( inbuf ); // +0 alloc
+#if BOOST_VERSION >= 106100
+    boost::serialization::array_wrapper<char> ma = boost::serialization::make_array(c, 10);
+#else
     boost::serialization::array<char> ma = boost::serialization::make_array(c, 10);
+#endif
     in >> ma; // +0 alloc
     rtos_disable_rt_warning();
 

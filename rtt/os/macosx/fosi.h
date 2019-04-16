@@ -74,6 +74,7 @@ extern "C"
 
     typedef struct timespec TIME_SPEC;
 
+#ifndef CLOCK_REALTIME
     /* fake clock_gettime for systems like darwin */
     #define  CLOCK_REALTIME 0
     static inline int clock_gettime(int clk_id /*ignored*/, struct timespec *tp)
@@ -89,6 +90,7 @@ extern "C"
         tp->tv_nsec = now.tv_usec * 1000;
         return 0;
     }
+#endif
 
     // high-resolution time to timespec
     static inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
@@ -167,7 +169,15 @@ extern "C"
     static inline int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay )
     {
         TIME_SPEC delayvl = ticks2timespec(delay);
-        mach_timespec_t mach_delayvl = { delayvl.tv_sec, delayvl.tv_nsec };
+        mach_timespec_t mach_delayvl = {
+#ifdef __cplusplus
+            static_cast<unsigned int>(delayvl.tv_sec),
+            static_cast<clock_res_t> (delayvl.tv_nsec)
+#else
+            delayvl.tv_sec,
+            delayvl.tv_nsec
+#endif
+                                        };
 
         return semaphore_timedwait( *m, mach_delayvl);
     }
@@ -202,7 +212,15 @@ extern "C"
         assert( 0 <= delayvl.tv_nsec);
         assert( delayvl.tv_nsec < 1000000000 );
 
-        mach_timespec_t mach_delayvl = { delayvl.tv_sec, delayvl.tv_nsec };
+        mach_timespec_t mach_delayvl = {
+#ifdef __cplusplus
+            static_cast<unsigned int>(delayvl.tv_sec),
+            static_cast<clock_res_t> (delayvl.tv_nsec)
+#else
+            delayvl.tv_sec,
+            delayvl.tv_nsec
+#endif
+                                        };
         int rc = semaphore_timedwait( *m, mach_delayvl);
         // map to return values from gnulinux, and expected by the calling layer
         return (KERN_OPERATION_TIMED_OUT == rc ? -1 : 0);

@@ -7,10 +7,6 @@
 #include <rtt/plugin/PluginLoader.hpp>
 #include <rtt/types/TypekitRepository.hpp>
 
-#ifdef HAS_ROSLIB
-#include <rospack/rospack.h>
-#endif
-
 #ifndef _WIN32
 # include <dlfcn.h>
 #endif
@@ -600,7 +596,7 @@ bool ComponentLoader::reloadInProcess(string file, string libname)
                 for ( cit = comps.begin(); cit != comps.end(); ++cit) {
                     if( (*ctype) == cit->second.type ) {
                         // the type of an allocated component was loaded from this library. it might be unsafe to reload the library
-                        log(Info) << "can NOT reload library because of the instance " << cit->second.type  <<"::"<<cit->second.instance->getName()  <<endlog();
+                        log(Info) << "can NOT reload library because of the instance " << cit->second.type  <<"::"<<cit->first <<endlog();
                         can_unload = false;
                     }
                 }
@@ -771,11 +767,13 @@ RTT::TaskContext *ComponentLoader::loadComponent(const std::string & name, const
 bool ComponentLoader::unloadComponent( RTT::TaskContext* tc ) {
     if (!tc)
         return false;
-    CompList::iterator it;
-    it = comps.find( tc->getName() );
+    CompList::iterator it = comps.begin();
+    for(; it != comps.end(); ++it ) {
+        if ( it->second.instance == tc) break;
+    }
 
     if ( it != comps.end() ) {
-        delete tc;
+        delete it->second.instance;
         comps.erase(it);
         return true;
     }

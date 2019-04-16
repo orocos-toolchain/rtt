@@ -43,11 +43,7 @@
 #include "NA.hpp"
 
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
-#ifndef USE_CPP11
-#include <boost/lambda/bind.hpp>
 #include <boost/bind.hpp>
-#include <boost/lambda/casts.hpp>
-#endif
 #else
 #include "../os/MutexLock.hpp"
 #endif
@@ -105,14 +101,7 @@ namespace RTT {
         typedef arg1_type first_argument_type;
         typedef arg2_type second_argument_type;
 #endif
-    private:
-#ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
-        // required for GCC 4.0.2
-        static connection_impl* applyEmit( connection_t c ) {
-            return static_cast<connection_impl*> (c.get() );
-        }
-#endif
-    public:
+
 		OROCOS_SIGNAL_N()
 		{
 		}
@@ -132,6 +121,17 @@ namespace RTT {
             return Handle(conn);
 		}
 
+    private:
+        static void emitImpl(const connection_t& c
+#if OROCOS_SIGNATURE_NUM_ARGS != 0
+                                        , OROCOS_SIGNATURE_PARMS
+#endif
+                         )
+        {
+            static_cast<connection_impl*>(c.get())->emit(OROCOS_SIGNATURE_ARGS);
+        }
+
+    public:
 		R emit(OROCOS_SIGNATURE_PARMS)
 		{
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
@@ -140,14 +140,8 @@ namespace RTT {
             // this code did initially not work under gcc 4.0/ubuntu breezy.
             // connection_t::get() const becomes an undefined symbol.
             // works under gcc 3.4
-#ifdef USE_CPP11
-            mconnections.apply( bind(&connection_impl::emit,
-                                                    bind( &applyEmit, _1) // works for any compiler
-#else
-            mconnections.apply( boost::lambda::bind(&connection_impl::emit,
-                                                    boost::lambda::bind( &applyEmit, boost::lambda::_1) // works for any compiler
-                                                    //not in gcc 4.0.2: boost::lambda::ll_static_cast<connection_impl*>(boost::lambda::bind(&connection_t::get, boost::lambda::_1))
-#endif
+            mconnections.apply( boost::bind(&OROCOS_SIGNAL_N::emitImpl,
+                                                    _1
 #if OROCOS_SIGNATURE_NUM_ARGS != 0
                                                     ,OROCOS_SIGNATURE_ARGS
 #endif

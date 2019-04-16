@@ -128,6 +128,8 @@ namespace RTT
 
         virtual unsigned int getPid() const;
 
+        virtual unsigned getCpuAffinity() const;
+
         virtual void setMaxOverrun(int m);
 
         virtual int getMaxOverrun() const;

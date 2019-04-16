@@ -76,6 +76,12 @@ namespace RTT
         PropertyBase();
 
         /**
+         * Mirror another PropertyBase (name, description and value).
+         * @param source A pointer to the property to mirror.
+         */
+        virtual PropertyBase& operator=( PropertyBase* source ) = 0;
+
+        /**
          * Get the name of the property.
          * @return name of the property.
          */
@@ -173,13 +179,6 @@ namespace RTT
         virtual PropertyBase* clone() const = 0;
 
         /**
-         * Deliver a shallow copy of this PropertyBase with a shared
-         * DataSource. The original may be deleted and the clone can be
-         * transparantly used in its place or vice versa.
-         */
-        virtual PropertyBase* copy() const = 0;
-
-        /**
          * Create a new default instance of the PropertyBase.
          * This is a factory method to 'make something of the same type'.
          * The new PropertyBase has the same name and description as this.
@@ -187,10 +186,24 @@ namespace RTT
         virtual PropertyBase* create() const = 0;
 
         /**
-         * Get a internal::DataSource through which this PropertyBase can be
-         * manipulated.
+         * Create a new instance of the PropertyBase with a custom data source.
+         * This is a factory method to 'make something of the same type'.
+         * The new PropertyBase has the same name and description as this.
+         */
+        virtual PropertyBase* create( const base::DataSourceBase::shared_ptr& datasource ) const = 0;
+
+        /**
+         * Get an assignable base::DataSource through which this PropertyBase
+         * can be manipulated.
          */
         virtual DataSourceBase::shared_ptr getDataSource() const = 0;
+
+        /**
+         * Assign an external assignable base::DataSource to this property.
+         * @param dsb The other data source
+         * @return false if the Properties are of different type.
+         */
+        virtual bool setDataSource( const DataSourceBase::shared_ptr& dsb ) = 0;
 
         /**
          * Returns the type of this PropertyBase. Uses the
