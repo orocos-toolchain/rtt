@@ -347,7 +347,6 @@ namespace RTT
             if (our_act->isActive() && our_act->thread() && our_act->thread()->isSelf()) {
                 log(Error) << "Cannot set the activity of TaskContext "
                            << this->getName() << " from its own thread." << endlog();
-                delete new_act;
                 return false;
             }
         }
