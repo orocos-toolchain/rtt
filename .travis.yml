@@ -63,4 +63,6 @@ script:
   - make -j2 install
 
   # Run tests
+  - export BOOST_TEST_LOG_LEVEL=message
+  - export ORBtraceExceptions=1
   - make -j1 check

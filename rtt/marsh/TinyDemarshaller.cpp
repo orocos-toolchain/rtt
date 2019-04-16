@@ -363,58 +363,58 @@ namespace RTT
             return true;
             }
         };
-    }
 
-    using namespace detail;
+        using namespace detail;
 
-    class TinyDemarshaller::D {
-    public:
-        D(const std::string& f) : doc( f.c_str() ), loadOkay(false) {}
-        TiXmlDocument doc;
-        bool loadOkay;
-    };
+        class TinyDemarshaller::D {
+        public:
+            D(const std::string& f) : doc( f.c_str() ), loadOkay(false) {}
+            TiXmlDocument doc;
+            bool loadOkay;
+        };
 
-    TinyDemarshaller::TinyDemarshaller( const std::string& filename )
-        : d( new TinyDemarshaller::D(filename) )
-    {
-        Logger::In in("TinyDemarshaller");
-        d->loadOkay = d->doc.LoadFile();
+        TinyDemarshaller::TinyDemarshaller( const std::string& filename )
+            : d( new TinyDemarshaller::D(filename) )
+        {
+            Logger::In in("TinyDemarshaller");
+            d->loadOkay = d->doc.LoadFile();
 
-        if ( !d->loadOkay ) {
-            log(Error) << "Could not load " << filename << " Error: "<< d->doc.ErrorDesc() << endlog();
-            return;
+            if ( !d->loadOkay ) {
+                log(Error) << "Could not load " << filename << " Error: "<< d->doc.ErrorDesc() << endlog();
+                return;
+            }
+
+        }
+
+        TinyDemarshaller::~TinyDemarshaller()
+        {
+            delete d;
+        }
+
+        bool TinyDemarshaller::deserialize( PropertyBag &v )
+        {
+            Logger::In in("TinyDemarshaller");
+
+            if ( !d->loadOkay )
+                return false;
+
+            TiXmlHandle docHandle( &d->doc );
+            TiXmlHandle propHandle = docHandle.FirstChildElement( "properties" );
+
+            if ( ! propHandle.Node() ) {
+                log(Error) << "No <properties> element found in document!"<< endlog();
+                return false;
+            }
+
+            detail::Tiny2CPFHandler proc( v );
+
+            if ( proc.populateBag( propHandle.Node() ) == false) {
+                deleteProperties( v );
+                return false;
+            }
+            return true;
         }
 
     }
-
-    TinyDemarshaller::~TinyDemarshaller()
-    {
-        delete d;
-    }
-
-    bool TinyDemarshaller::deserialize( PropertyBag &v )
-    {
-        Logger::In in("TinyDemarshaller");
-
-        if ( !d->loadOkay )
-            return false;
-
-		TiXmlHandle docHandle( &d->doc );
-		TiXmlHandle propHandle = docHandle.FirstChildElement( "properties" );
-
-        if ( ! propHandle.Node() ) {
-            log(Error) << "No <properties> element found in document!"<< endlog();
-            return false;
-        }
-
-        detail::Tiny2CPFHandler proc( v );
-
-        if ( proc.populateBag( propHandle.Node() ) == false) {
-            deleteProperties( v );
-            return false;
-        }
-        return true;
-    }
-
 }
 
