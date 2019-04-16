@@ -328,9 +328,7 @@ namespace RTT {
             if (this->isRunning())
                 this->stop();
 
-            log(Debug) << "Terminating " << this->getName() << endlog();
             terminate();
-            log(Debug) << " done" << endlog();
             rtos_sem_destroy(&sem);
 
         }
@@ -623,10 +621,15 @@ namespace RTT {
             // avoid callling twice.
             if (prepareForExit) return;
 
+            Logger::In in("Thread");
+            log(Debug) << "Terminating " << this->getName() << endlog();
+
             prepareForExit = true;
             rtos_sem_signal(&sem);
 
             rtos_task_delete(&rtos_task); // this must join the thread.
+
+            log(Debug) << " done" << endlog();
         }
 
         const char* Thread::getName() const
