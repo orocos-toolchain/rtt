@@ -218,12 +218,14 @@ BOOST_AUTO_TEST_CASE( testPeriod)
     BOOST_CHECK( pertc.isActive() );
 
     // check periodic TC
-    pertc.setActivity( new SlaveActivity(1.0) );
+    BOOST_REQUIRE( pertc.getActivity()->stop() );
+    BOOST_REQUIRE( pertc.setActivity( new SlaveActivity(1.0) ) );
     BOOST_CHECK( pertc.engine()->getActivity()->getPeriod() == 1.0 );
     BOOST_CHECK( pertc.getPeriod() == 1.0 );
 
     // check non periodic TC
-    pertc.setActivity( new SlaveActivity(0.0) );
+    BOOST_REQUIRE( pertc.getActivity()->stop() );
+    BOOST_REQUIRE( pertc.setActivity( new SlaveActivity(0.0) ) );
     BOOST_CHECK( pertc.engine()->getActivity()->getPeriod() == 0.0 );
     BOOST_CHECK( pertc.getPeriod() == 0.0 );
 }
