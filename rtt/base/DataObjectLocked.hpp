@@ -66,7 +66,7 @@ namespace RTT
         /**
          * One element of Data.
          */
-        value_t data;
+        T data;
 
         mutable FlowStatus status;
         bool initialized;
@@ -81,7 +81,7 @@ namespace RTT
         /**
          * Construct a DataObjectLocked with initial value.
          */
-        DataObjectLocked( param_t initial_value )
+        DataObjectLocked( const T& initial_value )
             : data(initial_value), status(NoData), initialized(true) {}
 
         /**
@@ -89,7 +89,7 @@ namespace RTT
          */
         typedef T DataType;
 
-        virtual FlowStatus Get( reference_t pull, bool copy_old_data = true ) const {
+        virtual FlowStatus Get( DataType& pull, bool copy_old_data = true ) const {
             os::MutexLock locker(lock);
             FlowStatus result = status;
             if (status == NewData) {
@@ -101,20 +101,20 @@ namespace RTT
             return result;
         }
 
-        virtual value_t Get() const {
+        virtual DataType Get() const {
             DataType cache = DataType();
             Get(cache);
             return cache;
         }
 
-        virtual bool Set( param_t push ) {
+        virtual bool Set( const DataType& push ) {
             os::MutexLock locker(lock);
             data = push;
             status = NewData;
             return true;
         }
 
-        virtual bool data_sample( param_t sample, bool reset ) {
+        virtual bool data_sample( const DataType& sample, bool reset ) {
             os::MutexLock locker(lock);
             if (!initialized || reset) {
                 data = sample;
@@ -129,7 +129,7 @@ namespace RTT
         /**
          * Reads back a data sample.
          */
-        virtual value_t data_sample() const {
+        value_t data_sample() const {
             os::MutexLock locker(lock);
             return data;
         }

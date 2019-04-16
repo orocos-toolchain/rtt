@@ -78,27 +78,32 @@ namespace RTT
         virtual ~DataObjectInterface() {}
 
         /**
+         * The type of the data.
+         */
+        typedef T DataType;
+
+        /**
          * Get a copy of the Data of this data object.
          *
          * @param pull A copy of the data.
          * @param copy_old_data If true, also copy the data if the data object
          *                      has not been updated since the last call.
          */
-        virtual FlowStatus Get( reference_t pull, bool copy_old_data = true ) const = 0;
+        virtual FlowStatus Get( DataType& pull, bool copy_old_data = true ) const = 0;
 
         /**
          * Get a copy of the data of this data object.
          *
          * @return A copy of the data.
          */
-        virtual value_t Get() const = 0;
+        virtual DataType Get() const = 0;
 
         /**
          * Set the data to a certain value.
          *
          * @param push The data which must be set.
          */
-        virtual bool Set( param_t push ) = 0;
+        virtual bool Set( const DataType& push ) = 0;
 
         /**
          * Provides a data sample to initialize this data object.
@@ -109,12 +114,7 @@ namespace RTT
          * @param reset enforce reinitialization even if this operation clears the stored data.
          * @return true if the data object was successfully (re)initialized.
          */
-        virtual bool data_sample( param_t sample, bool reset = true ) = 0;
-
-        /**
-         * Reads back a data sample.
-         */
-        virtual value_t data_sample() const = 0;
+        virtual bool data_sample( const DataType& sample, bool reset = true ) = 0;
 
         /**
          * Clears any data stored by this data object, so that any subsequent Get() without

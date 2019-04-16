@@ -62,7 +62,7 @@ namespace RTT
         /**
          * One element of Data.
          */
-        value_t data;
+        T data;
 
         mutable FlowStatus status;
         bool initialized;
@@ -77,10 +77,15 @@ namespace RTT
         /**
          * Construct a DataObjectUnSync with initial value.
          */
-        DataObjectUnSync( param_t initial_value )
+        DataObjectUnSync( const T& initial_value )
             : data(initial_value), status(NoData), initialized(true) {}
 
-        virtual FlowStatus Get( reference_t pull, bool copy_old_data = true ) const {
+        /**
+         * The type of the data.
+         */
+        typedef T DataType;
+
+        virtual FlowStatus Get( DataType& pull, bool copy_old_data = true ) const {
             FlowStatus result = status;
             if (status == NewData) {
                 pull = data;
@@ -91,19 +96,19 @@ namespace RTT
             return result;
         }
 
-        virtual value_t Get() const {
-            value_t cache = value_t();
+        virtual DataType Get() const {
+            DataType cache = DataType();
             Get(cache);
             return cache;
         }
 
-        virtual bool Set( param_t push ) {
+        virtual bool Set( const DataType& push ) {
             data = push;
             status = NewData;
             return true;
         }
 
-        virtual bool data_sample( param_t sample, bool reset ) {
+        virtual bool data_sample( const DataType& sample, bool reset ) {
             if (!initialized || reset) {
                 Set(sample);
                 initialized = true;
@@ -116,7 +121,7 @@ namespace RTT
         /**
          * Reads back a data sample.
          */
-        virtual value_t data_sample() const
+        T data_sample() const
         {
             return data;
         }
