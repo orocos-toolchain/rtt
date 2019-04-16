@@ -40,6 +40,7 @@
 #define ORO_CONN_POLICY_HPP
 
 #include <string>
+#include <iosfwd>
 #include "rtt-fwd.hpp"
 #include "rtt-config.h"
 
@@ -55,6 +56,7 @@ namespace RTT {
      *       \a size number of elements can be stored until the reader reads
      *       them. BUFFER drops newer samples on full, CIRCULAR_BUFFER drops older samples on full.
      *       UNBUFFERED is only valid for output streaming connections.
+     *
      *  <li> the locking policy: LOCKED, LOCK_FREE or UNSYNC. This defines how locking is done in the
      *       connection. For now, only three policies are available. LOCKED uses
      *       mutexes, LOCK_FREE uses a lock free method and UNSYNC means there's no
@@ -77,10 +79,12 @@ namespace RTT {
      *       local in-process communication is used, unless one of the ports is
      *       remote. If the transport type deviates from the default remote transport
      *       of one of the ports, an out-of-band transport is setup using that type.
+     *
      *  <li> the data size. Some protocols require a hint on big the data will be,
      *       especially if the data is dynamically sized (like std::vector<double>).
      *       If you leave this empty (recommended), the protocol will try to guess it.
      *       The unit of data size is protocol dependent.
+     *
      *  <li> the name of the connection. Can be used to coordinate out of band
      *       transport such that they can find each other by name. In practice,
      *       the name contains a port number or file descriptor to be opened.
@@ -100,6 +104,9 @@ namespace RTT {
         static const int UNSYNC    = 0;
         static const int LOCKED    = 1;
         static const int LOCK_FREE = 2;
+
+        static const bool PUSH = false;
+        static const bool PULL = true;
 
         /**
          * Create a policy for a (lock-free) fifo buffer connection of a given size.
@@ -181,6 +188,8 @@ namespace RTT {
          */
         mutable std::string name_id;
     };
+
+    std::ostream &operator<<(std::ostream &os, const ConnPolicy &cp);
 }
 
 #endif
