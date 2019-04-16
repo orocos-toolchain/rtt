@@ -241,7 +241,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   #
   macro( orocos_component COMPONENT_NAME )
     ORO_PARSE_ARGUMENTS(ADD_COMPONENT
-      "INSTALL;VERSION"
+      "INSTALL;VERSION;EXPORT"
       ""
       ${ARGN}
       )
@@ -254,6 +254,13 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     else()
       set(AC_INSTALL_DIR lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
       set(AC_INSTALL_RT_DIR lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
+    endif()
+
+    # Export target
+    if ( ADD_COMPONENT_EXPORT )
+      set(AC_INSTALL_EXPORT EXPORT ${ADD_COMPONENT_EXPORT})
+    else()
+      set(AC_INSTALL_EXPORT EXPORT ${PROJECT_NAME}-${OROCOS_TARGET})
     endif()
 
     # Set library name:
@@ -312,9 +319,9 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     # Install
     # On win32, component runtime (.dll) should go in orocos folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
-      INSTALL(TARGETS ${COMPONENT_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_DIR})
+      INSTALL(TARGETS ${COMPONENT_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_DIR})
     else()
-      INSTALL(TARGETS ${COMPONENT_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
+      INSTALL(TARGETS ${COMPONENT_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
     endif()
 
     # Necessary for .pc file generation
@@ -323,31 +330,38 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_component )
 
-# Utility libraries should add themselves by calling 'orocos_library()' 
-# instead of 'ADD_LIBRARY' in CMakeLists.txt.
-# You can set a variable COMPONENT_VERSION x.y.z to set a version or 
-# specify the optional VERSION parameter. For ros builds, the version
-# number is ignored.
-#
-# Usage: orocos_library( libraryname src1 src2 src3 [VERSION x.y.z] )
-#
-macro( orocos_library LIB_TARGET_NAME )
+  # Utility libraries should add themselves by calling 'orocos_library()'
+  # instead of 'ADD_LIBRARY' in CMakeLists.txt.
+  # You can set a variable COMPONENT_VERSION x.y.z to set a version or
+  # specify the optional VERSION parameter. For ros builds, the version
+  # number is ignored.
+  #
+  # Usage: orocos_library( libraryname src1 src2 src3 [VERSION x.y.z] )
+  #
+  macro( orocos_library LIB_TARGET_NAME )
 
-  ORO_PARSE_ARGUMENTS(ORO_LIBRARY
-    "INSTALL;VERSION"
-    ""
-    ${ARGN}
-    )
-  SET( SOURCES ${ORO_LIBRARY_DEFAULT_ARGS} )
-  if ( ORO_LIBRARY_INSTALL )
-    set(AC_INSTALL_DIR ${ORO_LIBRARY_INSTALL})
-    set(AC_INSTALL_RT_DIR bin)
-  else()
-    set(AC_INSTALL_DIR lib)
-    set(AC_INSTALL_RT_DIR bin)
-  endif()
+    ORO_PARSE_ARGUMENTS(ORO_LIBRARY
+      "INSTALL;VERSION;EXPORT"
+      ""
+      ${ARGN}
+      )
+    SET( SOURCES ${ORO_LIBRARY_DEFAULT_ARGS} )
+    if ( ORO_LIBRARY_INSTALL )
+      set(AC_INSTALL_DIR ${ORO_LIBRARY_INSTALL})
+      set(AC_INSTALL_RT_DIR bin)
+    else()
+      set(AC_INSTALL_DIR lib)
+      set(AC_INSTALL_RT_DIR bin)
+    endif()
+
+    # Export target
+    if ( ORO_LIBRARY_EXPORT )
+      set(AC_INSTALL_EXPORT EXPORT ${ORO_LIBRARY_EXPORT})
+    else()
+      set(AC_INSTALL_EXPORT EXPORT ${PROJECT_NAME}-${OROCOS_TARGET})
+    endif()
   
-  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
     else()
       set( LIB_NAME ${LIB_TARGET_NAME})
@@ -394,7 +408,7 @@ macro( orocos_library LIB_TARGET_NAME )
       endif()
     endif()
 
-    INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
+    INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_LIBS " -l${LIB_NAME}")
@@ -410,7 +424,7 @@ macro( orocos_library LIB_TARGET_NAME )
   macro( orocos_executable EXE_TARGET_NAME )
 
     ORO_PARSE_ARGUMENTS(ORO_EXECUTABLE
-      "INSTALL"
+      "INSTALL;EXPORT"
       ""
       ${ARGN}
       )
@@ -421,6 +435,13 @@ macro( orocos_library LIB_TARGET_NAME )
     else()
       set(AC_INSTALL_DIR lib)
       set(AC_INSTALL_RT_DIR bin)
+    endif()
+
+    # Export target
+    if ( ORO_EXECUTABLE_EXPORT )
+      set(AC_INSTALL_EXPORT EXPORT ${ORO_EXECUTABLE_EXPORT})
+    else()
+      set(AC_INSTALL_EXPORT EXPORT ${PROJECT_NAME}-${OROCOS_TARGET})
     endif()
 
     if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
@@ -464,7 +485,7 @@ macro( orocos_library LIB_TARGET_NAME )
 
     # We install the exe, the user must make sure that the install dir is not
     # beneath the ROS package (if any).
-    INSTALL(TARGETS ${EXE_TARGET_NAME} RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
+    INSTALL(TARGETS ${EXE_TARGET_NAME} ${AC_INSTALL_EXPORT} RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
   endmacro( orocos_executable )
 
   # Configure an executable to work with Orocos.
@@ -586,7 +607,7 @@ macro( orocos_library LIB_TARGET_NAME )
   macro( orocos_typekit LIB_TARGET_NAME )
 
     ORO_PARSE_ARGUMENTS(ORO_TYPEKIT
-      "INSTALL;VERSION"
+      "INSTALL;VERSION;EXPORT"
       ""
       ${ARGN}
       )
@@ -598,6 +619,14 @@ macro( orocos_library LIB_TARGET_NAME )
       set(AC_INSTALL_DIR lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types)
       set(AC_INSTALL_RT_DIR lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types)
     endif()
+
+    # Export target
+    if ( ORO_TYPEKIT_EXPORT )
+      set(AC_INSTALL_EXPORT EXPORT ${ORO_TYPEKIT_EXPORT})
+    else()
+      set(AC_INSTALL_EXPORT EXPORT ${PROJECT_NAME}-${OROCOS_TARGET})
+    endif()
+
     if (COMPONENT_VERSION)
       set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
     endif(COMPONENT_VERSION)
@@ -645,9 +674,9 @@ macro( orocos_library LIB_TARGET_NAME )
 
     # On win32, typekit runtime (.dll) should go in orocos/types folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
-      INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_DIR})
+      INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_DIR})
     else()
-      INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
+      INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
     endif()
 
     # Necessary for .pc file generation
@@ -667,7 +696,7 @@ macro( orocos_library LIB_TARGET_NAME )
   macro( orocos_plugin LIB_TARGET_NAME )
 
     ORO_PARSE_ARGUMENTS(ORO_PLUGIN
-      "INSTALL;VERSION"
+      "INSTALL;VERSION;EXPORT"
       ""
       ${ARGN}
       )
@@ -679,6 +708,14 @@ macro( orocos_library LIB_TARGET_NAME )
       set(AC_INSTALL_DIR lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins )
       set(AC_INSTALL_RT_DIR lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins )
     endif()
+
+    # Export target
+    if ( ORO_PLUGIN_EXPORT )
+      set(AC_INSTALL_EXPORT EXPORT ${ORO_PLUGIN_EXPORT})
+    else()
+      set(AC_INSTALL_EXPORT EXPORT ${PROJECT_NAME}-${OROCOS_TARGET})
+    endif()
+
     if (COMPONENT_VERSION)
       set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
     endif(COMPONENT_VERSION)
@@ -729,9 +766,9 @@ macro( orocos_library LIB_TARGET_NAME )
 
     # On win32, plugins runtime (.dll) should go in orocos/plugins folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
-      INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_DIR})
+      INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_DIR})
     else()
-      INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
+      INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
     endif()
 
     # Necessary for .pc file generation
