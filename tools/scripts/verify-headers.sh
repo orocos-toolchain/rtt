@@ -1,4 +1,4 @@
-BB#!/bin/sh
+#!/bin/sh
 
 #if [ "$1" = "" -o "$2" = "" ]; then
 #    echo Generate Free Software Header
