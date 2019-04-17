@@ -393,7 +393,6 @@ namespace RTT
                 }
                 if (this->impl->ready()) {
                     log(Debug) << "Constructed OperationCaller from remote implementation '"<< mname<<"'."<< endlog();
-                    this->impl->setCaller(mcaller);
                 } else {
                     this->impl.reset(); // clean up.
                     log(Error) << "Tried to construct OperationCaller from incompatible operation '"<< mname<<"'."<< endlog();

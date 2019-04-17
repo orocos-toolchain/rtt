@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: The SourceWorks  Tue Sep 7 00:55:18 CEST 2010  RealTimeTypekitTypes2.cpp
+  tag: The SourceWorks  Tue Sep 7 00:55:19 CEST 2010  rt_string.hpp
 
-                        RealTimeTypekitTypes2.cpp -  description
+                        rt_string.hpp -  description
                            -------------------
     begin                : Tue September 07 2010
     copyright            : (C) 2010 The SourceWorks
@@ -35,46 +35,13 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "rt_string.hpp"
 
-
-#include "rtt-typekit-config.h"
-#include "Types2.inc"
-#include "RealTimeTypekit.hpp"
-#include "../types/Types.hpp"
-#include "../types/TypeInfoName.hpp"
-#include "../types/TemplateTypeInfo.hpp"
-#include "../types/SequenceTypeInfo.hpp"
-#include "StdTypeInfo.hpp"
-#include "../types/StructTypeInfo.hpp"
-
-#include "../rtt-fwd.hpp"
-#include "../FlowStatus.hpp"
-#include "../ConnPolicy.hpp"
-#include "ConnPolicyType.hpp"
-#include "TaskContext.hpp"
-
-namespace RTT
+namespace std
 {
-    using namespace std;
-    using namespace detail;
-
-
-     namespace types {
-         /**
-          * This is a placeholder for scripting purposes.
-          */
-         struct EmptySendHandle {};
-
-         // load the Orocos specific types:
-         void loadOrocosTypes( TypeInfoRepository::shared_ptr ti ) {
-             ti->addType( new StdTypeInfo<FlowStatus>("FlowStatus"));
-             ti->addType( new StdTypeInfo<SendStatus>("SendStatus"));
-             ti->addType( new TemplateTypeInfo<PropertyBag, true>("PropertyBag") );
-             ti->addType( new StructTypeInfo<ConnPolicy>("ConnPolicy") );
-             ti->addType( new TemplateTypeInfo<EmptySendHandle>("SendHandle") ); //dummy, replaced by real stuff when seen by parser.
-             ti->addType( new TemplateTypeInfo<TaskContext*>("TaskContext"));
-         }
-     }
+    /*
+     * Explicit template instantiation
+     */
+    template class basic_string<char, char_traits<char>, RTT::os::rt_allocator<char> >;
+    template class basic_ostringstream<char, char_traits<char>, RTT::os::rt_allocator<char> >;
 }
-
-

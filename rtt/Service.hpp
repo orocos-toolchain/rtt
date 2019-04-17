@@ -50,9 +50,6 @@
 
 #include "ConfigurationInterface.hpp"
 #include "Operation.hpp"
-#ifdef ORO_REMOTING
-#include "internal/RemoteOperationCaller.hpp"
-#endif
 #include <boost/shared_ptr.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/function_traits.hpp>
