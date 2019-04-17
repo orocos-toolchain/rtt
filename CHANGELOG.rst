@@ -196,7 +196,7 @@ Changes
   * Improve log output in case of unsufficient type info during the synchronization of component interfaces
   * Fix crash retrieving property name through corba
 
-* Corba aliases: revert API changes and fixed ComponentLoader::unloadComponent() for aliased components (`#66 <https://github.com/orocos-toolchain/rtt/pull/66>`_, `#230 <https://github.com/orocos-toolchain/rtt/pull/230`_, `#277 <https://github.com/orocos-toolchain/rtt/pull/277>`_)
+* Corba aliases: revert API changes and fixed ComponentLoader::unloadComponent() for aliased components (`#66 <https://github.com/orocos-toolchain/rtt/pull/66>`_, `#230 <https://github.com/orocos-toolchain/rtt/pull/230>`_, `#277 <https://github.com/orocos-toolchain/rtt/pull/277>`_)
 
   `#66 <https://github.com/orocos-toolchain/rtt/pull/66>`_ introduced aliases for CORBA component servers and added an optional
   name argument to ``ComponentLoader::unloadComponent(tc)`` in `bf92dcb <https://github.com/orocos-toolchain/rtt/commit/bf92dcb3483f89ccb436502e1f74a04361e53c74>`_. This change has been
@@ -383,7 +383,7 @@ Changes
 
 * gnulinux: use CLOCK_MONOTONIC for periodic tasks (`#105 <https://github.com/orocos-toolchain/rtt/pull/105>`_, `#138 <https://github.com/orocos-toolchain/rtt/pull/138>`_)
 
-  **Note that the patch is not effective anymore for periodic components in combination with `#91 <https://github.com/orocos-toolchain/rtt/issues/91>`_ in 2.9.0.**
+  **Important:** The patch is not effective anymore for periodic components in combination with `#91 <https://github.com/orocos-toolchain/rtt/issues/91>`_ in 2.9.0.
   This has been fixed in RTT version 2.10.0, which uses a monotonic clock source consistently for timers, periodic activities and waiting for condition variables
   (`#258 <https://github.com/orocos-toolchain/rtt/pull/258>`_).
 
