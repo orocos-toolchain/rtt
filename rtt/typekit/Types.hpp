@@ -77,6 +77,50 @@
 #endif
 
 #ifdef CORELIB_DATASOURCE_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< long long >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< long long >;
+#endif
+#ifdef ORO_CORELIB_DATASOURCES_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< long long >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< long long >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< long long >;
+#endif
+#ifdef ORO_OUTPUT_PORT_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< long long >;
+#endif
+#ifdef ORO_INPUT_PORT_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::InputPort< long long >;
+#endif
+#ifdef ORO_PROPERTY_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Property< long long >;
+#endif
+#ifdef ORO_CORELIB_ATTRIBUTE_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Attribute< long long >;
+#endif
+
+#ifdef CORELIB_DATASOURCE_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< unsigned long long >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< unsigned long long >;
+#endif
+#ifdef ORO_CORELIB_DATASOURCES_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< unsigned long long >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< unsigned long long >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< unsigned long long >;
+#endif
+#ifdef ORO_OUTPUT_PORT_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< unsigned long long >;
+#endif
+#ifdef ORO_INPUT_PORT_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::InputPort< unsigned long long >;
+#endif
+#ifdef ORO_PROPERTY_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Property< unsigned long long >;
+#endif
+#ifdef ORO_CORELIB_ATTRIBUTE_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Attribute< unsigned long long >;
+#endif
+
+#ifdef CORELIB_DATASOURCE_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< double >;
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< double >;
 #endif
