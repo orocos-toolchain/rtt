@@ -9,13 +9,13 @@ fi
 filename=`basename $1`
 author="`git log --follow --format="%an" -- $1 | tail -n 1`"
 echo $author
-email="`git log --follow --format="%ae" -- $1 | tail -n 1 `"
+email="`git log --follow --format="%ae" -- $1 | tail -n 1`"
 echo $email
-date="`git log --follow --format="%an,%ae,%ad" -- $1 | tail -n 1 | cut -d"," -f 3`"
+date="`git log --follow --format="%ad" -- $1 | tail -n 1`"
 echo $date
-begin_date="`git log --follow --format="%an,%ae,%ad" -- $1 | tail -n 1 | cut -d"," -f 3 | cut -d" " -f 1,2,3,5`"
+begin_date="`git log --follow --format="%ad" -- $1 | tail -n 1 | cut -d" " -f 1,2,3,5`"
 echo $begin_date
-year="`git log --follow --format="%an,%ae,%ad" -- $1 | tail -n 1 | cut -d"," -f 3 | cut -d" " -f 5`"
+year="`git log --follow --format="%ad" -- $1 | tail -n 1 | cut -d" " -f 5`"
 echo $year
 
 export "LANG=C"
