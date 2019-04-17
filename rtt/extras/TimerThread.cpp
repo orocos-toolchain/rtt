@@ -69,7 +69,9 @@ namespace RTT {
         // Since the period is stored as nsecs, we convert per to NS in order
         // to get a match.
         os::CheckPriority(scheduler, pri);
-        if (cpu_affinity == 0) cpu_affinity = os::MainThread::Instance()->getCpuAffinity();
+        if (cpu_affinity == 0) {
+            cpu_affinity = dynamic_cast<os::MainThread*>(os::MainThread::Instance())->getCpuAffinity();
+        }
         TimerThreadList::iterator it = TimerThreads.begin();
         while ( it != TimerThreads.end() ) {
             TimerThreadPtr tptr = it->lock();

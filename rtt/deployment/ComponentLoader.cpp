@@ -755,7 +755,7 @@ RTT::TaskContext *ComponentLoader::loadComponent(const std::string & name, const
     return instance;
 }
 
-bool ComponentLoader::unloadComponent( RTT::TaskContext* tc ) {
+bool ComponentLoader::unloadComponent( RTT::TaskContext* tc, std::string const& ) {
     if (!tc)
         return false;
     CompList::iterator it = comps.begin();
