@@ -14,7 +14,6 @@ addons:
       - omniorb-nameserver
       - libomniorb4-dev
       - pkg-config
-      - g++-5
       - clang-3.8
 
 env:
@@ -27,17 +26,15 @@ matrix:
   include:
     - env: COMPILER=gcc CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
     - env: COMPILER=gcc CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
-    - env: COMPILER=gcc-5 CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
-    - env: COMPILER=gcc-5 CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
-    - env: COMPILER=clang CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
-    - env: COMPILER=clang CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
     - env: COMPILER=clang-3.8 CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
     - env: COMPILER=clang-3.8 CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
+    - env: COMPILER=clang CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
+    - env: COMPILER=clang CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
 
 branches:
   only:
   - master
-  - /^toolchain-[\d\.]+$/
+  - /^toolchain-[\d\.]+[\d]$/
 
 before_install:
   # Set C/C++ compiler
