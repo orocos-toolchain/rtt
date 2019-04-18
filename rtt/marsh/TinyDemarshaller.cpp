@@ -157,6 +157,28 @@ namespace RTT
                                 return false;
                             }
                         }
+                        else if ( type == "llong")
+                        {
+                            long long v;
+                            if ( sscanf(value_string.c_str(), "%lld", &v) == 1)
+                                bag_stack.top().first->add( new Property<long long>( name, description, v ) );
+                            else {
+                                log(Error) << "Wrong value for property '"+type+"'." \
+                                    " Value should contain an integer value, got '"+ value_string +"'." << endlog();
+                                return false;
+                            }
+                        }
+                        else if ( type == "ullong")
+                        {
+                            unsigned long long v;
+                            if ( sscanf(value_string.c_str(), "%llu", &v) == 1)
+                                bag_stack.top().first->add( new Property<unsigned long long>( name, description, v ) );
+                            else {
+                                log(Error) << "Wrong value for property '"+type+"'." \
+                                    " Value should contain an integer value, got '"+ value_string +"'." << endlog();
+                                return false;
+                            }
+                        }
                         else if ( type == "double")
                         {
                             double v;

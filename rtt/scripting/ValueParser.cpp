@@ -54,6 +54,8 @@ namespace RTT
     BOOST_SPIRIT_DEBUG_RULE( const_int );
     BOOST_SPIRIT_DEBUG_RULE( const_hex );
     BOOST_SPIRIT_DEBUG_RULE( const_uint );
+    BOOST_SPIRIT_DEBUG_RULE( const_llong );
+    BOOST_SPIRIT_DEBUG_RULE( const_ullong );
     BOOST_SPIRIT_DEBUG_RULE( const_char );
     BOOST_SPIRIT_DEBUG_RULE( const_bool );
     BOOST_SPIRIT_DEBUG_RULE( const_string );
@@ -66,8 +68,10 @@ namespace RTT
         const_float
       | const_double
       | const_hex
-      | const_int
+      | const_ullong
+      | const_llong
       | const_uint
+      | const_int
       | const_bool
       | const_char
       | const_string
@@ -85,13 +89,21 @@ namespace RTT
       hex_p [
         boost::bind( &ValueParser::seenhexconstant, this, _1 ) ];
 
-    const_int =
-      int_p [
-        boost::bind( &ValueParser::seenintconstant, this, _1 ) ];
+    const_ullong =
+      uint_parser<unsigned long long>() [
+        boost::bind( &ValueParser::seenullongconstant, this, _1 ) ] >> str_p("ull");
+
+    const_llong =
+      uint_parser<long long>() [
+        boost::bind( &ValueParser::seenllongconstant, this, _1 ) ] >> str_p("ll");
 
     const_uint =
-      uint_p [
+      uint_parser<unsigned int>() [
         boost::bind( &ValueParser::seenuintconstant, this, _1 ) ] >> ch_p('u');
+
+    const_int =
+      int_parser<int>() [
+        boost::bind( &ValueParser::seenintconstant, this, _1 ) ];
 
     const_bool =
       ( keyword_p( "true" ) | keyword_p("false") )[
@@ -192,6 +204,16 @@ namespace RTT
   void ValueParser::seenuintconstant( unsigned int i ) // RobWork uint -> unsigned int
   {
     ret = new ConstantDataSource<unsigned int>( i ); // RobWork uint -> unsigned int
+  }
+
+  void ValueParser::seenllongconstant( long long i )
+  {
+    ret = new ConstantDataSource<long long>( i );
+  }
+
+  void ValueParser::seenullongconstant( unsigned long long i )
+  {
+    ret = new ConstantDataSource<unsigned long long>( i );
   }
 
   void ValueParser::seenfloatconstant( double i )

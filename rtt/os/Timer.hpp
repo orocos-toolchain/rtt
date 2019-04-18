@@ -46,6 +46,7 @@
 #include "Condition.hpp"
 #include "ThreadInterface.hpp"
 #include "../base/RunnableInterface.hpp"
+#include <string>
 #include <vector>
 #include <utility>
 
@@ -108,7 +109,7 @@ namespace RTT
 
     public:
         /**
-         * Create a timer object which can hold \a max_timers timers.
+         * Create a named timer object which can hold \a max_timers timers.
          * A Timer must be executed in a non periodic thread (or the main thread)
          * or it will refuse to start.
          * If \a scheduler is set to -1 (default) no thread is created and you need
@@ -118,8 +119,9 @@ namespace RTT
          * @param scheduler The Orocos scheduler type for this timer. ORO_SCHED_OTHER or ORO_SCHED_RT or
          * -1 to attach your own thread.
          * @param priority The priority within the \a scheduler of this timer.
+         * @param name The name of the timer (ie the underlying Activity/Thread)
          */
-        Timer(TimerId max_timers, int scheduler = -1, int priority = 0);
+        Timer(TimerId max_timers, int scheduler = -1, int priority = 0, const std::string& name = std::string("Timer"));
 
         ~Timer();
 
