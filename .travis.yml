@@ -1,5 +1,7 @@
 language: cpp
 
+cache: ccache
+
 addons:
   apt:
     sources:
@@ -30,13 +32,7 @@ matrix:
       env: COMPILER=gcc CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
     - os: linux
       dist: xenial
-      env: COMPILER=clang-3.8 CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
-    - os: linux
-      dist: xenial
       env: COMPILER=clang-3.8 CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
-    - os: linux
-      dist: xenial
-      env: COMPILER=clang CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
     - os: linux
       dist: xenial
       env: COMPILER=clang CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
