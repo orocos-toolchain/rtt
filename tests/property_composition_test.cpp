@@ -93,6 +93,7 @@ BOOST_AUTO_TEST_CASE( testDecomposeComposeVector )
 
     Property<PropertyBag> decomposed = target.getPropertyType<PropertyBag>("pv");
     BOOST_REQUIRE( decomposed.ready() );
+    BOOST_CHECK_EQUAL( decomposed.value().getType(), "array" );
 
     // check that target bag has equal number of decomposed elements:
     BOOST_CHECK_EQUAL( decomposed.getDescription(), pv.getDescription() );

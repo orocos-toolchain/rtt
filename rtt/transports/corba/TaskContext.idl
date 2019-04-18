@@ -78,6 +78,12 @@ module RTT
 	     */
 	    boolean stop();
 
+            /**
+             * Recover this component.
+             * @see RTT::base::TaskCore::recover()
+             */
+            boolean recover();
+
 	    /**
 	     * Asks the component to transition from an Exception state to the
 	     * Stopped state
@@ -117,12 +123,18 @@ module RTT
 	     */
 	    boolean inFatalError();
 
-	    /**
-	     * Is this component in a RunTime error state ?
-	     * @see RTT::base::TaskCore::inRunTimeError()
-	     */
-	    boolean inRunTimeError();
+            /**
+             * Is this component in a RunTime error state ?
+             * @see RTT::base::TaskCore::inRunTimeError()
+             */
+            boolean inRunTimeError();
 
+            /**
+             * Is this component in an Exception error state ?
+             * @see RTT::base::TaskCore::inException()
+             */
+            boolean inException();
+	    
 	    /** @} */
 
 	    /**

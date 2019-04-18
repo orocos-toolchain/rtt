@@ -32,8 +32,12 @@
 #include <rtt/transports/corba/RemotePorts.hpp>
 #include <transports/corba/ServiceC.h>
 #include <transports/corba/CorbaLib.hpp>
+#include <transports/corba/CorbaConnPolicy.hpp>
+#include <transports/corba/RTTCorbaConversion.hpp>
 
 #include "operations_fixture.hpp"
+
+#include <memory>
 
 using namespace std;
 using corba::TaskContextProxy;
@@ -43,9 +47,12 @@ class CorbaTest : public OperationsFixture
 public:
     CorbaTest() :
         pint1("pint1", "", 3), pdouble1(new Property<double>("pdouble1", "", -3.0)),
-        aint1(3), adouble1(-3.0), wait(0)
+        aint1(3), adouble1(-3.0)
     {
-    // connect DataPorts
+        // check operations (moved from OperationCallerComponent constructor for reuseability in corba-ipc-server)
+        BOOST_REQUIRE( caller->ready() );
+
+        // connect DataPorts
         mi1 = new InputPort<double> ("mi");
         mo1 = new OutputPort<double> ("mo");
 
@@ -103,7 +110,6 @@ public:
 
     int aint1;
     double adouble1;
-    int wait;
 
     // helper test functions
     void testPortDataConnection();
@@ -117,25 +123,30 @@ void CorbaTest::new_data_listener(base::PortInterface* port)
 }
 
 
-#define ASSERT_PORT_SIGNALLING(code, read_port) \
-    signalled_port = 0; wait = 0;\
+#define ASSERT_PORT_SIGNALLING(code, read_port) do { \
+    signalled_port = 0; \
+    int wait = 0; \
     code; \
     while (read_port != signalled_port && wait++ != 5) \
-    usleep(100000); \
-    BOOST_CHECK( read_port == signalled_port );
+        usleep(100000); \
+    BOOST_CHECK( read_port == signalled_port ); \
+} while(0)
 
-bool wait_for_helper;
-#define wait_for( cond, times ) \
-    wait = 0; \
+#define wait_for( cond, times ) do { \
+    bool wait_for_helper; \
+    int wait = 0; \
     while( (wait_for_helper = !(cond)) && wait++ != times ) \
-      usleep(100000); \
-    if (wait_for_helper) BOOST_CHECK( cond );
+        usleep(100000); \
+    if (wait_for_helper) BOOST_CHECK( cond ); \
+} while(0)
 
-#define wait_for_equal( a, b, times ) \
-    wait = 0; \
+#define wait_for_equal( a, b, times ) do { \
+    bool wait_for_helper; \
+    int wait = 0; \
     while( (wait_for_helper = ((a) != (b))) && wait++ != times ) \
-      usleep(100000); \
-    if (wait_for_helper) BOOST_CHECK_EQUAL( a, b );
+        usleep(100000); \
+    if (wait_for_helper) BOOST_CHECK_EQUAL( a, b ); \
+} while(0)
 
 void CorbaTest::testPortDataConnection()
 {
@@ -150,7 +161,7 @@ void CorbaTest::testPortDataConnection()
     BOOST_CHECK_EQUAL( mi2->read(value), NoData );
 
     // Check if writing works (including signalling)
-    ASSERT_PORT_SIGNALLING(mo1->write(1.0), mi2)
+    ASSERT_PORT_SIGNALLING(mo1->write(1.0), mi2);
     BOOST_CHECK( mi2->read(value) );
     BOOST_CHECK_EQUAL( 1.0, value );
     ASSERT_PORT_SIGNALLING(mo1->write(2.0), mi2);
@@ -189,6 +200,56 @@ void CorbaTest::testPortDisconnected()
     BOOST_CHECK( !mi2->connected() );
 }
 
+template <typename T>
+static void testCorbaType(const T &value = T()) {
+    CORBA::Any any;
+    T copy = T();
+
+    BOOST_TEST_CHECKPOINT("Testing CORBA conversion for type " << typeid(T).name());
+    BOOST_CHECK( RTT::corba::AnyConversion<T>::updateAny(value, any) );
+    BOOST_CHECK( RTT::corba::AnyConversion<T>::update(any, copy) );
+    BOOST_CHECK_EQUAL( copy, value );
+}
+
+template <typename T>
+static void testCorbaTypeSequence(std::size_t size = 3, const T &value = T())
+{
+    CORBA::Any any;
+
+    BOOST_TEST_CHECKPOINT("Testing CORBA conversion for a vector with elements of type " << typeid(T).name());
+    std::vector<T> vec(size, value);
+    BOOST_CHECK( RTT::corba::AnyConversion< std::vector<T> >::updateAny(vec, any) );
+    BOOST_CHECK( RTT::corba::AnyConversion< std::vector<T> >::update(any, vec) );
+}
+
+namespace RTT {
+    static bool operator==(const ConnPolicy &, const ConnPolicy &) { return true; }
+}
+
+BOOST_AUTO_TEST_CASE( testCorbaTypes )
+{
+    testCorbaType<double>(1.0);
+    testCorbaTypeSequence<double>(3, 1.0);
+    testCorbaType<float>(2.0);
+    testCorbaTypeSequence<float>(3, 2.0);
+    testCorbaType<int>(-3);
+    testCorbaTypeSequence<int>(3, -3);
+    testCorbaType<unsigned int>(4);
+    testCorbaTypeSequence<unsigned int>(3, 4);
+    testCorbaType<long long>(-9223372036854775807ll);
+    testCorbaTypeSequence<long long>(3, 9223372036854775807ll);
+    testCorbaType<unsigned long long>(18446744073709551615ull);
+    testCorbaTypeSequence<unsigned long long>(3, 18446744073709551615ull);
+    testCorbaType<bool>(true);
+    testCorbaType<char>('c');
+    testCorbaTypeSequence<char>(3, 'c');
+    testCorbaType<std::string>("foo");
+    testCorbaTypeSequence<std::string>(3, "foo");
+    testCorbaType<RTT::ConnPolicy>();
+#ifdef OS_RT_MALLOC
+    testCorbaType<rt_string>("bar");
+#endif
+}
 
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  CorbaTestSuite,  CorbaTest )
@@ -483,16 +544,13 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 
 BOOST_AUTO_TEST_CASE( testPortConnections )
 {
-    // This test tests the differen port-to-port connections.
+    // This test tests the different port-to-port connections.
     ts  = corba::TaskContextServer::Create( tc, false ); //no-naming
     ts2 = corba::TaskContextServer::Create( t2, false ); //no-naming
 
     // Create a default CORBA policy specification
-    RTT::corba::CConnPolicy policy;
-    policy.type = RTT::corba::CData;
+    RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::data());
     policy.init = false;
-    policy.lock_policy = RTT::corba::CLockFree;
-    policy.size = 0;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = ts->server()->ports();
@@ -593,11 +651,105 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
     BOOST_CHECK(!write_port->connected());
 
     // Test cloning
-    auto_ptr<base::InputPortInterface> read_clone(dynamic_cast<base::InputPortInterface*>(read_port->clone()));
+#if __cplusplus > 199711L
+    unique_ptr<base::InputPortInterface>
+#else
+    auto_ptr<base::InputPortInterface>
+#endif
+            read_clone(dynamic_cast<base::InputPortInterface*>(read_port->clone()));
     BOOST_CHECK(mo2->createConnection(*read_clone));
     BOOST_CHECK(read_clone->connected());
     BOOST_CHECK(!read_port->connected());
     mo2->disconnect();
+}
+
+BOOST_AUTO_TEST_CASE( testRemotePortDisconnect )
+{
+    ts  = corba::TaskContextServer::Create( tc, false ); //no-naming
+    tp  = corba::TaskContextProxy::Create( ts->server(), true );
+    ts2  = corba::TaskContextServer::Create( t2, false ); //no-naming
+    tp2  = corba::TaskContextProxy::Create( ts2->server(), true );
+
+    // Create a default CORBA policy specification
+    RTT::ConnPolicy policy = ConnPolicy::data();
+    policy.init = false;
+    policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
+
+    base::PortInterface* untyped_port;
+
+    //mi1
+    untyped_port = tp->ports()->getPort("mi");
+    BOOST_CHECK(untyped_port);
+    base::InputPortInterface* read_port1 = dynamic_cast<base::InputPortInterface*>(tp->ports()->getPort("mi"));
+    BOOST_CHECK(read_port1);
+
+    //mi2
+    untyped_port = tp2->ports()->getPort("mi");
+    BOOST_CHECK(untyped_port);
+    base::InputPortInterface* read_port2 = dynamic_cast<base::InputPortInterface*>(tp2->ports()->getPort("mi"));
+    BOOST_CHECK(read_port2);
+
+    //mo2
+    untyped_port = tp2->ports()->getPort("mo");
+    BOOST_CHECK(untyped_port);
+    base::OutputPortInterface* write_port2 = dynamic_cast<base::OutputPortInterface*>(tp2->ports()->getPort("mo"));
+    BOOST_CHECK(write_port2);
+
+    //mo1
+    untyped_port = tp->ports()->getPort("mo");
+    BOOST_CHECK(untyped_port);
+    base::OutputPortInterface* write_port1 = dynamic_cast<base::OutputPortInterface*>(tp->ports()->getPort("mo"));
+    BOOST_CHECK(write_port1);
+
+    // Just make sure 'read_port' and 'write_port' are actually proxies and not
+    // the real thing
+    BOOST_CHECK(dynamic_cast<corba::RemoteInputPort*>(read_port1));
+    BOOST_CHECK(dynamic_cast<corba::RemoteInputPort*>(read_port2));
+    BOOST_CHECK(dynamic_cast<corba::RemoteOutputPort*>(write_port1));
+    BOOST_CHECK(dynamic_cast<corba::RemoteOutputPort*>(write_port2));
+
+    //create remote connections:
+    write_port2->connectTo(read_port1, policy);
+    BOOST_CHECK(read_port1->connected());
+    BOOST_CHECK(write_port2->connected());
+
+    //second connection to this input port
+    write_port1->connectTo(read_port1, policy);
+    BOOST_CHECK(write_port1->connected());
+
+    //disconnect single port connection (both remote), same tcs object.
+    write_port1->disconnect(read_port1);
+    BOOST_CHECK(read_port1->connected());
+    BOOST_CHECK(!write_port1->connected());
+
+    //disconnect single port connection, both remote, different tcs.
+    write_port2->disconnect(read_port1);
+    BOOST_CHECK(!read_port1->connected());
+
+    //check disconnecting call on reader port. (build connection again beforehand).
+    write_port2->connectTo(read_port1, policy);
+    BOOST_CHECK(read_port1->connected());
+    BOOST_CHECK(write_port2->connected());
+    BOOST_CHECK(read_port1->disconnect(write_port2));
+    BOOST_CHECK(!read_port1->connected());
+    BOOST_CHECK(!write_port2->connected());
+
+    //check connect and disconnect certain port, remote output to local input
+    //should give false cause not supported yet!
+    write_port2->connectTo(mi1, policy);
+    BOOST_CHECK(mi1->connected());
+    BOOST_CHECK(write_port2->connected());
+    BOOST_CHECK(!write_port2->disconnect(mi1));
+    mi1->disconnect(); //remove all connections works, so required for cleanup.
+
+    //check disconnect remote input port from local output port.
+    mo2->connectTo(read_port1, policy);
+    BOOST_CHECK(read_port1->connected());
+    BOOST_CHECK(mo2->connected());
+    BOOST_CHECK(read_port1->disconnect(mo2));
+    BOOST_CHECK(!mo2->connected());
+    BOOST_CHECK(!read_port1->connected());
+
 }
 
 BOOST_AUTO_TEST_CASE( testDataHalfs )
@@ -607,11 +759,8 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
     ts  = corba::TaskContextServer::Create( tc, false ); //no-naming
 
     // Create a default CORBA policy specification
-    RTT::corba::CConnPolicy policy;
-    policy.type = RTT::corba::CData;
+    RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::data());
     policy.init = false;
-    policy.lock_policy = RTT::corba::CLockFree;
-    policy.size = 0;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = ts->server()->ports();
@@ -664,11 +813,8 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     ts  = corba::TaskContextServer::Create( tc, false ); //no-naming
 
     // Create a default CORBA policy specification
-    RTT::corba::CConnPolicy policy;
-    policy.type = RTT::corba::CBuffer;
+    RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::buffer(10));
     policy.init = false;
-    policy.lock_policy = RTT::corba::CLockFree;
-    policy.size = 10;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = ts->server()->ports();

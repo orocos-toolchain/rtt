@@ -263,13 +263,13 @@ macro( orocos_use_package PACKAGE )
       # The package has been generated in the same workspace. Just use the exported targets and include directories.
       set(ORO_${PACKAGE}_FOUND True)
       set(${PACKAGE}_FOUND True)
-      set(${PACKAGE}_INCLUDE_DIRS ${${PACKAGE}_EXPORTED_OROCOS_INCLUDE_DIRS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_INCLUDE_DIRS})
-      set(${PACKAGE}_LIBRARY_DIRS ${${PACKAGE}_EXPORTED_OROCOS_LIBRARY_DIRS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_LIBRARY_DIRS})
-      set(${PACKAGE}_LIBRARIES ${${PACKAGE}_EXPORTED_OROCOS_LIBRARIES} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_LIBRARIES})
+      set(${PACKAGE}_INCLUDE_DIRS ${${PACKAGE}_EXPORTED_INCLUDE_DIRS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_INCLUDE_DIRS})
+      set(${PACKAGE}_LIBRARY_DIRS ${${PACKAGE}_EXPORTED_LIBRARY_DIRS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_LIBRARY_DIRS})
+      set(${PACKAGE}_LIBRARIES ${${PACKAGE}_EXPORTED_LIBRARIES} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_LIBRARIES})
 
       # Use add_dependencies(target ${USE_OROCOS_EXPORTED_TARGETS}) to make sure that a target is built AFTER
       # all targets created by other packages that have been orocos_use_package'd in the current scope.
-      list(APPEND USE_OROCOS_EXPORTED_TARGETS ${${PACKAGE}_EXPORTED_OROCOS_TARGETS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_TARGETS})
+      list(APPEND USE_OROCOS_EXPORTED_TARGETS ${${PACKAGE}_EXPORTED_TARGETS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_TARGETS})
 
     else()
       # Get the package and dependency build flags
@@ -294,7 +294,12 @@ macro( orocos_use_package PACKAGE )
       endif()
 
       # Include the aggregated include directories
-      include_directories(${${PACKAGE}_INCLUDE_DIRS})
+      # CMake 2.8.8 added support for per-target INCLUDE_DIRECTORIES. The include directories will only be added to targets created
+      # with the orocos_*() macros. For older versions we have to set INCLUDE_DIRECTORIES per-directory.
+      # See https://github.com/orocos-toolchain/rtt/pull/85 for details.
+      if(CMAKE_VERSION VERSION_LESS 2.8.8)
+        include_directories(${${PACKAGE}_INCLUDE_DIRS})
+      endif()
 
       # Set a flag so we don't over-link (Don't cache this, it should remain per project)
       set(${PACKAGE}_${OROCOS_TARGET}_USED true)
@@ -351,6 +356,26 @@ macro(_orocos_list_to_string _string _list)
     endforeach(_item)
 endmacro(_orocos_list_to_string)
 
+macro(orocos_add_include_directories target)
+  if(CMAKE_VERSION VERSION_LESS 2.8.8)
+    #message(WARNING "Per-target INCLUDE_DIRECTORIES are not supported in CMake ${CMAKE_VERSION}.")
+  else()
+    get_target_property(_${target}_INCLUDE_DIRS ${target} INCLUDE_DIRECTORIES)
+    if(NOT _${target}_INCLUDE_DIRS)
+      set(_${target}_INCLUDE_DIRS ${ARGN})
+    else()
+      list(APPEND _${target}_INCLUDE_DIRS ${ARGN})
+    endif()
+
+    if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+      message(STATUS "[UseOrocos] Include directories for target '${target}': ${_${target}_INCLUDE_DIRS}")
+    endif()
+
+    set_target_properties(${target} PROPERTIES
+                          INCLUDE_DIRECTORIES "${_${target}_INCLUDE_DIRS}")
+  endif()
+endmacro(orocos_add_include_directories)
+
 macro(orocos_add_compile_flags target)
   set(args ${ARGN})
   separate_arguments(args)
@@ -384,7 +409,15 @@ macro(orocos_add_link_flags target)
 endmacro(orocos_add_link_flags)
 
 macro(orocos_set_install_rpath target)
-  set(_install_rpath ${ARGN} "${OROCOS-RTT_LIBRARY_DIRS};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME};${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins;${CMAKE_INSTALL_PREFIX}/lib")
+  set(_install_rpath
+    ${ARGN}
+    ${OROCOS-RTT_LIBRARY_DIRS}
+    ${OROCOS-OCL_LIBRARY_DIRS}
+    ${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}
+    ${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types
+    ${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins
+    ${CMAKE_INSTALL_PREFIX}/lib
+  )
 
   # strip DESTDIR from all RPATH entries...
   if(DEFINED ENV{DESTDIR})
@@ -399,6 +432,30 @@ macro(orocos_set_install_rpath target)
   set_target_properties(${target} PROPERTIES
                         INSTALL_RPATH "${_install_rpath}")
 
+  if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+    message(STATUS "[UseOrocos] Setting INSTALL_RPATH of target '${target}' to '${_install_rpath}'.")
+  endif()
+  
+  # For non-DESTDIR installs, append directories in the linker search path to the INSTALL_RPATH.
+  # This was the default behavior of RTT before version 2.8.
+  if(DEFINED CMAKE_INSTALL_RPATH_USE_LINK_PATH)
+    option(ORO_INSTALL_RPATH_USE_LINK_PATH "Append directories in the linker search path and outside the project to the INSTALL_RPATH" ${CMAKE_INSTALL_RPATH_USE_LINK_PATH})
+  else()
+    option(ORO_INSTALL_RPATH_USE_LINK_PATH "Append directories in the linker search path and outside the project to the INSTALL_RPATH" ON)
+  endif()
+  if(ORO_INSTALL_RPATH_USE_LINK_PATH AND NOT DEFINED ENV{DESTDIR})
+    set_target_properties(${target} PROPERTIES
+                      INSTALL_RPATH_USE_LINK_PATH ON)
+
+    if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+      message(STATUS "[UseOrocos] Appending directories in the linker search path to the INSTALL_RPATH of target '${target}'.")
+    endif()
+  else()
+    set_target_properties(${target} PROPERTIES
+                      INSTALL_RPATH_USE_LINK_PATH OFF)
+  endif()
+
+  # Set INSTALL_NAME_DIR for MacOS X to tell users of this library how to find it:
   if(APPLE)
     if (CMAKE_VERSION VERSION_LESS "3.0.0")
       SET_TARGET_PROPERTIES( ${target} PROPERTIES
@@ -409,10 +466,6 @@ macro(orocos_set_install_rpath target)
       SET_TARGET_PROPERTIES( ${target} PROPERTIES
         MACOSX_RPATH ON)
     endif()
-  endif()
-
-  if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
-    message(STATUS "[UseOrocos] Setting RPATH of target '${target}' to '${_install_rpath}'.")
   endif()
 endmacro(orocos_set_install_rpath)
 

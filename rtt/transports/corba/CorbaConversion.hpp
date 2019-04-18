@@ -213,13 +213,13 @@ namespace RTT {
     * to a Corba sequence, given the conversion between
     * the C++ type and the Corba type
     */
-    template<class T>
-    struct AnyConversion< std::vector<T> >
+    template<class T, class _Alloc>
+    struct AnyConversion< std::vector<T, _Alloc> >
     {
       typedef RTT::corba::CAnySequence sequence;
 
       typedef typename AnyConversion<T>::sequence CorbaType;
-      typedef std::vector<T> StdType;
+      typedef std::vector<T, _Alloc> StdType;
 
       static bool toStdType(StdType& tp, const CorbaType& cb) {
         bool res = true;
@@ -331,12 +331,12 @@ namespace RTT {
     * to a two Corba sequences, given the conversions between
     * the C++ types and the Corba types
     */
-    template<class T1, class T2>
-    struct AnyConversion<std::map<T1, T2> > {
+    template<class T1, class T2, class _Compare, class _Alloc>
+    struct AnyConversion<std::map<T1, T2, _Compare, _Alloc> > {
       typedef RTT::corba::CAnySequence sequence;
 
       typedef RTT::corba::PairSeq CorbaType;
-      typedef std::map<T1, T2> StdType;
+      typedef std::map<T1, T2, _Compare, _Alloc> StdType;
 
       static bool toStdType(StdType& tp, const CorbaType& cb) {
         bool res = true;

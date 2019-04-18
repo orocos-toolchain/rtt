@@ -137,6 +137,7 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
     BOOST_CHECK_EQUAL( copy.get(), str.get() );
 
 }
+
 BOOST_AUTO_TEST_CASE( testTypes )
 {
     Types()->addType( new StructTypeInfo<AType,false>("astruct"));
@@ -269,8 +270,24 @@ BOOST_AUTO_TEST_CASE( testTypes )
     // execute
     executePrograms(prog);
     executeStates(state);
+}
 
+BOOST_AUTO_TEST_CASE( testAliases )
+{
+    Types()->addType( new StructTypeInfo<AType,false>("astruct"));
+    Types()->addType( new StructTypeInfo<AType,false>("aalias1"));
+    Types()->type("astruct")->addAlias("aalias2");
 
+    BOOST_CHECK( Types()->type("astruct") != 0 );
+    BOOST_CHECK( Types()->type("aalias1") != 0 );
+    BOOST_CHECK( Types()->type("aalias2") != 0 );
+
+    BOOST_CHECK_EQUAL( Types()->type("astruct"), Types()->type("aalias1") );
+    BOOST_CHECK_EQUAL( Types()->type("astruct"), Types()->type("aalias2") );
+
+    BOOST_CHECK_EQUAL( "astruct", Types()->type("astruct")->getTypeNames()[0] );
+    BOOST_CHECK_EQUAL( "aalias1", Types()->type("astruct")->getTypeNames()[1] );
+    BOOST_CHECK_EQUAL( "aalias2", Types()->type("astruct")->getTypeNames()[2] );
 }
 
 BOOST_AUTO_TEST_CASE( testCharType )
@@ -401,6 +418,35 @@ BOOST_AUTO_TEST_CASE( testConversions )
         "set i = double(float(int(f)))\n" +
         "set f = int(float(double(int(3.333))))\n" +
         "do test.assert( f == 3 )\n" +
+        "}";
+    // execute
+    executePrograms(prog);
+}
+
+/**
+ * Tests converting (unsigned) long long types to and from other types.
+ */
+BOOST_AUTO_TEST_CASE( testLongLong )
+{
+    string prog = string("program x {\n") +
+        "var llong ll = 9223372036854775807ll\n" +
+        "do test.assert( -(ll + 2) == 9223372036854775807ll )\n" +
+        "var ullong ull = 18446744073709551615ull\n" +
+        "do test.assert( ull + 1 == 0 )\n" +
+        "var double d = ll\n" +
+        "do test.assert( d == 9.223372036854775807e+18 )\n" +
+        "set ll = 3.0f\n" +
+        "do test.assert( ll == 3ll )\n" +
+        "set ll = -1.0\n" +
+        "do test.assert( ll == -1ll )\n" +
+        "set ll = int(-1000)\n" +
+        "do test.assert( ll == -1000ll )\n" +
+        "set ull = int(1000)\n" +
+        "do test.assert( ull == 1000ull )\n" +
+        "set ull = uint(1000)\n" +
+        "do test.assert( ull == 1000ull )\n" +
+        "set ull = llong(12345)\n" +
+        "do test.assert( ull == 12345ull )\n" +
         "}";
     // execute
     executePrograms(prog);

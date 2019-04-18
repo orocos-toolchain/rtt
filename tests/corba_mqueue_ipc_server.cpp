@@ -44,7 +44,7 @@ public:
         ports()->addEventPort( mi1 );
         ports()->addPort( mo1 );
         this->start();
-        ts = corba::TaskContextServer::Create( this, false ); //use-naming
+        ts = corba::TaskContextServer::Create( this, /* use_naming = */ true );
     }
     ~TheServer() {
         this->stop();
@@ -52,8 +52,10 @@ public:
 
     void updateHook(){
         double d = 123456.789;
-        mi1.read(d);
-        mo1.write(d);
+        FlowStatus fs = NoData;
+        while( (fs = mi1.read(d, false)) == NewData ) {
+            mo1.write(d);
+        }
     }
 
     corba::TaskContextServer* ts;
@@ -71,6 +73,7 @@ int ORO_main(int argc, char** argv)
 	assert(0 != rtMem);
 	freeMem		= init_memory_pool(BUILD_TEST_RT_MEM_POOL_SIZE, rtMem);
 	assert((size_t)-1 != freeMem); // increase MEMORY_SIZE above most likely, as TLSF has a several kilobyte overhead
+    (void)freeMem;          // avoid compiler warning
 #endif
     corba::TaskContextProxy::InitOrb(argc,argv);
 

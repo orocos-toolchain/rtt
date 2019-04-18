@@ -205,6 +205,15 @@ BOOST_AUTO_TEST_CASE(testPeriodic )
         }
     }
 
+    // Different CPU affinity
+    unsigned cpu_affinity = 1; // first CPU only
+    if ( mtask.thread()->getCpuAffinity() != (unsigned) ~0 &&
+         mtask.thread()->getCpuAffinity() != cpu_affinity ) {
+        PeriodicActivity m4task(ORO_SCHED_OTHER, 15, 0.01, cpu_affinity);
+        BOOST_CHECK( mtask.thread() != m4task.thread() );
+        BOOST_CHECK_EQUAL( cpu_affinity, m4task.thread()->getCpuAffinity() );
+    }
+
     // Starting thread if thread not running
     BOOST_CHECK( mtask.thread()->stop() );
     BOOST_CHECK( mtask.thread()->isRunning() == false );
@@ -437,6 +446,7 @@ BOOST_AUTO_TEST_CASE( testScheduler )
 }
 
 #if !defined( OROCOS_TARGET_MACOSX )
+#if !defined( OROCOS_TARGET_XENOMAI )
 /**
  * Checks if the rtos_task_get_pid function works properly.
  */
@@ -450,6 +460,7 @@ BOOST_AUTO_TEST_CASE( testThreadPID )
 //	cout << "PID:" << mpid <<endl;
 //	cout << "TID:" << tid << endl;
 }
+#endif
 #endif
 
 #if !defined( OROCOS_TARGET_WIN32 )

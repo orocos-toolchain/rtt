@@ -133,13 +133,36 @@ namespace RTT
         double float_to_double( float val ) {return double(val);}
         float double_to_float( double val ) {return float(val);}
 
-
         int float_to_int(float f) { return int(f); }
         float int_to_float(int i) { return float(i); }
         int double_to_int(double f) { return int(f); }
         double int_to_double(int i) { return double(i); }
         unsigned int int_to_uint(int i) { return (unsigned int)(i); }
         int uint_to_int(unsigned int ui) { return int(ui); }
+
+        // llong
+        long long float_to_llong(float f) { return (long long)(f); }
+        float llong_to_float(long long i) { return (float)(i); }
+        long long double_to_llong(double f) { return (long long)(f); }
+        double llong_to_double(long long i) { return (double)(i); }
+        long long int_to_llong(int i) { return (long long)(i); }
+        int llong_to_int(long long i) { return (int)(i); }
+        long long uint_to_llong(unsigned int i) { return (long long)(i); }
+        unsigned int llong_to_uint(long long i) { return (unsigned int)(i); }
+        bool llong_to_bool(long long i) { return i != 0; }
+
+        // ullong
+        unsigned long long float_to_ullong(float f) { return (unsigned long long)(f); }
+        float ullong_to_float(unsigned long long i) { return (float)(i); }
+        unsigned long long double_to_ullong(double f) { return (unsigned long long)(f); }
+        double ullong_to_double(unsigned long long i) { return (double)(i); }
+        unsigned long long int_to_ullong(int i) { return (unsigned long long)(i); }
+        int ullong_to_int(unsigned long long i) { return (int)(i); }
+        unsigned long long uint_to_ullong(unsigned int i) { return (unsigned long long)(i); }
+        unsigned int ullong_to_uint(unsigned long long i) { return (unsigned int)(i); }
+        unsigned long long llong_to_ullong(long long i) { return (unsigned long long)(i); }
+        long long ullong_to_llong(unsigned long long i) { return (long long)(i); }
+
 #endif
         bool flow_to_bool(FlowStatus fs) { return fs != NoData ; }
         bool send_to_bool(SendStatus ss) { return ss == SendSuccess; }
@@ -219,6 +242,30 @@ namespace RTT
         ti->type("int")->addConstructor( newConstructor( &uint_to_int, true ));
         ti->type("int")->addConstructor( newConstructor( &bool_to_int, true ));
         ti->type("uint")->addConstructor( newConstructor( &int_to_uint, true ));
+
+        // llong
+        ti->type("llong")->addConstructor( newConstructor( &float_to_llong, true ));
+        ti->type("float")->addConstructor( newConstructor( &llong_to_float, true ));
+        ti->type("llong")->addConstructor( newConstructor( &double_to_llong, true ));
+        ti->type("double")->addConstructor( newConstructor( &llong_to_double, true ));
+        ti->type("llong")->addConstructor( newConstructor( &int_to_llong, true ));
+        ti->type("int")->addConstructor( newConstructor( &llong_to_int, true ));
+        ti->type("llong")->addConstructor( newConstructor( &uint_to_llong, true ));
+        ti->type("uint")->addConstructor( newConstructor( &llong_to_uint, true ));
+        ti->type("bool")->addConstructor( newConstructor( &llong_to_bool, true ));
+
+        // ullong
+        ti->type("ullong")->addConstructor( newConstructor( &float_to_ullong, true ));
+        ti->type("float")->addConstructor( newConstructor( &ullong_to_float, true ));
+        ti->type("ullong")->addConstructor( newConstructor( &double_to_ullong, true ));
+        ti->type("double")->addConstructor( newConstructor( &ullong_to_double, true ));
+        ti->type("ullong")->addConstructor( newConstructor( &int_to_ullong, true ));
+        ti->type("int")->addConstructor( newConstructor( &ullong_to_int, true ));
+        ti->type("ullong")->addConstructor( newConstructor( &uint_to_ullong, true ));
+        ti->type("uint")->addConstructor( newConstructor( &ullong_to_uint, true ));
+        ti->type("ullong")->addConstructor( newConstructor( &llong_to_ullong, true ));
+        ti->type("llong")->addConstructor( newConstructor( &ullong_to_llong, true ));
+
         ti->type("string")->addConstructor( newConstructor( string_ctor() ) );
 #ifdef OS_RT_MALLOC
         ti->type("rt_string")->addConstructor( newConstructor( rt_string_ctor_int() ) );

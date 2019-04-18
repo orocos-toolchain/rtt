@@ -253,7 +253,7 @@ namespace RTT
          * end with std::endl to get the log's output in your file or display.
          */
         template< class T>
-        Logger& operator<<( T t );
+        Logger& operator<<( const T &t );
 
         /**
          * Set the loglevel of the incomming messages.

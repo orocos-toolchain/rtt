@@ -44,5 +44,4 @@
 namespace RTT {
     using namespace detail;
     using namespace std;
-
-};
+}

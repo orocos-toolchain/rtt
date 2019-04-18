@@ -37,7 +37,7 @@
 
 
 #include "SignalBase.hpp"
-#include <boost/lambda/bind.hpp>
+#include <boost/bind.hpp>
 
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
 #else
@@ -52,8 +52,8 @@ namespace RTT {
         void intrusive_ptr_add_ref( ConnectionBase* p ) { p->ref(); }
         void intrusive_ptr_release( ConnectionBase* p ) { p->deref(); }
 
-        void ConnectionBase::ref() { refcount.inc(); };
-        void ConnectionBase::deref() { if ( refcount.dec_and_test() ) delete this; };
+        void ConnectionBase::ref() { refcount.inc(); }
+        void ConnectionBase::deref() { if ( refcount.dec_and_test() ) delete this; }
 
         ConnectionBase::ConnectionBase(SignalBase* sig)
             : mconnected(false), m_sig(sig)
@@ -232,15 +232,14 @@ namespace RTT {
         }
 
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
-        // required for GCC 4.0.2
-        ConnectionBase* getPointer( ConnectionBase::shared_ptr c ) {
-            return c.get();
+        static void disconnectImpl( const ConnectionBase::shared_ptr& c ) {
+            c->disconnect();
         }
 #endif
 
         void SignalBase::disconnect() {
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
-            mconnections.apply( boost::lambda::bind(&ConnectionBase::disconnect, boost::lambda::bind( &getPointer, boost::lambda::_1) ) ); // works for any compiler
+            mconnections.apply( boost::bind(&disconnectImpl, _1 ) );
 #else
             // avoid invalidating iterator
             os::MutexLock lock(m);

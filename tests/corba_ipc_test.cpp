@@ -19,6 +19,7 @@
 #include "unit.hpp"
 
 #include <iostream>
+#include <memory>
 
 #include <rtt/OperationCaller.hpp>
 #include <rtt/Service.hpp>
@@ -41,10 +42,10 @@
 using namespace RTT;
 using namespace RTT::detail;
 
-class CorbaTest : public TaskContext
+class CorbaTest
 {
 public:
-    CorbaTest() : TaskContext("CorbaTest") { this->setUp(); }
+    CorbaTest() { this->setUp(); }
     ~CorbaTest() { this->tearDown(); }
 
     TaskContext* tc;
@@ -62,10 +63,9 @@ public:
     // Ports
     InputPort<double>*  mi;
     OutputPort<double>* mo;
-    bool is_calling, is_sending;
+    enum { INITIAL, CALL, SEND, FINAL } callBackPeer_step;
+    int callBackPeer_count;
     SendHandle<void(TaskContext*, string const&)> handle;
-
-    int wait, cbcount;
 
     void setUp();
     void tearDown();
@@ -76,23 +76,30 @@ public:
     void testPortDisconnected();
 
     void callBackPeer(TaskContext* peer, string const& opname) {
-	OperationCaller<void(TaskContext*, string const&)> op1( peer->getOperation(opname), this->engine());
-	int count = ++cbcount;
-	log(Info) << "Test executes callBackPeer():"<< count <<endlog();
-	if (!is_calling) {
-		is_calling = true;
-		log(Info) << "Test calls server:" << count <<endlog();
-		op1(this, "callBackPeer");
-		log(Info) << "Test finishes server call:"<<count <<endlog();
-	}
+        OperationCaller<void(TaskContext*, string const&)> op1( peer->getOperation(opname), tc->engine() );
+        OperationCaller<void()> resetCallBackPeer( peer->getOperation("resetCallBackPeer"), tc->engine() );
+        int count = ++callBackPeer_count;
 
-	if (!is_sending) {
-		is_sending = true;
-		log(Info) << "Test sends server:"<<count <<endlog();
-		handle = op1.send(this, "callBackPeerOwn");
-		log(Info) << "Test finishes server send:"<< count <<endlog();
-	}
-	log(Info) << "Test finishes callBackPeer():"<< count <<endlog();
+        if (callBackPeer_step == INITIAL) {
+            log(Info) << "Test resets server." <<endlog();
+            resetCallBackPeer();
+            callBackPeer_step = CALL;
+        }
+
+        log(Info) << "Test executes callBackPeer():"<< count <<endlog();
+        if (callBackPeer_step == CALL) {
+            callBackPeer_step = SEND;
+            log(Info) << "Test calls server:" << count <<endlog();
+            op1(tc, "callBackPeer");
+            log(Info) << "Test finishes server call:"<<count <<endlog();
+        }
+        else if (callBackPeer_step == SEND) {
+            callBackPeer_step = FINAL;
+            log(Info) << "Test sends server:"<<count <<endlog();
+            handle = op1.send(tc, "callBackPeerOwn");
+            log(Info) << "Test finishes server send:"<< count <<endlog();
+        }
+        log(Info) << "Test finishes callBackPeer():"<< count <<endlog();
     }
 
 };
@@ -114,11 +121,11 @@ CorbaTest::setUp()
     t2 = 0;
     ts2 = ts = 0;
     tp2 = tp = 0;
-    wait = cbcount = 0;
-    is_calling = false, is_sending = false;
+    callBackPeer_count = 0;
+    callBackPeer_step = INITIAL;
 
-    addOperation("callBackPeer", &CorbaTest::callBackPeer, this,ClientThread);
-    addOperation("callBackPeerOwn", &CorbaTest::callBackPeer, this,OwnThread);
+    tc->addOperation("callBackPeer", &CorbaTest::callBackPeer, this,ClientThread);
+    tc->addOperation("callBackPeerOwn", &CorbaTest::callBackPeer, this,OwnThread);
 }
 
 
@@ -142,26 +149,30 @@ void CorbaTest::new_data_listener(base::PortInterface* port)
 }
 
 
-#define ASSERT_PORT_SIGNALLING(code, read_port) \
-    signalled_port = 0; wait = 0;\
+#define ASSERT_PORT_SIGNALLING(code, read_port) do { \
+    signalled_port = 0; \
+    int wait = 0; \
     code; \
     while (read_port != signalled_port && wait++ != 5) \
-    usleep(100000); \
-    BOOST_CHECK( read_port == signalled_port );
+        usleep(100000); \
+    BOOST_CHECK( read_port == signalled_port ); \
+} while(0)
 
-bool wait_for_helper;
-#define wait_for( cond, times ) \
-    wait = 0; \
+#define wait_for( cond, times ) do { \
+    bool wait_for_helper; \
+    int wait = 0; \
     while( (wait_for_helper = !(cond)) && wait++ != times ) \
-      usleep(100000); \
-    if (wait_for_helper) BOOST_CHECK( cond );
+        usleep(100000); \
+    if (wait_for_helper) BOOST_CHECK( cond ); \
+} while(0)
 
-#define wait_for_equal( a, b, times ) \
-    wait = 0; \
+#define wait_for_equal( a, b, times ) do { \
+    bool wait_for_helper; \
+    int wait = 0; \
     while( (wait_for_helper = ((a) != (b))) && wait++ != times ) \
-      usleep(100000); \
-    if (wait_for_helper) BOOST_CHECK_EQUAL( a, b );
-
+        usleep(100000); \
+    if (wait_for_helper) BOOST_CHECK_EQUAL( a, b ); \
+} while(0)
 
 void CorbaTest::testPortDataConnection()
 {
@@ -176,7 +187,7 @@ void CorbaTest::testPortDataConnection()
     BOOST_CHECK_EQUAL( mi->read(value), NoData );
 
     // Check if writing works (including signalling)
-    ASSERT_PORT_SIGNALLING(mo->write(1.0), mi)
+    ASSERT_PORT_SIGNALLING(mo->write(1.0), mi);
     BOOST_CHECK( mi->read(value) );
     BOOST_CHECK_EQUAL( 1.0, value );
     ASSERT_PORT_SIGNALLING(mo->write(2.0), mi);
@@ -223,7 +234,7 @@ BOOST_FIXTURE_TEST_SUITE(  CorbaIPCTestSuite,  CorbaTest )
 
 BOOST_AUTO_TEST_CASE( testRemoteOperationCallerC )
 {
-    tp = corba::TaskContextProxy::Create( "peerRMC", false ); // no-ior
+    tp = corba::TaskContextProxy::Create( "peerRMC", /* is_ior = */ false ); // no-ior
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerRMC.ior");
     BOOST_REQUIRE( tp );
@@ -251,7 +262,7 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCallerC )
 
 BOOST_AUTO_TEST_CASE( testRemoteOperationCaller )
 {
-    tp = corba::TaskContextProxy::Create( "peerRM" , false);
+    tp = corba::TaskContextProxy::Create( "peerRM" , /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerRM.ior");
     BOOST_REQUIRE(tp);
@@ -276,7 +287,7 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCaller )
  */
 BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCallback )
 {
-    tp = corba::TaskContextProxy::Create( "peerRMCb" , false);
+    tp = corba::TaskContextProxy::Create( "peerRMCb" , /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerRMC.ior");
     BOOST_REQUIRE(tp);
@@ -285,10 +296,11 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCallback )
     BOOST_REQUIRE( RTT::internal::DataSourceTypeInfo<TaskContext*>::getTypeInfo() !=  RTT::internal::DataSourceTypeInfo<UnknownType>::getTypeInfo());
     BOOST_REQUIRE( RTT::internal::DataSourceTypeInfo<TaskContext*>::getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID) != 0 );
 
+    BOOST_REQUIRE_EQUAL( (int) callBackPeer_step, (int) INITIAL );
     this->callBackPeer(tp, "callBackPeer");
     sleep(1); //asyncronous processing...
-    BOOST_CHECK( is_calling );
-    BOOST_CHECK( is_sending );
+    BOOST_CHECK_EQUAL( (int) callBackPeer_step, (int) FINAL );
+    BOOST_CHECK_EQUAL( callBackPeer_count, 3 );
     BOOST_CHECK( handle.ready() );
     BOOST_CHECK_EQUAL( handle.collectIfDone(), SendSuccess );
 }
@@ -296,7 +308,7 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCallback )
 BOOST_AUTO_TEST_CASE( testAnyOperationCaller )
 {
     double d;
-    tp = corba::TaskContextProxy::Create( "peerAM" , false);
+    tp = corba::TaskContextProxy::Create( "peerAM" , /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerAM.ior");
 
@@ -367,7 +379,7 @@ BOOST_AUTO_TEST_CASE( testAnyOperationCaller )
 
 BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 {
-    tp = corba::TaskContextProxy::Create( "peerDFI" , false);
+    tp = corba::TaskContextProxy::Create( "peerDFI" , /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerDFI.ior");
 
@@ -395,21 +407,18 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 BOOST_AUTO_TEST_CASE( testPortConnections )
 {
     // This test tests the differen port-to-port connections.
-    tp = corba::TaskContextProxy::Create( "peerPC" , false);
+    tp = corba::TaskContextProxy::Create( "peerPC", /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerPC.ior");
 
     s = tp->server();
     // server to our own tc.
-    ts2  = corba::TaskContextServer::Create( tc, false ); //no-naming
+    ts2  = corba::TaskContextServer::Create( tc, /* use_naming = */ false );
     s2 = ts2->server();
 
     // Create a default CORBA policy specification
-    RTT::corba::CConnPolicy policy;
-    policy.type = RTT::corba::CData;
+    RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::data());
     policy.init = false;
-    policy.lock_policy = RTT::corba::CLockFree;
-    policy.size = 0;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = s->ports();
@@ -487,7 +496,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
 BOOST_AUTO_TEST_CASE( testPortProxying )
 {
     // This test creates connections between local and remote ports.
-    tp = corba::TaskContextProxy::Create( "peerPP" , false);
+    tp = corba::TaskContextProxy::Create( "peerPP" , /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerPP.ior");
 
@@ -535,7 +544,12 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
     BOOST_CHECK(!write_port->connected());
 
     // Test cloning
-    auto_ptr<base::InputPortInterface> read_clone(dynamic_cast<base::InputPortInterface*>(read_port->clone()));
+#if __cplusplus > 199711L
+    unique_ptr<base::InputPortInterface>
+#else
+    auto_ptr<base::InputPortInterface>
+#endif
+            read_clone(dynamic_cast<base::InputPortInterface*>(read_port->clone()));
     BOOST_CHECK(mo->createConnection(*read_clone));
     BOOST_CHECK(read_clone->connected());
     BOOST_CHECK(!read_port->connected());
@@ -545,24 +559,21 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
 BOOST_AUTO_TEST_CASE( testDataHalfs )
 {
     if(std::getenv("CI") != NULL) {
-      BOOST_TEST_MESSAGE("Skipping testAffinity because it can fail on integration servers.");
+      BOOST_TEST_MESSAGE("Skipping testDataHalfs because it can fail on integration servers.");
       return;
     }
 
     double result;
     // This test tests the differen port-to-port connections.
-    tp = corba::TaskContextProxy::Create( "peerDH" , false);
+    tp = corba::TaskContextProxy::Create( "peerDH" , /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerDH.ior");
 
     s = tp->server();
 
     // Create a default CORBA policy specification
-    RTT::corba::CConnPolicy policy;
-    policy.type = RTT::corba::CData;
+    RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::data());
     policy.init = false;
-    policy.lock_policy = RTT::corba::CLockFree;
-    policy.size = 0;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = s->ports();
@@ -614,25 +625,22 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
 BOOST_AUTO_TEST_CASE( testBufferHalfs )
 {
     if(std::getenv("CI") != NULL) {
-      BOOST_TEST_MESSAGE("Skipping testAffinity because it can fail on integration servers.");
+      BOOST_TEST_MESSAGE("Skipping testBufferHalfs because it can fail on integration servers.");
       return;
     }
 
     double result;
 
     // This test tests the differen port-to-port connections.
-    tp = corba::TaskContextProxy::Create( "peerBH" , false);
+    tp = corba::TaskContextProxy::Create( "peerBH" , /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerBH.ior");
 
     s = tp->server();
 
     // Create a default CORBA policy specification
-    RTT::corba::CConnPolicy policy;
-    policy.type = RTT::corba::CBuffer;
+    RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::buffer(10));
     policy.init = false;
-    policy.lock_policy = RTT::corba::CLockFree;
-    policy.size = 10;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     corba::CDataFlowInterface_var ports  = s->ports();
@@ -648,7 +656,7 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     // Check read of new data
     mo->write( 6.33 );
     mo->write( 3.33 );
-    wait_for_equal( cce->read( sample.out(), true), CNewData, 5 );
+    wait_for_equal( cce->read( sample.out(), true), CNewData, 10 );
     sample >>= result;
     BOOST_CHECK_EQUAL( result, 6.33);
     wait_for_equal( cce->read( sample.out(), true ), CNewData, 10 );
