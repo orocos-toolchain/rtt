@@ -1,5 +1,3 @@
-dist: xenial
-
 language: cpp
 
 addons:
@@ -24,12 +22,26 @@ env:
 
 matrix:
   include:
-    - env: COMPILER=gcc CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
-    - env: COMPILER=gcc CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
-    - env: COMPILER=clang-3.8 CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
-    - env: COMPILER=clang-3.8 CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
-    - env: COMPILER=clang CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
-    - env: COMPILER=clang CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
+    - os: linux
+      dist: xenial
+      env: COMPILER=gcc CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
+    - os: linux
+      dist: xenial
+      env: COMPILER=gcc CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
+    - os: linux
+      dist: xenial
+      env: COMPILER=clang-3.8 CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
+    - os: linux
+      dist: xenial
+      env: COMPILER=clang-3.8 CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
+    - os: linux
+      dist: xenial
+      env: COMPILER=clang CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
+    - os: linux
+      dist: xenial
+      env: COMPILER=clang CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
+    - os: osx
+      osx_image: xcode10.1
 
 branches:
   only:
@@ -48,6 +60,13 @@ before_install:
       fi
       ${CC} --version
       ${CXX} --version
+    fi
+
+  # Install HomeBrew dependencies (macOS only)
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update
+      brew reinstall boost cmake omniorb
     fi
 
   # Create build directory
