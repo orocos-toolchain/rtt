@@ -15,8 +15,7 @@ Important Caveats
   from a monotonic clock. Before, this method returned the real/wall time
   (as nanoseconds since the Unix epoch, 1 January 1970, 00:00:00 UTC).
   Only use the returned time for relative comparisons or for
-  `RTT::os::Condition::wait_until(m, abs_time)`. See PR
-  https://github.com/orocos-toolchain/rtt/pull/258.
+  `RTT::os::Condition::wait_until(m, abs_time)`. See PR `#258 <https://github.com/orocos-toolchain/rtt/pull/258>`_.
 
 2.10.0 (Forthcoming) - WORK IN PROGRESS
 ---------------------------------------
@@ -92,12 +91,12 @@ Important Caveats
   difference. This minor change was required to fix include
   directory ordering issues when rebuilding a package without
   a proper cleanup of the installation folder. For details, see
-  https://github.com/orocos-toolchain/rtt/pull/85.
+  `#85 <https://github.com/orocos-toolchain/rtt/pull/85>`_.
 
 * updateHook() will now only be executed when an 'user' triggered
   event has happened, and no longer when internal bookkeeping
   of the ExeuctionEngine happens. For full details, see PR
-  https://github.com/orocos-toolchain/rtt/pull/91.
+  `#91 <https://github.com/orocos-toolchain/rtt/pull/91>`_.
   The motivation of this change was an older issue which reported
   that updateHook() was called too many times, and in unpredictable
   ways for the average user. The calling of updateHook() is now
@@ -106,7 +105,7 @@ Important Caveats
 * RTT::base::ActivityInterface got a new pure virtual member
   function bool timeout() which you need to implement in case
   you created your own Activity implementation. See
-  https://github.com/orocos/rtt_ros_integration/pull/53 for
+  `#53 <https://github.com/orocos/rtt_ros_integration/pull/53>`_ for
   an example of a solution.
 
 * OCL XML deployments treats a ConnPolicy XML Property with
@@ -124,17 +123,17 @@ Improvements
 * updateHook() will now only be executed when an 'user' triggered
   event has happened, and no longer when internal bookkeeping
   of the ExeuctionEngine happens. For full detail, see PR
-  https://github.com/orocos-toolchain/rtt/pull/91.
+  `#91 <https://github.com/orocos-toolchain/rtt/pull/91>`_.
   Yes, it's also a major improvement.
 
 * The RTT scripting re-added the Orocos v1 'Command', by emulating
   it when an Operation is called with the '.cmd()' suffix. See PR
-  https://github.com/orocos-toolchain/rtt/pull/84.
+  `#84 <https://github.com/orocos-toolchain/rtt/pull/84>`_.
 
 * The RTT Data Flow implementation has been rewritten, in a fully
   backwards compatible way. It however adds powerful alternative
   connection semantics which are often required in control
-  applications. For all details, see PR https://github.com/orocos-toolchain/rtt/pull/114
+  applications. For all details, see PR `#114 <https://github.com/orocos-toolchain/rtt/pull/114>`_.
   The robustness and flexibility of the Orocos Data Flow
   has improved tremendously in this release and should hold for the
   next years.
@@ -153,7 +152,7 @@ Improvements
   The main motivation of this patch is to enable using the CORBA transport on
   slow or long latency links.
 
-  See https://github.com/orocos-toolchain/rtt/pull/123 for all details.
+  See `#123 <https://github.com/orocos-toolchain/rtt/pull/123>`_ for all details.
 
 * ``RTT::extras::FileDescriptorSimulationActivity`` allows to simulate
   file descriptor activities in unit tests. This is however incomplete
@@ -166,7 +165,7 @@ Other API changes
 * The method `RTT::Property<T>::copy()` introduced in version 2.7
   to fix a memory leak in class `PropertyBag` has been removed in
   favor of an overload of `RTT::Property<T>::create()` that accepts
-  a data source. See https://github.com/orocos-toolchain/rtt/pull/159.
+  a data source. See `#159 <https://github.com/orocos-toolchain/rtt/pull/159>`_.
 
 
 2.9.1 (Forthcoming)
@@ -300,7 +299,7 @@ New
   This first implementation is using mutexes internally and thus breaks the lock-freedom of LOCK_FREE data or buffer connections
   *with multiple readers or writers*. The implementation was improved afterwards and will be released in version 2.10 (breaks ABI).
 
-* Add the RTT v1 cmd syntax (`https://github.com/orocos-toolchain/rtt/issues/84`_ up to `361fe29 <https://github.com/orocos-toolchain/rtt/commit/361fe2909aaeb81b7cee83600b44c62e5b22aa7a>`_)
+* Add the RTT v1 cmd syntax (`#84 <https://github.com/orocos-toolchain/rtt/issues/84>`_ up to `361fe29 <https://github.com/orocos-toolchain/rtt/commit/361fe2909aaeb81b7cee83600b44c62e5b22aa7a>`_)
 
   This adds the RTT v1 command semantics to operations used in RTT scripts, by introducing a ``.cmd()`` method, analog to .send()
   and ``.call()``. An operation invoked with ``.cmd()`` will wait in a non-blocking way for the operation to complete. So this can
