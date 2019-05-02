@@ -110,7 +110,7 @@ namespace RTT {
                         name = "Global";
                     else
                         name = iface->getOwner()->getName();
-                    name += ".CorbaDispatch";
+                    name += "Corba";
                     DispatchI[iface] = new CorbaDispatcher( name, scheduler, priority );
                     DispatchI[iface]->start();
                     return DispatchI[iface];

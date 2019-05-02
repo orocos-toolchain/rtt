@@ -104,6 +104,10 @@ namespace RTT
 
         virtual void introspect(Property<unsigned short> &v);
 
+        virtual void introspect(Property<long long> &v);
+
+        virtual void introspect(Property<unsigned long long> &v);
+
         virtual void introspect(Property<float> &v);
 
         virtual void introspect(Property<double> &v);
