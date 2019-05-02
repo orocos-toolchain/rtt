@@ -62,7 +62,8 @@ before_install:
   - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew update
-      brew reinstall boost cmake omniorb
+      brew reinstall boost cmake ccache omniorb
+      export PATH="/use/local/opt/ccache/libexec:$PATH"
     fi
 
   # Create build directory
