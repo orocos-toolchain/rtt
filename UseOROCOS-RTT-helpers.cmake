@@ -263,13 +263,13 @@ macro( orocos_use_package PACKAGE )
       # The package has been generated in the same workspace. Just use the exported targets and include directories.
       set(ORO_${PACKAGE}_FOUND True)
       set(${PACKAGE}_FOUND True)
-      set(${PACKAGE}_INCLUDE_DIRS ${${PACKAGE}_EXPORTED_OROCOS_INCLUDE_DIRS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_INCLUDE_DIRS})
-      set(${PACKAGE}_LIBRARY_DIRS ${${PACKAGE}_EXPORTED_OROCOS_LIBRARY_DIRS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_LIBRARY_DIRS})
-      set(${PACKAGE}_LIBRARIES ${${PACKAGE}_EXPORTED_OROCOS_LIBRARIES} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_LIBRARIES})
+      set(${PACKAGE}_INCLUDE_DIRS ${${PACKAGE}_EXPORTED_INCLUDE_DIRS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_INCLUDE_DIRS})
+      set(${PACKAGE}_LIBRARY_DIRS ${${PACKAGE}_EXPORTED_LIBRARY_DIRS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_LIBRARY_DIRS})
+      set(${PACKAGE}_LIBRARIES ${${PACKAGE}_EXPORTED_LIBRARIES} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_LIBRARIES})
 
       # Use add_dependencies(target ${USE_OROCOS_EXPORTED_TARGETS}) to make sure that a target is built AFTER
       # all targets created by other packages that have been orocos_use_package'd in the current scope.
-      list(APPEND USE_OROCOS_EXPORTED_TARGETS ${${PACKAGE}_EXPORTED_OROCOS_TARGETS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_TARGETS})
+      list(APPEND USE_OROCOS_EXPORTED_TARGETS ${${PACKAGE}_EXPORTED_TARGETS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_TARGETS})
 
     else()
       # Get the package and dependency build flags
