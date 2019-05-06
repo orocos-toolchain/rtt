@@ -55,8 +55,7 @@ namespace RTT {
            ,mTaskState(initial_state)
            ,mInitialState(initial_state)
            ,mTargetState(initial_state)
-           ,name(name)
-           ,cName(strdup(name.c_str()))
+           ,mName(name)
     {
     }
 
@@ -65,8 +64,7 @@ namespace RTT {
            ,mTaskState(initial_state)
            ,mInitialState(initial_state)
            ,mTargetState(initial_state)
-           ,name(name)
-           ,cName(strdup(name.c_str()))
+           ,mName(name)
     {
         parent->addChild( this );
     }
@@ -79,7 +77,6 @@ namespace RTT {
         } else {
             ee->removeChild(this);
         }
-        std::free(cName);
         // Note: calling cleanup() here has no use or even dangerous, as
         // cleanupHook() is a virtual function and the user code is already
         // destroyed. The user's subclass is responsible to make this state
@@ -113,7 +110,7 @@ namespace RTT {
             TRY(
                 mTargetState = Stopped;
                 bool successful;
-                { tracepoint_context(orocos_rtt, TaskContext_configureHook, cName);
+                { tracepoint_context(orocos_rtt, TaskContext_configureHook, mName.c_str());
                     successful = configureHook(); }
                 if (successful) {
                     if (mTaskState != Stopped && (mTaskState == mTargetState)) {
@@ -146,7 +143,7 @@ namespace RTT {
         if ( mTaskState == Stopped ) {
             TRY(
                 mTargetState = PreOperational;
-                { tracepoint_context(orocos_rtt, TaskContext_cleanupHook, cName);
+                { tracepoint_context(orocos_rtt, TaskContext_cleanupHook, mName.c_str());
                     cleanupHook(); }
                 if (mTaskState == Stopped)
                     mTaskState = PreOperational;
@@ -182,11 +179,11 @@ namespace RTT {
         mTargetState = mTaskState = Exception;
         TRY (
             if ( copy >= Running ) {
-                { tracepoint_context(orocos_rtt, TaskContext_stopHook, cName);
+                { tracepoint_context(orocos_rtt, TaskContext_stopHook, mName.c_str());
                     stopHook(); }
             }
             if ( copy >= Stopped && mInitialState == PreOperational ) {
-                { tracepoint_context(orocos_rtt, TaskContext_cleanupHook, cName);
+                { tracepoint_context(orocos_rtt, TaskContext_cleanupHook, mName.c_str());
                     cleanupHook(); }
             }
             exceptionHook();
@@ -216,7 +213,7 @@ namespace RTT {
             TRY (
                 mTargetState = Running;
                 bool successful;
-                { tracepoint_context(orocos_rtt, TaskContext_startHook, cName);
+                { tracepoint_context(orocos_rtt, TaskContext_startHook, mName.c_str());
                     successful = startHook(); }
                 if (successful) {
                     if (mTaskState != Running && (mTargetState == mTaskState)) {
@@ -249,7 +246,7 @@ namespace RTT {
             TRY(
                 mTargetState = Stopped;
                 if ( engine()->stopTask(this) ) {
-                    { tracepoint_context(orocos_rtt, TaskContext_stopHook, cName);
+                    { tracepoint_context(orocos_rtt, TaskContext_stopHook, mName.c_str());
                         stopHook(); }
                     mTaskState = Stopped;
                     return true;

@@ -458,6 +458,7 @@ namespace RTT
          * mTaskState to mTargetState.
          */
         TaskState mTargetState;
+
         // non copyable
         TaskCore( TaskCore& );
 
@@ -470,14 +471,11 @@ namespace RTT
          */
         virtual void prepareUpdateHook();
 
+    protected:
         /** The name of this task. This is used only for debugging / tracing
          * purposes
          */
-        std::string name;
-
-    protected:
-        /** The C-string version of name for tracing purposes */
-        char* cName;
+        std::string mName;
     };
 }}
 
