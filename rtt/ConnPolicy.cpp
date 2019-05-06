@@ -47,6 +47,9 @@
 #include "Property.hpp"
 #include "PropertyBag.hpp"
 
+#include <boost/lexical_cast.hpp>
+#include <iostream>
+
 using namespace std;
 
 namespace RTT
@@ -171,4 +174,40 @@ namespace RTT
     }
     /** @endcond */
 
+    std::ostream &operator<<(std::ostream &os, const ConnPolicy &cp)
+    {
+        std::string type;
+        switch(cp.type) {
+            case ConnPolicy::UNBUFFERED:      type = "UNBUFFERED"; break;
+            case ConnPolicy::DATA:            type = "DATA"; break;
+            case ConnPolicy::BUFFER:          type = "BUFFER"; break;
+            case ConnPolicy::CIRCULAR_BUFFER: type = "CIRCULAR_BUFFER"; break;
+            default:                          type = "(unknown type)"; break;
+        }
+        if (cp.size > 0) {
+            type += "[" + boost::lexical_cast<std::string>(cp.size) + "]";
+        }
+
+        std::string lock_policy;
+        switch(cp.lock_policy) {
+            case ConnPolicy::UNSYNC:    lock_policy = "UNSYNC"; break;
+            case ConnPolicy::LOCKED:    lock_policy = "LOCKED"; break;
+            case ConnPolicy::LOCK_FREE: lock_policy = "LOCK_FREE"; break;
+            default:                    lock_policy = "(unknown lock policy)"; break;
+        }
+
+        std::string pull;
+        // note: cast to int to suppress clang "warning: switch condition has boolean value"
+        switch(int(cp.pull)) {
+            case int(ConnPolicy::PUSH): pull = "PUSH"; break;
+            case int(ConnPolicy::PULL): pull = "PULL"; break;
+        }
+
+        os << pull << " ";
+        os << lock_policy << " ";
+        os << type;
+        if (!cp.name_id.empty()) os << " (name_id=" << cp.name_id << ")";
+
+        return os;
+    }
 }

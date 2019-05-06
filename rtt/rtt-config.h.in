@@ -1,3 +1,41 @@
+/***************************************************************************
+  tag: wmeeusse Tue Oct 24 08:45:49 2006 +0000 rtt-config.h.in
+
+                        rtt-config.h.in -  description
+                           -------------------
+    begin                : Tue Oct 24 2006
+    copyright            : (C) 2006 Peter Soetens
+    email                : peter.soetens@fmtc.be
+
+ ***************************************************************************
+ *   This library is free software; you can redistribute it and/or         *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   General Public License for more details.                              *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public             *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 59 Temple Place,                                    *
+ *   Suite 330, Boston, MA  02111-1307  USA                                *
+ *                                                                         *
+ ***************************************************************************/
+
+
 #ifndef RTT_CONFIG_H
 #define RTT_CONFIG_H
 
@@ -35,6 +73,8 @@
 #  define OROBLD_OS_ARCH_ppc
 # elif defined( __GNUC__ ) && (defined( __arm__ ) || defined( __ARM__ ) )
 #  define OROBLD_OS_ARCH_arm
+# elif defined( __GNUC__ ) && (defined( __aarch64__ ) || defined( __AARCH64__ ) )
+#  define OROBLD_OS_ARCH_aarch64
 # elif defined( __GNUC__ ) && defined( __ia64__ )
 #  error "ia64 Is not yet supported, contact the orocos-dev mailinglist for further actions."
 #  define OROBLD_OS_ARCH_ia64
@@ -65,27 +105,37 @@
    // Use RTT_HIDE to explicitly hide a symbol
 #  define RTT_HIDE   __attribute__((visibility("hidden")))
 
+#  define RTT_EXT_IMPL extern
+
 # else
 #  define RTT_API
 #  define RTT_EXPORT __attribute__((visibility("default")))
 #  define RTT_HIDE   __attribute__((visibility("hidden")))
+#  define RTT_EXT_IMPL extern
 # endif
 #else
    // Win32 and NOT GNU
 # if defined( WIN32 ) && !defined ( __MINGW32__ )
-#  if defined(RTT_DLL_EXPORT)
+#  if defined(RTT_STATIC)
+#    define RTT_API
+#    define RTT_EXPORT
+#    define RTT_HIDE
+#  elif defined(RTT_DLL_EXPORT)
 #   define RTT_API    __declspec(dllexport)
 #   define RTT_EXPORT __declspec(dllexport)
 #   define RTT_HIDE   
+#   define RTT_EXT_IMPL extern
 #  else
 #   define RTT_API	 __declspec(dllimport)
 #   define RTT_EXPORT __declspec(dllexport)
 #   define RTT_HIDE 
+#   define RTT_EXT_IMPL extern
 #  endif
 # else
 #  define RTT_API
 #  define RTT_EXPORT
 #  define RTT_HIDE
+#  define RTT_EXT_IMPL
 # endif
 #endif
 

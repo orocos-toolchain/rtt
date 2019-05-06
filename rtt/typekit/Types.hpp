@@ -1,3 +1,41 @@
+/***************************************************************************
+  tag: Peter Soetens Fri Nov 26 16:10:18 2010 +0100 Types.hpp
+
+                        Types.hpp -  description
+                           -------------------
+    begin                : Fri Nov 26 2010
+    copyright            : (C) 2010 Peter Soetens
+    email                : peter@thesourceworks.com
+
+ ***************************************************************************
+ *   This library is free software; you can redistribute it and/or         *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   General Public License for more details.                              *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public             *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 59 Temple Place,                                    *
+ *   Suite 330, Boston, MA  02111-1307  USA                                *
+ *                                                                         *
+ ***************************************************************************/
+
+
 /**
  * @file Types.hpp
  * This file contains a series of 'extern template' definitions of the
@@ -41,11 +79,6 @@
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Attribute< int >;
 #endif
 
-#ifdef ORO_CORELIB_DATASOURCES_HPP
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< bool >;
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< bool >;
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< bool >;
-#endif
 #ifdef ORO_OUTPUT_PORT_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< bool >;
 #endif
@@ -79,6 +112,50 @@
 #endif
 #ifdef ORO_CORELIB_ATTRIBUTE_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Attribute< unsigned int >;
+#endif
+
+#ifdef CORELIB_DATASOURCE_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< long long >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< long long >;
+#endif
+#ifdef ORO_CORELIB_DATASOURCES_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< long long >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< long long >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< long long >;
+#endif
+#ifdef ORO_OUTPUT_PORT_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< long long >;
+#endif
+#ifdef ORO_INPUT_PORT_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::InputPort< long long >;
+#endif
+#ifdef ORO_PROPERTY_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Property< long long >;
+#endif
+#ifdef ORO_CORELIB_ATTRIBUTE_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Attribute< long long >;
+#endif
+
+#ifdef CORELIB_DATASOURCE_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< unsigned long long >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< unsigned long long >;
+#endif
+#ifdef ORO_CORELIB_DATASOURCES_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< unsigned long long >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< unsigned long long >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< unsigned long long >;
+#endif
+#ifdef ORO_OUTPUT_PORT_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< unsigned long long >;
+#endif
+#ifdef ORO_INPUT_PORT_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::InputPort< unsigned long long >;
+#endif
+#ifdef ORO_PROPERTY_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Property< unsigned long long >;
+#endif
+#ifdef ORO_CORELIB_ATTRIBUTE_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Attribute< unsigned long long >;
 #endif
 
 #ifdef CORELIB_DATASOURCE_HPP
@@ -148,19 +225,6 @@
 #endif
 
 
-// Disable string for now, we have specilisations in DataSources.hpp which 
-// confuse our logic or our compiler:
-#if 0
-#ifdef CORELIB_DATASOURCE_HPP
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< std::string >;
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< std::string >;
-#endif
-#ifdef ORO_CORELIB_DATASOURCES_HPP
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< std::string >;
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< std::string >;
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< std::string >;
-#endif
-#endif
 #ifdef ORO_OUTPUT_PORT_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< std::string >;
 #endif
@@ -198,18 +262,12 @@
 #endif
 
 
-RTT_TYPEKIT_EXT_TMPL template class std::basic_string<char, std::char_traits<char>, RTT::os::rt_allocator<char> >;
-
 #ifdef CORELIB_DATASOURCE_HPP
-#if 0
-RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< RTT::rt_string >;
-#endif
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< RTT::rt_string >;
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< RTT::rt_string >;
 #endif
 #ifdef ORO_CORELIB_DATASOURCES_HPP
-#if 0
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< RTT::rt_string >;
-#endif
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< RTT::rt_string >;
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< RTT::rt_string >;
 #endif

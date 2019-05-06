@@ -103,8 +103,6 @@ extern "C"
   int rtos_sem_signal(rt_sem_t* m );
   int rtos_sem_wait(rt_sem_t* m );
   int rtos_sem_trywait(rt_sem_t* m );
-  int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay );
-  int rtos_sem_wait_until(rt_sem_t* m, NANO_TIME abs_time );
   int rtos_sem_value(rt_sem_t* m );
 
   // Mutex and recursive mutex functions
@@ -117,10 +115,12 @@ extern "C"
   int rtos_mutex_rec_destroy(rt_rec_mutex_t* m );
   int rtos_mutex_lock( rt_mutex_t* m);
   int rtos_mutex_trylock( rt_mutex_t* m);
-  int rtos_mutex_lock_until( rt_rec_mutex_t* m, NANO_TIME abs_time);
+  int rtos_mutex_trylock_for( rt_mutex_t* m, NANO_TIME relative_time);
+  int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time);
   int rtos_mutex_unlock( rt_mutex_t* m);
   int rtos_mutex_rec_lock( rt_rec_mutex_t* m);
   int rtos_mutex_rec_trylock( rt_rec_mutex_t* m);
+  int rtos_mutex_rec_trylock_for( rt_rec_mutex_t* m, NANO_TIME relative_time);
   int rtos_mutex_rec_lock_until( rt_rec_mutex_t* m, NANO_TIME abs_time);
   int rtos_mutex_rec_unlock( rt_rec_mutex_t* m);
 

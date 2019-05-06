@@ -66,7 +66,7 @@ if ( PLUGINS_ENABLE )
 endif()
 
 if(Boost_INCLUDE_DIR)
-  message("Boost found in ${Boost_INCLUDE_DIR}")
+  #message(STATUS "Boost found in ${Boost_INCLUDE_DIR}")  # already printed by find_package(Boost)
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_INCLUDE_DIR} )
   if(OROCOS_TARGET STREQUAL "win32")
     add_definitions(-DBOOST_ALL_NO_LIB)
@@ -94,6 +94,23 @@ IF (NOT OROBLD_FORCE_TINY_DEMARSHALLER)
   find_package(Xerces)
 ENDIF (NOT OROBLD_FORCE_TINY_DEMARSHALLER)
 
+# Look for Boost Uuid or libuuid
+find_path(Boost_UUID_INCLUDE_DIR boost/uuid/uuid.hpp PATHS ${Boost_INCLUDE_DIRS})
+if(Boost_UUID_INCLUDE_DIR)
+  message(STATUS "Found Boost Uuid in ${Boost_UUID_INCLUDE_DIR}.")
+  set(ORO_HAVE_BOOST_UUID TRUE)
+else()
+  find_library(uuid_LIBRARY uuid)
+  if(uuid_LIBRARY)
+    message(STATUS "Found libuuid at ${uuid_LIBRARY}.")
+    set(ORO_HAVE_LIBUUID TRUE)
+    list(APPEND OROCOS-RTT_LIBRARIES ${uuid_LIBRARY})
+  else()
+    message(FATAL_ERROR "Either Boost Uuid (Boost >=1.42) or libuuid is required to build RTT!")
+  endif()
+endif()
+
+
 if(XERCES_FOUND)
   set(OROPKG_SUPPORT_XERCES_C TRUE CACHE INTERNAL "" FORCE)
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XERCES_INCLUDE_DIRS} )
@@ -111,7 +128,7 @@ else(XERCES_FOUND)
 endif(XERCES_FOUND)
 
 # Check for OS/Target specific dependencies:
-message("Orocos target is ${OROCOS_TARGET}")
+message(STATUS "Orocos target is ${OROCOS_TARGET}")
 string(TOUPPER ${OROCOS_TARGET} OROCOS_TARGET_CAP)
 
 if ( NOT ";lxrt;gnulinux;xenomai;macosx;win32;" MATCHES ".*;${OROCOS_TARGET};.*")
@@ -176,6 +193,9 @@ if(OROCOS_TARGET STREQUAL "gnulinux")
 
   find_package(Boost 1.36 COMPONENTS thread )
   find_package(Pthread REQUIRED)
+
+  include(CheckLibraryExists)
+  check_library_exists(pthread "pthread_setname_np" "" ORO_HAVE_PTHREAD_SETNAME_NP)
 
   add_definitions( -Wall )
 
@@ -283,48 +303,17 @@ endif()
 INCLUDE_DIRECTORIES( ${OROCOS-RTT_INCLUDE_DIRS} )
 
 #
-# Disable line wrapping for g++ such that eclipse can parse the errors.
+# Set compiler specific options
 #
 IF(CMAKE_COMPILER_IS_GNUCXX)
+  SET(RTT_GCC_HASVISIBILITY TRUE)
+  # Disable line wrapping for g++ such that eclipse can parse the errors.
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
 ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 IF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
   SET(RTT_GCC_HASVISIBILITY TRUE)
 ENDIF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-
-#
-# If we're using gcc, make sure the version is OK.
-#
-IF (CMAKE_COMPILER_IS_GNUCXX)
-  # this is a workaround distcc:
-  IF ( CMAKE_CXX_COMPILER_ARG1 )
-    STRING(REPLACE " " "" CMAKE_CXX_COMPILER_ARG1 ${CMAKE_CXX_COMPILER_ARG1} )
-    #MESSAGE("Invoking: '${CMAKE_CXX_COMPILER_ARG1} -dumpversion'")
-    EXECUTE_PROCESS( COMMAND ${CMAKE_CXX_COMPILER_ARG1} -dumpversion RESULT_VARIABLE CXX_HAS_VERSION OUTPUT_VARIABLE CXX_VERSION)
-  ELSE ( CMAKE_CXX_COMPILER_ARG1 )
-    #MESSAGE("Invoking: ${CMAKE_CXX_COMPILER} -dumpversion")
-    EXECUTE_PROCESS( COMMAND ${CMAKE_CXX_COMPILER} -dumpversion RESULT_VARIABLE CXX_HAS_VERSION OUTPUT_VARIABLE CXX_VERSION)
-  ENDIF ( CMAKE_CXX_COMPILER_ARG1 )
-
-  IF ( ${CXX_HAS_VERSION} EQUAL 0 )
-    # We are assuming here that -dumpversion is gcc specific.
-    IF( CXX_VERSION MATCHES "[4-6]\\.[0-9](\\.[0-9])?" )
-      MESSAGE(STATUS "Detected gcc4/5: ${CXX_VERSION}")
-      SET(RTT_GCC_HASVISIBILITY TRUE)
-    ELSE(CXX_VERSION MATCHES "[4-6]\\.[0-9](\\.[0-9])?")
-      IF( CXX_VERSION MATCHES "3\\.[0-9](\\.[0-9])?" )
-        MESSAGE(STATUS "Detected gcc3: ${CXX_VERSION}")
-      ELSE( CXX_VERSION MATCHES "3\\.[0-9](\\.[0-9])?" )
-        MESSAGE("ERROR: You seem to be using gcc version:")
-        MESSAGE("${CXX_VERSION}")
-        MESSAGE( FATAL_ERROR "ERROR: For gcc, Orocos requires version 4.x or 3.x")
-      ENDIF( CXX_VERSION MATCHES "3\\.[0-9](\\.[0-9])?" )
-    ENDIF(CXX_VERSION MATCHES "[4-6]\\.[0-9](\\.[0-9])?")
-  ELSE ( ${CXX_HAS_VERSION} EQUAL 0)
-    MESSAGE("Could not determine gcc version: ${CXX_HAS_VERSION}")
-  ENDIF ( ${CXX_HAS_VERSION} EQUAL 0)
-ENDIF()
 
 #
 # Set flags for code coverage, and setup coverage target
