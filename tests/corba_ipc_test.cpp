@@ -234,10 +234,12 @@ BOOST_FIXTURE_TEST_SUITE(  CorbaIPCTestSuite,  CorbaTest )
 
 BOOST_AUTO_TEST_CASE( testRemoteOperationCallerC )
 {
-    tp = corba::TaskContextProxy::Create( "peerRMC", /* is_ior = */ false ); // no-ior
-    if (!tp )
-        tp = corba::TaskContextProxy::CreateFromFile( "peerRMC.ior");
-    BOOST_REQUIRE( tp );
+#ifndef ORO_NO_EMIT_CORBA_IOR
+    tp = corba::TaskContextProxy::CreateFromFile( "peerRMC.ior");
+#endif
+    if (!tp)
+        tp = corba::TaskContextProxy::Create( "peerRMC", /* is_ior = */ false);
+    BOOST_REQUIRE(tp);
 
     // This test tests 'transparant' remote invocation of Orocos internal::OperationCallerC objects.
     internal::OperationCallerC mc;
@@ -262,10 +264,13 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCallerC )
 
 BOOST_AUTO_TEST_CASE( testRemoteOperationCaller )
 {
-    tp = corba::TaskContextProxy::Create( "peerRM" , /* is_ior = */ false);
-    if (!tp )
-        tp = corba::TaskContextProxy::CreateFromFile( "peerRM.ior");
+#ifndef ORO_NO_EMIT_CORBA_IOR
+    tp = corba::TaskContextProxy::CreateFromFile( "peerRM.ior");
+#endif
+    if (!tp)
+        tp = corba::TaskContextProxy::Create( "peerRM", /* is_ior = */ false);
     BOOST_REQUIRE(tp);
+
     // This test tests 'transparant' remote invocation of Orocos methods.
     // This requires the internal::RemoteOperationCaller class, which does not work yet.
     RTT::OperationCaller<double(void)> m0 = tp->provides("methods")->getOperation("m0");
@@ -287,9 +292,11 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCaller )
  */
 BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCallback )
 {
-    tp = corba::TaskContextProxy::Create( "peerRMCb" , /* is_ior = */ false);
-    if (!tp )
-        tp = corba::TaskContextProxy::CreateFromFile( "peerRMC.ior");
+#ifndef ORO_NO_EMIT_CORBA_IOR
+    tp = corba::TaskContextProxy::CreateFromFile( "peerRMCb.ior");
+#endif
+    if (!tp)
+        tp = corba::TaskContextProxy::Create( "peerRMCb", /* is_ior = */ false);
     BOOST_REQUIRE(tp);
 
     BOOST_REQUIRE( RTT::internal::DataSourceTypeInfo<TaskContext*>::getTypeInfo() != 0 );
@@ -308,9 +315,12 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCallback )
 BOOST_AUTO_TEST_CASE( testAnyOperationCaller )
 {
     double d;
-    tp = corba::TaskContextProxy::Create( "peerAM" , /* is_ior = */ false);
-    if (!tp )
-        tp = corba::TaskContextProxy::CreateFromFile( "peerAM.ior");
+#ifndef ORO_NO_EMIT_CORBA_IOR
+    tp = corba::TaskContextProxy::CreateFromFile( "peerAM.ior");
+#endif
+    if (!tp)
+        tp = corba::TaskContextProxy::Create( "peerAM", /* is_ior = */ false);
+    BOOST_REQUIRE(tp);
 
     BOOST_REQUIRE(tp);
     s = tp->server();
@@ -379,9 +389,12 @@ BOOST_AUTO_TEST_CASE( testAnyOperationCaller )
 
 BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 {
-    tp = corba::TaskContextProxy::Create( "peerDFI" , /* is_ior = */ false);
-    if (!tp )
-        tp = corba::TaskContextProxy::CreateFromFile( "peerDFI.ior");
+#ifndef ORO_NO_EMIT_CORBA_IOR
+    tp = corba::TaskContextProxy::CreateFromFile( "peerDFI.ior");
+#endif
+    if (!tp)
+        tp = corba::TaskContextProxy::Create( "peerDFI", /* is_ior = */ false);
+    BOOST_REQUIRE(tp);
 
     corba::CDataFlowInterface_var ports = tp->server()->ports();
 
@@ -406,10 +419,13 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 
 BOOST_AUTO_TEST_CASE( testPortConnections )
 {
-    // This test tests the differen port-to-port connections.
-    tp = corba::TaskContextProxy::Create( "peerPC", /* is_ior = */ false);
-    if (!tp )
-        tp = corba::TaskContextProxy::CreateFromFile( "peerPC.ior");
+    // This test tests the different port-to-port connections.
+#ifndef ORO_NO_EMIT_CORBA_IOR
+    tp = corba::TaskContextProxy::CreateFromFile( "peerPC.ior");
+#endif
+    if (!tp)
+        tp = corba::TaskContextProxy::Create( "peerPC", /* is_ior = */ false);
+    BOOST_REQUIRE(tp);
 
     s = tp->server();
     // server to our own tc.
@@ -496,9 +512,12 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
 BOOST_AUTO_TEST_CASE( testPortProxying )
 {
     // This test creates connections between local and remote ports.
-    tp = corba::TaskContextProxy::Create( "peerPP" , /* is_ior = */ false);
-    if (!tp )
-        tp = corba::TaskContextProxy::CreateFromFile( "peerPP.ior");
+#ifndef ORO_NO_EMIT_CORBA_IOR
+    tp = corba::TaskContextProxy::CreateFromFile( "peerPP.ior");
+#endif
+    if (!tp)
+        tp = corba::TaskContextProxy::Create( "peerPP", /* is_ior = */ false);
+    BOOST_REQUIRE(tp);
 
     base::PortInterface* untyped_port;
 
@@ -559,10 +578,12 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
 BOOST_AUTO_TEST_CASE( testDataHalfs )
 {
     double result;
-    // This test tests the differen port-to-port connections.
-    tp = corba::TaskContextProxy::Create( "peerDH" , /* is_ior = */ false);
-    if (!tp )
-        tp = corba::TaskContextProxy::CreateFromFile( "peerDH.ior");
+#ifndef ORO_NO_EMIT_CORBA_IOR
+    tp = corba::TaskContextProxy::CreateFromFile( "peerDH.ior");
+#endif
+    if (!tp)
+        tp = corba::TaskContextProxy::Create( "peerDH", /* is_ior = */ false);
+    BOOST_REQUIRE(tp);
 
     s = tp->server();
 
@@ -620,11 +641,12 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
 BOOST_AUTO_TEST_CASE( testBufferHalfs )
 {
     double result;
-
-    // This test tests the differen port-to-port connections.
-    tp = corba::TaskContextProxy::Create( "peerBH" , /* is_ior = */ false);
-    if (!tp )
-        tp = corba::TaskContextProxy::CreateFromFile( "peerBH.ior");
+#ifndef ORO_NO_EMIT_CORBA_IOR
+    tp = corba::TaskContextProxy::CreateFromFile( "peerBH.ior");
+#endif
+    if (!tp)
+        tp = corba::TaskContextProxy::Create( "peerBH", /* is_ior = */ false);
+    BOOST_REQUIRE(tp);
 
     s = tp->server();
 
