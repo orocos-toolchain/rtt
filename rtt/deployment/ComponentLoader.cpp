@@ -338,39 +338,6 @@ bool ComponentLoader::import( std::string const& path_list )
             // If the path is not complete (not absolute), look it up in the search directories:
             log(Debug) << "No such directory: " << p<< endlog();
         }
-#if 0
-        // Repeat for path/OROCOS_TARGET: (already done in other import function)
-        p = path(*it) / OROCOS_TARGET_NAME;
-        if (is_directory(p))
-        {
-            log(Info) << "Importing component libraries from directory " << p.string() << " ..."<<endlog();
-            for (directory_iterator itr(p); itr != directory_iterator(); ++itr)
-            {
-                log(Debug) << "Scanning file " << itr->path().string() << " ...";
-                if (is_regular_file(itr->status()) && isLoadableLibrary(itr->path()) ) {
-                    found = true;
-#if BOOST_VERSION >= 104600
-                    all_good = loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename().string() ),  true) && all_good;
-#else
-                    all_good = loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ),  true) && all_good;
-#endif
-                }else {
-                    if (!is_regular_file(itr->status()))
-                        log(Debug) << "not a regular file: ignored."<<endlog();
-                    else
-                        log(Debug) << "not a " + SO_EXT + " library: ignored."<<endlog();
-                }
-            }
-            log(Info) << "Importing plugins and typekits from directory " << p.string() << " ..."<<endlog();
-            try {
-                found = PluginLoader::Instance()->loadTypekits( p.string() ) || found;
-                found = PluginLoader::Instance()->loadPlugins( p.string() ) || found;
-            } catch (std::exception& e) {
-                all_good = false;
-                log(Error) << e.what() <<endlog();
-            }
-        }
-#endif
     }
     if (!all_good)
         throw std::runtime_error("Some found plugins could not be loaded !");
@@ -450,7 +417,7 @@ bool ComponentLoader::importInstalledPackage(std::string const& package, std::st
         } // else: we allow to import a subdirectory of '.'.
     }
     // append '/package' or 'target/package' to each plugin path in order to search all of them:
-    for(vector<string>::iterator it = vpaths.begin(); it != vpaths.end(); ++it) {
+    for(vector<string>::iterator it = vpaths.begin(); !path_found && it != vpaths.end(); ++it) {
         p = *it;
         p = p / package;
         // we only search in existing directories:
