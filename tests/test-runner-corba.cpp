@@ -84,13 +84,6 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
 	assert((size_t)-1 != freeMem); // increase MEMORY_SIZE above most likely, as TLSF has a several kilobyte overhead
 	(void)freeMem;          // avoid compiler warning
 #endif
-	__os_init(argc, argv);
-
-    boost::unit_test::unit_test_monitor.register_exception_translator<CORBA::Exception>(&translate_corba_exception);
-
-    corba::TaskContextServer::InitOrb(argc,argv);
-    corba::TaskContextServer::ThreadOrb();
-
 
     // disable logging of errors or warnings if no ORO_LOGLEVEL was set.
     if ( log().getLogLevel() == Logger::Warning ) {
@@ -99,6 +92,13 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
     } else {
         log(Info) << "LogLevel unaltered by test-runner." << endlog();
     }
+
+	__os_init(argc, argv);
+
+    boost::unit_test::unit_test_monitor.register_exception_translator<CORBA::Exception>(&translate_corba_exception);
+
+    corba::TaskContextServer::InitOrb(argc,argv);
+    corba::TaskContextServer::ThreadOrb();
 
     return 0;
 }
