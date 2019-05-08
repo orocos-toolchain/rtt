@@ -121,14 +121,13 @@ char * RTT_corba_CServiceRequester_i::getRequestName (
     if ( svc == "this" )
         return _this();
 
-    if ( mservice->requiresService(service_name) == false )
-        return RTT::corba::CServiceRequester::_nil();
+    ServiceRequester::shared_ptr requester = mservice->requires(svc);
 
     // Creates service requester
     if ( mrequests.find(svc) == mrequests.end() ) {
         log(Debug) << "Creating CServiceRequester for "<< service_name <<endlog();
         RTT_corba_CServiceRequester_i* mserv;
-        mserv = new RTT_corba_CServiceRequester_i( mservice->requires(service_name), mpoa );
+        mserv = new RTT_corba_CServiceRequester_i( requester, mpoa );
         CServiceRequester_ptr request = mserv->activate_this();
         mrequests[svc] = std::pair<RTT::corba::CServiceRequester_var, PortableServer::ServantBase_var>(request,mserv);
     }
@@ -171,7 +170,7 @@ char * RTT_corba_CServiceRequester_i::getRequestName (
     }
 
     // creates a local factory for this remote method.
-    OperationInterfacePart* tmp = new CorbaOperationCallerFactory(oname,svc, mpoa.in() );
+    OperationInterfacePart* tmp = new CorbaOperationCallerFactory(oname, svc, mpoa.in() );
     return mservice->getOperationCaller(oname)->setImplementationPart( tmp, mservice->getServiceOwner()->engine() );
 }
 
@@ -212,4 +211,38 @@ void RTT_corba_CServiceRequester_i::disconnect (
     mservice->disconnect();
 }
 
+::RTT::corba::CServiceRequesterDescription * RTT_corba_CServiceRequester_i::getCServiceRequesterDescription (
+    void)
+{
+    ::RTT::corba::CServiceRequesterDescription_var d = new ::RTT::corba::CServiceRequesterDescription;
 
+    d->name = getRequestName();
+
+    ::RTT::corba::COperationCallerNames_var operationcallernames = getOperationCallerNames();
+    d->operationcallernames = operationcallernames;
+
+    ServiceRequester::RequesterNames requesters = mservice->getRequesterNames();
+    d->children.length( requesters.size() );
+    d->children_descriptions.length( requesters.size() );
+    unsigned int j = 0;
+    for (unsigned int i=0; i != requesters.size(); ++i )
+    {
+        if (requesters[i] == "this") continue;
+
+        ::RTT::corba::CServiceRequester_ptr requester = getRequest(requesters[i].c_str());
+        RequestersMap::iterator it = mrequests.find(requesters[i]);
+        if (it != mrequests.end()) {
+            RTT_corba_CServiceRequester_i *child = dynamic_cast<RTT_corba_CServiceRequester_i *>(it->second.second.in());
+            if (child) {
+                ::RTT::corba::CServiceRequesterDescription_var child_description = child->getCServiceRequesterDescription();
+                d->children[j] = requester;
+                d->children_descriptions[j] = child_description;
+                j++;
+            }
+        }
+    }
+    d->children.length(j); // set real size
+    d->children_descriptions.length(j); // set real size
+
+    return d._retn();
+}

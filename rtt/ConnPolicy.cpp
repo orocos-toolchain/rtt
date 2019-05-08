@@ -168,9 +168,10 @@ namespace RTT
         }
 
         std::string pull;
-        switch(cp.pull) {
-            case ConnPolicy::PUSH: pull = "PUSH"; break;
-            case ConnPolicy::PULL: pull = "PULL"; break;
+        // note: cast to int to suppress clang "warning: switch condition has boolean value"
+        switch(int(cp.pull)) {
+            case int(ConnPolicy::PUSH): pull = "PUSH"; break;
+            case int(ConnPolicy::PULL): pull = "PULL"; break;
         }
 
         os << pull << " ";

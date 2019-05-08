@@ -57,34 +57,86 @@ namespace RTT
     class DataObjectLocked
         : public DataObjectInterface<T>
     {
+        typedef typename DataObjectInterface<T>::value_t value_t;
+        typedef typename DataObjectInterface<T>::reference_t reference_t;
+        typedef typename DataObjectInterface<T>::param_t param_t;
+
         mutable os::Mutex lock;
 
         /**
          * One element of Data.
          */
-        T data;
+        value_t data;
+
+        mutable FlowStatus status;
+        bool initialized;
+
     public:
         /**
-         * Construct a DataObjectLocked by name.
-         *
-         * @param _name The name of this DataObject.
+         * Construct an uninitialized DataObjectLocked.
          */
-        DataObjectLocked( const T& initial_value = T() )
-            : data(initial_value) {}
+        DataObjectLocked()
+            : data(), status(NoData), initialized(false) {}
+
+        /**
+         * Construct a DataObjectLocked with initial value.
+         */
+        DataObjectLocked( param_t initial_value )
+            : data(initial_value), status(NoData), initialized(true) {}
 
         /**
          * The type of the data.
          */
         typedef T DataType;
 
-        virtual void Get( DataType& pull ) const { os::MutexLock locker(lock); pull = data; }
+        virtual FlowStatus Get( reference_t pull, bool copy_old_data = true ) const {
+            os::MutexLock locker(lock);
+            FlowStatus result = status;
+            if (status == NewData) {
+                pull = data;
+                status = OldData;
+            } else if ((status == OldData) && copy_old_data) {
+                pull = data;
+            }
+            return result;
+        }
 
-        virtual DataType Get() const { DataType cache;  Get(cache); return cache; }
+        virtual value_t Get() const {
+            DataType cache = DataType();
+            Get(cache);
+            return cache;
+        }
 
-        virtual void Set( const DataType& push ) { os::MutexLock locker(lock); data = push; }
+        virtual bool Set( param_t push ) {
+            os::MutexLock locker(lock);
+            data = push;
+            status = NewData;
+            return true;
+        }
 
-        virtual void data_sample( const DataType& sample ) {
-            Set(sample);
+        virtual bool data_sample( param_t sample, bool reset ) {
+            os::MutexLock locker(lock);
+            if (!initialized || reset) {
+                data = sample;
+                status = NoData;
+                initialized = true;
+                return true;
+            } else {
+                return initialized;
+            }
+        }
+
+        /**
+         * Reads back a data sample.
+         */
+        virtual value_t data_sample() const {
+            os::MutexLock locker(lock);
+            return data;
+        }
+
+        virtual void clear() {
+            os::MutexLock locker(lock);
+            status = NoData;
         }
     };
 }}

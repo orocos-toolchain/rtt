@@ -53,7 +53,7 @@ RTT::corba::CConnPolicy toCORBA(RTT::ConnPolicy const& policy)
     corba_policy.lock_policy   = RTT::corba::CLockPolicy(policy.lock_policy);
     corba_policy.init          = policy.init;
     corba_policy.pull          = policy.pull;
-    corba_policy.buffer_policy = RTT::corba::CBufferPolicy(int(policy.buffer_policy));
+    corba_policy.buffer_policy = RTT::corba::CBufferPolicy(policy.buffer_policy);
     corba_policy.max_threads   = policy.max_threads;
     corba_policy.mandatory     = policy.mandatory;
     corba_policy.data_size     = policy.data_size;

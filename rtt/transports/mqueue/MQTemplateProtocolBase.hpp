@@ -69,10 +69,10 @@ namespace RTT
           virtual base::ChannelElementBase::shared_ptr createStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const {
               try {
                   base::ChannelElementBase::shared_ptr mq = new MQChannelElement<T>(port, *this, policy, is_sender);
-                  if ( !is_sender ) {
-                      // the receiver needs a buffer to store his messages in.
+                  if ( !is_sender && (policy.pull == ConnPolicy::PULL) ) {
+                      // the receiver needs a buffer to store his messages in. For pull connections buildChannelOutput does not add an output buffer, so we add it here:
                       base::ChannelElementBase::shared_ptr buf = detail::DataSourceTypeInfo<T>::getTypeInfo()->buildDataStorage(policy);
-                      mq->setOutput(buf);
+                      mq->connectTo(buf);
                   }
                   return mq;
               } catch(std::exception& e) {

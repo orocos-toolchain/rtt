@@ -1,11 +1,35 @@
 # this option was set in global_rules.cmake
 IF(ENABLE_CORBA)
   MESSAGE( "Building CORBA Transport library.")
-  OPTION(PLUGINS_CORBA_TRANSPORT_TYPES "Enable corba transport for RTT typekit types." ON)
 
+  OPTION(PLUGINS_CORBA_TRANSPORT_TYPES "Enable corba transport for RTT typekit types." ON)
   if (NOT PLUGINS_STD_TYPES_SUPPORT)
     ADD_DEFINITIONS( -DRTT_NO_STD_TYPES )
   endif (NOT PLUGINS_STD_TYPES_SUPPORT)
+
+  OPTION(PLUGINS_CORBA_PORTS_DISABLE_SIGNAL "Do not send remote signals for ports to the client side." OFF)
+  if (PLUGINS_CORBA_PORTS_DISABLE_SIGNAL)
+    MESSAGE("Disabled remote signalling in CORBA Transport library.")
+  endif (PLUGINS_CORBA_PORTS_DISABLE_SIGNAL)
+  set(RTT_CORBA_PORTS_DISABLE_SIGNAL ${PLUGINS_CORBA_PORTS_DISABLE_SIGNAL})  # for rtt-corba-config.h
+
+  OPTION(PLUGINS_CORBA_PORTS_WRITE_ONEWAY "Use oneway calls for port writes." OFF)
+  if (PLUGINS_CORBA_PORTS_WRITE_ONEWAY)
+    MESSAGE("Enabled oneway port writes in CORBA Transport library.")
+  endif (PLUGINS_CORBA_PORTS_WRITE_ONEWAY)
+  set(RTT_CORBA_PORTS_WRITE_ONEWAY ${PLUGINS_CORBA_PORTS_WRITE_ONEWAY})  # for rtt-corba-config.h
+
+  OPTION(PLUGINS_CORBA_SEND_ONEWAY_OPERATIONS "Send oneway operations if collect arity is zero." OFF)
+  if (PLUGINS_CORBA_SEND_ONEWAY_OPERATIONS)
+    MESSAGE("Enabled oneway operation sending in CORBA Transport library.")
+  endif (PLUGINS_CORBA_SEND_ONEWAY_OPERATIONS)
+  set(RTT_CORBA_SEND_ONEWAY_OPERATIONS ${PLUGINS_CORBA_SEND_ONEWAY_OPERATIONS})  # for rtt-corba-config.h
+
+  OPTION(PLUGINS_CORBA_NO_CHECK_OPERATIONS "Check operation signature when constructing remote operation callers." OFF)
+  if (PLUGINS_CORBA_NO_CHECK_OPERATIONS)
+    MESSAGE("Disabled operation signature checking in CORBA Transport library.")
+  endif (PLUGINS_CORBA_NO_CHECK_OPERATIONS)
+  set(RTT_CORBA_NO_CHECK_OPERATIONS ${PLUGINS_CORBA_NO_CHECK_OPERATIONS})  # for rtt-corba-config.h
 
   # Clang 2.9 needs this in order to get around undefined symbols of inlined operator>>= functions !
   GET_FILENAME_COMPONENT(CORBA_CXX_NAME "${CMAKE_CXX_COMPILER}" NAME)

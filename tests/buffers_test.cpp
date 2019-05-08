@@ -36,6 +36,9 @@
 #include <os/Thread.hpp>
 #include <rtt-config.h>
 
+#include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
+
 using namespace std;
 using namespace RTT;
 using namespace RTT::detail;
@@ -73,27 +76,27 @@ public:
 };
 
 
-typedef AtomicQueue<Dummy*> QueueType;
+typedef AtomicMWMRQueue<Dummy*> MWMRQueueType;
 typedef AtomicMWSRQueue<Dummy*> MWSRQueueType;
 
 // Don't make queue size too large, we want to catch
 // overrun issues too.
 #define QS 10
 
-class BuffersAQueueTest
+class BuffersAtomicMWMRQueueTest
 {
 public:
-    AtomicQueue<Dummy*>* aqueue;
+    MWMRQueueType* aqueue;
     ThreadInterface* athread;
     ThreadInterface* bthread;
     ListLockFree<Dummy>* listlockfree;
 
-    BuffersAQueueTest()
+    BuffersAtomicMWMRQueueTest()
     {
-        aqueue = new AtomicQueue<Dummy*>(QS);
+        aqueue = new MWMRQueueType(QS);
         listlockfree = new ListLockFree<Dummy>(10, 4);
     }
-    ~BuffersAQueueTest(){
+    ~BuffersAtomicMWMRQueueTest(){
         aqueue->clear();
         delete aqueue;
         delete listlockfree;
@@ -103,15 +106,63 @@ public:
 class BuffersAtomicMWSRQueueTest
 {
 public:
-    AtomicMWSRQueue<Dummy*>* aqueue;
+    MWSRQueueType* aqueue;
 
     BuffersAtomicMWSRQueueTest()
     {
-        aqueue = new AtomicMWSRQueue<Dummy*>(QS);
+        aqueue = new MWSRQueueType(QS);
     }
     ~BuffersAtomicMWSRQueueTest(){
         aqueue->clear();
         delete aqueue;
+    }
+};
+
+template <class Worker>
+class ThreadPool : public std::vector< std::pair< boost::shared_ptr<Worker>, boost::shared_ptr<ThreadInterface> > >
+{
+public:
+    typedef std::vector< std::pair< boost::shared_ptr<Worker>, boost::shared_ptr<ThreadInterface> > > Threads;
+    typedef typename Threads::value_type value_type;
+    typedef typename Threads::iterator iterator;
+    typedef typename Threads::const_iterator const_iterator;
+
+    template <typename Arg1>
+    ThreadPool(int threads, int scheduler, int priority, Seconds period, const std::string &name, const Arg1 &arg1)
+        : Threads(threads)
+    {
+        int count = 0;
+        for(iterator worker = this->begin(); worker != this->end(); ++worker) {
+            worker->first.reset(new Worker(arg1));
+            worker->second.reset(new Activity(scheduler, priority, period, worker->first.get(), name + boost::lexical_cast<std::string>(count++)));
+        }
+    }
+
+    ~ThreadPool()
+    {
+        stop();
+        for(iterator worker = this->begin(); worker != this->end(); ++worker) {
+            worker->second.reset();
+            worker->first.reset();
+        }
+    }
+
+    bool start()
+    {
+        bool result = true;
+        for(const_iterator worker = this->begin(); worker != this->end(); ++worker) {
+            if (!worker->second->start()) result = false;
+        }
+        return result;
+    }
+
+    bool stop()
+    {
+        bool result = true;
+        for(const_iterator worker = this->begin(); worker != this->end(); ++worker) {
+            worker->second->stop();
+        }
+        return result;
     }
 };
 
@@ -134,28 +185,30 @@ public:
     DataObjectLockFree<Dummy>* dlockfree;
     DataObjectUnSync<Dummy>* dunsync;
 
-    ThreadInterface* athread;
-    ThreadInterface* bthread;
-
     void testBuf();
     void testCirc();
     void testDObj();
 
+    typedef std::map<FlowStatus, int> ReadsByStatusMap;
+
+    void testBufMultiThreaded(int number_of_writers, int number_of_readers);
+    void testDObjMultiThreaded(int number_of_writers, int number_of_readers);
+
     BuffersDataFlowTest()
     {
-        // clasical variants
-        lockfree = new BufferLockFree<Dummy>(QS);
-        locked = new BufferLocked<Dummy>(QS);
-        unsync = new BufferUnSync<Dummy>(QS);
+        // classical variants
+        lockfree = new BufferLockFree<Dummy>(QS, Dummy());
+        locked = new BufferLocked<Dummy>(QS, Dummy());
+        unsync = new BufferUnSync<Dummy>(QS, Dummy());
 
         // circular variants.
-        clockfree = new BufferLockFree<Dummy>(QS,Dummy(), true);
-        clocked = new BufferLocked<Dummy>(QS,Dummy(), true);
-        cunsync = new BufferUnSync<Dummy>(QS,Dummy(), true);
+        clockfree = new BufferLockFree<Dummy>(QS, Dummy(), BufferBase::Options().circular(true));
+        clocked = new BufferLocked<Dummy>(QS, Dummy(), BufferBase::Options().circular(true));
+        cunsync = new BufferUnSync<Dummy>(QS, Dummy(), BufferBase::Options().circular(true));
 
-        dlockfree = new DataObjectLockFree<Dummy>();
-        dlocked   = new DataObjectLocked<Dummy>();
-        dunsync   = new DataObjectUnSync<Dummy>();
+        dlockfree = new DataObjectLockFree<Dummy>(Dummy());
+        dlocked   = new DataObjectLocked<Dummy>(Dummy());
+        dunsync   = new DataObjectUnSync<Dummy>(Dummy());
 
         // defaults
         buffer = lockfree;
@@ -173,6 +226,138 @@ public:
         delete dlocked;
         delete dunsync;
     }
+
+    class DataObjectWriter : public RunnableInterface {
+    private:
+        DataObjectInterface<Dummy> *dataobj;
+        bool stop;
+        Dummy sample;
+
+    public:
+        int writes;
+        int dropped;
+
+    public:
+        DataObjectWriter(DataObjectInterface<Dummy> *dataobj) : dataobj(dataobj), stop(false), writes(0), dropped(0) {}
+        bool initialize() {
+            stop = false;
+            return true;
+        }
+        void step() {
+            while (stop == false) {
+                if (dataobj->Set(sample)) {
+                    ++writes;
+                } else {
+                    ++dropped;
+                }
+            }
+        }
+
+        void finalize() {}
+
+        bool breakLoop() {
+            stop = true;
+            return true;
+        }
+    };
+
+    class DataObjectReader : public RunnableInterface {
+    private:
+        DataObjectInterface<Dummy> *dataobj;
+        bool stop;
+        Dummy sample;
+
+    public:
+        int reads;
+        ReadsByStatusMap reads_by_status;
+
+    public:
+        DataObjectReader(DataObjectInterface<Dummy> *dataobj) : dataobj(dataobj), stop(false), reads(0) {}
+        bool initialize() {
+            stop = false;
+            return true;
+        }
+        void step() {
+            while (stop == false) {
+                FlowStatus fs = dataobj->Get(sample, false);
+                ++reads;
+                ++reads_by_status[fs];
+            }
+        }
+
+        void finalize() {}
+
+        bool breakLoop() {
+            stop = true;
+            return true;
+        }
+    };
+
+    class BufferWriter : public RunnableInterface {
+    private:
+        BufferInterface<Dummy> *buffer;
+        bool stop;
+        Dummy sample;
+
+    public:
+        int writes;
+        int dropped;
+
+    public:
+        BufferWriter(BufferInterface<Dummy> *buffer) : buffer(buffer), stop(false), writes(0), dropped(0) {}
+        bool initialize() {
+            stop = false;
+            return true;
+        }
+        void step() {
+            while (stop == false) {
+                if (buffer->Push(sample)) {
+                    ++writes;
+                } else {
+                    ++dropped;
+                }
+            }
+        }
+
+        void finalize() {}
+
+        bool breakLoop() {
+            stop = true;
+            return true;
+        }
+    };
+
+    class BufferReader : public RunnableInterface {
+    private:
+        BufferInterface<Dummy> *buffer;
+        bool stop;
+        Dummy sample;
+
+    public:
+        int reads;
+        ReadsByStatusMap reads_by_status;
+
+    public:
+        BufferReader(BufferInterface<Dummy> *buffer) : buffer(buffer), stop(false), reads(0) {}
+        bool initialize() {
+            stop = false;
+            return true;
+        }
+        void step() {
+            while (stop == false) {
+                FlowStatus fs = buffer->Pop(sample);
+                ++reads;
+                ++reads_by_status[fs];
+            }
+        }
+
+        void finalize() {}
+
+        bool breakLoop() {
+            stop = true;
+            return true;
+        }
+    };
 };
 
 void BuffersDataFlowTest::testBuf()
@@ -453,7 +638,11 @@ void BuffersDataFlowTest::testCirc()
 void BuffersDataFlowTest::testDObj()
 {
     Dummy* c = new Dummy(2.0, 1.0, 0.0);
-    Dummy  d;
+    Dummy  d(5.0, 4.0, 3.0);
+
+    BOOST_REQUIRE_EQUAL( NoData, dataobj->Get(d) );
+    BOOST_REQUIRE_EQUAL( d, Dummy(5.0, 4.0, 3.0) );
+
     dataobj->Set( *c );
     BOOST_REQUIRE_EQUAL( *c, dataobj->Get() );
     int i = 0;
@@ -466,6 +655,92 @@ void BuffersDataFlowTest::testDObj()
     BOOST_REQUIRE_EQUAL( d , dataobj->Get() );
 
     delete c;
+}
+
+void BuffersDataFlowTest::testBufMultiThreaded(int number_of_writers, int number_of_readers)
+{
+    ThreadPool<BufferWriter> writers(number_of_writers, ORO_SCHED_OTHER, 0, 0, "BufferWriter", buffer);
+    ThreadPool<BufferReader> readers(number_of_readers, ORO_SCHED_OTHER, 0, 0, "BufferReader", buffer);
+
+    buffer->clear();
+
+    BOOST_REQUIRE( readers.start() );
+    BOOST_REQUIRE( writers.start() );
+    sleep(5);
+    BOOST_REQUIRE( writers.stop() );
+    BOOST_REQUIRE( readers.stop() );
+
+    int total_writes = 0, total_dropped = 0, total_reads = 0;
+    std::map<FlowStatus, int> total_reads_by_status;
+    BOOST_FOREACH(ThreadPool<BufferWriter>::value_type &writer, writers) {
+        BOOST_REQUIRE( !writer.second->isRunning() );
+        total_writes += writer.first->writes;
+        total_dropped += writer.first->dropped;
+        BOOST_CHECK_GT(writer.first->writes, 0);
+    }
+    BOOST_FOREACH(ThreadPool<BufferReader>::value_type &reader, readers) {
+        BOOST_REQUIRE( !reader.second->isRunning() );
+        total_reads += reader.first->reads;
+        BOOST_CHECK_GT(reader.first->reads, 0);
+        BOOST_FOREACH(ReadsByStatusMap::value_type &reads_by_status, reader.first->reads_by_status) {
+            total_reads_by_status[reads_by_status.first] += reads_by_status.second;
+        }
+    }
+
+    if (buffer != circular) {
+        BOOST_CHECK_EQUAL(total_writes, (total_reads_by_status[NewData] + buffer->size()));
+    } else {
+        BOOST_CHECK_GE(total_writes, (total_reads_by_status[NewData] + buffer->size()));
+    }
+
+    if (writers.size() == 1) {
+        if (buffer != circular) {
+            BOOST_WARN_EQUAL(0, total_dropped);
+        } else {
+            BOOST_CHECK_EQUAL(0, total_dropped);
+        }
+    } else {
+        // Ignore dropped samples in case of multiple writers:
+        // It's normal that some samples will be dropped.
+    }
+}
+
+void BuffersDataFlowTest::testDObjMultiThreaded(int number_of_writers, int number_of_readers)
+{
+    ThreadPool<DataObjectWriter> writers(number_of_writers, ORO_SCHED_OTHER, 0, 0, "DataObjectWriter", dataobj);
+    ThreadPool<DataObjectReader> readers(number_of_readers, ORO_SCHED_OTHER, 0, 0, "DataObjectReader", dataobj);
+
+    BOOST_REQUIRE( readers.start() );
+    BOOST_REQUIRE( writers.start() );
+    sleep(5);
+    BOOST_REQUIRE( writers.stop() );
+    BOOST_REQUIRE( readers.stop() );
+
+    int total_writes = 0, total_dropped = 0, total_reads = 0;
+    std::map<FlowStatus, int> total_reads_by_status;
+    BOOST_FOREACH(ThreadPool<DataObjectWriter>::value_type &writer, writers) {
+        BOOST_REQUIRE( !writer.second->isRunning() );
+        total_writes += writer.first->writes;
+        total_dropped += writer.first->dropped;
+        BOOST_CHECK_GT(writer.first->writes, 0);
+    }
+    BOOST_FOREACH(ThreadPool<DataObjectReader>::value_type &reader, readers) {
+        BOOST_REQUIRE( !reader.second->isRunning() );
+        total_reads += reader.first->reads;
+        BOOST_CHECK_GT(reader.first->reads, 0);
+        BOOST_FOREACH(ReadsByStatusMap::value_type &reads_by_status, reader.first->reads_by_status) {
+            total_reads_by_status[reads_by_status.first] += reads_by_status.second;
+        }
+    }
+
+    // BOOST_CHECK_EQUAL(total_writes, total_reads_by_status[NewData]);
+    BOOST_CHECK_GE(total_writes, total_reads_by_status[NewData]);
+    if (writers.size() == 1) {
+        BOOST_CHECK_EQUAL(total_dropped, 0);
+    } else {
+        // Ignore dropped samples in case of multiple writers:
+        // It's normal that some samples will be dropped.
+    }
 }
 
 class BuffersMPoolTest
@@ -488,8 +763,37 @@ public:
         delete mpool;
         delete vpool;
     }
-};
 
+    template <typename T>
+    class Worker : public base::RunnableInterface
+    {
+    private:
+        TsPool<T> *mpool;
+        bool stop;
+    public:
+        int cycles;
+
+        Worker(TsPool<T> *pool) : mpool(pool), stop(false), cycles(0) {}
+        bool initialize() {
+            stop = false;
+            return true;
+        }
+        void step() {
+            while( stop == false ) {
+                T *item;
+                BOOST_VERIFY( item = mpool->allocate() );
+                getThread()->yield();
+                if (item) BOOST_VERIFY(mpool->deallocate(item));
+                ++cycles;
+            }
+        }
+        bool breakLoop() {
+            stop = true;
+            return true;
+        }
+        void finalize() {}
+    };
+};
 
 std::ostream& operator<<( std::ostream& os, const Dummy& d )  {
 	os << "(" << d.d1 <<","<<d.d2<<","<<d.d3<<")";
@@ -526,12 +830,12 @@ struct LLFWorker : public RunnableInterface
     }
     void step() {
         while (stop == false ) {
-            //cout << "Appending, i="<<i<<endl;
-            while ( mlst->append( Dummy(i,i,i) ) ) { ++i; ++appends; }
-            //cout << "Erasing, i="<<i<<endl;
+            //log(Info) << "Appending, i="<<i<<endlog();
+            while ( stop == false && mlst->append( Dummy(i,i,i) ) ) { ++i; ++appends; }
+            //log(Info) << "Erasing, i="<<i<<endlog();
             while ( mlst->erase( Dummy(i-1,i-1,i-1) ) ) { --i; ++erases; }
         }
-        //cout << "Stopping, i="<<i<<endl;
+        //log(Info) << "Stopping, i="<<i<<endlog();
     }
 
     void finalize() {}
@@ -595,9 +899,9 @@ struct AQWorker : public RunnableInterface
     void step() {
         Dummy* d = orig;
         while (stop == false ) {
-            //cout << "Appending, i="<<i<<endl;
+            //log(Info) << "Appending, i="<<i<<endlog();
             if ( mlst->enqueue( d ) ) { ++appends; }
-            //cout << "Erasing, i="<<i<<endl;
+            //log(Info) << "Erasing, i="<<i<<endlog();
             if ( mlst->dequeue( d ) ) {
                 if( *d != *orig) {
                     os::MutexLock lock(m);
@@ -606,7 +910,7 @@ struct AQWorker : public RunnableInterface
                 ++erases;
             }
         }
-        //cout << "Stopping, i="<<i<<endl;
+        //log(Info) << "Stopping, i="<<i<<endlog();
     }
 
     void finalize() {}
@@ -695,9 +999,9 @@ struct AQEater : public RunnableInterface
 };
 
 
-BOOST_FIXTURE_TEST_SUITE( BuffersAtomicTestSuite, BuffersAQueueTest )
+BOOST_FIXTURE_TEST_SUITE( BuffersAtomicMWMRQueueTestSuite, BuffersAtomicMWMRQueueTest )
 
-BOOST_AUTO_TEST_CASE( testAtomicQueue )
+BOOST_AUTO_TEST_CASE( testAtomicMWMRQueue )
 {
     /**
      * Single Threaded test for AtomicQueue.
@@ -737,7 +1041,7 @@ BOOST_AUTO_TEST_CASE( testAtomicQueue )
 }
 BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_FIXTURE_TEST_SUITE( BuffersMWSRQueueTestSuite, BuffersAtomicMWSRQueueTest )
+BOOST_FIXTURE_TEST_SUITE( BuffersAtomicMWSRQueueTestSuite, BuffersAtomicMWSRQueueTest )
 
 BOOST_AUTO_TEST_CASE( testAtomicMWSRQueue )
 {
@@ -829,6 +1133,94 @@ BOOST_AUTO_TEST_CASE( testDObjUnSync )
     testDObj();
 }
 
+BOOST_AUTO_TEST_CASE( testBufLockFree4Writers1Reader )
+{
+    buffer
+        = new BufferLockFree<Dummy>(QS, Dummy(), BufferBase::Options()
+                                                 .circular(false)
+                                                 .multiple_writers(true)
+                                                 .max_threads(5));
+    testBufMultiThreaded(4, 1);
+    delete buffer;
+
+    circular = buffer
+        = new BufferLockFree<Dummy>(QS, Dummy(), BufferBase::Options()
+                                                 .circular(true)
+                                                 .multiple_writers(true)
+                                                 .max_threads(5));
+    testBufMultiThreaded(4, 1);
+    delete buffer;
+}
+
+BOOST_AUTO_TEST_CASE( testBufLockFree4Writers4Readers )
+{
+    buffer
+        = new BufferLockFree<Dummy>(QS, Dummy(), BufferBase::Options()
+                                                 .circular(false)
+                                                 .multiple_writers(true)
+                                                 .multiple_readers(true)
+                                                 .max_threads(8));
+    testBufMultiThreaded(4, 4);
+    delete buffer;
+
+    circular = buffer
+        = new BufferLockFree<Dummy>(QS, Dummy(), BufferBase::Options()
+                                                 .circular(true)
+                                                 .multiple_writers(true)
+                                                 .multiple_readers(true)
+                                                 .max_threads(8));
+    testBufMultiThreaded(4, 4);
+    delete buffer;
+}
+
+BOOST_AUTO_TEST_CASE( testBufLocked4Writers4Readers )
+{
+    buffer
+        = new BufferLocked<Dummy>(QS, Dummy(), BufferBase::Options()
+                                               .circular(false)
+                                               .multiple_writers(true)
+                                               .multiple_readers(true)
+                                               .max_threads(8));
+    testBufMultiThreaded(4, 4);
+    delete buffer;
+
+    circular = buffer
+        = new BufferLocked<Dummy>(QS, Dummy(), BufferBase::Options()
+                                               .circular(true)
+                                               .multiple_writers(true)
+                                               .multiple_readers(true)
+                                               .max_threads(8));
+    testBufMultiThreaded(4, 4);
+    delete buffer;
+}
+
+BOOST_AUTO_TEST_CASE( testDObjLockFree4Writers1Reader )
+{
+    dataobj = new DataObjectLockFree<Dummy>(Dummy(), /* max_threads = */ 5);
+    testDObjMultiThreaded(4, 1);
+    delete dataobj;
+}
+
+BOOST_AUTO_TEST_CASE( testDObjLockFreeSingleWriter4Readers )
+{
+    dataobj = new DataObjectLockFree<Dummy>(Dummy(), /* max_threads = */ 5);
+    testDObjMultiThreaded(1, 4);
+    delete dataobj;
+}
+
+BOOST_AUTO_TEST_CASE( testDObjLockFree4Writers4Readers )
+{
+    dataobj = new DataObjectLockFree<Dummy>(Dummy(), /* max_threads = */ 8);
+    testDObjMultiThreaded(4, 4);
+    delete dataobj;
+}
+
+BOOST_AUTO_TEST_CASE( testDObjLockedSingleWriter4Readers )
+{
+    dataobj = dlocked;
+    testDObjMultiThreaded(1, 4);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 BOOST_FIXTURE_TEST_SUITE( BuffersMPoolTestSuite, BuffersMPoolTest )
 
@@ -875,6 +1267,43 @@ BOOST_AUTO_TEST_CASE( testMemoryPool )
     }
     BOOST_CHECK_EQUAL( mpv.size(), 0 );
     BOOST_CHECK_EQUAL( mpool->size(), QS);
+}
+
+BOOST_AUTO_TEST_CASE( testMemoryPoolMultiThreaded )
+{
+    Logger::In in("testMemoryPoolMultiThreaded");
+    int number_of_workers = QS;
+
+    {
+        BOOST_CHECK_EQUAL( mpool->size(), QS);
+        ThreadPool<BuffersMPoolTest::Worker<Dummy> > workers(number_of_workers, ORO_SCHED_OTHER, 0, 0, "BuffersMPoolWorker", mpool);
+        BOOST_REQUIRE( workers.start() );
+        sleep(5);
+        BOOST_REQUIRE( workers.stop() );
+        BOOST_CHECK_EQUAL( mpool->size(), QS);
+
+        int total_cycles = 0;
+        BOOST_FOREACH(ThreadPool<BuffersMPoolTest::Worker<Dummy> >::value_type &worker, workers) {
+            BOOST_CHECK_GT(worker.first->cycles, 0);
+            log(Info) << worker.second->getName() << ": " << worker.first->cycles << " cycles" << endlog();
+            total_cycles += worker.first->cycles;
+        }
+    }
+    {
+        BOOST_CHECK_EQUAL( vpool->size(), QS);
+        ThreadPool<BuffersMPoolTest::Worker<std::vector<Dummy> > > workers(number_of_workers, ORO_SCHED_OTHER, 0, 0, "BuffersVPoolWorker", vpool);
+        BOOST_REQUIRE( workers.start() );
+        sleep(5);
+        BOOST_REQUIRE( workers.stop() );
+        BOOST_CHECK_EQUAL( vpool->size(), QS);
+
+        int total_cycles = 0;
+        BOOST_FOREACH(ThreadPool<BuffersMPoolTest::Worker<std::vector<Dummy> > >::value_type &worker, workers) {
+            BOOST_CHECK_GT(worker.first->cycles, 0);
+            log(Info) << worker.second->getName() << ": " << worker.first->cycles << " cycles" << endlog();
+            total_cycles += worker.first->cycles;
+        }
+    }
 }
 
 #if 0
@@ -943,117 +1372,100 @@ BOOST_AUTO_TEST_CASE( testSortedList )
     BOOST_CHECK( mslist->empty() );
 }
 #endif
+BOOST_AUTO_TEST_SUITE_END()
 
 #ifdef OROPKG_OS_GNULINUX
-
-BOOST_AUTO_TEST_SUITE_END()
-BOOST_FIXTURE_TEST_SUITE( BuffersStressLockFreeTestSuite, BuffersAQueueTest )
+BOOST_FIXTURE_TEST_SUITE( BuffersStressLockFreeTestSuite, BuffersAtomicMWMRQueueTest )
 
 BOOST_AUTO_TEST_CASE( testListLockFree )
 {
-    LLFWorker* aworker = new LLFWorker( listlockfree );
-    LLFWorker* bworker = new LLFWorker( listlockfree );
-    LLFWorker* cworker = new LLFWorker( listlockfree );
+    ThreadPool< LLFWorker > pool(5, ORO_SCHED_OTHER, 0, 0.0, "LLFWorker", listlockfree);
     LLFGrower* grower = new LLFGrower( listlockfree );
 
     {
-        boost::scoped_ptr<Activity> athread( new Activity(ORO_SCHED_OTHER, 0, 0, aworker, "ActivityA" ));
-        boost::scoped_ptr<Activity> bthread( new Activity(ORO_SCHED_OTHER, 0, 0, bworker, "ActivityB" ));
-        boost::scoped_ptr<Activity> cthread( new Activity(ORO_SCHED_OTHER, 0, 0, cworker, "ActivityC" ));
-        boost::scoped_ptr<Activity> gthread( new Activity(ORO_SCHED_OTHER, 0, 0, grower, "ActivityG" ));
+        boost::scoped_ptr<Activity> gthread( new Activity(ORO_SCHED_OTHER, 0, 0, grower, "LLFGrower" ));
 
-        athread->start();
-        bthread->start();
-        cthread->start();
+        BOOST_REQUIRE(pool.start());
 
         sleep(5);
-        gthread->start();
+        BOOST_REQUIRE(gthread->start());
         sleep(10);
-        gthread->stop();
+        BOOST_REQUIRE(gthread->stop());
         sleep(5);
 
-        athread->stop();
-        bthread->stop();
-        cthread->stop();
+        BOOST_REQUIRE(pool.stop());
     }
 
 #if 0
-    cout << "Athread appends: " << aworker->appends<<endl;
-    cout << "Athread erases: " << aworker->erases<<endl;
-    cout << "Bthread appends: " << bworker->appends<<endl;
-    cout << "Bthread erases: " << bworker->erases<<endl;
-    cout << "Cthread appends: " << cworker->appends<<endl;
-    cout << "Cthread erases: " << cworker->erases<<endl;
-    cout << "List capacity: "<< listlockfree->capacity()<<endl;
-    cout << "List size: "<< listlockfree->size()<<endl;
+    for(ThreadPool< LLFWorker >::const_iterator it = pool.begin(); it != pool.end(); ++it) {
+        log(Info) << it->second->getName() << " appends: " << it->first->appends<<endlog();
+        log(Info) << it->second->getName() << " erases: " << it->first->erases<<endlog();
+    }
+    log(Info) << "List capacity: "<< listlockfree->capacity()<<endlog();
+    log(Info) << "List size: "<< listlockfree->size()<<endlog();
 //     while( listlockfree->empty() == false ) {
 //         Dummy d =  listlockfree->back();
-//         //cout << "Left: "<< d <<endl;
+//         //log(Info) << "Left: "<< d <<endlog();
 //         BOOST_CHECK( listlockfree->erase( d ) );
 //     }
 #endif
 
-    BOOST_CHECK( aworker->appends == aworker->erases );
-    BOOST_CHECK( bworker->appends == bworker->erases );
-    BOOST_CHECK( cworker->appends == cworker->erases );
+    for(ThreadPool< LLFWorker >::const_iterator it = pool.begin(); it != pool.end(); ++it) {
+        BOOST_CHECK_EQUAL( it->first->appends, it->first->erases );
+    }
 
-    delete aworker;
-    delete bworker;
-    delete cworker;
+    pool.clear();
     delete grower;
 }
-#endif
 
-#ifdef OROPKG_OS_GNULINUX
-BOOST_AUTO_TEST_CASE( testAtomicQueue )
+BOOST_AUTO_TEST_CASE( testAtomicMWMRQueue )
 {
-    QueueType* qt = new QueueType(QS);
-    AQWorker<QueueType>* aworker = new AQWorker<QueueType>( qt );
-    AQWorker<QueueType>* bworker = new AQWorker<QueueType>( qt );
-    AQWorker<QueueType>* cworker = new AQWorker<QueueType>( qt );
-    AQGrower<QueueType>* grower = new AQGrower<QueueType>( qt );
-    AQEater<QueueType>* eater = new AQEater<QueueType>( qt );
+    Logger::In in("testAtomicMWMRQueue");
+
+    MWMRQueueType* qt = new MWMRQueueType(QS);
+    ThreadPool< AQWorker<MWMRQueueType> > pool(5, ORO_SCHED_OTHER, 20, 0.0, "AQWorker", qt);
+    AQGrower<MWMRQueueType>* grower = new AQGrower<MWMRQueueType>( qt );
+    AQEater<MWMRQueueType>* eater = new AQEater<MWMRQueueType>( qt );
+    boost::scoped_ptr<Activity> gthread( new Activity(20, grower, "AQGrower"));
+    boost::scoped_ptr<Activity> ethread( new Activity(20, eater, "AQEater"));
+
+    // avoid system lock-ups
+    gthread->thread()->setScheduler(ORO_SCHED_OTHER);
+    ethread->thread()->setScheduler(ORO_SCHED_OTHER);
 
     {
-        boost::scoped_ptr<Activity> athread( new Activity(20, aworker, "ActivityA" ));
-        boost::scoped_ptr<Activity> bthread( new Activity(20, bworker, "ActivityB" ));
-        boost::scoped_ptr<Activity> cthread( new Activity(20, cworker, "ActivityC" ));
-        boost::scoped_ptr<Activity> gthread( new Activity(20, grower, "ActivityG"));
-        boost::scoped_ptr<Activity> ethread( new Activity(20, eater, "ActivityE"));
-
-        // avoid system lock-ups
-        athread->thread()->setScheduler(ORO_SCHED_OTHER);
-        bthread->thread()->setScheduler(ORO_SCHED_OTHER);
-        cthread->thread()->setScheduler(ORO_SCHED_OTHER);
-        gthread->thread()->setScheduler(ORO_SCHED_OTHER);
-
         log(Info) <<"Stressing multi-read/multi-write..." <<endlog();
-        athread->start();
-        bthread->start();
-        cthread->start();
+        BOOST_REQUIRE(pool.start());
         sleep(5);
         log(Info) <<"Stressing multi-read/multi-write...on full buffer" <<endlog();
-        gthread->start(); // stress full bufs
+        BOOST_REQUIRE(gthread->start()); // stress full bufs
         sleep(5);
-        gthread->stop();
+        BOOST_REQUIRE(gthread->stop());
         log(Info) <<"Stressing multi-read/multi-write...on empty buffer" <<endlog();
-        ethread->start(); // stress empty bufs
+        BOOST_REQUIRE(ethread->start()); // stress empty bufs
         sleep(5);
-        athread->stop();
-        bthread->stop();
-        cthread->stop();
+        BOOST_REQUIRE(pool.stop());
         gthread->start(); // stress single-reader single-writer
         log(Info) <<"Stressing read&write..." <<endlog();
         sleep(5);
-        gthread->stop();
-        ethread->stop();
+        BOOST_REQUIRE(gthread->stop());
+        BOOST_REQUIRE(ethread->stop());
     }
 
-    cout <<endl
-         << "Total appends: " << aworker->appends + bworker->appends + cworker->appends+ grower->appends<<endl;
-    cout << "Total erases : " << aworker->erases + bworker->erases+ cworker->erases + qt->size() + eater->erases <<endl;
-    if (aworker->appends + bworker->appends + cworker->appends+ grower->appends != aworker->erases + bworker->erases+ cworker->erases + int(qt->size()) + eater->erases) {
-        cout << "Mismatch detected !" <<endl;
+    int appends = 0;
+    int erases = 0;
+    for(ThreadPool< AQWorker<MWMRQueueType> >::const_iterator it = pool.begin(); it != pool.end(); ++it) {
+        appends += it->first->appends;
+        erases += it->first->erases;
+    }
+    appends += grower->appends;
+    erases += eater->erases;
+
+    log(Info) << nlog()
+              << "Total appends: " << appends << endlog();
+    log(Info) << "Total erases : " << erases << endlog();
+    if (appends != erases + int(qt->size())) {
+        log(Info) << "Mismatch detected !" <<endlog();
     }
     int i = 0; // left-over count
     Dummy* d = 0;
@@ -1067,66 +1479,63 @@ BOOST_AUTO_TEST_CASE( testAtomicQueue )
             break;
         }
     }
-    cout << "Left in Queue: "<< i <<endl;
+    log(Info) << "Left in Queue: "<< i <<endlog();
     BOOST_CHECK( qt->dequeue(d) == false );
     BOOST_CHECK( qt->dequeue(d) == false );
     BOOST_CHECK( qt->isEmpty() );
     BOOST_CHECK_EQUAL( qt->size(), 0 );
 
     // assert: sum queues == sum dequeues
-    BOOST_CHECK_EQUAL( aworker->appends + bworker->appends + cworker->appends + grower->appends,
-                       aworker->erases + bworker->erases + cworker->erases + i + eater->erases );
-    delete aworker;
-    delete bworker;
-    delete cworker;
+    BOOST_CHECK_EQUAL( appends,
+                       erases + i );
+
+    pool.clear();
     delete grower;
     delete eater;
+    delete qt;
 }
 
 BOOST_AUTO_TEST_CASE( testAtomicMWSRQueue )
 {
+    Logger::In in("testAtomicMWSRQueue");
+
     MWSRQueueType* qt = new MWSRQueueType(QS);
-    AQGrower<MWSRQueueType>* aworker = new AQGrower<MWSRQueueType>( qt );
-    AQGrower<MWSRQueueType>* bworker = new AQGrower<MWSRQueueType>( qt );
-    AQGrower<MWSRQueueType>* cworker = new AQGrower<MWSRQueueType>( qt );
+    ThreadPool< AQGrower<MWSRQueueType> > pool(5, ORO_SCHED_OTHER, 20, 0.0, "AQGrower", qt);
     AQGrower<MWSRQueueType>* grower = new AQGrower<MWSRQueueType>( qt );
     AQEater<MWSRQueueType>* eater = new AQEater<MWSRQueueType>( qt );
+    boost::scoped_ptr<Activity> gthread( new Activity(20, grower, "AQGrower"));
+    boost::scoped_ptr<Activity> ethread( new Activity(20, eater, "AQEater"));
+
+    // avoid system lock-ups
+    gthread->thread()->setScheduler(ORO_SCHED_OTHER);
+    ethread->thread()->setScheduler(ORO_SCHED_OTHER);
 
     {
-        boost::scoped_ptr<Activity> athread( new Activity(20, aworker, "ActivityA" ));
-        boost::scoped_ptr<Activity> bthread( new Activity(20, bworker, "ActivityB" ));
-        boost::scoped_ptr<Activity> cthread( new Activity(20, cworker, "ActivityC" ));
-        boost::scoped_ptr<Activity> gthread( new Activity(20, grower, "ActivityG"));
-        boost::scoped_ptr<Activity> ethread( new Activity(20, eater, "ActivityE"));
-
-        // avoid system lock-ups
-        athread->thread()->setScheduler(ORO_SCHED_OTHER);
-        bthread->thread()->setScheduler(ORO_SCHED_OTHER);
-        cthread->thread()->setScheduler(ORO_SCHED_OTHER);
-        gthread->thread()->setScheduler(ORO_SCHED_OTHER);
-        ethread->thread()->setScheduler(ORO_SCHED_OTHER);
-
         log(Info) <<"Stressing multi-write/single-read..." <<endlog();
-        athread->start();
-        bthread->start();
-        cthread->start();
-        gthread->start();
-        ethread->start();
+        BOOST_REQUIRE(pool.start());
+        BOOST_REQUIRE(gthread->start());
+        BOOST_REQUIRE(ethread->start());
         sleep(5);
-        athread->stop();
-        bthread->stop();
-        cthread->stop();
+        BOOST_REQUIRE(pool.stop());
         log(Info) <<"Stressing single-write/single-read..." <<endlog();
         sleep(5);
-        gthread->stop();
-        ethread->stop();
+        BOOST_REQUIRE(gthread->stop());
+        BOOST_REQUIRE(ethread->stop());
     }
 
-    cout <<endl
-         << "Total appends: " << aworker->appends + bworker->appends + cworker->appends+ grower->appends<<endl;
-    cout << "Total erases : " << eater->erases <<endl;
-    if (aworker->appends + bworker->appends + cworker->appends+ grower->appends != int(qt->size()) + eater->erases) {
-        cout << "Mismatch detected !" <<endl;
+    int appends = 0;
+    int erases = 0;
+    for(ThreadPool< AQGrower<MWSRQueueType> >::const_iterator it = pool.begin(); it != pool.end(); ++it) {
+        appends += it->first->appends;
+    }
+    appends += grower->appends;
+    erases += eater->erases;
+
+    log(Info) << nlog()
+              << "Total appends: " << appends << endlog();
+    log(Info) << "Total erases : " << erases << endlog();
+    if (appends != int(qt->size()) + erases) {
+        log(Info) << "Mismatch detected !" <<endlog();
     }
     int i = 0; // left-over count
     Dummy* d = 0;
@@ -1140,20 +1549,21 @@ BOOST_AUTO_TEST_CASE( testAtomicMWSRQueue )
             break;
         }
     }
-    cout << "Left in Queue: "<< i <<endl;
+    log(Info) << "Left in Queue: "<< i <<endlog();
     BOOST_CHECK( qt->dequeue(d) == false );
     BOOST_CHECK( qt->dequeue(d) == false );
     BOOST_CHECK( qt->isEmpty() );
     BOOST_CHECK_EQUAL( qt->size(), 0 );
 
     // assert: sum queues == sum dequeues
-    BOOST_CHECK_EQUAL( aworker->appends + bworker->appends + cworker->appends + grower->appends,
-                       i + eater->erases );
-    delete aworker;
-    delete bworker;
-    delete cworker;
+    BOOST_CHECK_EQUAL( appends,
+                       erases + i );
+
+    pool.clear();
     delete grower;
     delete eater;
+    delete qt;
 }
-#endif
+
 BOOST_AUTO_TEST_SUITE_END()
+#endif
