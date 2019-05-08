@@ -383,6 +383,7 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerDFI.ior");
 
+    BOOST_REQUIRE(tp);
     corba::CDataFlowInterface_var ports = tp->server()->ports();
 
     corba::CDataFlowInterface::CPortNames_var names =
@@ -410,6 +411,8 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     tp = corba::TaskContextProxy::Create( "peerPC", /* is_ior = */ false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerPC.ior");
+
+    BOOST_REQUIRE(tp);
 
     s = tp->server();
     // server to our own tc.
@@ -500,6 +503,8 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerPP.ior");
 
+    BOOST_REQUIRE(tp);
+
     base::PortInterface* untyped_port;
 
     untyped_port = tp->ports()->getPort("mi");
@@ -569,6 +574,8 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerDH.ior");
 
+    BOOST_REQUIRE(tp);
+
     s = tp->server();
 
     // Create a default CORBA policy specification
@@ -636,6 +643,8 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerBH.ior");
 
+    BOOST_REQUIRE(tp);
+
     s = tp->server();
 
     // Create a default CORBA policy specification
@@ -658,16 +667,28 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     mo->write( 3.33 );
     wait_for_equal( cce->read( sample.out(), true), CNewData, 10 );
     sample >>= result;
+#ifndef RTT_CORBA_PORTS_WRITE_ONEWAY
     BOOST_CHECK_EQUAL( result, 6.33);
+#else
+    BOOST_CHECK( (result == 6.33) || (result == 3.33) );
+#endif
     wait_for_equal( cce->read( sample.out(), true ), CNewData, 10 );
     sample >>= result;
+#ifndef RTT_CORBA_PORTS_WRITE_ONEWAY
     BOOST_CHECK_EQUAL( result, 3.33);
+#else
+    BOOST_CHECK( (result == 6.33) || (result == 3.33) );
+#endif
 
     // Check re-read of old data.
     sample <<= 0.0;
     BOOST_CHECK_EQUAL( cce->read( sample.out(), true ), COldData );
     sample >>= result;
+#ifndef RTT_CORBA_PORTS_WRITE_ONEWAY
     BOOST_CHECK_EQUAL( result, 3.33);
+#else
+    BOOST_CHECK( (result == 6.33) || (result == 3.33) );
+#endif
 
     cce->disconnect();
     mo->disconnect();

@@ -50,53 +50,104 @@ using namespace std;
 using namespace RTT;
 using namespace RTT::detail;
 
-CorbaOperationCallerFactory::CorbaOperationCallerFactory( const std::string& method_name, corba::CService_ptr fact, PortableServer::POA_ptr the_poa )
+CorbaOperationCallerFactory::CorbaOperationCallerFactory(const std::string &method_name, corba::CService_ptr fact, PortableServer::POA_ptr the_poa )
     : RTT::OperationInterfacePart(),
       mfact(corba::CService::_duplicate(fact) ),
       mpoa(PortableServer::POA::_duplicate(the_poa)),
       method(method_name)
 {}
 
+CorbaOperationCallerFactory::CorbaOperationCallerFactory(const COperation &operation, corba::CService_ptr fact, PortableServer::POA_ptr the_poa )
+    : RTT::OperationInterfacePart(),
+      mfact(corba::CService::_duplicate(fact) ),
+      mpoa(PortableServer::POA::_duplicate(the_poa)),
+      method(operation.name.in()),
+      mdescription(new COperation(operation))
+{}
+
 CorbaOperationCallerFactory::~CorbaOperationCallerFactory() {}
 
 unsigned int CorbaOperationCallerFactory::arity()  const {
+    if (mdescription)
+        return mdescription->arguments.length();
+
     return mfact->getArity( method.c_str() );
 }
 
 unsigned int CorbaOperationCallerFactory::collectArity()  const {
+    if (mdescription)
+        return mdescription->collect_types.length();
+
     return mfact->getCollectArity( method.c_str() );
 }
 
 const TypeInfo* CorbaOperationCallerFactory::getArgumentType(unsigned int i) const {
-    try {
-        CORBA::String_var tname = mfact->getArgumentType( method.c_str(), i);
-        if ( Types()->type( tname.in() ) != 0 )
-            return Types()->type( tname.in() );
-        // locally unknown type:
-        if (i == 0)
-            log(Warning) << "CorbaOperationCallerFactory: remote operation's "<< method <<" return type " << tname.in() << " is unknown in this process." << endlog();
-        else
-            log(Warning) << "CorbaOperationCallerFactory: remote operation's "<< method <<" argument "<< i <<" of type " << tname.in() << " is unknown in this process." << endlog();
-    } catch ( CNoSuchNameException& ) {
-        assert(false);
+    std::string tname;
+
+    if (mdescription) {
+        if (i == 0) {
+            tname = mdescription->result_type.in();
+        } else if (i <= mdescription->arguments.length()) {
+            tname = mdescription->arguments[i-1].type.in();
+        }
+
+        // COperation mdescription contains fully-qualified argument types as returned
+        // by OperationInterfacePart::getArgumentList() and DataSourceTypeInfo<T>::getType(),
+        // while COperationInterface::getArgumentType() would return the unqualified type
+        // name as DataSourceTypeInfo<T>::getType().
+        // ==> Strip qualifiers from tname before lookup in the TypeInfoRepository.
+        std::string::size_type separator = tname.find(' ');
+        if ( separator != std::string::npos ) {
+            tname = tname.substr(0, separator);
+        }
+
+    } else {
+        try {
+            tname = mfact->getArgumentType( method.c_str(), i);
+        } catch ( CNoSuchNameException& ) {
+            assert(false);
+        }
+        catch ( CWrongArgumentException& wae){
+            log(Error) << "CorbaOperationCallerFactory::getArgumentType: Wrong arg nbr: " << wae.which_arg <<" max is " << wae.max_arg <<endlog();
+        }
     }
-    catch ( CWrongArgumentException& wae){
-        log(Error) << "CorbaOperationCallerFactory::getArgumentType: Wrong arg nbr: " << wae.which_arg <<" max is " << wae.max_arg <<endlog();
-    }
+
+    if (tname.empty()) return 0;
+
+    if ( Types()->type( tname ) != 0 )
+        return Types()->type( tname );
+    // locally unknown type:
+    if (i == 0)
+        log(Warning) << "CorbaOperationCallerFactory: remote operation's "<< method <<" return type " << tname << " is unknown in this process." << endlog();
+    else
+        log(Warning) << "CorbaOperationCallerFactory: remote operation's "<< method <<" argument "<< i <<" of type " << tname << " is unknown in this process." << endlog();
+
     return 0;
 }
 
 const TypeInfo* CorbaOperationCallerFactory::getCollectType(unsigned int i) const {
-    try {
-        CORBA::String_var tname = mfact->getCollectType( method.c_str(), i);
-        return Types()->type( tname.in() );
-    } catch (...){
-        return 0;
+
+    if (mdescription && i < mdescription->collect_types.length()) {
+        return Types()->type( mdescription->collect_types[i].in() );
+
+    } else {
+
+        try {
+            CORBA::String_var tname = mfact->getCollectType( method.c_str(), i);
+            return Types()->type( tname.in() );
+        } catch (...){
+            return 0;
+        }
     }
+
+    return 0;
 }
 
 
 std::string CorbaOperationCallerFactory::resultType() const {
+    if (mdescription)
+        return mdescription->result_type.in();
+
     try {
         CORBA::String_var result = mfact->getResultType( method.c_str() );
         return std::string( result.in() );
@@ -111,6 +162,9 @@ std::string CorbaOperationCallerFactory::getName() const {
 }
 
 std::string CorbaOperationCallerFactory::description() const {
+    if (mdescription)
+        return mdescription->description.in();
+
     try {
         CORBA::String_var result = mfact->getDescription( method.c_str() );
         return std::string( result.in() );
@@ -121,17 +175,26 @@ std::string CorbaOperationCallerFactory::description() const {
 }
 
 std::vector< ArgumentDescription > CorbaOperationCallerFactory::getArgumentList() const {
-    CDescriptions ret;
-    try {
-        corba::CDescriptions_var result = mfact->getArguments( method.c_str() );
-        ret.reserve( result->length() );
-        for (size_t i=0; i!= result->length(); ++i)
-            ret.push_back( ArgumentDescription(std::string( result[i].name.in() ),
-                                                          std::string( result[i].description.in() ),
-                                                          std::string( result[i].type.in() ) ));
-    } catch ( corba::CNoSuchNameException& nsn ) {
-        throw  name_not_found_exception( nsn.name.in() );
+    corba::CArgumentDescriptions_var result;
+    const corba::CArgumentDescriptions *result_ptr = 0;
+
+    if (mdescription) {
+        result_ptr = &(mdescription->arguments);
+    } else {
+        try {
+            result = mfact->getArguments( method.c_str() );
+            result_ptr = &(result.in());
+        } catch ( corba::CNoSuchNameException& nsn ) {
+            throw  name_not_found_exception( nsn.name.in() );
+        }
     }
+
+    CArgumentDescriptions ret;
+    ret.reserve( result_ptr->length() );
+    for (size_t i=0; i!= result_ptr->length(); ++i)
+        ret.push_back( ArgumentDescription(std::string( (*result_ptr)[i].name.in() ),
+                                           std::string( (*result_ptr)[i].description.in() ),
+                                           std::string( (*result_ptr)[i].type.in() ) ));
     return ret;
 }
 
@@ -154,14 +217,15 @@ class CorbaOperationCallerCall: public ActionInterface
     // The type transporter for the return value
     CorbaTypeTransporter* mctt;
     bool mdocall;
+    bool moneway;
 public:
     CorbaOperationCallerCall(CService_ptr fact,
                     std::string op,
                     std::vector<base::DataSourceBase::shared_ptr> const& args,
                     ExecutionEngine* caller,
                     CorbaTypeTransporter* ctt,
-                    base::DataSourceBase::shared_ptr result, bool docall)
-    : mfact(CService::_duplicate(fact)), mop(op), margs(args), mcaller(caller), mresult(result), mctt(ctt), mdocall(docall)
+                    base::DataSourceBase::shared_ptr result, bool docall, bool oneway)
+    : mfact(CService::_duplicate(fact)), mop(op), margs(args), mcaller(caller), mresult(result), mctt(ctt), mdocall(docall), moneway(oneway)
     {
     }
 
@@ -192,11 +256,16 @@ public:
                 if (mctt)
                     return mctt->updateFromAny(&any.in(), mresult);
             } else {
-                CSendHandle_var sh = mfact->sendOperation( mop.c_str(), nargs.in() );
-                AssignableDataSource<CSendHandle_var>::shared_ptr ads = AssignableDataSource<CSendHandle_var>::narrow( mresult.get() );
-                if (ads) {
-                    ads->set( sh ); // _var creates a copy of the obj reference.
+                if (!moneway) {
+                    CSendHandle_var sh = mfact->sendOperation( mop.c_str(), nargs.in() );
+                    AssignableDataSource<CSendHandle_var>::shared_ptr ads = AssignableDataSource<CSendHandle_var>::narrow( mresult.get() );
+                    if (ads) {
+                        ads->set( sh ); // _var creates a copy of the obj reference.
+                    }
+                } else {
+                    mfact->sendOperationOneway( mop.c_str(), nargs.in() );
                 }
+
             }
             return true;
         } catch ( corba::CNoSuchNameException& ) {
@@ -210,18 +279,20 @@ public:
         }
     }
 
-    ActionInterface* clone() const { return new CorbaOperationCallerCall(CService::_duplicate( mfact.in() ), mop, margs, mcaller, mctt, mresult, mdocall); }
+    ActionInterface* clone() const { return new CorbaOperationCallerCall(CService::_duplicate( mfact.in() ), mop, margs, mcaller, mctt, mresult, mdocall, moneway); }
 
     virtual ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
         vector<DataSourceBase::shared_ptr> argcopy( margs.size() );
         unsigned int v=0;
         for (vector<DataSourceBase::shared_ptr>::iterator it = argcopy.begin(); it != argcopy.end(); ++it, ++v)
             argcopy[v] = (*it)->copy(alreadyCloned);
-        return new CorbaOperationCallerCall(CService::_duplicate( mfact.in() ), mop, argcopy, mcaller, mctt, mresult->copy(alreadyCloned), mdocall);
+        DataSourceBase::shared_ptr result = mresult ? mresult->copy(alreadyCloned) : 0;
+        return new CorbaOperationCallerCall(CService::_duplicate( mfact.in() ), mop, argcopy, mcaller, mctt, result, mdocall, moneway);
     }
 };
 
 base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produce(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const {
+#ifndef RTT_CORBA_NO_CHECK_OPERATIONS
     corba::CAnyArguments_var nargs = new corba::CAnyArguments();
     nargs->length( args.size() );
 
@@ -235,10 +306,14 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produce(const std:
         DataSourceBase::shared_ptr tryout = ti->buildValue();
         ctt->updateAny(tryout, nargs[i]);
     }
+#endif
+
     // check argument types and produce:
     try {
+#ifndef RTT_CORBA_NO_CHECK_OPERATIONS
         // will throw if wrong args.
         mfact->checkOperation(method.c_str(), nargs.in() );
+#endif
         // convert returned any to local type:
         const types::TypeInfo* ti = this->getArgumentType(0);
         if ( ti ) {
@@ -247,16 +322,16 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produce(const std:
                 CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
                 DataSourceBase::shared_ptr result = ti->buildValue();
                 // evaluate()/get() will cause the method to be called and remote return value will end up in result.
-                return ti->buildActionAlias(new CorbaOperationCallerCall(mfact.in(),method,args,caller, ctt, result, true), result );
+                return ti->buildActionAlias(new CorbaOperationCallerCall(mfact.in(),method,args,caller, ctt, result, true, false), result );
             } else {
-                return new DataSourceCommand( new CorbaOperationCallerCall(mfact.in(),method,args,caller, 0, DataSourceBase::shared_ptr() , true) );
+                return new DataSourceCommand( new CorbaOperationCallerCall(mfact.in(),method,args,caller, 0, DataSourceBase::shared_ptr() , true, false) );
             }
         } else {
             // it's returning a type we don't know ! Return a DataSource<Any>
             DataSource<CORBA::Any_var>::shared_ptr result = new AnyDataSource( new CORBA::Any() );
             // todo Provide a ctt  implementation for 'CORBA::Any_var' such that the result is updated !
             // The result is only for dummy reasons used now, since no ctt is set, no updating will be done.
-            return new ActionAliasDataSource<CORBA::Any_var>(new CorbaOperationCallerCall(mfact.in(),method,args,caller, 0, result, true), result.get() );
+            return new ActionAliasDataSource<CORBA::Any_var>(new CorbaOperationCallerCall(mfact.in(),method,args,caller, 0, result, true, false), result.get() );
         }
     } catch ( corba::CNoSuchNameException& nsn ) {
         throw  name_not_found_exception( nsn.name.in() );
@@ -269,6 +344,7 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produce(const std:
 }
 
 base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const {
+#ifndef RTT_CORBA_NO_CHECK_OPERATIONS
     corba::CAnyArguments_var nargs = new corba::CAnyArguments();
     nargs->length( args.size() );
     for (size_t i=0; i < args.size(); ++i ) {
@@ -279,12 +355,21 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceSend(const 
         DataSourceBase::shared_ptr tryout = ti->buildValue();
         ctt->updateAny(tryout, nargs[i]);
     }
+#endif
+
     try {
+#ifndef RTT_CORBA_NO_CHECK_OPERATIONS
         // will throw if wrong args.
         mfact->checkOperation(method.c_str(), nargs.inout() );
+#endif
         // Will return a CSendHandle_var:
         DataSource<CSendHandle_var>::shared_ptr result = new ValueDataSource<CSendHandle_var>();
-        return new ActionAliasDataSource<CSendHandle_var>(new CorbaOperationCallerCall(mfact.in(),method,args,caller, 0, result, false), result.get() );
+#ifdef RTT_CORBA_SEND_ONEWAY_OPERATIONS
+        bool oneway = (mdescription && mdescription->send_oneway);
+#else
+        bool oneway = false;
+#endif
+        return new ActionAliasDataSource<CSendHandle_var>(new CorbaOperationCallerCall(mfact.in(),method,args,caller, 0, result, false, oneway), result.get() );
     } catch ( corba::CNoSuchNameException& nsn ) {
         throw  name_not_found_exception( nsn.name.in() );
     } catch ( corba::CWrongNumbArgException& wa ) {
@@ -376,7 +461,12 @@ public:
 
 
 base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking) const {
-    unsigned int expected = mfact->getCollectArity(method.c_str());
+    unsigned int expected = 0;
+    if (mdescription)
+        expected = mdescription->collect_types.length();
+    else
+        expected = mfact->getCollectArity(method.c_str());
+
     if (args.size() !=  expected + 1) {
         throw wrong_number_of_args_exception( expected + 1, args.size() );
     }
@@ -386,6 +476,7 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceCollect(con
     if (!ds) {
         throw wrong_types_of_args_exception(0,"CSendHandle_var",(*args.begin())->getTypeName() );
     }
+    if ( CORBA::is_nil(ds->get()) ) return new ValueDataSource<SendStatus>(SendSuccess);
     // check if args matches what CSendHandle expects.
     try {
         corba::CAnyArguments_var nargs = new corba::CAnyArguments();

@@ -411,7 +411,7 @@ BOOST_AUTO_TEST_CASE( testOperationCallerC_Send )
     BOOST_CHECK_EQUAL( r, 0.0 );
     BOOST_CHECK_EQUAL( cr, -5.0 );
 
-    
+#ifndef RTT_CORBA_SEND_ONEWAY_OPERATIONS
     mc = tp->provides("methods")->create("m0except", caller->engine());
     BOOST_CHECK_NO_THROW( mc.check() );
     shc = mc.send();
@@ -420,6 +420,7 @@ BOOST_AUTO_TEST_CASE( testOperationCallerC_Send )
     // now collect:
     BOOST_CHECK_THROW( shc.collect(), std::runtime_error);
     BOOST_REQUIRE( tc->inException() );
+#endif
 }
 
 BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCall )
@@ -525,7 +526,7 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
     corba::CDataFlowInterface_var ports = ts->server()->ports();
 
     corba::CDataFlowInterface::CPortNames_var names =
-	ports->getPorts();
+    ports->getPorts();
 
     BOOST_CHECK_EQUAL(CORBA::ULong(2), names->length());
     BOOST_CHECK_EQUAL(string("mi"), string(names[CORBA::ULong(0)]));
@@ -533,14 +534,14 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 
     // Now check directions
     BOOST_CHECK_EQUAL(RTT::corba::COutput,
-	    ports->getPortType("mo"));
+        ports->getPortType("mo"));
     BOOST_CHECK_EQUAL(RTT::corba::CInput,
-	    ports->getPortType("mi"));
+        ports->getPortType("mi"));
 
     // And check type names
-	CORBA::String_var cstr = ports->getDataType("mo");
+    CORBA::String_var cstr = ports->getDataType("mo");
     BOOST_CHECK_EQUAL(string("double"),
-	    string(cstr.in()));
+        string(cstr.in()));
 }
 
 BOOST_AUTO_TEST_CASE( testPortConnections )
@@ -581,7 +582,9 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     policy.type = RTT::corba::CData;
     policy.pull = true;
     BOOST_CHECK( ports->createConnection("mo", ports2, "mi", policy) );
+#ifndef RTT_CORBA_PORTS_DISABLE_SIGNAL
     testPortDataConnection();
+#endif // RTT_CORBA_PORTS_DISABLE_SIGNAL
     ports2->disconnectPort("mi");
     testPortDisconnected();
 
@@ -596,7 +599,9 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     policy.type = RTT::corba::CBuffer;
     policy.pull = true;
     BOOST_CHECK( ports->createConnection("mo", ports2, "mi", policy) );
+#ifndef RTT_CORBA_PORTS_DISABLE_SIGNAL
     testPortBufferConnection();
+#endif // RTT_CORBA_PORTS_DISABLE_SIGNAL
     // Here, check removal of specific connections. So first add another
     // connection ...
     mo1->createConnection(*mi1);

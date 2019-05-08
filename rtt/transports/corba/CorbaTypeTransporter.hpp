@@ -83,7 +83,7 @@ namespace RTT {
 	     * @param poa The POA to manage the server code.
 	     * @return the created CChannelElement_i.
 	     */
-	    virtual CRemoteChannelElement_i* createChannelElement_i(DataFlowInterface* sender, ::PortableServer::POA* poa, bool is_pull) const = 0;
+        virtual CRemoteChannelElement_i* createChannelElement_i(DataFlowInterface* sender, ::PortableServer::POA* poa, const ConnPolicy &policy) const = 0;
 
 	    /**
 	     * The CORBA transport does not support creating 'CORBA' streams.
@@ -97,7 +97,7 @@ namespace RTT {
          * can be changed, a normal data source otherwise.
          */
         virtual base::DataSourceBase::shared_ptr createPropertyDataSource(CService_ptr serv, const std::string& vname) = 0;
-        virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CService_ptr serv, const std::string& vname) = 0;
+        virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CService_ptr serv, const std::string& vname, bool is_assignable) = 0;
 	};
     }
 }

@@ -144,7 +144,7 @@ RTT::base::ChannelElementBase::shared_ptr RemoteInputPort::buildRemoteChannelOut
     // and connect it to the remote side and vice versa.
     CRemoteChannelElement_i*  local =
         static_cast<CorbaTypeTransporter*>(type->getProtocol(ORO_CORBA_PROTOCOL_ID))
-                            ->createChannelElement_i(output_port.getInterface(), mpoa, policy.pull);
+                            ->createChannelElement_i(output_port.getInterface(), mpoa, policy);
 
     CRemoteChannelElement_var proxy = local->_this();
     local->setRemoteSide(remote);
