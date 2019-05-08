@@ -121,9 +121,9 @@ BOOST_AUTO_TEST_CASE(testUsePort)
     BOOST_REQUIRE( tc.provides("portservice")->hasService("op") );
     BOOST_REQUIRE( tc.provides("portservice")->provides("op")->hasOperation("write") );
 
-    OperationCaller<void(int const&)> write = tc.provides("portservice")->provides("op")->getOperation("write");
+    OperationCaller<WriteStatus(int const&)> write = tc.provides("portservice")->provides("op")->getOperation("write");
     BOOST_CHECK( write.ready() );
-    write( 3 );
+    BOOST_CHECK_EQUAL( write( 3 ), WriteSuccess );
 
     int result;
     OperationCaller<FlowStatus(int&)> read = tc.provides("portservice")->provides("ip")->getOperation("read");

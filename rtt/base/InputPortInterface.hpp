@@ -66,7 +66,6 @@ namespace RTT
 #endif
 
     protected:
-        internal::ConnectionManager cmanager;
         ConnPolicy        default_policy;
 #ifdef ORO_SIGNALLING_PORTS
         NewDataOnPortEvent* new_data_on_port_event;
@@ -88,21 +87,11 @@ namespace RTT
         /** Clears the connection. After call to read() will return false after
          * clear() has been called
          */
-        void clear();
+        virtual void clear() = 0;
 
         ConnPolicy getDefaultPolicy() const;
 
-        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
-
-        /** Removes the input channel
-         *
-         * Returns true if the provided channel was actually a channel of this
-         * port, and false otherwise.
-         *
-         * You should usually not use this directly. Use disconnect()
-         * instead.
-         */
-        virtual bool removeConnection(internal::ConnID* cid);
+        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel, ConnPolicy const& policy);
 
         /** Returns a DataSourceBase interface to read this port. The returned
          * data source is always a new object.
@@ -130,16 +119,6 @@ namespace RTT
         /** Returns true if this port is connected */
         virtual bool connected() const;
 
-        /**
-         * Call this to indicate that the connection leading to this port
-         * is ready to use. The input port will check its channel elements
-         * by sending an inputReady() message. If this succeeds, this
-         * function returns true and the input port is ready to use (this->connected() == true).
-         * If sending inputReady() returns failure, this method returns
-         * false and the connection is aborted (this->connected() == false).
-         */
-        virtual bool channelReady(base::ChannelElementBase::shared_ptr channel, ConnPolicy const& policy);
-
 #ifdef ORO_SIGNALLING_PORTS
         /** Returns the event object that gets emitted when new data is
          * available for this port. It gets deleted when the port is deleted.
@@ -156,7 +135,10 @@ namespace RTT
 
         virtual bool connectTo(PortInterface* other);
 
-        virtual const internal::ConnectionManager* getManager() const { return &cmanager; }
+        /**
+         * Connects the port to an existing shared connection instance.
+         */
+        virtual bool createConnection( internal::SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy = ConnPolicy() );
 
         /** This method is analoguous to the static ConnFactory::buildChannelOutput.
          * It is provided for remote connection building: for these connections,
@@ -167,7 +149,6 @@ namespace RTT
                 base::OutputPortInterface& output_port,
                 types::TypeInfo const* type_info,
                 base::InputPortInterface& input, const ConnPolicy& policy);
-
     };
 
 }}

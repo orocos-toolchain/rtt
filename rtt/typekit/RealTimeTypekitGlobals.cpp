@@ -43,6 +43,7 @@
 #include "../FlowStatus.hpp"
 #include "../SendStatus.hpp"
 #include "../ConnPolicy.hpp"
+#include "../BufferPolicy.hpp"
 #include "../typekit/Types.hpp"
 #include "../os/fosi.h"
 
@@ -53,19 +54,28 @@ namespace RTT
         GlobalsRepository::shared_ptr globals = GlobalsRepository::Instance();
 
         // Data Flow enums:
-        globals->setValue( new Constant<FlowStatus>("NoData",NoData) );
-        globals->setValue( new Constant<FlowStatus>("OldData",OldData) );
-        globals->setValue( new Constant<FlowStatus>("NewData",NewData) );
-        globals->setValue( new Constant<SendStatus>("SendFailure",SendFailure) );
-        globals->setValue( new Constant<SendStatus>("SendNotReady",SendNotReady) );
-        globals->setValue( new Constant<SendStatus>("SendSuccess",SendSuccess) );
+        globals->setValue( new Constant<FlowStatus>("NoData", NoData) );
+        globals->setValue( new Constant<FlowStatus>("OldData", OldData) );
+        globals->setValue( new Constant<FlowStatus>("NewData", NewData) );
+        globals->setValue( new Constant<WriteStatus>("WriteSuccess", WriteSuccess) );
+        globals->setValue( new Constant<WriteStatus>("WriteFailure", WriteFailure) );
+        globals->setValue( new Constant<WriteStatus>("NotConnected", NotConnected) );
+        globals->setValue( new Constant<SendStatus>("SendFailure", SendFailure) );
+        globals->setValue( new Constant<SendStatus>("SendNotReady", SendNotReady) );
+        globals->setValue( new Constant<SendStatus>("SendSuccess", SendSuccess) );
 #ifndef ORO_EMBEDDED
-        globals->setValue( new Constant<int>("DATA",ConnPolicy::DATA) );
-        globals->setValue( new Constant<int>("BUFFER",ConnPolicy::BUFFER) );
-        globals->setValue( new Constant<int>("CIRCULAR_BUFFER",ConnPolicy::CIRCULAR_BUFFER) );
-        globals->setValue( new Constant<int>("LOCKED",ConnPolicy::LOCKED) );
-        globals->setValue( new Constant<int>("LOCK_FREE",ConnPolicy::LOCK_FREE) );
-        globals->setValue( new Constant<int>("UNSYNC",ConnPolicy::UNSYNC) );
+        globals->addAttribute( "DefaultConnPolicy", ConnPolicy::Default() );
+        globals->setValue( new Constant<int>("DATA", ConnPolicy::DATA) );
+        globals->setValue( new Constant<int>("BUFFER", ConnPolicy::BUFFER) );
+        globals->setValue( new Constant<int>("CIRCULAR_BUFFER", ConnPolicy::CIRCULAR_BUFFER) );
+        globals->setValue( new Constant<int>("LOCKED", ConnPolicy::LOCKED) );
+        globals->setValue( new Constant<int>("LOCK_FREE", ConnPolicy::LOCK_FREE) );
+        globals->setValue( new Constant<int>("UNSYNC", ConnPolicy::UNSYNC) );
+        globals->setValue( new Constant<BufferPolicy>("UnspecifiedBufferPolicy", UnspecifiedBufferPolicy) );
+        globals->setValue( new Constant<BufferPolicy>("PerConnection", PerConnection) );
+        globals->setValue( new Constant<BufferPolicy>("PerInputPort", PerInputPort) );
+        globals->setValue( new Constant<BufferPolicy>("PerOutputPort", PerOutputPort) );
+        globals->setValue( new Constant<BufferPolicy>("Shared", Shared) );
         globals->setValue( new Constant<int>("ORO_SCHED_RT", ORO_SCHED_RT) );
         globals->setValue( new Constant<int>("ORO_SCHED_OTHER", ORO_SCHED_OTHER) );
         globals->setValue( new Constant<int>("ORO_WAIT_ABS", ORO_WAIT_ABS) );

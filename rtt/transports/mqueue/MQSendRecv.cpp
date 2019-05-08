@@ -246,9 +246,19 @@ bool MQSendRecv::mqReady(base::DataSourceBase::shared_ptr ds, base::ChannelEleme
 bool MQSendRecv::mqRead(RTT::base::DataSourceBase::shared_ptr ds)
 {
     int bytes = 0;
-    if ((bytes = mq_receive(mqdes, buf, max_size, 0)) == -1)
+    struct timespec abs_timeout;
+    clock_gettime(CLOCK_REALTIME, &abs_timeout);
+    abs_timeout.tv_nsec += Seconds_to_nsecs(0.5);
+    abs_timeout.tv_sec += abs_timeout.tv_nsec / (1000*1000*1000);
+    abs_timeout.tv_nsec = abs_timeout.tv_nsec % (1000*1000*1000);
+    //abs_timeout.tv_sec +=1;
+    if ((bytes = mq_timedreceive(mqdes, buf, max_size, 0, &abs_timeout)) == -1)
     {
         //log(Debug) << "Tried read on empty mq!" <<endlog();
+        return false;
+    }
+    if (bytes == 0) {
+        log(Error) << "Failed to read from MQ Channel Element: no data received within 500ms!" <<endlog();
         return false;
     }
     if (mtransport.updateFromBlob((void*) buf, bytes, ds, marshaller_cookie))

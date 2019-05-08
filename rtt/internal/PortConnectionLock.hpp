@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 22 11:59:08 CEST 2009  FlowStatus.hpp
+  tag: Peter Soetens  Thu July 19 23:09:08 CEST 2018  PortConnectionLock.hpp
 
-                        FlowStatus.hpp -  description
+                        PortConnectionLock.hpp -  description
                            -------------------
-    begin                : Thu October 22 2009
-    copyright            : (C) 2009 Peter Soetens
-    email                : peter@thesourcworks.com
+    begin                : Thu July 19 2018
+    copyright            : (C) 2018 Johannes Meyer
+    email                : johannes@intermodalics.eu
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -35,40 +35,30 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef ORO_PORT_CONNECTION_LOCK_HPP
+#define ORO_PORT_CONNECTION_LOCK_HPP
 
-#ifndef ORO_FLOW_STATUS_HPP
-#define ORO_FLOW_STATUS_HPP
+#include "../base/PortInterface.hpp"
 
-#include <ostream>
-#include <istream>
+namespace RTT
+{ namespace internal {
 
-#include "rtt-config.h"
+    class RTT_API PortConnectionLock
+    {
+        base::PortInterface *mport;
 
-namespace RTT {
-    /**
-     * Returns the status of a data flow read operation.
-     * NoData means that the channel is disconnected or never written to.
-     * NewData means that the returned data is new data.
-     * OldData means that the returned data was already read.
-     *
-     * @note The CORBA transport enforces that FlowStatus values are in-order (no double assignments or negative values).
-     */
-    enum FlowStatus { NoData = 0, OldData = 1, NewData = 2 };
+    public:
+        PortConnectionLock(base::PortInterface *port)
+            : mport(port) {
+            if (mport) mport->connection_lock.lock();
+        }
 
-    /**
-     * Returns the status of a data flow write operation.
-     * WriteSuccess means that the sample could be successfully written into the connection buffer of all (mandatory) channels.
-     * WriteFailure means that at least one (mandatory) connection reported an error, e.g. a full buffer.
-     * NotConnected means that at least one (mandatory) channel is not connected or the channel is not connected to any output.
-     *
-     * @note The CORBA transport enforces that FlowStatus values are in-order (no double assignments or negative values).
-     */
-    enum WriteStatus { WriteSuccess = 0, WriteFailure = 1, NotConnected = 2 };
+        ~PortConnectionLock()
+        {
+            if (mport) mport->connection_lock.unlock();
+        }
+    };
 
-    RTT_API std::ostream& operator<<(std::ostream& os, FlowStatus fs);
-    RTT_API std::istream& operator>>(std::istream& os, FlowStatus& fs);
-    RTT_API std::ostream& operator<<(std::ostream& os, WriteStatus fs);
-    RTT_API std::istream& operator>>(std::istream& os, WriteStatus& fs);
-}
+}}
 
-#endif
+#endif // ORO_PORT_CONNECTION_LOCK_HPP

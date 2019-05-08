@@ -39,6 +39,7 @@
 #define ORO_CORELIB_BUFFERINTERFACE_HPP
 
 #include "BufferBase.hpp"
+#include "../FlowStatus.hpp"
 #include <boost/shared_ptr.hpp>
 #include <boost/call_traits.hpp>
 #include <vector>
@@ -73,7 +74,7 @@ namespace RTT
          * @cts
          * @rt
          */
-        virtual bool Pop( reference_t item) = 0;
+        virtual FlowStatus Pop( reference_t item) = 0;
 
         /**
          * Read the whole buffer.
@@ -85,23 +86,23 @@ namespace RTT
          */
         virtual size_type Pop( std::vector<value_t>& items ) = 0;
 
-	/**
-	 * Returns a pointer to the first element in the buffer.
-	 * The pointer is only garanteed to stay valid until 
-	 * the next pop operation. 
-	 * 
-	 * Note the pointer needs the be released by calling Release
-	 * on the buffer.
-	 * 
-	 * @return a pointer to a sample or Zero if buffer is empty
-	 **/
-	virtual value_t* PopWithoutRelease() = 0;
+        /**
+         * Returns a pointer to the first element in the buffer.
+         * The pointer is only garanteed to stay valid until
+         * the next pop operation.
+         *
+         * Note the pointer needs the be released by calling Release
+         * on the buffer.
+         *
+         * @return a pointer to a sample or Zero if buffer is empty
+         **/
+        virtual value_t* PopWithoutRelease() = 0;
 
-	/**
-	 *  Releases the pointer
-	 * @param item pointer aquired using PopWithoutRelease()
-	 **/
-	virtual void Release(value_t *item) = 0;
+        /**
+         * Releases the pointer
+         * @param item pointer aquired using PopWithoutRelease()
+         **/
+        virtual void Release(value_t *item) = 0;
 	
         /**
          * Write a single value to the buffer.
@@ -125,17 +126,20 @@ namespace RTT
          * Initializes this buffer with a data sample, such that for
          * dynamical allocated types T, the buffer can reserve place
          * to hold these elements.
+         * @param sample the data sample
+         * @param reset enforce reinitialization even if this operation clears all data.
+         * @return true if the buffer was successfully (re)initialized.
          * @post Calling this function causes all data in the buffer
          * to be lost and the size being reset to zero.
          * @nts
          * @nrt
          */
-        virtual void data_sample( const T& sample ) = 0;
+        virtual bool data_sample( param_t sample, bool reset = true ) = 0;
 
         /**
          * Reads back a data sample.
          */
-        virtual T data_sample() const = 0;
+        virtual value_t data_sample() const = 0;
     };
 }}
 

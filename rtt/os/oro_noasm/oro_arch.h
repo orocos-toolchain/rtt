@@ -73,9 +73,23 @@ static __inline__ void oro_atomic_add(oro_atomic_t *a_int, int n )
   rtos_mutex_lock(&((a_int)->m)); (a_int)->cnter += n; rtos_mutex_unlock(&((a_int)->m));
 }
 
+static __inline__ int oro_atomic_add_return(oro_atomic_t *a_int, int n )
+{
+  int new_value;
+  rtos_mutex_lock(&((a_int)->m)); new_value = ((a_int)->cnter += n); rtos_mutex_unlock(&((a_int)->m));
+  return new_value;
+}
+
 static __inline__ void oro_atomic_sub(oro_atomic_t *a_int, int n )
 {
   rtos_mutex_lock(&((a_int)->m)); (a_int)->cnter -= n; rtos_mutex_unlock(&((a_int)->m));
+}
+
+static __inline__ int oro_atomic_sub_return(oro_atomic_t *a_int, int n )
+{
+  int new_value;
+  rtos_mutex_lock(&((a_int)->m)); new_value = ((a_int)->cnter -= n); rtos_mutex_unlock(&((a_int)->m));
+  return new_value;
 }
 
 static __inline__ int oro_atomic_add_and_test(oro_atomic_t *a_int, int n )
@@ -97,9 +111,23 @@ static __inline__ void oro_atomic_inc(oro_atomic_t *a_int)
   rtos_mutex_lock(&((a_int)->m)); ++((a_int)->cnter) ; rtos_mutex_unlock(&((a_int)->m));
 }
 
+static __inline__ int oro_atomic_inc_return(oro_atomic_t *a_int)
+{
+  int new_value;
+  rtos_mutex_lock(&((a_int)->m)); new_value = (++((a_int)->cnter)) ; rtos_mutex_unlock(&((a_int)->m));
+  return new_value;
+}
+
 static __inline__ void oro_atomic_dec(oro_atomic_t *a_int)
 {
   rtos_mutex_lock(&((a_int)->m)); --((a_int)->cnter) ; rtos_mutex_unlock(&((a_int)->m));
+}
+
+static __inline__ int oro_atomic_dec_return(oro_atomic_t *a_int)
+{
+  int new_value;
+  rtos_mutex_lock(&((a_int)->m)); new_value = (--((a_int)->cnter)) ; rtos_mutex_unlock(&((a_int)->m));
+  return new_value;
 }
 
 static __inline__ int oro_atomic_dec_and_test(oro_atomic_t *a_int)

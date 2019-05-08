@@ -96,7 +96,6 @@ namespace RTT
     void seennull();
     void seenpeer();
 
-      TaskContext* context;
   public:
       ValueParser( TaskContext* tc, CommonParser& cp );
 
