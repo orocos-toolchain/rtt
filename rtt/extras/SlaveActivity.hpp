@@ -128,8 +128,6 @@ namespace RTT
 
         os::ThreadInterface* thread();
 
-        base::ActivityInterface *getMaster() const;
-
         virtual bool initialize();
         virtual void step();
         virtual void work(base::RunnableInterface::WorkReason reason);
@@ -157,11 +155,14 @@ namespace RTT
         bool trigger();
 
         bool timeout();
+
     private:
         base::ActivityInterface* mmaster;
         double mperiod;
         bool running;
         bool active;
+
+        base::DisposableInterface *mtrigger;
 };
 
 }}

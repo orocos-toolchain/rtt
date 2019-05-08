@@ -165,30 +165,6 @@ namespace RTT
         void setExceptionTask();
 
         /**
-         * Set the master ExecutionEngine.
-         * If set, all incoming messages are forwarded to the master.
-         *
-         * @param master The new master ExecutionEngine.
-         */
-        void setMaster(ExecutionEngine *master);
-
-        /**
-         * Overwritten version of RTT::base::RunnableInterface::setActivity().
-         * This version will also set the master ExecutionEngine if the new activity is a SlaveActivity that runs an ExecutionEngine.
-         *
-         * @param task The ActivityInterface running this interface.
-         */
-        virtual void setActivity( base::ActivityInterface* task );
-
-        /**
-         * Get the thread that processes messages send to this engine.
-         * @sa reimplementation of base::RunnableInterface::getThread()
-         *
-         * @return a pointer to the thread, or 0 if there is no activity assigned.
-         */
-        virtual os::ThreadInterface* getThread() const;
-
-        /**
          * Check if the thread that processes messages send to this engine is the same as the calling thread.
          * This method is typically used to check if operation or function calls can be inlined or even must
          * be inlined to resolve potential dead-locks.
@@ -250,12 +226,6 @@ namespace RTT
         os::Mutex msg_lock;
         os::Condition msg_cond;
 
-        /**
-         * A master ExecutionEngine which should process our messages.
-         * This is used for ExecutionEngines running in a SlaveActivity which forward incoming messages to their master engine.
-         */
-        ExecutionEngine *mmaster;
-
         void processMessages();
         void processPortCallbacks();
         void processFunctions();
@@ -276,7 +246,6 @@ namespace RTT
         virtual void finalize();
 
         virtual bool hasWork();
-
     };
 
 }
