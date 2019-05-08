@@ -89,7 +89,7 @@ namespace RTT { namespace scripting
       /**
        * The current function context where we are working in.
        */
-      TaskContext* fcontext;
+      Service::shared_ptr fcontext;
 
       /**
        * peer context for events.

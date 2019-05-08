@@ -9,16 +9,26 @@
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
  *                                                                         *
  *   This library is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
+ *   General Public License for more details.                              *
  *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
+ *   You should have received a copy of the GNU General Public             *
  *   License along with this library; if not, write to the Free Software   *
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
@@ -54,6 +64,8 @@ namespace RTT
     BOOST_SPIRIT_DEBUG_RULE( const_int );
     BOOST_SPIRIT_DEBUG_RULE( const_hex );
     BOOST_SPIRIT_DEBUG_RULE( const_uint );
+    BOOST_SPIRIT_DEBUG_RULE( const_llong );
+    BOOST_SPIRIT_DEBUG_RULE( const_ullong );
     BOOST_SPIRIT_DEBUG_RULE( const_char );
     BOOST_SPIRIT_DEBUG_RULE( const_bool );
     BOOST_SPIRIT_DEBUG_RULE( const_string );
@@ -66,8 +78,10 @@ namespace RTT
         const_float
       | const_double
       | const_hex
-      | const_int
+      | const_ullong
+      | const_llong
       | const_uint
+      | const_int
       | const_bool
       | const_char
       | const_string
@@ -85,13 +99,21 @@ namespace RTT
       hex_p [
         boost::bind( &ValueParser::seenhexconstant, this, _1 ) ];
 
-    const_int =
-      int_p [
-        boost::bind( &ValueParser::seenintconstant, this, _1 ) ];
+    const_ullong =
+      uint_parser<unsigned long long>() [
+        boost::bind( &ValueParser::seenullongconstant, this, _1 ) ] >> str_p("ull");
+
+    const_llong =
+      uint_parser<long long>() [
+        boost::bind( &ValueParser::seenllongconstant, this, _1 ) ] >> str_p("ll");
 
     const_uint =
-      uint_p [
+      uint_parser<unsigned int>() [
         boost::bind( &ValueParser::seenuintconstant, this, _1 ) ] >> ch_p('u');
+
+    const_int =
+      int_parser<int>() [
+        boost::bind( &ValueParser::seenintconstant, this, _1 ) ];
 
     const_bool =
       ( keyword_p( "true" ) | keyword_p("false") )[
@@ -198,6 +220,16 @@ namespace RTT
   void ValueParser::seenuintconstant( unsigned int i ) // RobWork uint -> unsigned int
   {
     ret = new ConstantDataSource<unsigned int>( i ); // RobWork uint -> unsigned int
+  }
+
+  void ValueParser::seenllongconstant( long long i )
+  {
+    ret = new ConstantDataSource<long long>( i );
+  }
+
+  void ValueParser::seenullongconstant( unsigned long long i )
+  {
+    ret = new ConstantDataSource<unsigned long long>( i );
   }
 
   void ValueParser::seenfloatconstant( double i )

@@ -127,9 +127,10 @@ namespace RTT
          */
         static PortableServer::POA_var proxy_poa;
 
-        void fetchRequesters(ServiceRequester::shared_ptr parent, CServiceRequester_ptr csrq);
-        void fetchServices(Service::shared_ptr parent, CService_ptr mtask);
-        void fetchPorts(Service::shared_ptr parent, CDataFlowInterface_ptr serv);
+        void synchronizeRequesters(ServiceRequester::shared_ptr parent, CServiceRequester_ptr csrq, const CServiceRequesterDescription & cdescription);
+        void synchronizeServices(Service::shared_ptr parent, CService_ptr serv, const CServiceDescription & cdescription);
+        void synchronizePorts(Service::shared_ptr parent, CDataFlowInterface_ptr dfact, const CServiceDescription & cdescription);
+
     public:
         ~TaskContextProxy();
 
@@ -187,6 +188,8 @@ namespace RTT
 
         virtual bool cleanup();
 
+        virtual bool recover();
+        
         virtual bool isActive() const;
 
         virtual bool isConfigured() const;
@@ -194,6 +197,8 @@ namespace RTT
         virtual bool inFatalError() const;
 
         virtual bool inRunTimeError() const;
+
+        virtual bool inException() const;
 
         virtual TaskState getTaskState() const;
 

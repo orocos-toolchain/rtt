@@ -119,8 +119,8 @@ extern "C" {
 #define ORO_SCHED_RT    0 /** Hard real-time */
 #define ORO_SCHED_OTHER 1 /** Soft real-time */
 
-#define ORO_WAIT_ABS 0 /** Not supported for the xenomai target */
-#define ORO_WAIT_REL 1 /** Not supported for the xenomai target */
+#define ORO_WAIT_ABS 0
+#define ORO_WAIT_REL 1
 
 	// hrt is in ticks
 static inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
@@ -241,14 +241,14 @@ static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         return rt_mutex_delete(m);
     }
 
-    static inline int rtos_mutex_rec_init(rt_mutex_t* m)
+    static inline int rtos_mutex_rec_init(rt_rec_mutex_t* m)
     {
         CHK_XENO_CALL();
 		// a Xenomai mutex is always recursive
         return rt_mutex_create(m, 0);
     }
 
-    static inline int rtos_mutex_rec_destroy(rt_mutex_t* m )
+    static inline int rtos_mutex_rec_destroy(rt_rec_mutex_t* m )
     {
         CHK_XENO_CALL();
         return rt_mutex_delete(m);
@@ -289,6 +289,12 @@ static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
 #endif
     }
 
+    static inline int rtos_mutex_trylock_for( rt_mutex_t* m, NANO_TIME relative_time)
+    {
+        CHK_XENO_CALL();
+        return rt_mutex_acquire(m, rt_timer_ns2ticks(relative_time) );
+    }
+
     static inline int rtos_mutex_unlock( rt_mutex_t* m)
     {
         CHK_XENO_CALL();
@@ -297,26 +303,27 @@ static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
 
     static inline int rtos_mutex_rec_lock( rt_rec_mutex_t* m)
     {
-        CHK_XENO_CALL();
-        return rt_mutex_acquire(m, TM_INFINITE );
+        return rtos_mutex_lock(m);
     }
 
     static inline int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
     {
-        CHK_XENO_CALL();
         return rtos_mutex_trylock(m);
     }
 
     static inline int rtos_mutex_rec_lock_until( rt_rec_mutex_t* m, NANO_TIME abs_time)
     {
-        CHK_XENO_CALL();
         return rtos_mutex_lock_until(m, abs_time);
+    }
+
+    static inline int rtos_mutex_rec_trylock_for( rt_rec_mutex_t* m, NANO_TIME relative_time)
+    {
+        return rtos_mutex_trylock_for(m, relative_time);
     }
 
     static inline int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
     {
-        CHK_XENO_CALL();
-        return rt_mutex_release(m);
+        return rtos_mutex_unlock(m);
     }
 
     static inline void rtos_enable_rt_warning()

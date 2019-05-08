@@ -283,6 +283,12 @@ bool FileDescriptorActivity::trigger()
         return false;
 }
 
+bool FileDescriptorActivity::timeout()
+{
+    return false;
+}
+
+
 struct fd_watch {
     int& fd;
     fd_watch(int& fd) : fd(fd) {}
@@ -364,10 +370,12 @@ void FileDescriptorActivity::loop()
 
         // We check the flags after the command queue was emptied as we could miss commands otherwise:
         bool do_trigger = true;
+        bool user_trigger = false;
         { RTT::os::MutexLock lock(m_command_mutex);
             // This section should be really fast to not block threads calling trigger(), breakLoop() or watch().
             if (m_trigger) {
                 do_trigger = true;
+                user_trigger = true;
                 m_trigger = false;
             }
             if (m_update_sets) {
@@ -386,6 +394,12 @@ void FileDescriptorActivity::loop()
             {
                 m_running = true;
                 step();
+                if (m_has_timeout)
+                    work(RunnableInterface::TimeOut);
+                else if ( user_trigger )
+                    work(RunnableInterface::Trigger);
+                else
+                    work(RunnableInterface::IOReady);
                 m_running = false;
             }
             catch(...)
@@ -413,6 +427,14 @@ void FileDescriptorActivity::step()
     if (runner != 0)
         runner->step();
     m_running = false;
+}
+
+void FileDescriptorActivity::work(base::RunnableInterface::WorkReason reason) {
+    m_running = true;
+    if (runner != 0)
+        runner->work(reason);
+    m_running = false;
+
 }
 
 bool FileDescriptorActivity::stop()

@@ -141,6 +141,12 @@ char * RTT_corba_CTaskContext_i::getDescription (
     return mtask->stop();
 }
 
+::CORBA::Boolean RTT_corba_CTaskContext_i::recover(
+    void)
+{
+    return mtask->recover();
+}
+
 ::CORBA::Boolean RTT_corba_CTaskContext_i::cleanup (
     void)
 {
@@ -183,6 +189,12 @@ char * RTT_corba_CTaskContext_i::getDescription (
     void)
 {
     return mtask->inRunTimeError();
+}
+
+::CORBA::Boolean RTT_corba_CTaskContext_i::inException(
+    void)
+{
+    return mtask->inException();
 }
 
 ::RTT::corba::CDataFlowInterface_ptr RTT_corba_CTaskContext_i::ports (
@@ -310,4 +322,19 @@ char * RTT_corba_CTaskContext_i::getDescription (
     return mtask->connectServices( t );
 }
 
+::RTT::corba::CTaskContextDescription * RTT_corba_CTaskContext_i::getCTaskContextDescription (
+    void)
+{
+    ::RTT::corba::CTaskContextDescription_var d = new ::RTT::corba::CTaskContextDescription();
+
+    d->mainprovider = getProvider("this");
+    ::RTT::corba::CServiceDescription_var mainprovider_description = dynamic_cast<RTT_corba_CService_i *>(mService_i.in())->getCServiceDescription();
+    d->mainprovider_description = mainprovider_description;
+
+    d->mainrequester = getRequester("this");
+    ::RTT::corba::CServiceRequesterDescription_var requester_description = dynamic_cast<RTT_corba_CServiceRequester_i *>(mRequest_i.in())->getCServiceRequesterDescription();
+    d->mainrequester_description = requester_description;
+
+    return d._retn();
+}
 
