@@ -25,6 +25,7 @@
 #include <extras/SequentialActivity.hpp>
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
+#include <os/fosi.h>
 
 #include <boost/function_types/function_type.hpp>
 #include <OperationCaller.hpp>
@@ -217,12 +218,14 @@ BOOST_AUTO_TEST_CASE( testPeriod)
     BOOST_CHECK( pertc.isActive() );
 
     // check periodic TC
-    pertc.setActivity( new SlaveActivity(1.0) );
+    BOOST_REQUIRE( pertc.getActivity()->stop() );
+    BOOST_REQUIRE( pertc.setActivity( new SlaveActivity(1.0) ) );
     BOOST_CHECK( pertc.engine()->getActivity()->getPeriod() == 1.0 );
     BOOST_CHECK( pertc.getPeriod() == 1.0 );
 
     // check non periodic TC
-    pertc.setActivity( new SlaveActivity(0.0) );
+    BOOST_REQUIRE( pertc.getActivity()->stop() );
+    BOOST_REQUIRE( pertc.setActivity( new SlaveActivity(0.0) ) );
     BOOST_CHECK( pertc.engine()->getActivity()->getPeriod() == 0.0 );
     BOOST_CHECK( pertc.getPeriod() == 0.0 );
 }
@@ -606,37 +609,6 @@ BOOST_AUTO_TEST_CASE( testFailingTCStates)
     BOOST_CHECK( stc->start() == false );
 }
 
-BOOST_AUTO_TEST_CASE( testExecutionEngine)
-{
-    // no owner:
-    ExecutionEngine ee1(0);
-    ExecutionEngine ee2(0);
-
-    // test setActivity:
-    BOOST_CHECK( tsim->stop() );
-    BOOST_CHECK( tsim->run(&ee1) );
-    BOOST_CHECK(tsim->start() );
-    BOOST_CHECK( SimulationThread::Instance()->run(5) );
-
-    // this also tests setActivity:
-    BOOST_CHECK( tsim->stop() );
-    BOOST_CHECK( tsim->run(&ee2) );
-    BOOST_CHECK(tsim->start() );
-    BOOST_CHECK( SimulationThread::Instance()->run(5) );
-
-    {
-        TaskCore tc1(&ee2);
-        TaskCore tc2(&ee2);
-
-        // run with two children.
-        BOOST_CHECK( SimulationThread::Instance()->run(5) );
-    }
-    // children removed again:
-    BOOST_CHECK( SimulationThread::Instance()->run(5) );
-    BOOST_CHECK(tsim->stop() );
-    tsim->run(0);
-}
-
 class calling_error_does_not_override_a_stop_transition_Task : public RTT::TaskContext
 {
 public:
@@ -644,7 +616,10 @@ public:
         : TaskContext("test") {}
     void updateHook() { error(); }
     void errorHook() {
-        while(getTargetState() != Stopped);
+        while(getTargetState() != Stopped) {
+            TIME_SPEC t = ticks2timespec(nano2ticks(100000000LL));
+            rtos_nanosleep(&t, 0);
+        }
         error();
         trigger();
     }
@@ -673,7 +648,10 @@ public:
         : TaskContext("test"), mRecovered(true) {} // true is an error
     void updateHook() { error(); }
     void errorHook() {
-        while(getTargetState() != Stopped);
+        while(getTargetState() != Stopped) {
+            TIME_SPEC t = ticks2timespec(nano2ticks(100000000LL));
+            rtos_nanosleep(&t, 0);
+        }
         mRecovered = recover();
         trigger();
     }
@@ -704,7 +682,8 @@ public:
         : TaskContext("test") {}
     void updateHook() { error(); }
     void errorHook() {
-        usleep(100);
+        TIME_SPEC t = ticks2timespec(nano2ticks(100000000LL));
+        rtos_nanosleep(&t, 0);
         lastErrorHook = TimeService::Instance()->getTicks();
         trigger();
     }
@@ -725,6 +704,41 @@ BOOST_AUTO_TEST_CASE(testErrorHook_is_not_called_during_stop)
         task.stop();
         BOOST_REQUIRE(task.lastErrorHook < task.lastStopHook);
     }
+}
+
+struct TaskCore_bails_out_if_configureHook_returns_true_but_exception_was_called :
+    public RTT::TaskContext
+{
+    TaskCore_bails_out_if_configureHook_returns_true_but_exception_was_called()
+        : RTT::TaskContext("test", RTT::TaskContext::PreOperational) {}
+    bool configureHook()
+    {
+        exception();
+        return true;
+    }
+};
+BOOST_AUTO_TEST_CASE(testTaskCore_bails_out_if_configureHook_returns_true_but_exception_was_called) {
+    TaskCore_bails_out_if_configureHook_returns_true_but_exception_was_called task;
+    task.configure();
+    BOOST_REQUIRE(task.inException());
+}
+
+struct TaskCore_bails_out_if_startHook_returns_true_but_exception_was_called :
+    public RTT::TaskContext
+{
+    TaskCore_bails_out_if_startHook_returns_true_but_exception_was_called()
+        : RTT::TaskContext("test", RTT::TaskContext::PreOperational) {}
+    bool startHook()
+    {
+        exception();
+        return true;
+    }
+};
+BOOST_AUTO_TEST_CASE(testTaskCore_bails_out_if_startHook_returns_true_but_exception_was_called) {
+    TaskCore_bails_out_if_startHook_returns_true_but_exception_was_called task;
+    task.configure();
+    task.start();
+    BOOST_REQUIRE(task.inException());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

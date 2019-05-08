@@ -68,6 +68,7 @@ namespace RTT
     ExecutionEngine::ExecutionEngine( TaskCore* owner )
         : taskc(owner),
           mqueue(new MWSRQueue<DisposableInterface*>(ORONUM_EE_MQUEUE_SIZE) ),
+          port_queue(new MWSRQueue<PortInterface*>(ORONUM_EE_MQUEUE_SIZE) ),
           f_queue( new MWSRQueue<ExecutableInterface*>(ORONUM_EE_MQUEUE_SIZE) ),
           mmaster(0)
     {
@@ -76,13 +77,6 @@ namespace RTT
     ExecutionEngine::~ExecutionEngine()
     {
         Logger::In in("~ExecutionEngine");
-
-        // make a copy to avoid call-back troubles:
-        std::vector<TaskCore*> copy = children;
-        for (std::vector<TaskCore*>::iterator it = copy.begin(); it != copy.end();++it){
-            (*it)->setExecutionEngine( 0 );
-        }
-        assert( children.empty() );
 
         ExecutableInterface* foo;
         while ( f_queue->dequeue( foo ) )
@@ -93,21 +87,12 @@ namespace RTT
             dis->dispose();
 
         delete f_queue;
+        delete port_queue;
         delete mqueue;
     }
 
     TaskCore* ExecutionEngine::getParent() {
         return taskc;
-    }
-
-    void ExecutionEngine::addChild(TaskCore* tc) {
-        children.push_back( tc );
-    }
-
-    void ExecutionEngine::removeChild(TaskCore* tc) {
-        vector<TaskCore*>::iterator it = find (children.begin(), children.end(), tc );
-        if ( it != children.end() )
-            children.erase(it);
     }
 
     void ExecutionEngine::processFunctions()
@@ -131,14 +116,12 @@ namespace RTT
 
     bool ExecutionEngine::runFunction( ExecutableInterface* f )
     {
-        if (this->getActivity() && f) {
+        if ( f && this->getActivity() ) {
             // We only reject running functions when we're in the FatalError state.
             if (taskc && taskc->mTaskState == TaskCore::FatalError )
                 return false;
             f->loaded(this);
             bool result = f_queue->enqueue( f );
-            // signal work is to be done:
-            this->getActivity()->trigger();
             return result;
         }
         return false;
@@ -169,7 +152,7 @@ namespace RTT
             return true;
 
         // When not running, just remove.
-        if ( getActivity() == 0 || !this->getActivity()->isActive() ) {
+        if ( !this->getActivity()->isActive() ) {
             if ( removeSelfFunction( f ) == false )
                 return false;
         } else {
@@ -205,7 +188,6 @@ namespace RTT
     }
 
     bool ExecutionEngine::initialize() {
-        // nop
         return true;
     }
 
@@ -216,6 +198,9 @@ namespace RTT
 
     void ExecutionEngine::processMessages()
     {
+        // Fast bail-out :
+        if ( mqueue->isEmpty() )
+            return;
         // execute all commands from the AtomicQueue.
         // msg_lock may not be held when entering this function !
         DisposableInterface* com(0);
@@ -236,21 +221,58 @@ namespace RTT
             msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
     }
 
+    void ExecutionEngine::processPortCallbacks()
+    {
+        // Fast bail-out :
+        if (port_queue->isEmpty())
+            return;
+
+        TaskContext* tc = dynamic_cast<TaskContext*>(taskc);
+        if (tc) {
+            PortInterface* port(0);
+            {
+                while ( port_queue->dequeue(port) ) {
+                    assert( port );
+                    tc->dataOnPortCallback(port);
+                }
+            }
+        }
+    }
+
     bool ExecutionEngine::process( DisposableInterface* c )
     {
+        // We only reject running functions when we're in the FatalError state.
+        if (taskc && taskc->mTaskState == TaskCore::FatalError )
+            return false;
+
         // forward message to master ExecutionEngine if available
         if (mmaster) {
             return mmaster->process(c);
         }
 
         if ( c && this->getActivity() ) {
-            // We only reject running functions when we're in the FatalError state.
-            if (taskc && taskc->mTaskState == TaskCore::FatalError )
-                return false;
-
             bool result = mqueue->enqueue( c );
             this->getActivity()->trigger();
             msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
+            return result;
+        }
+        return false;
+    }
+
+    bool ExecutionEngine::process( PortInterface* port )
+    {
+        // We only reject running port callbacks when we're in the FatalError state.
+        if (taskc && taskc->mTaskState == TaskCore::FatalError )
+            return false;
+
+        // forward port callback to the master ExecutionEngine if available
+        if (mmaster) {
+            return mmaster->process(port);
+        }
+
+        if ( port && this->getActivity() ) {
+            bool result = port_queue->enqueue( port );
+            this->getActivity()->trigger();
             return result;
         }
         return false;
@@ -264,19 +286,10 @@ namespace RTT
             return;
         }
 
-        if (this->getActivity()->thread()->isSelf())
+        if (isSelf())
             waitAndProcessMessages(pred);
         else
             waitForMessagesInternal(pred);
-    }
-
-
-    void ExecutionEngine::waitForFunctions(const boost::function<bool(void)>& pred)
-    {
-        if (this->getActivity()->thread()->isSelf())
-            waitAndProcessFunctions(pred);
-        else
-            waitForMessagesInternal(pred); // same as for messages.
     }
 
     void ExecutionEngine::setMaster(ExecutionEngine *master)
@@ -296,8 +309,22 @@ namespace RTT
         RTT::base::RunnableInterface::setActivity(task);
     }
 
+    os::ThreadInterface* ExecutionEngine::getThread() const {
+        // forward to the master ExecutionEngine if available
+        if (mmaster) {
+            return mmaster->getThread();
+        }
+        return base::RunnableInterface::getThread();
+    }
+
+    bool ExecutionEngine::isSelf() const {
+        os::ThreadInterface *thread = this->getThread();
+        return (thread && thread->isSelf());
+    }
+
     void ExecutionEngine::waitForMessagesInternal(boost::function<bool(void)> const& pred)
     {
+        assert( mmaster == 0 );
         if ( pred() )
             return;
         // only to be called from the thread not executing step().
@@ -310,7 +337,12 @@ namespace RTT
 
     void ExecutionEngine::waitAndProcessMessages(boost::function<bool(void)> const& pred)
     {
-        while ( !pred() ){
+        assert( mmaster == 0 );
+        // optimization for the case the predicate is already true
+        if ( pred() )
+            return;
+
+        while ( true ) {
             // may not be called while holding the msg_lock !!!
             this->processMessages();
             {
@@ -326,37 +358,46 @@ namespace RTT
         }
     }
 
-    void ExecutionEngine::waitAndProcessFunctions(boost::function<bool(void)> const& pred)
-    {
-        while ( !pred() ){
-            // may not be called while holding the msg_lock !!!
-            this->processFunctions();
-            {
-                // only to be called from the thread executing step().
-                // We must lock because the cond variable will unlock msg_lock.
-                os::MutexLock lock(msg_lock);
-                if (!pred()) {
-                    msg_cond.wait(msg_lock); // now processMessages may run.
-                } else {
-                    return; // do not process messages when pred() == true;
-                }
+    void ExecutionEngine::step() {
+        // we use work() now
+    }
+
+    void ExecutionEngine::work(RunnableInterface::WorkReason reason) {
+        // Interprete work before calling into user code such that we are consistent at all times.
+        if (taskc) {
+            ++taskc->mCycleCounter;
+            switch(reason) {
+            case RunnableInterface::Trigger :
+                ++taskc->mTriggerCounter;
+                break;
+            case RunnableInterface::TimeOut :
+                ++taskc->mTimeOutCounter;
+                break;
+            case RunnableInterface::IOReady :
+                ++taskc->mIOCounter;
+                break;
+            default:
+                break;
             }
         }
+        if (reason == RunnableInterface::Trigger) {
+            /* Callback step */
+            processMessages();
+            processPortCallbacks();
+        } else if (reason == RunnableInterface::TimeOut || reason == RunnableInterface::IOReady) {
+            /* Update step */
+            processMessages();
+            processPortCallbacks();
+            processFunctions();
+            processHooks();
+        }
     }
-
-    void ExecutionEngine::step() {
-        processMessages();
-        processFunctions();
-        processChildren(); // aren't these ExecutableInterfaces ie functions ?
-    }
-
-    void ExecutionEngine::processChildren() {
+    void ExecutionEngine::processHooks() {
         // only call updateHook in the Running state.
         if ( taskc ) {
             // A trigger() in startHook() will be ignored, we trigger in TaskCore after startHook finishes.
             if ( taskc->mTaskState == TaskCore::Running && taskc->mTargetState == TaskCore::Running ) {
                 TRY (
-                    taskc->prepareUpdateHook();
                     taskc->updateHook();
                 ) CATCH(std::exception const& e,
                     log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
@@ -381,46 +422,12 @@ namespace RTT
                 )
             }
         }
-        if ( !this->getActivity() || ! this->getActivity()->isRunning() ) return;
-
-        // call all children as well.
-        for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
-            if ( (*it)->mTaskState == TaskCore::Running  && (*it)->mTargetState == TaskCore::Running  ){
-                TRY (
-                    (*it)->prepareUpdateHook();
-                    (*it)->updateHook();
-                ) CATCH(std::exception const& e,
-                    log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
-                    log(Error) << "  " << e.what() << endlog();
-                    (*it)->exception();
-               ) CATCH_ALL (
-                    log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
-                    (*it)->exception(); // calls stopHook,cleanupHook
-                )
-            }
-            if ((*it)->mTaskState == TaskCore::RunTimeError && (*it)->mTargetState == TaskCore::RunTimeError){
-                TRY (
-                    (*it)->errorHook();
-                ) CATCH(std::exception const& e,
-                    log(Error) << "in errorHook(): switching to exception state because of unhandled exception" << endlog();
-                    log(Error) << "  " << e.what() << endlog();
-                    (*it)->exception();
-               ) CATCH_ALL (
-                    log(Error) << "in errorHook(): switching to exception state because of unhandled exception" << endlog();
-                    (*it)->exception(); // calls stopHook,cleanupHook
-                )
-            }
-            if ( !this->getActivity() || ! this->getActivity()->isRunning() ) return;
-        }
     }
 
     bool ExecutionEngine::breakLoop() {
         bool ok = true;
         if (taskc)
             ok = taskc->breakUpdateHook();
-        for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
-            ok = (*it)->breakUpdateHook() && ok;
-            }
         return ok;
     }
 
@@ -428,7 +435,7 @@ namespace RTT
         // stop and start where former will call breakLoop() in case of non-periodic.
         // this is a forced synchronization point, since stop() will only return when
         // step() returned.
-        if ( getActivity() && this->getActivity()->stop() ) {
+        if ( this->getActivity() && this->getActivity()->stop() ) {
             this->getActivity()->start();
             return true;
         }

@@ -1,8 +1,0 @@
-orocos-rtt for Debian
----------------------
-
-The initial package was created from orocos-rtt 1.1.0, without CORBA
-support and using the internal TinyXML marshaller. All other CMAKE
-options are left to the default.
-
- -- Peter Soetens <peter.soetens@fmtc.be>, Fri, 20 Apr 2007 08:12:38 +0200

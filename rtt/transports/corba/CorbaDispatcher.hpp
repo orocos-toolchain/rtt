@@ -110,7 +110,7 @@ namespace RTT {
                         name = "Global";
                     else
                         name = iface->getOwner()->getName();
-                    name += ".CorbaDispatch";
+                    name += "Corba";
                     DispatchI[iface] = new CorbaDispatcher( name, scheduler, priority );
                     DispatchI[iface]->start();
                     return DispatchI[iface];
@@ -148,16 +148,16 @@ namespace RTT {
                 mlock = 0;
             }
 
-	    static void hasElement(base::ChannelElementBase::shared_ptr c0, base::ChannelElementBase::shared_ptr c1, bool& result)
-	    {
-		result = result || (c0 == c1);
-	    }
+            static void hasElement(base::ChannelElementBase::shared_ptr c0, base::ChannelElementBase::shared_ptr c1, bool& result)
+            {
+                result = result || (c0 == c1);
+            }
 
             void dispatchChannel( base::ChannelElementBase::shared_ptr chan ) {
-		bool has_element = false;
-		RClist.apply(boost::bind(&CorbaDispatcher::hasElement, _1, chan, boost::ref(has_element)));
+                bool has_element = false;
+                RClist.apply(boost::bind(&CorbaDispatcher::hasElement, _1, chan, boost::ref(has_element)));
                 if (!has_element)
-	            RClist.append( chan );
+                    RClist.append( chan );
                 this->trigger();
             }
 

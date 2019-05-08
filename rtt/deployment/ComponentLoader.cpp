@@ -1,3 +1,41 @@
+/***************************************************************************
+  tag: Peter Soetens Thu Feb 1 16:30:11 2007 +0000 ComponentLoader.cpp
+
+                        ComponentLoader.cpp -  description
+                           -------------------
+    begin                : Thu Feb 1 2007
+    copyright            : (C) 2007 Peter Soetens
+    email                : peter@thesourceworks.com
+
+ ***************************************************************************
+ *   This library is free software; you can redistribute it and/or         *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   General Public License for more details.                              *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public             *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 59 Temple Place,                                    *
+ *   Suite 330, Boston, MA  02111-1307  USA                                *
+ *                                                                         *
+ ***************************************************************************/
+
+
 #include "ComponentLoader.hpp"
 #include <rtt/TaskContext.hpp>
 #include <rtt/Logger.hpp>
@@ -347,39 +385,6 @@ bool ComponentLoader::import( std::string const& path_list )
             // If the path is not complete (not absolute), look it up in the search directories:
             log(Debug) << "No such directory: " << p<< endlog();
         }
-#if 0
-        // Repeat for path/OROCOS_TARGET: (already done in other import function)
-        p = path(*it) / OROCOS_TARGET_NAME;
-        if (is_directory(p))
-        {
-            log(Info) << "Importing component libraries from directory " << p.string() << " ..."<<endlog();
-            for (directory_iterator itr(p); itr != directory_iterator(); ++itr)
-            {
-                log(Debug) << "Scanning file " << itr->path().string() << " ...";
-                if (is_regular_file(itr->status()) && isLoadableLibrary(itr->path()) ) {
-                    found = true;
-#if BOOST_VERSION >= 104600
-                    all_good = loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename().string() ),  true) && all_good;
-#else
-                    all_good = loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ),  true) && all_good;
-#endif
-                }else {
-                    if (!is_regular_file(itr->status()))
-                        log(Debug) << "not a regular file: ignored."<<endlog();
-                    else
-                        log(Debug) << "not a " + SO_EXT + " library: ignored."<<endlog();
-                }
-            }
-            log(Info) << "Importing plugins and typekits from directory " << p.string() << " ..."<<endlog();
-            try {
-                found = PluginLoader::Instance()->loadTypekits( p.string() ) || found;
-                found = PluginLoader::Instance()->loadPlugins( p.string() ) || found;
-            } catch (std::exception& e) {
-                all_good = false;
-                log(Error) << e.what() <<endlog();
-            }
-        }
-#endif
     }
     if (!all_good)
         throw std::runtime_error("Some found plugins could not be loaded !");
@@ -459,7 +464,7 @@ bool ComponentLoader::importInstalledPackage(std::string const& package, std::st
         } // else: we allow to import a subdirectory of '.'.
     }
     // append '/package' or 'target/package' to each plugin path in order to search all of them:
-    for(vector<string>::iterator it = vpaths.begin(); it != vpaths.end(); ++it) {
+    for(vector<string>::iterator it = vpaths.begin(); !path_found && it != vpaths.end(); ++it) {
         p = *it;
         p = p / package;
         // we only search in existing directories:

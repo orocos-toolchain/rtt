@@ -51,6 +51,7 @@ public:
     }
 
     void updateHook(){
+        log(Info) << "Received data on port" <<endlog();
         double d = 123456.789;
         FlowStatus fs = NoData;
         while( (fs = mi1.read(d, false)) == NewData ) {
