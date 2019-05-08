@@ -139,11 +139,15 @@ class  RTT_corba_COperationInterface_i
   virtual ~RTT_corba_COperationInterface_i (void);
 
   virtual
-  RTT::corba::COperationInterface::COperationList * getOperations (
+  RTT::corba::COperationInterface::COperationDescriptions * getOperations (
       void);
 
   virtual
-  ::RTT::corba::CDescriptions * getArguments (
+  ::RTT::corba::CArgumentDescriptions * getArguments (
+      const char * operation);
+
+  virtual
+  ::RTT::corba::CTypeList * getCollectTypes (
       const char * operation);
 
   virtual
@@ -185,9 +189,18 @@ class  RTT_corba_COperationInterface_i
       const char * operation,
       const ::RTT::corba::CAnyArguments & args);
 
-    private:
-        RTT::OperationInterfacePart *findOperation ( const char *operation );
-        bool loadPlugin ( const std::string& pluginPath );
+  virtual
+  void sendOperationOneway (
+      const char * operation,
+      const ::RTT::corba::CAnyArguments & args);
+
+private:
+  RTT_corba_CSendHandle_i* sendOperationInternal (
+      const char * operation,
+      const ::RTT::corba::CAnyArguments & args);
+
+  RTT::OperationInterfacePart *findOperation ( const char *operation );
+  bool loadPlugin ( const std::string& pluginPath );
 };
 
 

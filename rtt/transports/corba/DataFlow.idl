@@ -79,6 +79,11 @@ module RTT
         CWriteStatus write(in any sample);
 
         /**
+         * Writes into this Channel Element (one-way)
+         */
+        oneway void writeOneway(in any sample);
+
+        /**
          * Disconnect and dispose this object.
          * You may no longer use this object after calling this method.
          */
@@ -131,6 +136,7 @@ module RTT
     {
         CPortType type;
         string   name;
+        string   description;
         string   type_name;
     };
 
