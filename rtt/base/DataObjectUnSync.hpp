@@ -55,37 +55,75 @@ namespace RTT
     class DataObjectUnSync
         : public DataObjectInterface<T>
     {
+        typedef typename DataObjectInterface<T>::value_t value_t;
+        typedef typename DataObjectInterface<T>::reference_t reference_t;
+        typedef typename DataObjectInterface<T>::param_t param_t;
+
         /**
          * One element of Data.
          */
-        T data;
+        value_t data;
+
+        mutable FlowStatus status;
+        bool initialized;
+
     public:
         /**
-         * Construct a DataObjectUnSync by name.
-         *
-         * @param _name The name of this DataObject.
+         * Construct an uninitialized DataObjectUnSync.
          */
-        DataObjectUnSync( const T& initial_value = T() )
-            : data(initial_value) {}
+        DataObjectUnSync()
+            : data(), status(NoData), initialized(false) {}
 
         /**
-         * The type of the data.
+         * Construct a DataObjectUnSync with initial value.
          */
-        typedef T DataType;
+        DataObjectUnSync( param_t initial_value )
+            : data(initial_value), status(NoData), initialized(true) {}
 
-        virtual void Get( DataType& pull ) const { pull = data; }
-
-        virtual DataType Get() const { DataType cache;  Get(cache); return cache; }
-
-        virtual void Set( const DataType& push ) { data = push; }
-
-        virtual void data_sample( const DataType& sample ) {
-            Set(sample);
+        virtual FlowStatus Get( reference_t pull, bool copy_old_data = true ) const {
+            FlowStatus result = status;
+            if (status == NewData) {
+                pull = data;
+                status = OldData;
+            } else if ((status == OldData) && copy_old_data) {
+                pull = data;
+            }
+            return result;
         }
 
-        virtual T data_sample() const
+        virtual value_t Get() const {
+            value_t cache = value_t();
+            Get(cache);
+            return cache;
+        }
+
+        virtual bool Set( param_t push ) {
+            data = push;
+            status = NewData;
+            return true;
+        }
+
+        virtual bool data_sample( param_t sample, bool reset ) {
+            if (!initialized || reset) {
+                Set(sample);
+                initialized = true;
+                return true;
+            } else {
+                return initialized;
+            }
+        }
+
+        /**
+         * Reads back a data sample.
+         */
+        virtual value_t data_sample() const
         {
             return data;
+        }
+
+        virtual void clear()
+        {
+            status = NoData;
         }
 
     };

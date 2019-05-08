@@ -86,10 +86,9 @@ namespace RTT
                 cleanupStream();
             }
 
-            virtual bool inputReady() {
+            virtual bool inputReady(base::ChannelElementBase::shared_ptr const& caller) {
                 if ( mqReady(read_sample, this) ) {
-                    typename base::ChannelElement<T>::shared_ptr output =
-                        this->getOutput();
+                    typename base::ChannelElement<T>::shared_ptr output = caller->narrow<T>();
                     assert(output);
                     output->data_sample(read_sample->rvalue());
                     return true;
@@ -97,19 +96,16 @@ namespace RTT
                 return false;
             }
 
-            virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
+            virtual WriteStatus data_sample(typename base::ChannelElement<T>::param_t sample, bool reset = true)
             {
                 // send initial data sample to the other side using a plain write.
-                if (mis_sender) {
-                    typename base::ChannelElement<T>::shared_ptr output =
-                        this->getOutput();
-
+                if (mis_sender && (!write_sample->getRawDataConst() || reset)) {
                     write_sample->setPointer(&sample);
                     // update MQSendRecv buffer:
                     mqNewSample(write_sample);
-                    return mqWrite(write_sample);
+                    return mqWrite(write_sample) ? WriteSuccess : WriteFailure;
                 }
-                return false;
+                return NotConnected;
             }
 
             /**
@@ -138,12 +134,12 @@ namespace RTT
                     typename base::ChannelElement<T>::shared_ptr input =
                         this->getInput();
                     if( input && input->read(read_sample->set(), false) == NewData )
-                        return this->write(read_sample->rvalue());
+                        return ( this->write(read_sample->rvalue()) == WriteSuccess );
                 } else {
                     typename base::ChannelElement<T>::shared_ptr output =
                         this->getOutput();
                     if (output && mqRead(read_sample))
-                        return output->write(read_sample->rvalue());
+                        return ( output->write(read_sample->rvalue()) == WriteSuccess );
                 }
                 return false;
             }
@@ -163,10 +159,13 @@ namespace RTT
              * @param sample the data sample to write
              * @return true if it could be sent.
              */
-            bool write(typename base::ChannelElement<T>::param_t sample)
+            WriteStatus write(typename base::ChannelElement<T>::param_t sample)
             {
                 write_sample->setPointer(&sample);
-                return mqWrite(write_sample);
+                if (!mqWrite(write_sample)) {
+                    return WriteFailure;
+                }
+                return WriteSuccess;
             }
 
             virtual bool isRemoteElement() const

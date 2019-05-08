@@ -40,7 +40,6 @@
 #define ORO_OUTPUT_PORT_INTERFACE_HPP
 
 #include "PortInterface.hpp"
-#include "../internal/ConnectionManager.hpp"
 #include "DataSourceBase.hpp"
 
 namespace RTT
@@ -53,8 +52,6 @@ namespace RTT
     class RTT_API OutputPortInterface : public PortInterface
     {
     protected:
-        internal::ConnectionManager cmanager;
-
         /**
          * Upcall to OutputPort.
          */
@@ -104,7 +101,7 @@ namespace RTT
         /**
          * Write this port using the value stored in source.
          */
-        virtual void write(DataSourceBase::shared_ptr source);
+        virtual WriteStatus write(DataSourceBase::shared_ptr source);
 
         /** Connects this write port to the given read port, using a single-data
          * policy with the given locking mechanism
@@ -117,6 +114,8 @@ namespace RTT
          */
         bool createBufferConnection( InputPortInterface& sink, int size, int lock_policy = ConnPolicy::LOCK_FREE );
 
+        using PortInterface::createConnection;
+
         /** Connects this write port to the given read port, using as policy
          * the default policy of the sink port
          */
@@ -127,19 +126,17 @@ namespace RTT
          */
         virtual bool createConnection( InputPortInterface& sink, ConnPolicy const& policy ) = 0;
 
+        /**
+         * Connects the port to an existing shared connection instance.
+         */
+        virtual bool createConnection( internal::SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy = ConnPolicy() );
+
         /** Removes the channel that connects this port to \c port */
         virtual bool disconnect(PortInterface* port);
-
-        /** Removes the connection associated with this channel, and the channel
-         * as well
-         */
-        virtual bool removeConnection(internal::ConnID* cid);
 
         virtual bool connectTo(PortInterface* other, ConnPolicy const& policy);
 
         virtual bool connectTo(PortInterface* other);
-
-        virtual const internal::ConnectionManager* getManager() const { return &cmanager; }
     };
 }}
 
