@@ -108,16 +108,16 @@ namespace RTT {
                         return result->second;
                     // *really* not found, let's create it.
                     std::string name;
-                    if ( iface == 0 || iface->getOwner() == 0)
+                    TaskContext* owner = (iface != 0 ? iface->getOwner() : 0);
+                    if ( !owner )
                         name = "Global";
                     else
-                        name = iface->getOwner()->getName();
+                        name = owner->getName();
                     name += ".CorbaDispatch";
 
                     // The properties to create the CorbaDispatcher are retrieved.
                     // When the CorbaDispatcher is created these properties can't be changed anymore,
                     // so they are converted to Constants.
-                    TaskContext* owner = iface->getOwner();
                     RTT::types::GlobalsRepository::shared_ptr global_repository = RTT::types::GlobalsRepository::Instance();
                     // The hard coded default is used if the property isn't set for the Component
                     // that owns the Dispatcher and for the GlobalService.
@@ -127,14 +127,20 @@ namespace RTT {
 
                     // If the Property is defined for the Component or for the GlobalService,
                     // the temporary Property values is updated.
-                    scheduler.refresh(owner->getProperty("CorbaDispatcherScheduler")) ||
+                    if ( owner ) {
+                        scheduler.refresh(owner->getProperty("CorbaDispatcherScheduler")) ||
+                            scheduler.refresh(global_repository->getProperty("CorbaDispatcherScheduler"));
+
+                        priority.refresh(owner->getProperty("CorbaDispatcherPriority")) ||
+                            priority.refresh(global_repository->getProperty("CorbaDispatcherPriority"));
+
+                        cpu_affinity.refresh(owner->getProperty("CorbaDispatcherCpuAffinity")) ||
+                            cpu_affinity.refresh(global_repository->getProperty("CorbaDispatcherCpuAffinity"));
+                    } else {
                         scheduler.refresh(global_repository->getProperty("CorbaDispatcherScheduler"));
-
-                    priority.refresh(owner->getProperty("CorbaDispatcherPriority")) ||
                         priority.refresh(global_repository->getProperty("CorbaDispatcherPriority"));
-
-                    cpu_affinity.refresh(owner->getProperty("CorbaDispatcherCpuAffinity")) ||
                         cpu_affinity.refresh(global_repository->getProperty("CorbaDispatcherCpuAffinity"));
+                    }
 
                     DispatchI[iface] = new CorbaDispatcher( name, scheduler, priority, cpu_affinity );
                     DispatchI[iface]->start();
