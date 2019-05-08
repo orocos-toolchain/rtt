@@ -113,17 +113,7 @@ namespace RTT
          * @param initial_state Provide the \a PreOperational parameter flag here
          * to force users in calling configure(), before they call start().
          */
-        TaskCore( TaskState initial_state = Stopped  );
-
-        /**
-         * Create a TaskCore.
-         * Its commands programs and state machines are processed by \a parent.
-         * Use this constructor to share execution engines among task contexts, such that
-         * the execution of their functionality is serialised (executed in the same thread).
-         * @param initial_state Provide the \a PreOperational parameter flag here
-         * to force users in calling configure(), before they call start().
-         */
-        TaskCore( ExecutionEngine* parent, TaskState initial_state = Stopped );
+        TaskCore( TaskState initial_state = Stopped );
 
         virtual ~TaskCore();
 
@@ -311,17 +301,6 @@ namespace RTT
          */
 
         /**
-         * Use this method to re-set the execution engine
-         * of this task core.
-         * @param engine The new execution engine which will execute
-         * this TaskCore or null if a new execution engine must be
-         * created (the old is deleted in that case).
-         * @post The TaskCore is being run by \a engine or a new
-         * execution engine.
-         */
-        void setExecutionEngine(ExecutionEngine* engine);
-
-        /**
          * Get a const pointer to the ExecutionEngine of this Task.
          */
         const ExecutionEngine* engine() const
@@ -336,6 +315,25 @@ namespace RTT
         {
             return ee;
         }
+
+        /**
+         * For each update cycle, this counter increments by one.
+         * You can use this to check across (callback) functions if
+         * we're still in the same cycle or in a new one.
+         */
+        unsigned int getCycleCounter() const { return mCycleCounter; }
+        /**
+         * Number of cycles that were caused by Trigger triggers.
+         */
+        unsigned int getTriggerCounter() const { return mTriggerCounter; }
+        /**
+         * Number of cycles that were caused by IOReady triggers.
+         */
+        unsigned int getIOCounter() const { return mIOCounter; }
+        /**
+         * Number of cycles that were caused by TimeOut triggers.
+         */
+        unsigned int getTimeOutCounter() const { return mTimeOutCounter; }
 
     protected:
         /**
@@ -458,17 +456,36 @@ namespace RTT
          * mTaskState to mTargetState.
          */
         TaskState mTargetState;
+
         // non copyable
         TaskCore( TaskCore& );
 
         friend class TaskContext;
+
+    protected:
         /**
-         * This is how the EE informs the TaskContext that it is about
-         * to run updateHook. This function might be replaced by another
-         * mechanism in the future and currently serves to handle
-         * event ports callbacks.
+         * Set to false in order to not trigger() when calling start().
          */
-        virtual void prepareUpdateHook();
+        bool mTriggerOnStart;
+
+        /**
+         * For each update cycle, this counter increments by one.
+         * You can use this to check across (callback) functions if
+         * we're still in the same cycle or in a new one.
+         */
+        unsigned int mCycleCounter;
+        /**
+         * Number of cycles that were caused by IOReady triggers.
+         */
+        unsigned int mIOCounter;
+        /**
+         * Number of cycles that were caused by TimeOut triggers.
+         */
+        unsigned int mTimeOutCounter;
+        /**
+         * Number of cycles that were caused by Trigger triggers.
+         */
+        unsigned int mTriggerCounter;
     };
 }}
 

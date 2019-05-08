@@ -61,6 +61,7 @@ public:
 
         tc->ports()->addEventPort(*mi1);
         tc->ports()->addPort(*mo1);
+        tc->start();
 
         t2 = new TaskContext("local");
         t2->ports()->addEventPort(*mi2,boost::bind(&CorbaTest::new_data_listener, this, _1));

@@ -201,7 +201,8 @@ namespace RTT
 
             /**
              * Set the wait policy of a periodic thread
-             * @param The wait policy between ORO_WAIT_ABS (absolute wait) and ORO_WAIT_REL (relative wait)
+             * @param The wait policy can be ORO_WAIT_ABS (absolute wait)
+             * and ORO_WAIT_REL (relative wait, with respect to current time)
              */
             virtual void setWaitPeriodPolicy(int p) = 0;
 

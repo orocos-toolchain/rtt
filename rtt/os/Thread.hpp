@@ -285,6 +285,7 @@ namespace RTT
              * Do configuration actions when the thread is stopped.
              */
             void configure();
+        protected:
 
             static unsigned int default_stack_size;
 

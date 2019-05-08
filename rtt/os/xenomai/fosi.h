@@ -119,8 +119,8 @@ extern "C" {
 #define ORO_SCHED_RT    0 /** Hard real-time */
 #define ORO_SCHED_OTHER 1 /** Soft real-time */
 
-#define ORO_WAIT_ABS 0 /** Not supported for the xenomai target */
-#define ORO_WAIT_REL 1 /** Not supported for the xenomai target */
+#define ORO_WAIT_ABS 0
+#define ORO_WAIT_REL 1
 
 	// hrt is in ticks
 static inline TIME_SPEC ticks2timespec(TICK_TIME hrt)

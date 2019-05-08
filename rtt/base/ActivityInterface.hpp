@@ -204,12 +204,24 @@ namespace RTT
          * Semantics: If trigger() returns true, the activity will be executed at least
          * once from the moment trigger() is called.
          *
+         * Requests this Activity to wakeup and call step() + work(Trigger).
+         * If the thread is periodic, it will continue sleeping for the remainder of the time
+         * after the work() has finished.
+         *
          * @retval true When this->isActive() and the implementation allows external
          * triggers.
          * @retval false When !this->isActive() or the implementation does not
          * allow external triggering.
          */
         virtual bool trigger() = 0;
+
+        /**
+         * Requests this Activity to wakeup and call step() + work(Timeout).
+         * Will be ignored for periodic activities, since they use an internal
+         * timing mechanism, but can be used for non-periodic activities which
+         * want to emulate a timeout happening towards the base::RunnableInterface.
+         */
+        virtual bool timeout()  = 0;
 
         /**
          * Returns a pointer to the thread which will
