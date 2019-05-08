@@ -284,10 +284,20 @@ namespace RTT { namespace extras {
          */
         virtual void step();
 
+        /** Called by loop() when data is available on the file descriptor. By
+         * default, it calls step() on the associated runner interface (if any)
+         */
+        virtual void work(base::RunnableInterface::WorkReason reason);
+
         /** Force calling step() even if no data is available on the file
          * descriptor, and returns true if the signalling was successful
          */
         virtual bool trigger();
+
+        /**
+         * Always returns false.
+         */
+        virtual bool timeout();
     };
 }}
 
