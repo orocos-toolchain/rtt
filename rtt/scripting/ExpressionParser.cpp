@@ -643,6 +643,8 @@ namespace RTT
   void ExpressionParser::seen_unary( const std::string& op )
   {
     DataSourceBase::shared_ptr arg( parsestack.top() );
+    if ( ! arg)
+        throw parse_exception_fatal_semantic_error( "Root element not found\"." );
     parsestack.pop();
     DataSourceBase::shared_ptr ret =
         opreg->applyUnary( op, arg.get() );

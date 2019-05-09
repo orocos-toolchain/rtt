@@ -144,19 +144,20 @@ namespace RTT
                 return shared_connection;
             }
 
-            /**
-             * Locks the mutex protecting the channel element list.
-             * */
-            void lock() const {
-                connection_lock.lock();
-            };
+//            /**
+//             * Locks the mutex protecting the channel element list.
+//             * */
+//            void lock() const {
+//                connection_lock.lock();
+//            };
 
-            /**
-             * Unlocks the mutex protecting the channel element list.
-             * */
-            void unlock() const {
-                connection_lock.unlock();
-            }
+//            /**
+//             * Unlocks the mutex protecting the channel element list.
+//             * */
+//            void unlock() const {
+//                connection_lock.unlock();
+//            }
+
         protected:
 
             /** Helper method for disconnect()
@@ -180,12 +181,6 @@ namespace RTT
              * A pointer to the shared connection this port may be connected to.
              */
             internal::SharedConnectionBase::shared_ptr shared_connection;
-
-            /**
-             * Lock that should be taken before the list of connections is
-             * accessed or modified
-             */
-            mutable RTT::os::Mutex connection_lock;
         };
 
     }
