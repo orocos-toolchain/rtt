@@ -40,6 +40,7 @@
 #define ORO_CONN_INPUT_ENDPOINT_HPP
 
 #include "Channels.hpp"
+#include "PortConnectionLock.hpp"
 
 namespace RTT
 { namespace internal {
@@ -72,6 +73,11 @@ namespace RTT
         virtual bool disconnect(const base::ChannelElementBase::shared_ptr& channel, bool forward)
         {
             OutputPort<T>* port = this->port;
+            PortConnectionLock lock(port);
+
+//            // Lock port connections if the request is coming from the remote end (forward == false)
+//            PortConnectionLock lock(!forward ? port : 0);
+
             if (port && channel && !forward)
             {
                 port->getManager()->removeConnection(channel.get(), /* disconnect = */ false);
@@ -85,7 +91,7 @@ namespace RTT
             // If this was the last connection, remove the buffer, too.
             // For forward == false this was already done by the base class.
             if (!this->connected() && forward) {
-                this->disconnect(false);
+                Base::disconnect(0, false);
             }
 
             return true;

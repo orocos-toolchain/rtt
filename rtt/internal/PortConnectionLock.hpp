@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 22 11:59:07 CEST 2009  CorbaDispatcher.cpp
+  tag: Peter Soetens  Thu July 19 23:09:08 CEST 2018  PortConnectionLock.hpp
 
-                        CorbaDispatcher.cpp -  description
+                        PortConnectionLock.hpp -  description
                            -------------------
-    begin                : Thu October 22 2009
-    copyright            : (C) 2009 Peter Soetens
-    email                : peter@thesourcworks.com
+    begin                : Thu July 19 2018
+    copyright            : (C) 2018 Johannes Meyer
+    email                : johannes@intermodalics.eu
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -35,15 +35,30 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef ORO_PORT_CONNECTION_LOCK_HPP
+#define ORO_PORT_CONNECTION_LOCK_HPP
 
-#include "CorbaDispatcher.hpp"
+#include "../base/PortInterface.hpp"
 
-namespace RTT {
-    using namespace corba;
-    CorbaDispatcher::DispatchMap CorbaDispatcher::DispatchI;
-    RTT_CORBA_API os::Mutex* CorbaDispatcher::mlock = 0;
+namespace RTT
+{ namespace internal {
 
-    int CorbaDispatcher::defaultScheduler = ORO_SCHED_RT;
-    int CorbaDispatcher::defaultPriority  = os::LowestPriority;
-    int CorbaDispatcher::defaultCpuAffinity  = 0;
-}
+    class RTT_API PortConnectionLock
+    {
+        base::PortInterface *mport;
+
+    public:
+        PortConnectionLock(base::PortInterface *port)
+            : mport(port) {
+            if (mport) mport->connection_lock.lock();
+        }
+
+        ~PortConnectionLock()
+        {
+            if (mport) mport->connection_lock.unlock();
+        }
+    };
+
+}}
+
+#endif // ORO_PORT_CONNECTION_LOCK_HPP
