@@ -8,4 +8,8 @@
      <simple name="bagload1" type="short"><description>Dimension of the Vector</description><value>3</value></simple>
      <simple name="bagload2" type="string"><value>3 3 3</value></simple>
   </struct>
+  <simple name="pint2" type="long"><value>-2</value></simple>
+  <simple name="puint2" type="ulong"><value>3</value></simple>
+  <simple name="pllong2" type="llong"><value>9223372036854775807</value></simple>
+  <simple name="pullong2" type="ullong"><value>18446744073709551615</value></simple>
 </properties>

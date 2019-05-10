@@ -18,12 +18,24 @@ module RTT
 
 	/**
 	 * Maps 1-to-1 to RTT::base::TaskCore::TaskState.
-         *
-         * Exception is renamed to ExceptionState as Exception is forbidden by
-         * IDL
+     *
+     * Exception is renamed to ExceptionState as Exception is forbidden by
+     * IDL
 	 * @ingroup CompIDL
 	 */
 	enum CTaskState { CInit, CPreOperational, CFatalError, CException, CStopped, CRunning, CRunTimeError };
+
+    /**
+     * Complete description of a TaskContext including the IORs of all objects within
+     * @ingroup CompIDL
+     */
+    struct CTaskContextDescription
+    {
+        CServiceRequester mainrequester;
+        CServiceRequesterDescription mainrequester_description;
+        CService mainprovider;
+        CServiceDescription mainprovider_description;
+    };
 
 	/**
 	 * A CTaskContext is the main entry point of a distributed
@@ -43,6 +55,12 @@ module RTT
 	     * Return the description of this component.
 	     */
 	    string getDescription();
+
+        /**
+         * Return the full description of this component
+         * with all TaskContext objects
+         */
+        CTaskContextDescription getCTaskContextDescription();
 
 	    /**
 	     * @name TaskContext life-cycle

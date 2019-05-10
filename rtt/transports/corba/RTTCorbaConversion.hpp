@@ -77,6 +77,16 @@ namespace RTT {
     };
 
     template<>
+    struct AnyConversion<long long> : public AnyConversionHelper<long long, CORBA::LongLong> {
+      typedef CORBA::LongLongSeq sequence;
+    };
+
+    template<>
+    struct AnyConversion<unsigned long long> : public AnyConversionHelper<unsigned long long, CORBA::ULongLong> {
+      typedef CORBA::ULongLongSeq sequence;
+    };
+
+    template<>
     struct AnyConversion<CORBA::Any_ptr>
     {
       typedef CORBA::Any_ptr CorbaType;

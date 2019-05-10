@@ -63,6 +63,10 @@ namespace RTT {
                 return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<unsigned int>() );
             if ( name == "char" )
                 return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<char>() );
+            if ( name == "llong" )
+                return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<long long>() );
+            if ( name == "ullong" )
+                return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<unsigned long long>() );
             //if ( name == "long" )
             //    return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<long>() );
             //if ( name == "PropertyBag" )

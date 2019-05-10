@@ -69,48 +69,23 @@ namespace RTT
     template<typename T>
     class OutputPort : public base::OutputPortInterface
     {
+    private:
         friend class internal::ConnInputEndpoint<T>;
-
-        bool do_write(typename base::ChannelElement<T>::param_t sample, const internal::ConnectionManager::ChannelDescriptor& descriptor)
-        {
-            typename base::ChannelElement<T>::shared_ptr output
-                = boost::static_pointer_cast< base::ChannelElement<T> >(descriptor.get<1>());
-            if (output->write(sample))
-                return false;
-            else
-            {
-                log(Error) << "A channel of port " << getName() << " has been invalidated during write(), it will be removed" << endlog();
-                return true;
-            }
-        }
-
-        bool do_init(typename base::ChannelElement<T>::param_t sample, const internal::ConnectionManager::ChannelDescriptor& descriptor)
-        {
-            typename base::ChannelElement<T>::shared_ptr output
-                = boost::static_pointer_cast< base::ChannelElement<T> >(descriptor.get<1>());
-            if (output->data_sample(sample))
-                return false;
-            else
-            {
-                log(Error) << "A channel of port " << getName() << " has been invalidated during setDataSample(), it will be removed" << endlog();
-                return true;
-            }
-        }
+        typename internal::ConnInputEndpoint<T>::shared_ptr endpoint;
 
         virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy ) {
             // Initialize the new channel with last written data if requested
             // (and available)
 
             // This this the input channel element of the whole connection
-            typename base::ChannelElement<T>::shared_ptr channel_el_input =
-                static_cast< base::ChannelElement<T>* >(channel_input.get());
+            typename base::ChannelElement<T>::shared_ptr channel_el_input = channel_input.get()->narrow<T>();
 
             if (has_initial_sample)
             {
                 T const& initial_sample = sample->Get();
-                if ( channel_el_input->data_sample(initial_sample) ) {
+                if ( channel_el_input->data_sample(initial_sample, /* reset = */ false) != NotConnected ) {
                     if ( has_last_written_value && policy.init )
-                        return channel_el_input->write(initial_sample);
+                        return ( channel_el_input->write(initial_sample) != NotConnected );
                     return true;
                 } else {
                     Logger::In in("OutputPort");
@@ -118,8 +93,9 @@ namespace RTT
                     return false;
                 }
             }
+
             // even if we're not written, test the connection with a default sample.
-            return channel_el_input->data_sample( T() );
+            return ( channel_el_input->data_sample( T(), /* reset = */ false ) != NotConnected );
         }
 
         /// True if \c sample has been set at least once by a call to write()
@@ -164,6 +140,7 @@ namespace RTT
          */
         OutputPort(std::string const& name = "unnamed", bool keep_last_written_value = true)
             : base::OutputPortInterface(name)
+            , endpoint(new internal::ConnInputEndpoint<T>(this))
             , has_last_written_value(false)
             , has_initial_sample(false)
             , keeps_next_written_value(false)
@@ -173,6 +150,8 @@ namespace RTT
             if (keep_last_written_value)
                 keepLastWrittenValue(true);
         }
+
+        virtual ~OutputPort() { disconnect(); }
 
         void keepNextWrittenValue(bool keep)
         {
@@ -233,16 +212,35 @@ namespace RTT
             has_initial_sample = true;
             has_last_written_value = false;
 
-            cmanager.delete_if( boost::bind(
-                        &OutputPort<T>::do_init, this, boost::ref(sample), _1 )
-                    );
+            if (connected()) {
+                WriteStatus result = getEndpoint()->getWriteEndpoint()->data_sample(sample, /* reset = */ true);
+                if (result == NotConnected) {
+                    log(Error) << "A channel of port " << getName() << " has been invalidated during setDataSample(), it will be removed" << endlog();
+                }
+            }
+        }
+
+        /**
+         * Clears the last written value and all data stored in shared connection buffers.
+         * The clear() call on an OutputPort has no effect on private connections.
+         */
+        void clear()
+        {
+            has_last_written_value = false;
+            getEndpoint()->getWriteEndpoint()->clear(); // only affects shared pull connections, where getInputEndpoint() would return the port's buffer object
+
+            // eventually clear shared connection
+            internal::SharedConnectionBase::shared_ptr shared_connection = cmanager.getSharedConnection();
+            if (shared_connection) {
+                shared_connection->clear();
+            }
         }
 
         /**
          * Writes a new sample to all receivers (if any).
          * @param sample The new sample to send out.
          */
-        void write(const T& sample)
+        WriteStatus write(const T& sample)
         {
             if (keeps_last_written_value || keeps_next_written_value)
             {
@@ -252,26 +250,33 @@ namespace RTT
             }
             has_last_written_value = keeps_last_written_value;
 
-            cmanager.delete_if( boost::bind(
-                        &OutputPort<T>::do_write, this, boost::ref(sample), _1 )
-                    );
+            WriteStatus result = NotConnected;
+            if (connected()) {
+                result = getEndpoint()->getWriteEndpoint()->write(sample);
+                if (result == NotConnected) {
+                    log(Error) << "A channel of port " << getName() << " has been invalidated during write(), it will be removed" << endlog();
+                }
+            }
+
+            return result;
         }
 
-        void write(base::DataSourceBase::shared_ptr source)
+        WriteStatus write(base::DataSourceBase::shared_ptr source)
         {
             typename internal::AssignableDataSource<T>::shared_ptr ds =
                 boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >(source);
             if (ds)
-                write(ds->rvalue());
+                return write(ds->rvalue());
             else
             {
                 typename internal::DataSource<T>::shared_ptr ds =
                     boost::dynamic_pointer_cast< internal::DataSource<T> >(source);
                 if (ds)
-                    write(ds->get());
+                    return write(ds->get());
                 else
                     log(Error) << "trying to write from an incompatible data source" << endlog();
             }
+            return WriteFailure;
         }
 
         /** Returns the types::TypeInfo object for the port's type */
@@ -315,7 +320,7 @@ namespace RTT
         {
             Service* object = base::OutputPortInterface::createPortObject();
             // Force resolution on the overloaded write method
-            typedef void (OutputPort<T>::*WriteSample)(T const&);
+            typedef WriteStatus (OutputPort<T>::*WriteSample)(T const&);
             WriteSample write_m = &OutputPort::write;
             typedef T (OutputPort<T>::*LastSample)() const;
             LastSample last_m = &OutputPort::getLastWrittenValue;
@@ -324,6 +329,17 @@ namespace RTT
             return object;
         }
 #endif
+
+        virtual internal::ConnInputEndpoint<T>* getEndpoint() const
+        {
+            assert(endpoint);
+            return endpoint.get();
+        }
+
+        virtual typename base::ChannelElement<T>::shared_ptr getSharedBuffer() const
+        {
+            return getEndpoint()->getSharedBuffer();
+        }
     };
 
 }

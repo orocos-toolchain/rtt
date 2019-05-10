@@ -69,8 +69,8 @@ namespace RTT
            */
           typedef typename Property<T>::DataSourceType PropertyType;
 
-          CRemoteChannelElement_i* createChannelElement_i(DataFlowInterface* sender,PortableServer::POA_ptr poa, bool is_pull) const
-          { return new RemoteChannelElement<T>(*this, sender, poa, is_pull); }
+          CRemoteChannelElement_i* createChannelElement_i(DataFlowInterface* sender, PortableServer::POA_ptr poa, const ConnPolicy &policy) const
+          { return new RemoteChannelElement<T>(*this, sender, poa, policy); }
 
           /**
            * Create an transportable object for a \a protocol which contains the value of \a source.
@@ -128,8 +128,8 @@ namespace RTT
               return base::DataSourceBase::shared_ptr( new ValueDataSourceProxy<PropertyType>( serv, vname, true) );
           }
 
-          virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CService_ptr serv, const std::string& vname) {
-              if ( serv->isAttributeAssignable( vname.c_str() ) ) {
+          virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CService_ptr serv, const std::string& vname, bool is_assignable) {
+              if ( is_assignable ) {
                   return base::DataSourceBase::shared_ptr( new ValueDataSourceProxy<PropertyType>( serv, vname, false) );
               }
               else {

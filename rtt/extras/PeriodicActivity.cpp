@@ -187,6 +187,11 @@ namespace RTT {
         return false;
     }
 
+    bool PeriodicActivity::timeout()
+    {
+        return false;
+    }
+
     bool PeriodicActivity::trigger()
     {
         return false;
@@ -197,6 +202,13 @@ namespace RTT {
         // override this method to avoid running runner.
         if (runner != 0)
             runner->step();
+    }
+
+    void PeriodicActivity::work(RunnableInterface::WorkReason reason)
+    {
+        // override this method to avoid running runner.
+        if (runner != 0)
+            runner->work(reason);
     }
 
     void PeriodicActivity::finalize() {

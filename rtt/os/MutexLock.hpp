@@ -196,6 +196,40 @@ namespace RTT
              bool successful;
 
      };
+
+     /**
+      * @brief SharedMutexLock is a scope based Monitor, protecting critical
+      * sections with a SharedMutex object through locking and unlocking it.
+      */
+     class RTT_API SharedMutexLock
+     {
+
+         public:
+             /**
+              * Create a shared lock on a SharedMutex object.
+              *
+              * @param mutex The Mutex to be locked.
+              */
+             SharedMutexLock( MutexInterface &mutex )
+             {
+                 _mutex = &mutex;
+                 _mutex->lock_shared ();
+             }
+
+             /**
+              * Remove a lock from a SharedMutex object
+              */
+             ~SharedMutexLock()
+             {
+                 _mutex->unlock_shared();
+             }
+
+         protected:
+             MutexInterface *_mutex;
+
+             SharedMutexLock()
+             {}
+     };
 }}
 
 #endif

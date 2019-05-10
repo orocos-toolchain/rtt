@@ -1,6 +1,0 @@
-usr/lib/liborocos-rtt-@TARGET@*.so.*
-usr/lib/liborocos-rtt-mqueue-@TARGET@*.so.*
-usr/lib/orocos/@TARGET@/types/librtt-typekit-@TARGET@*.so.*
-usr/lib/orocos/@TARGET@/types/librtt-transport-mqueue-@TARGET@*.so.*
-usr/lib/orocos/@TARGET@/plugins/librtt-scripting-@TARGET@*.so.*
-usr/lib/orocos/@TARGET@/plugins/librtt-marshalling-@TARGET@*.so.*

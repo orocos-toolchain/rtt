@@ -44,6 +44,7 @@
 #include "../../base/ChannelElementBase.hpp"
 #include "../../Logger.hpp"
 #include "../../internal/List.hpp"
+#include "../../types/GlobalsRepository.hpp"
 #include "DataFlowI.h"
 #include "../../DataFlowInterface.hpp"
 #include "../../TaskContext.hpp"
@@ -68,6 +69,7 @@ namespace RTT {
 
             RTT_CORBA_API static int defaultScheduler;
             RTT_CORBA_API static int defaultPriority;
+            RTT_CORBA_API static int defaultCpuAffinity;
 
             CorbaDispatcher( const std::string& name)
             : Activity(defaultScheduler, defaultPriority, 0.0, 0, name),
@@ -75,8 +77,8 @@ namespace RTT {
               do_exit(false)
               {}
 
-            CorbaDispatcher( const std::string& name, int scheduler, int priority)
-            : Activity(scheduler, priority, 0.0, 0, name),
+            CorbaDispatcher( const std::string& name, int scheduler, int priority, unsigned cpu_affinity)
+            : Activity(scheduler, priority, 0.0, cpu_affinity, 0, name),
               RClist(20,2),
               do_exit(false)
               {}
@@ -94,7 +96,7 @@ namespace RTT {
              * @param iface The interface to dispatch data flow messages for.
              * @return
              */
-            static CorbaDispatcher* Instance(DataFlowInterface* iface, int scheduler = defaultScheduler, int priority = defaultPriority) {
+            static CorbaDispatcher* Instance(DataFlowInterface* iface) {
                 if (!mlock)
                     mlock = new os::Mutex();
                 DispatchMap::iterator result = DispatchI.find(iface);
@@ -106,12 +108,41 @@ namespace RTT {
                         return result->second;
                     // *really* not found, let's create it.
                     std::string name;
-                    if ( iface == 0 || iface->getOwner() == 0)
+                    TaskContext* owner = (iface != 0 ? iface->getOwner() : 0);
+                    if ( !owner )
                         name = "Global";
                     else
-                        name = iface->getOwner()->getName();
-                    name += ".CorbaDispatch";
-                    DispatchI[iface] = new CorbaDispatcher( name, scheduler, priority );
+                        name = owner->getName();
+                    name += "Corba";
+
+                    // The properties to create the CorbaDispatcher are retrieved.
+                    // When the CorbaDispatcher is created these properties can't be changed anymore,
+                    // so they are converted to Constants.
+                    RTT::types::GlobalsRepository::shared_ptr global_repository = RTT::types::GlobalsRepository::Instance();
+                    // The hard coded default is used if the property isn't set for the Component
+                    // that owns the Dispatcher and for the GlobalService.
+                    RTT::Property<int> scheduler = RTT::Property<int>("","",defaultScheduler);
+                    RTT::Property<int> priority = RTT::Property<int>("","",defaultPriority);
+                    RTT::Property<int> cpu_affinity =RTT::Property<int>("","",defaultCpuAffinity);
+
+                    // If the Property is defined for the Component or for the GlobalService,
+                    // the temporary Property values is updated.
+                    if ( owner ) {
+                        scheduler.refresh(owner->getProperty("CorbaDispatcherScheduler")) ||
+                            scheduler.refresh(global_repository->getProperty("CorbaDispatcherScheduler"));
+
+                        priority.refresh(owner->getProperty("CorbaDispatcherPriority")) ||
+                            priority.refresh(global_repository->getProperty("CorbaDispatcherPriority"));
+
+                        cpu_affinity.refresh(owner->getProperty("CorbaDispatcherCpuAffinity")) ||
+                            cpu_affinity.refresh(global_repository->getProperty("CorbaDispatcherCpuAffinity"));
+                    } else {
+                        scheduler.refresh(global_repository->getProperty("CorbaDispatcherScheduler"));
+                        priority.refresh(global_repository->getProperty("CorbaDispatcherPriority"));
+                        cpu_affinity.refresh(global_repository->getProperty("CorbaDispatcherCpuAffinity"));
+                    }
+
+                    DispatchI[iface] = new CorbaDispatcher( name, scheduler, priority, cpu_affinity );
                     DispatchI[iface]->start();
                     return DispatchI[iface];
                 }
@@ -148,16 +179,16 @@ namespace RTT {
                 mlock = 0;
             }
 
-	    static void hasElement(base::ChannelElementBase::shared_ptr c0, base::ChannelElementBase::shared_ptr c1, bool& result)
-	    {
-		result = result || (c0 == c1);
-	    }
+            static void hasElement(base::ChannelElementBase::shared_ptr c0, base::ChannelElementBase::shared_ptr c1, bool& result)
+            {
+                result = result || (c0 == c1);
+            }
 
             void dispatchChannel( base::ChannelElementBase::shared_ptr chan ) {
-		bool has_element = false;
-		RClist.apply(boost::bind(&CorbaDispatcher::hasElement, _1, chan, boost::ref(has_element)));
+                bool has_element = false;
+                RClist.apply(boost::bind(&CorbaDispatcher::hasElement, _1, chan, boost::ref(has_element)));
                 if (!has_element)
-	            RClist.append( chan );
+                    RClist.append( chan );
                 this->trigger();
             }
 

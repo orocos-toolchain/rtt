@@ -64,6 +64,8 @@ namespace RTT
         // The standard C types + std::string are defined here,
         ti->addType( new StdTypeInfo<int>("int") );
         ti->addType( new StdTypeInfo<unsigned int>("uint") );
+        ti->addType( new StdTypeInfo<long long>("llong") );
+        ti->addType( new StdTypeInfo<unsigned long long>("ullong") );
         ti->addType( new StdTypeInfo<double>("double") );
         ti->addType( new StdTypeInfo<float>("float") );
         ti->addType( new StdTypeInfo<char>("char") );

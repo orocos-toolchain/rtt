@@ -143,6 +143,33 @@ namespace RTT
         oreg->add( newBinaryOperator( ">=", std::greater_equal<unsigned int>() ) );
         oreg->add( newBinaryOperator( "==", std::equal_to<unsigned int>() ) );
         oreg->add( newBinaryOperator( "!=", std::not_equal_to<unsigned int>() ) );
+        // llong stuff
+        oreg->add( newUnaryOperator( "-", std::negate<long long>() ) );
+        oreg->add( newUnaryOperator( "+", identity<long long>() ) );
+        oreg->add( newBinaryOperator( "*", std::multiplies<long long>() ) );
+        oreg->add( newBinaryOperator( "/", divides3<long long,long long,long long>() ) ); // use our own divides<> which detects div by zero
+        oreg->add( newBinaryOperator( "%", std::modulus<long long>() ) );
+        oreg->add( newBinaryOperator( "+", std::plus<long long>() ) );
+        oreg->add( newBinaryOperator( "-", std::minus<long long>() ) );
+        oreg->add( newBinaryOperator( "<", std::less<long long>() ) );
+        oreg->add( newBinaryOperator( "<=", std::less_equal<long long>() ) );
+        oreg->add( newBinaryOperator( ">", std::greater<long long>() ) );
+        oreg->add( newBinaryOperator( ">=", std::greater_equal<long long>() ) );
+        oreg->add( newBinaryOperator( "==", std::equal_to<long long>() ) );
+        oreg->add( newBinaryOperator( "!=", std::not_equal_to<long long>() ) );
+        // ullong stuff
+        oreg->add( newUnaryOperator( "+", identity<unsigned long long>() ) );
+        oreg->add( newBinaryOperator( "*", std::multiplies<unsigned long long>() ) );
+        oreg->add( newBinaryOperator( "/", divides3<unsigned long long,unsigned long long,unsigned long long>() ) ); // use our own divides<> which detects div by zero
+        oreg->add( newBinaryOperator( "%", std::modulus<unsigned long long>() ) );
+        oreg->add( newBinaryOperator( "+", std::plus<unsigned long long>() ) );
+        oreg->add( newBinaryOperator( "-", std::minus<unsigned long long>() ) );
+        oreg->add( newBinaryOperator( "<", std::less<unsigned long long>() ) );
+        oreg->add( newBinaryOperator( "<=", std::less_equal<unsigned long long>() ) );
+        oreg->add( newBinaryOperator( ">", std::greater<unsigned long long>() ) );
+        oreg->add( newBinaryOperator( ">=", std::greater_equal<unsigned long long>() ) );
+        oreg->add( newBinaryOperator( "==", std::equal_to<unsigned long long>() ) );
+        oreg->add( newBinaryOperator( "!=", std::not_equal_to<unsigned long long>() ) );
 #endif
         // double stuff..
         oreg->add( newUnaryOperator( "-", std::negate<double>() ) );
@@ -233,6 +260,14 @@ namespace RTT
         oreg->add( newBinaryOperator( ">", std::greater<FlowStatus>() ) );
         oreg->add( newBinaryOperator( "<=", std::less_equal<FlowStatus>() ) );
         oreg->add( newBinaryOperator( ">=", std::greater_equal<FlowStatus>() ) );
+
+        // WriteStatus
+        oreg->add( newBinaryOperator( "==", std::equal_to<WriteStatus>() ) );
+        oreg->add( newBinaryOperator( "!=", std::not_equal_to< WriteStatus>() ) );
+        oreg->add( newBinaryOperator( "<", std::less<WriteStatus>() ) );
+        oreg->add( newBinaryOperator( ">", std::greater<WriteStatus>() ) );
+        oreg->add( newBinaryOperator( "<=", std::less_equal<WriteStatus>() ) );
+        oreg->add( newBinaryOperator( ">=", std::greater_equal<WriteStatus>() ) );
 
         // SendStatus
         oreg->add( newBinaryOperator( "==", std::equal_to<SendStatus>() ) );

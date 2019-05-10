@@ -39,6 +39,7 @@
 #ifndef ORO_CORELIB_ATOMIC_MWSR_QUEUE_HPP
 #define ORO_CORELIB_ATOMIC_MWSR_QUEUE_HPP
 
+#include "AtomicQueue.hpp"
 #include "../os/CAS.hpp"
 #include <utility>
 
@@ -56,14 +57,14 @@ namespace RTT
          * @ingroup CoreLibBuffers
          */
         template<class T>
-        class AtomicMWSRQueue
+        class AtomicMWSRQueue : public AtomicQueue<T>
         {
             //typedef _T* T;
             const int _size;
             typedef T C;
             typedef volatile C* CachePtrType;
             typedef C* volatile CacheObjType;
-            typedef C ValueType;
+            typedef C  ValueType;
             typedef C* PtrType;
 
             /**
@@ -157,8 +158,9 @@ namespace RTT
 
             // non-copyable !
             AtomicMWSRQueue(const AtomicMWSRQueue<T>&);
+
         public:
-            typedef unsigned int size_type;
+            typedef typename AtomicQueue<T>::size_type size_type;
 
             /**
              * Create an AtomicMWSRQueue with queue size \a size.

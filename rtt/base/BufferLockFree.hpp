@@ -43,6 +43,7 @@
 #include "../os/CAS.hpp"
 #include "BufferInterface.hpp"
 #include "../internal/AtomicMWSRQueue.hpp"
+#include "../internal/AtomicMWMRQueue.hpp"
 #include "../internal/TsPool.hpp"
 #include <vector>
 
@@ -54,62 +55,103 @@ namespace RTT
 { namespace base {
 
 
-    using os::CAS;
-
     /**
      * A Lock-free buffer implementation to read and write
      * data of type \a T in a FIFO way.
      * No memory allocation is done during read or write.
-     * One thread may read and any number of threads may write this buffer.
+     * One thread may read this buffer, unless the multiple_readers flag
+     * in the \ref base::BufferBase::Options struct is set.
+     * Any number of threads may write this buffer.
      * @param T The value type to be stored in the Buffer.
      * Example : BufferLockFree<A> is a buffer which holds values of type A.
      * @ingroup PortBuffers
      */
-    template< class T>
+    template<class T>
     class BufferLockFree
         : public BufferInterface<T>
     {
     public:
+        typedef typename BufferBase::Options Options;
         typedef typename BufferInterface<T>::reference_t reference_t;
         typedef typename BufferInterface<T>::param_t param_t;
         typedef typename BufferInterface<T>::size_type size_type;
         typedef T value_t;
+
+        /**
+         * @brief The maximum number of threads.
+         */
+        const unsigned int MAX_THREADS;
+
     private:
-        typedef T Item;
-        internal::AtomicMWSRQueue<Item*> bufs;
-        // is mutable because of reference counting.
-        mutable internal::TsPool<Item> mpool;
+        typedef value_t Item;
         const bool mcircular;
+        bool initialized;
+
+        internal::AtomicQueue<Item*> *const bufs;
+        internal::TsPool<Item> *const mpool;
+
         RTT::os::AtomicInt droppedSamples;
-        
+
     public:
         /**
-         * Create a lock-free buffer wich can store \a bufsize elements.
+         * Create an uninitialized lock-free buffer which can store \a bufsize elements.
          * @param bufsize the capacity of the buffer.
 '         */
-        BufferLockFree( unsigned int bufsize, const T& initial_value = T(), bool circular = false)
-            : bufs( bufsize ), mpool(bufsize + 1), mcircular(circular), droppedSamples(0)
+        BufferLockFree( unsigned int bufsize, const Options &options = Options() )
+            : MAX_THREADS(options.max_threads())
+            , mcircular(options.circular()), initialized(false)
+            , bufs((!options.circular() && !options.multiple_readers()) ?
+                       static_cast<internal::AtomicQueue<Item*> *>(new internal::AtomicMWSRQueue<Item*>(bufsize)) :
+                       static_cast<internal::AtomicQueue<Item*> *>(new internal::AtomicMWMRQueue<Item*>(bufsize)))
+            , mpool(new internal::TsPool<Item>(bufsize + options.max_threads()))
+            , droppedSamples(0)
         {
-            mpool.data_sample( initial_value );
+        }
+
+        /**
+         * Create a lock-free buffer which can store \a bufsize elements.
+         * @param bufsize the capacity of the buffer.
+         * @param initial_value A data sample with which each preallocated data element is initialized.
+         */
+        BufferLockFree( unsigned int bufsize, param_t initial_value, const Options &options = Options() )
+            : MAX_THREADS(options.max_threads())
+            , mcircular(options.circular()), initialized(false)
+            , bufs((!options.circular() && !options.multiple_readers()) ?
+                       static_cast<internal::AtomicQueue<Item*> *>(new internal::AtomicMWSRQueue<Item*>(bufsize)) :
+                       static_cast<internal::AtomicQueue<Item*> *>(new internal::AtomicMWMRQueue<Item*>(bufsize)))
+            , mpool(new internal::TsPool<Item>(bufsize + options.max_threads()))
+            , droppedSamples(0)
+        {
+            data_sample( initial_value );
         }
 
         ~BufferLockFree() {
             // free all items still in the buffer.
             clear();
+
+            delete mpool;
+            delete bufs;
         }
 
-        virtual void data_sample( const T& sample )
+        virtual bool data_sample( param_t sample, bool reset = true )
         {
-            mpool.data_sample(sample);
+            if (!initialized || reset) {
+                mpool->data_sample(sample);
+                initialized = true;
+                return true;
+            } else {
+                return initialized;
+            }
+
         }
 
-        virtual T data_sample() const
+        virtual value_t data_sample() const
         {
-            T result = T();
-            Item* mitem = mpool.allocate();
+            value_t result = value_t();
+            Item* mitem = mpool->allocate();
             if (mitem != 0) {
                 result = *mitem;
-                mpool.deallocate( mitem );
+                mpool->deallocate( mitem );
             }
             return result;
         }
@@ -117,29 +159,29 @@ namespace RTT
 
         size_type capacity() const
         {
-            return bufs.capacity();
+            return bufs->capacity();
         }
 
         size_type size() const
         {
-            return bufs.size();
+            return bufs->size();
         }
 
         bool empty() const
         {
-            return bufs.isEmpty();
+            return bufs->isEmpty();
         }
 
         bool full() const
         {
-            return bufs.isFull();
+            return bufs->isFull();
         }
 
         void clear()
         {
             Item* item;
-            while ( bufs.dequeue(item) )
-                mpool.deallocate( item );
+            while ( bufs->dequeue(item) )
+                mpool->deallocate( item );
         }
 
         virtual size_type dropped() const
@@ -149,21 +191,19 @@ namespace RTT
         
         bool Push( param_t item)
         {
-            if ( capacity() == (size_type)bufs.size() ) {
-                if (!mcircular) {
-                    droppedSamples.inc();
-                    return false;
-                }
+            if (!mcircular && ( capacity() == (size_type)bufs->size() )) {
+                droppedSamples.inc();
+                return false;
                 // we will recover below in case of circular
             }
-            Item* mitem = mpool.allocate();
+            Item* mitem = mpool->allocate();
             if ( mitem == 0 ) { // queue full ( rare but possible in race with PopWithoutRelease )
                 if (!mcircular) {
                     droppedSamples.inc();
                     return false;
                 }
                 else {
-                    if (bufs.dequeue( mitem ) == false ) {
+                    if (bufs->dequeue( mitem ) == false ) {
                         droppedSamples.inc();
                         return false; // assert(false) ???
                     }
@@ -173,20 +213,20 @@ namespace RTT
 
             // copy over.
             *mitem = item;
-            if (bufs.enqueue( mitem ) == false ) {
+            if (bufs->enqueue( mitem ) == false ) {
                 //got memory, but buffer is full
                 //this can happen, as the memory pool is
                 //bigger than the buffer
                 if (!mcircular) {
-                    mpool.deallocate( mitem );
+                    mpool->deallocate( mitem );
                     droppedSamples.inc();
                     return false;
                 } else {
                     // pop & deallocate until we have free space.
                     Item* itmp = 0;
                     do {
-                        if ( bufs.dequeue( itmp ) ) {
-                            mpool.deallocate( itmp );
+                        if ( bufs->dequeue( itmp ) ) {
+                            mpool->deallocate( itmp );
                             droppedSamples.inc();
                         } else {
                             // Both operations, enqueue() and dequeue() failed on the buffer:
@@ -195,18 +235,18 @@ namespace RTT
                             // access to the circular buffer or in the trivial case that
                             // the buffer size is zero. So just keep on trying...
                         }
-                    } while ( bufs.enqueue( mitem ) == false );
+                    } while ( bufs->enqueue( mitem ) == false );
                 }
             }
             return true;
         }
 
-        size_type Push(const std::vector<T>& items)
+        size_type Push(const std::vector<value_t>& items)
         {
             // @todo Make this function more efficient as in BufferLocked.
             int towrite  = items.size();
             size_type written = 0;
-            typename std::vector<T>::const_iterator it;
+            typename std::vector<value_t>::const_iterator it;
             for(  it = items.begin(); it != items.end(); ++it) {
                 if ( this->Push( *it ) == false ) {
                     break; // will only happen in non-circular case !
@@ -218,42 +258,42 @@ namespace RTT
         }
 
 
-        bool Pop( reference_t item )
+        FlowStatus Pop( reference_t item )
         {
             Item* ipop;
-            if (bufs.dequeue( ipop ) == false )
-                return false;
+            if (bufs->dequeue( ipop ) == false )
+                return NoData;
             item = *ipop;
-            if (mpool.deallocate( ipop ) == false )
+            if (mpool->deallocate( ipop ) == false )
                 assert(false);
-            return true;
+            return NewData;
         }
 
-        size_type Pop(std::vector<T>& items )
+        size_type Pop(std::vector<value_t>& items )
         {
             Item* ipop;
             items.clear();
-            while( bufs.dequeue(ipop) ) {
+            while( bufs->dequeue(ipop) ) {
                 items.push_back( *ipop );
-                if (mpool.deallocate(ipop) == false)
+                if (mpool->deallocate(ipop) == false)
                     assert(false);
             }
             return items.size();
         }
         
         value_t* PopWithoutRelease()
-	{
+        {
             Item* ipop;
-            if (bufs.dequeue( ipop ) == false )
+            if (bufs->dequeue( ipop ) == false )
                 return 0;
-	    return ipop;
-	}
+            return ipop;
+        }
 
-	void Release(value_t *item) 
-	{
-            if (mpool.deallocate( item ) == false )
-                assert(false);  
-	}
+        void Release(value_t *item)
+        {
+            if (mpool->deallocate( item ) == false )
+                assert(false);
+        }
     };
 }}
 

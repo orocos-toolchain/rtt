@@ -52,10 +52,12 @@ namespace boost {
         template<class Archive>
         void serialize(Archive& a, RTT::ConnPolicy& c, unsigned int) {
             a & boost::serialization::make_nvp("type", c.type);
-            a & boost::serialization::make_nvp("init", c.init );
-            a & boost::serialization::make_nvp("lock_policy", c.lock_policy );
-            a & boost::serialization::make_nvp("pull", c.pull );
             a & boost::serialization::make_nvp("size", c.size );
+            a & boost::serialization::make_nvp("lock_policy", c.lock_policy );
+            a & boost::serialization::make_nvp("init", c.init );
+            a & boost::serialization::make_nvp("pull", c.pull );
+            a & boost::serialization::make_nvp("buffer_policy", c.buffer_policy );
+            a & boost::serialization::make_nvp("mandatory", c.mandatory );
             a & boost::serialization::make_nvp("transport", c.transport );
             a & boost::serialization::make_nvp("data_size", c.data_size );
             a & boost::serialization::make_nvp("name_id", c.name_id );

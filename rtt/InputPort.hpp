@@ -62,27 +62,11 @@ namespace RTT
     template<typename T>
     class InputPort : public base::InputPortInterface
     {
+    private:
         friend class internal::ConnOutputEndpoint<T>;
+        typename internal::ConnOutputEndpoint<T>::shared_ptr endpoint;
 
         virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy ) { return true; }
-
-        bool do_read(typename base::ChannelElement<T>::reference_t sample, FlowStatus& result, bool copy_old_data, const internal::ConnectionManager::ChannelDescriptor& descriptor)
-        {
-            typename base::ChannelElement<T>::shared_ptr input = static_cast< base::ChannelElement<T>* >( descriptor.get<1>().get() );
-            assert( result != NewData );
-            if ( input ) {
-                FlowStatus tresult = input->read(sample, copy_old_data);
-                // the result trickery is for not overwriting OldData with NoData.
-                if (tresult == NewData) {
-                    result = tresult;
-                    return true;
-                }
-                // stores OldData result
-                if (tresult > result)
-                    result = tresult;
-            }
-            return false;
-        }
 
         /**
          * You are not allowed to copy ports.
@@ -92,12 +76,22 @@ namespace RTT
          */
         InputPort(InputPort const& orig);
         InputPort& operator=(InputPort const& orig);
+
     public:
         InputPort(std::string const& name = "unnamed", ConnPolicy const& default_policy = ConnPolicy())
             : base::InputPortInterface(name, default_policy)
+            , endpoint(new internal::ConnOutputEndpoint<T>(this))
         {}
 
         virtual ~InputPort() { disconnect(); }
+
+        /**
+         * Clears the input buffer (or all input buffers), so that read() will return NoData before a new sample has been written.
+         */
+        void clear()
+        {
+            getEndpoint()->getReadEndpoint()->clear();
+        }
 
         /** \overload */
         FlowStatus read(base::DataSourceBase::shared_ptr source)
@@ -139,23 +133,19 @@ namespace RTT
 
         /** Reads a sample from the connection. \a sample is a reference which
          * will get updated if a new sample is available. 
-	 * 
-	 * The method returns an enum FlowStatus, which describes what type of
-	 * sample (old or new data) or if a sample was returned (no data)
-         * 
-	 * With the argument @arg copy_old_data one can specify, if sample should
-	 * be updated in the case that the return type is equal to RTT::OldData.
-	 * In case @arg copy_old_data is false and an old sample is available, the
-	 * method will still return RTT::OldData but the sample will not be updated
+         *
+         * The method returns an enum FlowStatus, which describes what type of
+         * sample (old or new data) or if a sample was returned (no data)
+         *
+         * With the argument @arg copy_old_data one can specify, if sample should
+         * be updated in the case that the return type is equal to RTT::OldData.
+         * In case @arg copy_old_data is false and an old sample is available, the
+         * method will still return RTT::OldData but the sample will not be updated.
          */
         FlowStatus read(typename base::ChannelElement<T>::reference_t sample, bool copy_old_data)
         {
-            FlowStatus result = NoData;
-            // read and iterate if necessary.
-            cmanager.select_reader_channel( boost::bind( &InputPort::do_read, this, boost::ref(sample), boost::ref(result), _1, _2 ), copy_old_data );
-            return result;
+            return getEndpoint()->getReadEndpoint()->read(sample, copy_old_data);
         }
-
 
         /** Read all new samples that are available on this port, and returns
          * the last one.
@@ -183,10 +173,7 @@ namespace RTT
          */
         void getDataSample(T& sample)
         {
-            typename base::ChannelElement<T>::shared_ptr input = static_cast< base::ChannelElement<T>* >( cmanager.getCurrentChannel() );
-            if ( input ) {
-                sample = input->data_sample();
-            }
+            sample = getEndpoint()->getReadEndpoint()->data_sample();
         }
 
         /** Returns the types::TypeInfo object for the port's type */
@@ -236,6 +223,17 @@ namespace RTT
             return object;
         }
 #endif
+
+        virtual internal::ConnOutputEndpoint<T>* getEndpoint() const
+        {
+            assert(endpoint);
+            return endpoint.get();
+        }
+
+        virtual typename base::ChannelElement<T>::shared_ptr getSharedBuffer() const
+        {
+            return getEndpoint()->getSharedBuffer();
+        }
     };
 }
 

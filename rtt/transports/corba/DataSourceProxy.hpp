@@ -89,10 +89,12 @@ namespace RTT
                 types::TypeTransporter* tp = this->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
                 ctp = dynamic_cast<corba::CorbaTypeTransporter*>(tp);
                 assert( ctp ); // only call this from CorbaTempateTypeInfo.
+#if 0
                 if ( misproperty && ! mserv->hasProperty( name.c_str()))
                     throw NonExistingDataSource();
                 if ( !misproperty && ! mserv->hasAttribute( name.c_str()))
                     throw NonExistingDataSource();
+#endif
             }
 
             typename internal::DataSource<T>::result_t value() const {
@@ -158,11 +160,13 @@ namespace RTT
                 types::TypeTransporter* tp = this->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
                 ctp = dynamic_cast<corba::CorbaTypeTransporter*>(tp);
                 assert(ctp);
+#if 0
                 if ( misproperty && !mserv->hasProperty( name.c_str()) )
                     throw NonExistingDataSource();
                 if ( !misproperty && ( !mserv->hasAttribute( name.c_str())  || !mserv->isAttributeAssignable( name.c_str()) ))
                     throw NonExistingDataSource();
                 this->get(); // initialize such that value()/rvalue() return a sane value !
+#endif
             }
 
             typename internal::DataSource<T>::result_t value() const {

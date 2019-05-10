@@ -42,7 +42,7 @@
 using namespace std;
 
 namespace RTT { 
-    RTT_API std::ostream& operator<<(std::ostream& os, FlowStatus fs)
+    std::ostream& operator<<(std::ostream& os, FlowStatus fs)
     {
         switch (fs) {
         case NoData:
@@ -68,6 +68,36 @@ namespace RTT {
             fs = OldData;
         else if (s == "NewData")
             fs = NewData;
+
+        return is;
+    }
+
+    std::ostream& operator<<(std::ostream& os, WriteStatus fs)
+    {
+        switch (fs) {
+        case WriteSuccess:
+            os << "WriteSuccess";
+            break;
+        case WriteFailure:
+            os << "WriteFailure";
+            break;
+        case NotConnected:
+            os << "NotConnected";
+            break;
+        }
+        return os;
+    }
+
+    std::istream& operator>>(std::istream& is, WriteStatus& fs)
+    {
+        // default:
+        fs = WriteSuccess;
+        std::string s;
+        is >> s;
+        if (s == "WriteFailure")
+            fs = WriteFailure;
+        else if (s == "NotConnected")
+            fs = NotConnected;
 
         return is;
     }

@@ -316,6 +316,11 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       endif()
     endif()
 
+    # Add exported target dependencies
+    if(USE_OROCOS_EXPORTED_TARGETS)
+      add_dependencies( ${COMPONENT_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
+    endif()
+
     # Install
     # On win32, component runtime (.dll) should go in orocos folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
@@ -326,7 +331,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_COMPS " -l${COMPONENT_LIB_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${COMPONENT_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES "${COMPONENT_NAME}")
     list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_component )
 
@@ -408,11 +413,17 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       endif()
     endif()
 
+    # Add exported target dependencies
+    if(USE_OROCOS_EXPORTED_TARGETS)
+      add_dependencies( ${LIB_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
+    endif()
+
+    # Install
     INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_LIBS " -l${LIB_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${LIB_TARGET_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES "${LIB_TARGET_NAME}")
     list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_library )
 
@@ -483,6 +494,11 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       endif()
     endif()
 
+    # Add exported target dependencies
+    if(USE_OROCOS_EXPORTED_TARGETS)
+      add_dependencies( ${EXE_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
+    endif()
+
     # We install the exe, the user must make sure that the install dir is not
     # beneath the ROS package (if any).
     INSTALL(TARGETS ${EXE_TARGET_NAME} ${AC_INSTALL_EXPORT} RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
@@ -541,6 +557,11 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
         message(STATUS "[UseOrocos] Linking target '${EXE_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
       endif()
     endif()
+
+    # Add exported target dependencies
+    if(USE_OROCOS_EXPORTED_TARGETS)
+      add_dependencies( ${EXE_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
+    endif()
   endmacro( orocos_configure_executable )
 
   # Type headers should add themselves by calling 'orocos_typegen_headers()'
@@ -590,7 +611,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       add_subdirectory(${PROJECT_BINARY_DIR}/typekit ${PROJECT_BINARY_DIR}/typekit)
 
       list(APPEND OROCOS_DEFINED_TYPES " -l${PROJECT_NAME}-typekit-${OROCOS_TARGET}")
-      list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${PROJECT_NAME}-typekit")
+      list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES "${PROJECT_NAME}-typekit")
       list(APPEND ${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS "${PROJECT_BINARY_DIR}/typekit")
       list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types")
     endif (NOT TYPEGEN_EXE)
@@ -672,6 +693,11 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       endif()
     endif()
 
+    # Add exported target dependencies
+    if(USE_OROCOS_EXPORTED_TARGETS)
+      add_dependencies( ${LIB_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
+    endif()
+
     # On win32, typekit runtime (.dll) should go in orocos/types folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
       INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_DIR})
@@ -681,7 +707,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_TYPES " -l${LIB_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${LIB_TARGET_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES "${LIB_TARGET_NAME}")
     list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_typekit )
 
@@ -764,6 +790,11 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       endif()
     endif()
 
+    # Add exported target dependencies
+    if(USE_OROCOS_EXPORTED_TARGETS)
+      add_dependencies( ${LIB_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
+    endif()
+
     # On win32, plugins runtime (.dll) should go in orocos/plugins folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
       INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_DIR})
@@ -773,7 +804,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_PLUGINS " -l${LIB_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${LIB_TARGET_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES "${LIB_TARGET_NAME}")
     list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_plugin )
 
@@ -1014,7 +1045,6 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
     endif()
 
     # Append exported targets, libraries and include directories of all dependencies
-    set(${PROJECT_NAME}_EXPORTED_LIBRARIES ${${PROJECT_NAME}_EXPORTED_TARGETS})
     foreach(_depend ${ORO_CREATE_PC_DEPENDS} ${ORO_CREATE_PC_DEPENDS_TARGETS})
       list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS      ${${_depend}_EXPORTED_TARGETS})
       list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES    ${${_depend}_LIBRARIES})
@@ -1034,31 +1064,24 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
     if(${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS)
       list(REMOVE_DUPLICATES ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS)
     endif()
-    
-    if(ORO_USE_CATKIN)
-        if(${PROJECT_NAME}_EXPORTED_LIBRARIES)
-                list(REMOVE_ITEM ${PROJECT_NAME}_EXPORTED_LIBRARIES ${PROJECT_NAME}_generate_messages_cpp)
-                list(REMOVE_ITEM ${PROJECT_NAME}_EXPORTED_LIBRARIES ${PROJECT_NAME}_generate_messages_lisp)
-                list(REMOVE_ITEM ${PROJECT_NAME}_EXPORTED_LIBRARIES ${PROJECT_NAME}_generate_messages_py)
-        endif()
-    endif()
+
     # Store a list of exported targets, libraries and include directories on the cache so that other packages within the same workspace can use them.
     set(${PC_NAME}_OROCOS_PACKAGE True CACHE INTERNAL "Mark ${PC_NAME} package as an Orocos package built in this workspace")
     if(${PROJECT_NAME}_EXPORTED_TARGETS)
       message(STATUS "[UseOrocos] Exporting targets ${${PROJECT_NAME}_EXPORTED_TARGETS}.")
-      set(${PC_NAME}_EXPORTED_OROCOS_TARGETS ${${PROJECT_NAME}_EXPORTED_TARGETS} CACHE INTERNAL "Targets exported by package ${PC_NAME}")
+      set(${PC_NAME}_EXPORTED_TARGETS ${${PROJECT_NAME}_EXPORTED_TARGETS} CACHE INTERNAL "Targets exported by package ${PC_NAME}")
     endif()
     if(${PROJECT_NAME}_EXPORTED_LIBRARIES)
       message(STATUS "[UseOrocos] Exporting libraries ${${PROJECT_NAME}_EXPORTED_LIBRARIES}.")
-      set(${PC_NAME}_EXPORTED_OROCOS_LIBRARIES ${${PROJECT_NAME}_EXPORTED_LIBRARIES} CACHE INTERNAL "Libraries exported by package ${PC_NAME}")
+      set(${PC_NAME}_EXPORTED_LIBRARIES ${${PROJECT_NAME}_EXPORTED_LIBRARIES} CACHE INTERNAL "Libraries exported by package ${PC_NAME}")
     endif()
     if(${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS)
       message(STATUS "[UseOrocos] Exporting include directories ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS}.")
-      set(${PC_NAME}_EXPORTED_OROCOS_INCLUDE_DIRS ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS} CACHE INTERNAL "Include directories exported by package ${PC_NAME}")
+      set(${PC_NAME}_EXPORTED_INCLUDE_DIRS ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS} CACHE INTERNAL "Include directories exported by package ${PC_NAME}")
     endif()
     if(${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS)
       message(STATUS "[UseOrocos] Exporting library directories ${${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS}.")
-      set(${PC_NAME}_EXPORTED_OROCOS_LIBRARY_DIRS ${${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS} CACHE INTERNAL "Library directories exported by package ${PC_NAME}")
+      set(${PC_NAME}_EXPORTED_LIBRARY_DIRS ${${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS} CACHE INTERNAL "Library directories exported by package ${PC_NAME}")
     endif()
 
     # Also set the uninstall target:
