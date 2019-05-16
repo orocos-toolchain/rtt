@@ -49,7 +49,7 @@
 #include <execinfo.h>
 
 extern "C"
-void warn_upon_switch(int sig __attribute__((unused)))
+void warn_upon_switch(int /*sig*/)
 {
     void *bt[32];
     int nentries;

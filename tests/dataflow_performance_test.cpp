@@ -343,7 +343,7 @@ template <typename T, PortTypes> struct Adaptor;
             return tc->update();
         }
 
-        static bool setCpuAffinity(ThreadInterface *thread, const std::bitset<16> &cpu_affinity) {
+        RTT_UNUSED static bool setCpuAffinity(ThreadInterface *thread, const std::bitset<16> &cpu_affinity) {
             RTT::os::Thread *t = dynamic_cast<RTT::os::Thread *>(thread);
             if (!t) return false;
             return t->setCpuAffinity(cpu_affinity.to_ulong());
@@ -354,7 +354,6 @@ template <typename T, PortTypes> struct Adaptor;
             if (!t) return ~std::bitset<16>();
             return std::bitset<16>(t->getCpuAffinity());
         }
-
     }
 
     template <typename T, PortTypes>
