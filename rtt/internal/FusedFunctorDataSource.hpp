@@ -55,9 +55,6 @@
 #include <boost/mpl/bool.hpp>
 #include <boost/make_shared.hpp>
 
-#include <iostream>
-using namespace std;
-
 namespace RTT
 {
     namespace internal
