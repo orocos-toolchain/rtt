@@ -85,6 +85,7 @@ namespace RTT
     {
     public:
         typedef std::map<TaskContextProxy*, corba::CTaskContext_ptr> PMap;
+        static os::MutexRecursive proxies_mutex;
         static PMap proxies;
 
     protected:

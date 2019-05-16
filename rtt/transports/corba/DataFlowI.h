@@ -126,6 +126,7 @@ namespace RTT {
                     : objref(objref), servant(servant) {}
             };
             typedef std::list<ServantInfo> ServantMap;
+            static os::MutexRecursive s_servant_mutex;
             static ServantMap s_servant_map;
 
             typedef std::list<

@@ -97,7 +97,7 @@ namespace RTT {
                 // Force creation of dispatcher.
                 CorbaDispatcher::Instance(msender);
                 
-                localUri = ApplicationServer::orb->object_to_string(_this());
+                localUri = CORBA::String_var(ApplicationServer::orb->object_to_string(_this()));
             }
 
             ~RemoteChannelElement()

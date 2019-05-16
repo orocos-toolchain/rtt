@@ -67,6 +67,7 @@ namespace RTT
 {
     using namespace std;
 
+    os::MutexRecursive TaskContextServer::servers_mutex;
     std::map<TaskContext*, TaskContextServer*> TaskContextServer::servers;
 
     base::ActivityInterface* TaskContextServer::orbrunner = 0;
@@ -78,6 +79,8 @@ namespace RTT
     TaskContextServer::~TaskContextServer()
     {
         Logger::In in("~TaskContextServer()");
+        os::MutexLock lock(servers_mutex);
+
         servers.erase(mtaskcontext);
 
         // Remove taskcontext ior reference
@@ -257,6 +260,7 @@ namespace RTT
     }
 
     void TaskContextServer::CleanupServers() {
+        os::MutexLock lock(servers_mutex);
         if ( !CORBA::is_nil(orb) && !is_shutdown) {
             log(Info) << "Cleaning up TaskContextServers..."<<endlog();
             while ( !servers.empty() ){
@@ -269,6 +273,7 @@ namespace RTT
     }
 
     void TaskContextServer::CleanupServer(TaskContext* c) {
+        os::MutexLock lock(servers_mutex);
         if ( !CORBA::is_nil(orb) ) {
             ServerMap::iterator it = servers.find(c);
             if ( it != servers.end() ){
@@ -430,6 +435,7 @@ namespace RTT
         if ( CORBA::is_nil(orb) )
             return 0;
 
+        os::MutexLock lock(servers_mutex);
         if ( servers.count(tc) ) {
             log(Debug) << "Returning existing TaskContextServer for "<< alias <<endlog();
             return servers.find(tc)->second;
@@ -452,6 +458,7 @@ namespace RTT
     }
 
     CTaskContext_ptr TaskContextServer::CreateServer(TaskContext* tc, const std::string& alias, bool use_naming, bool require_name_service) {
+        os::MutexLock lock(servers_mutex);
         if ( CORBA::is_nil(orb) )
             return CTaskContext::_nil();
 
@@ -460,11 +467,14 @@ namespace RTT
             return CTaskContext::_duplicate( servers.find(tc)->second->server() );
         }
 
-        for (TaskContextProxy::PMap::iterator it = TaskContextProxy::proxies.begin(); it != TaskContextProxy::proxies.end(); ++it)
-            if ( (it->first) == tc ) {
-                log(Debug) << "Returning server of Proxy for "<< alias <<endlog();
-                return CTaskContext::_duplicate(it->second);
-            }
+        {
+            os::MutexLock proxies_lock(TaskContextProxy::proxies_mutex);
+            for (TaskContextProxy::PMap::iterator it = TaskContextProxy::proxies.begin(); it != TaskContextProxy::proxies.end(); ++it)
+                if ( (it->first) == tc ) {
+                    log(Debug) << "Returning server of Proxy for "<< alias <<endlog();
+                    return CTaskContext::_duplicate(it->second);
+                }
+        }
 
         // create new:
         log(Info) << "Creating new TaskContextServer for "<< alias <<endlog();
