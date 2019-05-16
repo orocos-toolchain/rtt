@@ -58,11 +58,13 @@
 #include <iostream>
 
 using namespace std;
+using namespace RTT;
 using namespace RTT::corba;
 using namespace RTT::base;
 using namespace RTT::types;
 using namespace RTT::internal;
 
+os::MutexRecursive CDataFlowInterface_i::s_servant_mutex;
 CDataFlowInterface_i::ServantMap CDataFlowInterface_i::s_servant_map;
 
 CDataFlowInterface_i::CDataFlowInterface_i (RTT::DataFlowInterface* interface, PortableServer::POA_ptr poa)
@@ -82,10 +84,12 @@ RTT::DataFlowInterface* CDataFlowInterface_i::getDataFlowInterface() const
 
 void CDataFlowInterface_i::registerServant(CDataFlowInterface_ptr objref, CDataFlowInterface_i* servant)
 {
+    os::MutexLock lock(s_servant_mutex);
     s_servant_map.push_back(ServantInfo(objref, servant));
 }
 void CDataFlowInterface_i::deregisterServant(RTT::DataFlowInterface* obj)
 {
+    os::MutexLock lock(s_servant_mutex);
     for (ServantMap::iterator it = s_servant_map.begin();
             it != s_servant_map.end(); ++it)
     {
@@ -103,6 +107,7 @@ void CDataFlowInterface_i::deregisterServant(RTT::DataFlowInterface* obj)
 
 void CDataFlowInterface_i::clearServants()
 {
+    os::MutexLock lock(s_servant_mutex);
     while (!s_servant_map.empty())
     {
         ServantMap::iterator it = s_servant_map.begin();
@@ -112,6 +117,7 @@ void CDataFlowInterface_i::clearServants()
 
 RTT::DataFlowInterface* CDataFlowInterface_i::getLocalInterface(CDataFlowInterface_ptr objref)
 {
+    os::MutexLock lock(s_servant_mutex);
     for (ServantMap::const_iterator it = s_servant_map.begin();
             it != s_servant_map.end(); ++it)
     {
@@ -123,6 +129,7 @@ RTT::DataFlowInterface* CDataFlowInterface_i::getLocalInterface(CDataFlowInterfa
 
 CDataFlowInterface_ptr CDataFlowInterface_i::getRemoteInterface(RTT::DataFlowInterface* dfi, PortableServer::POA_ptr poa)
 {
+    os::MutexLock lock(s_servant_mutex);
     for (ServantMap::const_iterator it = s_servant_map.begin();
             it != s_servant_map.end(); ++it)
     {

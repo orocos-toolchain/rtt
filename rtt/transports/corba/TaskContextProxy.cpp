@@ -74,7 +74,7 @@ namespace RTT
 
     const char* IllegalServer::what() const throw() { return reason.c_str(); }
 
-
+    os::MutexRecursive TaskContextProxy::proxies_mutex;
     std::map<TaskContextProxy*, corba::CTaskContext_ptr> TaskContextProxy::proxies;
 
     PortableServer::POA_var TaskContextProxy::proxy_poa;
@@ -88,6 +88,7 @@ namespace RTT
         this->attributes()->clear();
         for (list<PortInterface*>::iterator it = port_proxies.begin(); it != port_proxies.end(); ++it)
             delete *it;
+        os::MutexLock lock(proxies_mutex);
         proxies.erase(this);
     }
 
@@ -568,6 +569,7 @@ namespace RTT
     }
 
     TaskContext* TaskContextProxy::Create(::RTT::corba::CTaskContext_ptr t, bool force_remote) {
+        os::MutexLock lock(proxies_mutex);
         Logger::In in("TaskContextProxy::Create");
         if ( CORBA::is_nil(orb) ) {
             log(Error) << "Can not create proxy when ORB is nill !"<<endlog();
@@ -589,6 +591,7 @@ namespace RTT
         // Check if the CTaskContext is actually a local TaskContext
         if (! force_remote)
         {
+            os::MutexLock servers_lock(TaskContextServer::servers_mutex);
             for (TaskContextServer::ServerMap::iterator it = TaskContextServer::servers.begin(); it != TaskContextServer::servers.end(); ++it)
                 if ( it->second->server()->_is_equivalent( t ) ) {
                     log(Debug) << "Local server found !" <<endlog();
