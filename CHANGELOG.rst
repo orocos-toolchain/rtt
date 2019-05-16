@@ -35,6 +35,7 @@ New
 Changes
 ~~~~~~~
 
+* Install headers to include/orocos/rtt instead of include/rtt  (`#243 <https://github.com/orocos-toolchain/rtt/issues/243>`_)
 * Always try to read from the same channel in MultipleInputsChannelElement (follow-up of `#114 <https://github.com/orocos-toolchain/rtt/issues/114>`_)
 
   Except for buffer policy ``PerInputPort`` every input port has to select a channel from the
@@ -168,8 +169,8 @@ Other API changes
   a data source. See `#159 <https://github.com/orocos-toolchain/rtt/pull/159>`_.
 
 
-2.9.1 (Forthcoming)
--------------------
+2.9.1 (2019-05-15)
+------------------
 
 New
 ~~~
@@ -179,6 +180,7 @@ New
 Changes
 ~~~~~~~
 
+* Change component loader behaviour to consider a component found on first valid path  (`#288 <https://github.com/orocos-toolchain/rtt/pull/288>`_)
 * Fix Activity default wait period policy and behavior of ORO_WAIT_REL (`Intermodalics/rtt#2 <https://github.com/Intermodalics/rtt/pull/2>`_)
 
   Fixes a regression bug in `#91 <https://github.com/orocos-toolchain/rtt/issues/91>`_ as merged into 2.9.0 that effectively changed the default
@@ -213,6 +215,7 @@ Changes
 Fixes
 ~~~~~
 
+* Fix copyright notices in header files (`#264 <https://github.com/orocos-toolchain/rtt/pull/264>`_)
 * Fixed InputPort<T>::getDataSample() by introducing a copy_sample flag in DataObjectInterface<T>::Get(...) (fix `#231 <https://github.com/orocos-toolchain/rtt/issues/231>`_, part of `#117 <https://github.com/orocos-toolchain/rtt/issues/117>`_)
 
   Follow-up:
