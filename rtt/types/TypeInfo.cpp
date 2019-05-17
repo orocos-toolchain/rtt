@@ -208,13 +208,19 @@ namespace RTT
     {
         return mconnf ? mconnf->buildDataStorage(policy) : base::ChannelElementBase::shared_ptr();
     }
-    base::ChannelElementBase::shared_ptr TypeInfo::buildChannelOutput(base::InputPortInterface& port) const
+
+    base::ChannelElementBase::shared_ptr TypeInfo::buildChannelOutput(base::InputPortInterface& port, ConnPolicy const& policy) const
     {
-        return mconnf ? mconnf->buildChannelOutput(port) : base::ChannelElementBase::shared_ptr();
-    }
-    base::ChannelElementBase::shared_ptr TypeInfo::buildChannelInput(base::OutputPortInterface& port) const
-    {
-        return mconnf ? mconnf->buildChannelInput(port) : base::ChannelElementBase::shared_ptr();
+        return mconnf ? mconnf->buildChannelOutput(port, policy) : base::ChannelElementBase::shared_ptr();
     }
 
+    base::ChannelElementBase::shared_ptr TypeInfo::buildChannelInput(base::OutputPortInterface& port, ConnPolicy const& policy) const
+    {
+        return mconnf ? mconnf->buildChannelInput(port, policy) : base::ChannelElementBase::shared_ptr();
+    }
+
+    internal::SharedConnectionBase::shared_ptr TypeInfo::buildSharedConnection(base::OutputPortInterface *output_port, base::InputPortInterface *input_port, ConnPolicy const& policy) const
+    {
+        return mconnf ? mconnf->buildSharedConnection(output_port, input_port, policy) : internal::SharedConnectionBase::shared_ptr();
+    }
 }

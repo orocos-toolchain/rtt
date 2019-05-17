@@ -122,6 +122,10 @@ public:
       void);
 
   virtual
+  ::RTT::corba::CTaskContextDescription * getCTaskContextDescription (
+      void);
+
+  virtual
   ::RTT::corba::CTaskState getTaskState (
       void);
 

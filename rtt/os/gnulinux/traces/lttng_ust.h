@@ -81,7 +81,6 @@ TRACEPOINT_NAMED_EVENT(orocos_rtt, OutputPort_write)
 /* Trace state changes in TaskCore */
 TRACEPOINT_CONTEXT(orocos_rtt, TaskContext_configureHook)
 TRACEPOINT_CONTEXT(orocos_rtt, TaskContext_startHook)
-TRACEPOINT_CONTEXT(orocos_rtt, TaskContext_prepareUpdateHook)
 TRACEPOINT_CONTEXT(orocos_rtt, TaskContext_updateHook)
 TRACEPOINT_CONTEXT(orocos_rtt, TaskContext_errorHook)
 TRACEPOINT_CONTEXT(orocos_rtt, TaskContext_stopHook)

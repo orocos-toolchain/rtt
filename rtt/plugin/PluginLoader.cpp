@@ -94,15 +94,6 @@ static const std::string delimiters(":;");
 static const std::string default_delimiter(":");
 # endif
 
-// define RTT_UNUSED macro
-#ifndef RTT_UNUSED
-  #ifdef __GNUC__
-    #define RTT_UNUSED __attribute__((unused))
-  #else
-    #define RTT_UNUSED
-  #endif
-#endif
-
 /** Determine whether a file extension is actually part of a library version
 
     @return true if \a ext satisfies "^\.[:digit:]+$"

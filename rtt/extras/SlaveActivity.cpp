@@ -108,6 +108,10 @@ namespace RTT {
     {
     }
 
+    void SlaveActivity::work(base::RunnableInterface::WorkReason reason)
+    {
+    }
+
     void SlaveActivity::loop()
     {
         this->step();
@@ -188,6 +192,13 @@ namespace RTT {
         return false;
     }
 
+    bool SlaveActivity::timeout()
+    {
+        if (mmaster)
+            return mmaster->timeout();
+        return false;
+    }
+
     bool SlaveActivity::execute()
     {
         // non periodic case.
@@ -195,16 +206,27 @@ namespace RTT {
             if ( !active || running )
                 return false;
             running = true;
-            if (runner)
+            // Since we're in execute(), this is semantically forcing a TimeOut towards the runner.
+            if (runner) {
                 runner->loop();
-            else
+                runner->work(RunnableInterface::TimeOut);
+            } else {
                 this->loop();
+                this->work(RunnableInterface::TimeOut);
+            }
             running = false;
             return true;
         }
 
+        // executing a slave is semantical identical to a timeout happening:
         if ( running ) {
-            if (runner) runner->step(); else this->step();
+            if (runner) {
+                runner->step();
+                runner->work(RunnableInterface::TimeOut);
+            } else {
+                this->step();
+                this->work(RunnableInterface::TimeOut);
+            }
         }
         return running;
     }

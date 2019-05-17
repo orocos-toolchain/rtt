@@ -56,7 +56,7 @@ namespace RTT
     using namespace detail;
 
     ValueParser::ValueParser( TaskContext* tc, CommonParser& cp)
-        : commonparser(cp), peerparser(tc,cp), propparser(cp), context(tc)
+        : commonparser(cp), peerparser(tc,cp), propparser(cp)
   {
     BOOST_SPIRIT_DEBUG_RULE( constant );
     BOOST_SPIRIT_DEBUG_RULE( const_float );
@@ -182,9 +182,15 @@ namespace RTT
         return;
     }
 
-    // Global variable case:
+    // Global Attribute case:
     if ( GlobalsRepository::Instance()->hasAttribute( name ) ) {
         ret = GlobalsRepository::Instance()->getValue(name)->getDataSource();
+        return;
+    }
+
+    // Global Property case:
+    if ( GlobalsRepository::Instance()->hasProperty( name ) ) {
+        ret = GlobalsRepository::Instance()->properties()->find(name)->getDataSource();
         return;
     }
 

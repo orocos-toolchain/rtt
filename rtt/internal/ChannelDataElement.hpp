@@ -41,6 +41,7 @@
 
 #include "../base/ChannelElement.hpp"
 #include "../base/DataObjectInterface.hpp"
+#include "../ConnPolicy.hpp"
 
 namespace RTT { namespace internal {
 
@@ -49,24 +50,23 @@ namespace RTT { namespace internal {
     template<typename T>
     class ChannelDataElement : public base::ChannelElement<T>
     {
-        bool written, mread;
         typename base::DataObjectInterface<T>::shared_ptr data;
+        const ConnPolicy policy;
 
     public:
+        typedef typename base::ChannelElement<T>::value_t value_t;
         typedef typename base::ChannelElement<T>::param_t param_t;
         typedef typename base::ChannelElement<T>::reference_t reference_t;
 
-        ChannelDataElement(typename base::DataObjectInterface<T>::shared_ptr sample)
-            : written(false), mread(false), data(sample) {}
+        ChannelDataElement(typename base::DataObjectInterface<T>::shared_ptr sample, const ConnPolicy& policy = ConnPolicy())
+            : data(sample), policy(policy) {}
 
         /** Update the data sample stored in this element.
          * It always returns true. */
-        virtual bool write(param_t sample)
+        virtual WriteStatus write(param_t sample)
         {
-            data->Set(sample);
-            written = true;
-            mread = false;
-            return this->signal();
+            if (!data->Set(sample)) return WriteFailure;
+            return this->signal() ? WriteSuccess : NotConnected;
         }
 
         /** Reads the last sample given to write()
@@ -75,20 +75,7 @@ namespace RTT { namespace internal {
          */
         virtual FlowStatus read(reference_t sample, bool copy_old_data)
         {
-            if (written)
-            {
-                if ( !mread ) {
-		    data->Get(sample);
-                    mread = true;
-                    return NewData;
-                }
-
-		if(copy_old_data)
-		    data->Get(sample);
-
-                return OldData;
-            }
-            return NoData;
+            return data->Get(sample, copy_old_data);
         }
 
         /** Resets the stored sample. After clear() has been called, read()
@@ -96,20 +83,26 @@ namespace RTT { namespace internal {
          */
         virtual void clear()
         {
-            written = false;
-            mread = false;
+            data->clear();
             base::ChannelElement<T>::clear();
         }
 
-        virtual bool data_sample(param_t sample)
+        virtual WriteStatus data_sample(param_t sample, bool reset = true)
         {
-            data->data_sample(sample);
-            return base::ChannelElement<T>::data_sample(sample);
+            if (!data->data_sample(sample, reset)) return WriteFailure;
+            return base::ChannelElement<T>::data_sample(sample, reset);
         }
 
-        virtual T data_sample()
+        virtual value_t data_sample()
         {
-            return data->Get();
+            return data->data_sample();
+        }
+
+        /** Returns a pointer to the ConnPolicy that has been used to construct the underlying data object.
+        */
+        virtual const ConnPolicy* getConnPolicy() const
+        {
+            return &policy;
         }
 
         virtual std::string getElementName() const

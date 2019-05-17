@@ -48,15 +48,11 @@ using namespace RTT::detail;
 using namespace std;
 
 PortInterface::PortInterface(const std::string& name)
-    : name(name), fullName(name), cFullName(strdup("")), iface(0) {}
+    : name(name), fullName(name), iface(0), cmanager(this) {}
 
-PortInterface::~PortInterface()
-{
-    std::free(cFullName);
-}
+PortInterface::~PortInterface() {}
 
-bool PortInterface::setName(const std::string& name)
-{
+bool PortInterface::setName(const std::string& name) {
     if ( !connected() ) {
         this->name = name;
         updateFullName();
@@ -65,15 +61,12 @@ bool PortInterface::setName(const std::string& name)
     return false;
 }
 
-void PortInterface::updateFullName()
-{
-    if (getInterface() && getInterface()->getOwner())
-        fullName = getInterface()->getOwner()->getName() + "." + getName();
+void PortInterface::updateFullName() {
+    DataFlowInterface* dataflow = getInterface();
+    if (dataflow && dataflow->getOwner())
+        fullName = dataflow->getOwner()->getName() + "." + getName();
     else
         fullName = getName();
-
-    std::free(this->cFullName);
-    this->cFullName = strdup(fullName.c_str());
 }
 
 PortInterface& PortInterface::doc(const std::string& desc) {
@@ -81,6 +74,10 @@ PortInterface& PortInterface::doc(const std::string& desc) {
     if (iface)
         iface->setPortDescription(name, desc);
     return *this;
+}
+
+bool PortInterface::connectedTo(PortInterface* port) {
+    return cmanager.connectedTo(port);
 }
 
 bool PortInterface::isLocal() const
@@ -107,6 +104,11 @@ Service* PortInterface::createPortObject()
 #endif
 }
 
+bool PortInterface::removeConnection(ConnID* conn)
+{
+    return cmanager.removeConnection(conn);
+}
+
 void PortInterface::setInterface(DataFlowInterface* dfi) {
     iface = dfi;
     updateFullName();
@@ -117,3 +119,7 @@ DataFlowInterface* PortInterface::getInterface() const
     return iface;
 }
 
+internal::SharedConnectionBase::shared_ptr PortInterface::getSharedConnection() const
+{
+    return cmanager.getSharedConnection();
+}
