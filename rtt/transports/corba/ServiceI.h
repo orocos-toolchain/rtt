@@ -93,7 +93,7 @@ class  RTT_corba_CService_i
 {
 protected:
     PortableServer::POA_var mpoa;
-    RTT::Service::shared_ptr mservice;
+    boost::weak_ptr<RTT::Service> mservice;
     // child services
     typedef std::map<std::string, std::pair<RTT::corba::CService_var,PortableServer::ServantBase_var> > Servants;
     Servants mservs;
