@@ -46,6 +46,7 @@
 #include "TaskContext.hpp"
 #include "internal/CatchConfig.hpp"
 #include "extras/SlaveActivity.hpp"
+#include "os/traces.h"
 
 #include <boost/bind.hpp>
 #include <algorithm>
@@ -398,7 +399,8 @@ namespace RTT
             // A trigger() in startHook() will be ignored, we trigger in TaskCore after startHook finishes.
             if ( taskc->mTaskState == TaskCore::Running && taskc->mTargetState == TaskCore::Running ) {
                 TRY (
-                    taskc->updateHook();
+                    { tracepoint_context(orocos_rtt, TaskContext_updateHook, taskc->mName.c_str());
+                        taskc->updateHook(); }
                 ) CATCH(std::exception const& e,
                     log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
                     log(Error) << "  " << e.what() << endlog();
@@ -411,7 +413,8 @@ namespace RTT
             // in case start() or updateHook() called error(), this will be called:
             if (taskc->mTaskState == TaskCore::RunTimeError && taskc->mTargetState >= TaskCore::Running) {
                 TRY (
-                    taskc->errorHook();
+                    { tracepoint_context(orocos_rtt, TaskContext_errorHook, taskc->mName.c_str());
+                        taskc->errorHook(); }
                 ) CATCH(std::exception const& e,
                     log(Error) << "in errorHook(): switching to exception state because of unhandled exception" << endlog();
                     log(Error) << "  " << e.what() << endlog();

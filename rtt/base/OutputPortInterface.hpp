@@ -137,6 +137,9 @@ namespace RTT
         virtual bool connectTo(PortInterface* other, ConnPolicy const& policy);
 
         virtual bool connectTo(PortInterface* other);
+
+        /** Sends a write tracepoint */
+        void traceWrite();
     };
 }}
 

@@ -45,11 +45,11 @@
 #include "../Logger.hpp"
 #include <exception>
 #include <stdexcept>
+#include <../os/traces.h>
 
 using namespace RTT;
 using namespace RTT::detail;
 using namespace std;
-
 
 InputPortInterface::InputPortInterface(std::string const& name, ConnPolicy const& default_policy)
 : PortInterface(name)
@@ -82,6 +82,7 @@ InputPortInterface::NewDataOnPortEvent* InputPortInterface::getNewDataOnPortEven
     return new_data_on_port_event;
 }
 #endif
+
 bool InputPortInterface::connectTo(PortInterface* other, ConnPolicy const& policy)
 {
     OutputPortInterface* output = dynamic_cast<OutputPortInterface*>(other);
@@ -109,17 +110,25 @@ void InputPortInterface::signal()
     if (iface && msignal_interface)
         iface->dataOnPort(this);
 }
+
 void InputPortInterface::signalInterface(bool true_false)
 {
     msignal_interface = true_false;
 }
 #endif
+
 FlowStatus InputPortInterface::read(DataSourceBase::shared_ptr source, bool copy_old_data)
 { throw std::runtime_error("calling default InputPortInterface::read(datasource) implementation"); }
+
 /** Returns true if this port is connected */
 bool InputPortInterface::connected() const
 {
     return getEndpoint()->connected();
+}
+
+void InputPortInterface::traceRead(RTT::FlowStatus status)
+{
+    tracepoint(orocos_rtt, InputPort_read, status, getFullName().c_str());
 }
 
 void InputPortInterface::disconnect()

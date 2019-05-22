@@ -252,6 +252,7 @@ namespace RTT
 
             WriteStatus result = NotConnected;
             if (connected()) {
+                traceWrite();
                 result = getEndpoint()->getWriteEndpoint()->write(sample);
                 if (result == NotConnected) {
                     log(Error) << "A channel of port " << getName() << " has been invalidated during write(), it will be removed" << endlog();
@@ -265,14 +266,18 @@ namespace RTT
         {
             typename internal::AssignableDataSource<T>::shared_ptr ds =
                 boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >(source);
-            if (ds)
+            if (ds) {
+                traceWrite();
                 return write(ds->rvalue());
+            }
             else
             {
                 typename internal::DataSource<T>::shared_ptr ds =
                     boost::dynamic_pointer_cast< internal::DataSource<T> >(source);
-                if (ds)
+                if (ds) {
+                    traceWrite();
                     return write(ds->get());
+                }
                 else
                     log(Error) << "trying to write from an incompatible data source" << endlog();
             }

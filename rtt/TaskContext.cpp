@@ -68,7 +68,7 @@ namespace RTT
     using namespace detail;
 
     TaskContext::TaskContext(const std::string& name, TaskState initial_state /*= Stopped*/)
-        :  TaskCore( initial_state)
+        :  TaskCore( initial_state, name )
            ,tcservice(new Service(name,this) ), tcrequests( new ServiceRequester(name,this) )
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( new SequentialActivity( this->engine() ) )
