@@ -40,10 +40,10 @@ TRACEPOINT_EVENT
 )
 
 #ifndef __cplusplus
-#define TRACEPOINT_CONTEXT(provider, event, ...) \
+#define TRACEPOINT_CONTEXT(provider, event) \
     TRACEPOINT_EVENT(provider, event, TP_ARGS(unsigned, v, const char *, s), TP_FIELDS(ctf_string(name, s) ctf_integer(unsigned, on, v)))
 #else
-#define TRACEPOINT_CONTEXT(provider, event, ...) \
+#define TRACEPOINT_CONTEXT(provider, event) \
     TRACEPOINT_EVENT(provider, event, TP_ARGS(unsigned, v, const char *, s), TP_FIELDS(ctf_string(name, s) ctf_integer(unsigned, on, v))) \
     struct TracepointContext__##provider__##event {            \
         const char* name; \
