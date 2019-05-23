@@ -46,6 +46,8 @@
 #include <algorithm>
 #include "rtt-fwd.hpp"
 
+#include <boost/scoped_ptr.hpp>
+
 namespace RTT
 {
     using namespace detail;
@@ -471,14 +473,14 @@ namespace RTT
                 // conversion: update with converted value:
                 // case where there is a type conversion -> do the update of the target
                 // since 'converted' might be a non-Assignable DataSource, we need a work-around:
-                PropertyBase* dummy = target->getTypeInfo()->buildProperty("","");
+                boost::scoped_ptr<PropertyBase> dummy(target->getTypeInfo()->buildProperty("",""));
                 dummy->getDataSource()->update( converted.get() );
                 assert(dummy->getTypeInfo() == converted->getTypeInfo() );
                 // we need to use the PropertyBase API and not the DataSource API !
                 if (update)
-                    target->update(dummy);
+                    target->update(dummy.get());
                 else
-                    target->refresh(dummy);
+                    target->refresh(dummy.get());
                 log(Debug) << "Converted Property "
                         << target->getType() << " "<< source->getName() << " to type " <<dummy->getType()
                         << " from type "  << source->getType() << endlog();
