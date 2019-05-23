@@ -201,7 +201,7 @@ namespace RTT
             }
 
 
-            SendStatus collectIfDone_impl() {
+            SendStatus collectIfDone_impl() const {
                 if ( this->retv.isExecuted()) {
                     this->retv.checkError();
                     return SendSuccess;
@@ -212,7 +212,7 @@ namespace RTT
             // collect_impl belongs in LocalOperationCallerImpl because it would need
             // to be repeated in each BindStorage spec.
             template<class T1>
-            SendStatus collectIfDone_impl( T1& a1 ) {
+            SendStatus collectIfDone_impl( T1& a1 ) const {
                 if ( this->retv.isExecuted()) {
                     this->retv.checkError();
                     bf::vector_tie(a1) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
@@ -222,7 +222,7 @@ namespace RTT
             }
 
             template<class T1, class T2>
-            SendStatus collectIfDone_impl( T1& a1, T2& a2 ) {
+            SendStatus collectIfDone_impl( T1& a1, T2& a2 ) const {
                 if ( this->retv.isExecuted()) {
                     this->retv.checkError();
                     bf::vector_tie(a1,a2) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
@@ -232,7 +232,7 @@ namespace RTT
             }
 
             template<class T1, class T2, class T3>
-            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3 ) {
+            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3 ) const {
                 if ( this->retv.isExecuted()) {
                     this->retv.checkError();
                     bf::vector_tie(a1,a2,a3) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
@@ -242,7 +242,7 @@ namespace RTT
             }
 
             template<class T1, class T2, class T3, class T4>
-            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4 ) {
+            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4 ) const {
                 if ( this->retv.isExecuted()) {
                     this->retv.checkError();
                     bf::vector_tie(a1,a2,a3,a4) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
@@ -252,7 +252,7 @@ namespace RTT
             }
 
             template<class T1, class T2, class T3, class T4, class T5>
-            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5 ) {
+            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5 ) const {
                 if ( this->retv.isExecuted()) {
                     this->retv.checkError();
                     bf::vector_tie(a1,a2,a3,a4,a5) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
@@ -262,7 +262,7 @@ namespace RTT
             }
 
             template<class T1, class T2, class T3, class T4, class T5, class T6>
-            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6 ) {
+            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6 ) const {
                 if ( this->retv.isExecuted()) {
                     this->retv.checkError();
                     bf::vector_tie(a1,a2,a3,a4,a5,a6) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
@@ -272,7 +272,7 @@ namespace RTT
             }
 
             template<class T1, class T2, class T3, class T4, class T5, class T6, class T7>
-            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6, T7& a7 ) {
+            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6, T7& a7 ) const {
                 if ( this->retv.isExecuted()) {
                     this->retv.checkError();
                     bf::vector_tie(a1,a2,a3,a4,a5,a6,a7) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
@@ -281,7 +281,7 @@ namespace RTT
                     return SendNotReady;
             }
 
-            bool checkCaller() {
+            bool checkCaller() const {
                 if (!this->caller) {
                     log(Error) << "You're using call() an OwnThread operation or collect() on a sent operation without setting a caller in the OperationCaller. This often causes deadlocks." <<endlog();
                     log(Error) << "Use this->engine() in a component or GlobalEngine::Instance() in a non-component function. Returning a CollectFailure." <<endlog();
@@ -290,55 +290,55 @@ namespace RTT
                 return true;
             }
 
-            SendStatus collect_impl() {
+            SendStatus collect_impl() const {
                 if (!checkCaller()) return CollectFailure;
                 this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl();
             }
             template<class T1>
-            SendStatus collect_impl( T1& a1 ) {
+            SendStatus collect_impl( T1& a1 ) const {
                 if (!checkCaller()) return CollectFailure;
                 this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1);
             }
 
             template<class T1, class T2>
-            SendStatus collect_impl( T1& a1, T2& a2 ) {
+            SendStatus collect_impl( T1& a1, T2& a2 ) const {
                 if (!checkCaller()) return CollectFailure;
                 this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1,a2);
             }
 
             template<class T1, class T2, class T3>
-            SendStatus collect_impl( T1& a1, T2& a2, T3& a3 ) {
+            SendStatus collect_impl( T1& a1, T2& a2, T3& a3 ) const {
                 if (!checkCaller()) return CollectFailure;
                 this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1,a2,a3);
             }
 
 	    template<class T1, class T2, class T3, class T4>
-            SendStatus collect_impl( T1& a1, T2& a2, T3& a3, T4& a4) {
+            SendStatus collect_impl( T1& a1, T2& a2, T3& a3, T4& a4) const {
                 if (!checkCaller()) return CollectFailure;
                 this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1,a2,a3,a4);
             }
 
 	    template<class T1, class T2, class T3, class T4, class T5>
-	    SendStatus collect_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5) {
+	    SendStatus collect_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5) const {
                 if (!checkCaller()) return CollectFailure;
                 this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1,a2,a3,a4, a5);
             }
 
 	    template<class T1, class T2, class T3, class T4, class T5, class T6>
-	    SendStatus collect_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6) {
+	    SendStatus collect_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6) const {
                 if (!checkCaller()) return CollectFailure;
                 this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1,a2,a3,a4,a5,a6);
             }
 
 	    template<class T1, class T2, class T3, class T4, class T5, class T6, class T7>
-	    SendStatus collect_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6, T7& a7) {
+	    SendStatus collect_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6, T7& a7) const {
                 if (!checkCaller()) return CollectFailure;
                 this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1,a2,a3,a4,a5,a6,a7);
@@ -527,7 +527,7 @@ namespace RTT
                 return NA<result_type>::na();
             }
 
-            result_type ret_impl()
+            result_type ret_impl() const
             {
                 this->retv.checkError();
                 return this->retv.result(); // may return void.
@@ -539,7 +539,7 @@ namespace RTT
              * all arguments.
              */
             template<class T1>
-            result_type ret_impl(T1 a1)
+            result_type ret_impl(T1 a1) const
             {
                 this->retv.checkError();
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
@@ -550,7 +550,7 @@ namespace RTT
             }
 
             template<class T1,class T2>
-            result_type ret_impl(T1 a1, T2 a2)
+            result_type ret_impl(T1 a1, T2 a2) const
             {
                 this->retv.checkError();
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
@@ -561,7 +561,7 @@ namespace RTT
             }
 
             template<class T1,class T2, class T3>
-            result_type ret_impl(T1 a1, T2 a2, T3 a3)
+            result_type ret_impl(T1 a1, T2 a2, T3 a3) const
             {
                 this->retv.checkError();
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
@@ -572,7 +572,7 @@ namespace RTT
             }
 
             template<class T1,class T2, class T3, class T4>
-            result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4)
+            result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4) const
             {
                 this->retv.checkError();
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
@@ -583,7 +583,7 @@ namespace RTT
             }
 
             template<class T1,class T2, class T3, class T4, class T5>
-            result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5)
+            result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5) const
             {
                 this->retv.checkError();
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
@@ -594,7 +594,7 @@ namespace RTT
             }
 
             template<class T1,class T2, class T3, class T4, class T5, class T6>
-            result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6)
+            result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6) const
             {
                 this->retv.checkError();
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
@@ -605,7 +605,7 @@ namespace RTT
             }
 
             template<class T1,class T2, class T3, class T4, class T5, class T6, class T7>
-            result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6, T7 a7)
+            result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6, T7 a7) const
             {
                 this->retv.checkError();
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
