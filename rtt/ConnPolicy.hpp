@@ -43,6 +43,7 @@
 #include <iosfwd>
 #include "rtt-fwd.hpp"
 #include "rtt-config.h"
+#include "BufferPolicy.hpp"
 
 namespace RTT {
 
@@ -73,6 +74,16 @@ namespace RTT {
      *       effect only on multi-process communication. In the pushed case (the
      *       default), new data is actively pushed to the reader's process. In
      *       the pulled case, data must be requested by the reader.
+     *
+     *  <li> the buffer policy, which controls how multiple connections to the
+     *       same input or output port are handled in case of concurrent or subsequent read
+     *       and write operations. See \ref BufferPolicy to see all available options.
+     *       Not all combinations of buffer policies and the pull flag are valid and non-standard transports
+     *       can have additional restrictions.
+     *
+     *  <li> if the connection is mandatory. Mandatory connections will let the write()
+     *       call fail if the new sample cannot be successfully written. Default connections
+     *       are not mandatory.
      *
      *  <li> the transport type. Can be used to force a certain kind of transports.
      *       The number is a RTT transport id. When the transport type is zero,
@@ -109,6 +120,15 @@ namespace RTT {
         static const bool PULL = true;
 
         /**
+         * Returns the process-wide default ConnPolicy that serves as a template for new ConnPolicy instances.
+         *
+         * This method returns a non-const reference and you can change the defaults. This is not thread-safe
+         * and should only be done very early in the deployment phase, before the first component is loaded and
+         * before connecting ports.
+         */
+        static ConnPolicy &Default();
+
+        /**
          * Create a policy for a (lock-free) fifo buffer connection of a given size.
          * @param size The size of the buffer in this connection
          * @param lock_policy The locking policy
@@ -138,32 +158,79 @@ namespace RTT {
         static ConnPolicy data(int lock_policy = LOCK_FREE, bool init_connection = true, bool pull = false);
 
         /**
-         * The default policy is data driven, lock-free and local.
-         * It is unsafe to rely on these defaults. It is prefered
-         * to use the above buffer() and data() functions.
+         * Constructs a new ConnPolicy instance based on the current
+         * default settings as returned by ConnPolicy::Default().
+         */
+        ConnPolicy();
+
+        /**
+         * Constructs a new ConnPolicy instance based on the current
+         * default settings as returned by ConnPolicy::Default(), but
+         * overrides the type.
+         * You should not use this contructor anymore and prefer the static
+         * methods \ref ConnPolicy::data(), \ref ConnPolicy::buffer(), etc. instead.
+         * @param type
+         * @deprecated
+         */
+        explicit ConnPolicy(int type);
+
+        /**
+         * Constructs a new ConnPolicy instance based on the current
+         * default settings as returned by ConnPolicy::Default(), but
+         * overrides the type and lock_policy.
+         * You should not use this contructor anymore and prefer the static
+         * methods \ref ConnPolicy::data(), \ref ConnPolicy::buffer(), etc. instead.
          * @param type
          * @param lock_policy
-         * @return
+         * @deprecated
          */
-        explicit ConnPolicy(int type = DATA, int lock_policy = LOCK_FREE);
+        explicit ConnPolicy(int type, int lock_policy);
 
         /** DATA, BUFFER or CIRCULAR_BUFFER */
         int    type;
+
+        /** If the connection is a buffered connection, the size of the buffer */
+        int    size;
+
+        /** This is the locking policy on the connection */
+        int    lock_policy;
+
         /** If true, one should initialize the connection's value with the last
          * value written on the writer port. This is only possible if the writer
          * port has the keepsLastWrittenValue() flag set (i.e. if it remembers
          * what was the last written value).
          */
         bool   init;
-        /** This is the locking policy on the connection */
-        int    lock_policy;
+
         /** If true, then the sink will have to pull data. Otherwise, it is pushed
          * from the source. In both cases, the reader side is notified that new
          * data is available by base::ChannelElementBase::signal()
          */
         bool   pull;
-        /** If the connection is a buffered connection, the size of the buffer */
-        int    size;
+
+        /**
+         * The policy on how buffer elements will be installed for this connection, which influences
+         * the behavior of reads and writes if the port has muliple connections.
+         * See \ref BufferPolicy enum for possible options.
+         */
+        int    buffer_policy;
+
+        /**
+         * The maximum number of threads that will access the connection data or buffer object.
+         * This only needs to be specified for lock-free data structures.
+         * If 0, the number of threads will be determined by a simple heuristic depending on the
+         * read and write policies of the connection.
+         */
+        int    max_threads;
+
+        /**
+         * Whether the connection described by this connection policy is mandatory, which
+         * means that write operations will fail if the connection could not be served, e.g. due
+         * to a full input buffer or because of a broken remote connection.
+         * By default, all connections are mandatory.
+         */
+        bool   mandatory;
+
         /**
          * The prefered transport used. 0 is local (in process), a higher number
          * is used for inter-process or networked communication transports.
@@ -187,6 +254,10 @@ namespace RTT {
          * work around name clashes or if the transport protocol documents to do so.
          */
         mutable std::string name_id;
+
+    private:
+        struct ConnPolicyDefault;
+        ConnPolicy(const ConnPolicyDefault &);
     };
 
     std::ostream &operator<<(std::ostream &os, const ConnPolicy &cp);

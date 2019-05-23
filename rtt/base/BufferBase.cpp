@@ -38,7 +38,41 @@
 
 
 #include "BufferBase.hpp"
+#include "../ConnPolicy.hpp"
 
+using namespace RTT;
 using namespace RTT::base;
 
 BufferBase::~BufferBase() {}
+
+BufferBase::Options::Options()
+    : circular_(false)
+    , max_threads_(2)
+    , multiple_writers_(false)
+    , multiple_readers_(false)
+{}
+
+BufferBase::Options::Options(bool circular)
+    : circular_(circular)
+    , max_threads_(2)
+    , multiple_writers_(false)
+    , multiple_readers_(false)
+{}
+
+BufferBase::Options::Options(const ConnPolicy &policy)
+    : circular_(policy.type == ConnPolicy::CIRCULAR_BUFFER)
+    , max_threads_(2)
+    , multiple_writers_(policy.buffer_policy == PerInputPort || policy.buffer_policy == Shared)
+    , multiple_readers_(policy.buffer_policy == PerOutputPort || policy.buffer_policy == Shared)
+{
+    if (policy.max_threads == 0) {
+        if (multiple_writers_) {
+            max_threads_ += 10;
+        }
+        if (multiple_readers_) {
+            max_threads_ += 10;
+        }
+    } else {
+        max_threads_ = policy.max_threads;
+    }
+}

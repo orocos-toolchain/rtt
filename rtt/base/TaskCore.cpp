@@ -42,13 +42,15 @@
 #include "ActivityInterface.hpp"
 #include "Logger.hpp"
 #include "internal/CatchConfig.hpp"
+#include <rtt/os/traces.h>
+#include <cstring>
 
 namespace RTT {
     using namespace detail;
 
     using namespace std;
 
-    TaskCore::TaskCore(TaskState initial_state /*= Stopped*/ )
+    TaskCore::TaskCore(TaskState initial_state /*= Stopped*/, const std::string& name /* = std::string() */  )
         :  ee( new ExecutionEngine(this) )
            ,mTaskState(initial_state)
            ,mInitialState(initial_state)
@@ -58,6 +60,7 @@ namespace RTT {
            ,mIOCounter(0)
            ,mTimeOutCounter(0)
            ,mTriggerCounter(0)
+           ,mName(name)
     {
     }
 
@@ -94,7 +97,9 @@ namespace RTT {
         if ( mTaskState == Stopped || mTaskState == PreOperational) {
             TRY(
                 mTargetState = Stopped;
-                bool successful = configureHook();
+                bool successful;
+                { tracepoint_context(orocos_rtt, TaskContext_configureHook, mName.c_str());
+                    successful = configureHook(); }
                 if (successful) {
                     if (mTaskState != Stopped && (mTaskState == mTargetState)) {
                         log(Error) << "in configure(): state has been changed inside the configureHook" << endlog();
@@ -126,7 +131,8 @@ namespace RTT {
         if ( mTaskState == Stopped ) {
             TRY(
                 mTargetState = PreOperational;
-                cleanupHook();
+                { tracepoint_context(orocos_rtt, TaskContext_cleanupHook, mName.c_str());
+                    cleanupHook(); }
                 if (mTaskState == Stopped)
                     mTaskState = PreOperational;
                 return true;
@@ -160,10 +166,12 @@ namespace RTT {
         mTargetState = mTaskState = Exception;
         TRY (
             if ( copy >= Running ) {
-                stopHook();
+                { tracepoint_context(orocos_rtt, TaskContext_stopHook, mName.c_str());
+                    stopHook(); }
             }
             if ( copy >= Stopped && mInitialState == PreOperational ) {
-                cleanupHook();
+                { tracepoint_context(orocos_rtt, TaskContext_cleanupHook, mName.c_str());
+                    cleanupHook(); }
             }
             exceptionHook();
         ) CATCH(std::exception const& e,
@@ -191,7 +199,9 @@ namespace RTT {
         if ( mTaskState == Stopped ) {
             TRY (
                 mTargetState = Running;
-                bool successful = startHook();
+                bool successful;
+                { tracepoint_context(orocos_rtt, TaskContext_startHook, mName.c_str());
+                    successful = startHook(); }
                 if (successful) {
                     if (mTaskState != Running && (mTargetState == mTaskState)) {
                         log(Error) << "in start(): state has been changed inside the startHook" << endlog();
@@ -225,7 +235,8 @@ namespace RTT {
             TRY(
                 mTargetState = Stopped;
                 if ( engine()->stopTask(this) ) {
-                    stopHook();
+                    { tracepoint_context(orocos_rtt, TaskContext_stopHook, mName.c_str());
+                        stopHook(); }
                     mTaskState = Stopped;
                     return true;
                 } else {
@@ -325,4 +336,3 @@ namespace RTT {
     {
     }
 }
-

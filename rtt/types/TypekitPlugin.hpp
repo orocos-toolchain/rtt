@@ -115,6 +115,10 @@ namespace RTT
 #pragma warning (disable:4190)
 #endif
 
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
+#endif
+
 /**
  * Once you defined your TypekitPlugin or TransportPlugin class,
  * you can use this macro to make it available as a

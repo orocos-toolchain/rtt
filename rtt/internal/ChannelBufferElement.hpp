@@ -41,6 +41,7 @@
 
 #include "../base/ChannelElement.hpp"
 #include "../base/BufferInterface.hpp"
+#include "../ConnPolicy.hpp"
 
 namespace RTT { namespace internal {
 
@@ -60,19 +61,21 @@ namespace RTT { namespace internal {
     {
         typename base::BufferInterface<T>::shared_ptr buffer;
         typename base::ChannelElement<T>::value_t *last_sample_p;
+        const ConnPolicy policy;
+
     public:
+        typedef typename base::ChannelElement<T>::value_t value_t;
         typedef typename base::ChannelElement<T>::param_t param_t;
         typedef typename base::ChannelElement<T>::reference_t reference_t;
-	typedef typename base::ChannelElement<T>::value_t value_t;
 
-        ChannelBufferElement(typename base::BufferInterface<T>::shared_ptr buffer)
-            : buffer(buffer), last_sample_p(0) {}
+        ChannelBufferElement(typename base::BufferInterface<T>::shared_ptr buffer, const ConnPolicy& policy = ConnPolicy())
+            : buffer(buffer), last_sample_p(0), policy(policy) {}
             
-	virtual ~ChannelBufferElement()
-	{
-	    if(last_sample_p)
-		buffer->Release(last_sample_p);
-	}
+        virtual ~ChannelBufferElement()
+        {
+            if(last_sample_p)
+                buffer->Release(last_sample_p);
+        }
  
         virtual size_t getBufferSize() const
         {
@@ -93,11 +96,10 @@ namespace RTT { namespace internal {
          *
          * @return true if there was room in the FIFO for the new sample, and false otherwise.
          */
-        virtual bool write(param_t sample)
+        virtual WriteStatus write(param_t sample)
         {
-            if (buffer->Push(sample))
-                return this->signal();
-            return true;
+            if (!buffer->Push(sample)) return WriteFailure;
+            return this->signal() ? WriteSuccess : NotConnected;
         }
 
         /** Pops and returns the first element of the FIFO
@@ -106,18 +108,26 @@ namespace RTT { namespace internal {
          */
         virtual FlowStatus read(reference_t sample, bool copy_old_data)
         {
-	    value_t *new_sample_p;
+            value_t *new_sample_p;
             if ( (new_sample_p = buffer->PopWithoutRelease()) ) {
-		if(last_sample_p)
-		    buffer->Release(last_sample_p);
-		
-		last_sample_p = new_sample_p;
-		sample = *new_sample_p;
+                if(last_sample_p)
+                    buffer->Release(last_sample_p);
+
+                sample = *new_sample_p;
+
+                // In the PerOutputPort or Shared buffer policy case this buffer element may be read by multiple readers.
+                // ==> We cannot store the last_sample and release immediately.
+                // ==> WriteShared buffer connections will never return OldData.
+                if (policy.buffer_policy != PerOutputPort && policy.buffer_policy != Shared)
+                    last_sample_p = new_sample_p;
+                else
+                    buffer->Release(new_sample_p);
+
                 return NewData;
             }
             if (last_sample_p) {
-		if(copy_old_data)
-		    sample = *(last_sample_p);
+                if(copy_old_data)
+                    sample = *(last_sample_p);
                 return OldData;
             }
             return NoData;
@@ -129,24 +139,31 @@ namespace RTT { namespace internal {
          */
         virtual void clear()
         {
-	    if(last_sample_p)
-		buffer->Release(last_sample_p);
-	    last_sample_p = 0;
+            if(last_sample_p)
+                buffer->Release(last_sample_p);
+            last_sample_p = 0;
             buffer->clear();
             base::ChannelElement<T>::clear();
         }
 
-        virtual bool data_sample(param_t sample)
+        virtual WriteStatus data_sample(param_t sample, bool reset = true)
         {
-            buffer->data_sample(sample);
-            return base::ChannelElement<T>::data_sample(sample);
+            if (!buffer->data_sample(sample, reset)) return WriteFailure;
+            return base::ChannelElement<T>::data_sample(sample, reset);
         }
 
-        virtual T data_sample()
+        virtual value_t data_sample()
         {
             return buffer->data_sample();
         }
-        
+
+        /** Returns a pointer to the ConnPolicy that has been used to construct the underlying buffer.
+        */
+        virtual const ConnPolicy* getConnPolicy() const
+        {
+            return &policy;
+        }
+
         virtual std::string getElementName() const 
         {
             return "ChannelBufferElement";

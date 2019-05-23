@@ -261,6 +261,14 @@ namespace RTT
         oreg->add( newBinaryOperator( "<=", std::less_equal<FlowStatus>() ) );
         oreg->add( newBinaryOperator( ">=", std::greater_equal<FlowStatus>() ) );
 
+        // WriteStatus
+        oreg->add( newBinaryOperator( "==", std::equal_to<WriteStatus>() ) );
+        oreg->add( newBinaryOperator( "!=", std::not_equal_to< WriteStatus>() ) );
+        oreg->add( newBinaryOperator( "<", std::less<WriteStatus>() ) );
+        oreg->add( newBinaryOperator( ">", std::greater<WriteStatus>() ) );
+        oreg->add( newBinaryOperator( "<=", std::less_equal<WriteStatus>() ) );
+        oreg->add( newBinaryOperator( ">=", std::greater_equal<WriteStatus>() ) );
+
         // SendStatus
         oreg->add( newBinaryOperator( "==", std::equal_to<SendStatus>() ) );
         oreg->add( newBinaryOperator( "!=", std::not_equal_to< SendStatus>() ) );
