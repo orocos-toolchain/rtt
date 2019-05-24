@@ -45,4 +45,5 @@ namespace RTT {
 
     int CorbaDispatcher::defaultScheduler = ORO_SCHED_RT;
     int CorbaDispatcher::defaultPriority  = os::LowestPriority;
+    int CorbaDispatcher::defaultCpuAffinity  = 0;
 }
