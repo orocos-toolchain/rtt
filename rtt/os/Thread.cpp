@@ -48,9 +48,16 @@
 
 #ifdef OROPKG_OS_THREAD_SCOPE
 # include "../extras/dev/DigitalOutInterface.hpp"
+#define SCOPE_INIT(name) 
 #define SCOPE_ON   if ( task->d ) task->d->switchOn( bit );
 #define SCOPE_OFF  if ( task->d ) task->d->switchOff( bit );
+#elif defined(HAVE_LTTNG_UST) && defined(OROPKG_OS_GNULINUX)
+#include "gnulinux/traces/lttng_ust.h"
+#define SCOPE_INIT(name) tracepoint(orocos_rtt, thread_init , name);
+#define SCOPE_ON         tracepoint(orocos_rtt, thread_scope, 1);
+#define SCOPE_OFF        tracepoint(orocos_rtt, thread_scope, 0);
 #else
+#define SCOPE_INIT(name) 
 #define SCOPE_ON
 #define SCOPE_OFF
 #endif
@@ -79,6 +86,8 @@ namespace RTT {
              */
             Thread* task = static_cast<os::Thread*> (t);
             Logger::In in(task->getName());
+
+            SCOPE_INIT(task->getName())
 
             task->configure();
 
@@ -328,9 +337,7 @@ namespace RTT {
             if (this->isRunning())
                 this->stop();
 
-            log(Debug) << "Terminating " << this->getName() << endlog();
             terminate();
-            log(Debug) << " done" << endlog();
             rtos_sem_destroy(&sem);
 
         }
@@ -458,7 +465,7 @@ namespace RTT {
 
         bool Thread::isRunning() const
         {
-            return period == 0 ? inloop : running;
+            return running;
         }
 
         bool Thread::isActive() const
@@ -623,10 +630,16 @@ namespace RTT {
             // avoid callling twice.
             if (prepareForExit) return;
 
+            Logger::In in("Thread");
+            log(Debug) << "Terminating " << this->getName() << endlog();
+
             prepareForExit = true;
             rtos_sem_signal(&sem);
 
             rtos_task_delete(&rtos_task); // this must join the thread.
+            active = false;
+
+            log(Debug) << " done" << endlog();
         }
 
         const char* Thread::getName() const

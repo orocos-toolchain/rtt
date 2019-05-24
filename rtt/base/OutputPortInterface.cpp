@@ -39,8 +39,10 @@
 #include "PortInterface.hpp"
 #include "OutputPortInterface.hpp"
 #include "InputPortInterface.hpp"
+#include "../internal/ConnFactory.hpp"
 #include <exception>
 #include <stdexcept>
+#include "../os/traces.h"
 
 using namespace RTT;
 using namespace RTT::detail;
@@ -48,7 +50,7 @@ using namespace std;
 
 
 OutputPortInterface::OutputPortInterface(std::string const& name)
-    : PortInterface(name), cmanager(this) { }
+    : PortInterface(name) { }
 
 OutputPortInterface::~OutputPortInterface()
 {
@@ -57,7 +59,9 @@ OutputPortInterface::~OutputPortInterface()
 
 /** Returns true if this port is connected */
 bool OutputPortInterface::connected() const
-{ return cmanager.connected(); }
+{
+    return getEndpoint()->connected();
+}
 
 bool OutputPortInterface::disconnect(PortInterface* port)
 {
@@ -72,20 +76,12 @@ void OutputPortInterface::disconnect()
 bool OutputPortInterface::addConnection(ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy)
 {
     if ( this->connectionAdded(channel_input, policy) ) {
-        cmanager.addConnection(port_id, channel_input, policy);
-        return true;
+        return cmanager.addConnection(port_id, channel_input, policy);
     }
     return false;
 }
 
-// This is called by our input endpoint.
-bool OutputPortInterface::removeConnection(ConnID* conn)
-{
-    return cmanager.removeConnection(conn);
-}
-
-
-void OutputPortInterface::write(DataSourceBase::shared_ptr source)
+WriteStatus OutputPortInterface::write(DataSourceBase::shared_ptr source)
 { throw std::runtime_error("calling default OutputPortInterface::write(datasource) implementation"); }
 
 bool OutputPortInterface::createDataConnection( InputPortInterface& input, int lock_policy )
@@ -96,6 +92,11 @@ bool OutputPortInterface::createBufferConnection( InputPortInterface& input, int
 
 bool OutputPortInterface::createConnection( InputPortInterface& input )
 { return createConnection(input, input.getDefaultPolicy()); }
+
+bool OutputPortInterface::createConnection( internal::SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy )
+{
+    return internal::ConnFactory::createSharedConnection(this, 0, shared_connection, policy);
+}
 
 bool OutputPortInterface::connectTo(PortInterface* other, ConnPolicy const& policy)
 {
@@ -112,3 +113,9 @@ bool OutputPortInterface::connectTo(PortInterface* other)
         return false;
     return createConnection(*input);
 }
+
+void OutputPortInterface::traceWrite()
+{
+    tracepoint(orocos_rtt, OutputPort_write, getFullName().c_str());
+}
+

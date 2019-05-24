@@ -15,6 +15,24 @@ module RTT
 	typedef sequence<string> CRequestNames;
 	typedef sequence<string> COperationCallerNames;
 
+    interface CServiceRequester;
+    struct CServiceRequesterDescription;
+    typedef sequence<CServiceRequester> CServiceRequesters;
+    typedef sequence<CServiceRequesterDescription> CServiceRequesterDescriptions;
+
+    /**
+     * Complete description of a ServiceRequester
+     * @ingroup CompIDL
+     */
+    struct CServiceRequesterDescription
+    {
+        string name;
+        COperationCallerNames operationcallernames;
+
+        CServiceRequesters children;
+        CServiceRequesterDescriptions children_descriptions;
+    };
+
 	/**
 	 * An Orocos Required Service.
 	 * Exposes that this component requires certain services.
@@ -23,9 +41,15 @@ module RTT
 	interface CServiceRequester
 	{
 	    /**
-	     * Return the name of this service.
+         * Return the name of this requester.
 	     */
 	    string getRequestName();
+
+        /**
+         * Return the full description of this requester
+         * that includes all ServiceRequester objects
+         */
+        CServiceRequesterDescription getCServiceRequesterDescription();
 
 	    /**
 	     * Get a list of all the child requests this request offers.

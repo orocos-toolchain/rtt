@@ -11,15 +11,20 @@ module RTT
   module corba
   {
     enum CFlowStatus { CNoData, COldData, CNewData };
+    enum CWriteStatus { CWriteSuccess, CWriteFailure, CNotConnected };
     enum CConnectionModel { CData, CBuffer, CCircularBuffer };
     enum CLockPolicy { CUnsync, CLocked, CLockFree };
+    enum CBufferPolicy { CBufferPolicyUnspecified, CPerConnection, CPerInputPort, CPerOutputPort, CShared };
     struct CConnPolicy
     {
         CConnectionModel type;
-        boolean init;
-        CLockPolicy lock_policy;
-        boolean pull;
         long size;
+        CLockPolicy lock_policy;
+        boolean init;
+        boolean pull;
+        CBufferPolicy buffer_policy;
+        long max_threads;
+        boolean mandatory;
         long transport;
         long data_size;
         string name_id;
@@ -33,15 +38,51 @@ module RTT
      */
     interface CChannelElement
     {
+
+        /**
+         * Used during connection setup to pass on
+         * an example of the data.
+         * This is done behind the scenes by the connection logic.
+         * @note: not implemented yet.
+         */
+        //boolean setDataSample(in any sample);
+
+        /**
+         * Called by the input port to indicate that
+         * it's ready to be used.
+         * This is done behind the scenes by the connection logic.
+         */
+        boolean inputReady();
+
+        /**
+         * Checks if the connection channel elements are ready for a given
+         * input port.
+         * This is typically called by the createConnection setup logic to see
+         * if the input side agrees with the connection and can use it.
+         * For example, the input port can use this opportunity to check the
+         *
+         * @throw CNoSuchPortException if input_port is not an input port
+         * or not present in this interface.
+         * @return false if the connection could not be used.
+         */
+        boolean channelReady(in CConnPolicy cp);
+
         /**
          * Reads from this Channel Element.
          */
         CFlowStatus read(out any sample, in boolean copy_old_data);
+
         /**
          * Writes into this Channel Element.
-         * @return false if the channel became invalid
+         * @return NotConnected if the channel became invalid
          */
-        boolean write(in any sample);
+        CWriteStatus write(in any sample);
+
+        /**
+         * Writes into this Channel Element (one-way)
+         */
+        oneway void writeOneway(in any sample);
+
         /**
          * Disconnect and dispose this object.
          * You may no longer use this object after calling this method.
@@ -56,24 +97,11 @@ module RTT
     interface CRemoteChannelElement : CChannelElement
     {
         /**
-         * Used during connection setup to pass on
-         * an example of the data.
-         * This is done behind the scenes by the connection logic.
-         * @note: not implemented yet.
-         */
-        //boolean setDataSample(in any sample);
-        /**
-         * Called by the input port to indicate that
-         * it's ready to be used.
-         * This is done behind the scenes by the connection logic.
-         * @note: not implemented yet.
-         */
-        //boolean inputReady();
-        /**
          * Used to inform this channel element which the other
          * side is such that they can relay a signal or disconnect.
          */
         void setRemoteSide(in CRemoteChannelElement other);
+
         /**
          * Used by the 'remote' side to inform this channel element that new data
          * is available for reading.
@@ -84,21 +112,23 @@ module RTT
         /**
          * Used by the 'remote' side to inform this channel element
          * that the connection is been cleaned up.
-         * @param writer_to_reader Since channel elements are chained,
+         * @param forward Since channel elements are chained,
          * we need to know who initiated the disconnect: starting from
-         * the output port (writer_to_reader == true) or from the
-         * input port (writer_to_reader == false)
+         * the output port (forward == true) or from the
+         * input port (forward == false)
          */
-        void remoteDisconnect(in boolean writer_to_reader);
+        void remoteDisconnect(in boolean forward);
 
     };
 
     /** Emitted when information is requested on a port that does not exist */
     exception CNoSuchPortException {};
     /** Emitted during connections, when there is no CORBA transport defined
-     * for the data type of the given ports
-     */
+     * for the data type of the given ports */
     exception CNoCorbaTransport {};
+    /** Emitted during connections, when it is not possible to build new connections
+     * with the given arguments */
+    exception CInvalidArgument {};
 
     enum CPortType { CInput, COutput };
 
@@ -106,6 +136,7 @@ module RTT
     {
         CPortType type;
         string   name;
+        string   description;
         string   type_name;
     };
 
@@ -166,7 +197,7 @@ module RTT
        * channelReady() has been called for it
        */
       CChannelElement buildChannelOutput(in string input_port, inout CConnPolicy policy)
-            raises(CNoCorbaTransport,CNoSuchPortException);
+            raises(CNoCorbaTransport,CNoSuchPortException,CInvalidArgument);
 
       /**
        * Use this to read from an output port with
@@ -175,7 +206,7 @@ module RTT
        * into the policy, such as the name of the newly created connection.
        */
       CChannelElement buildChannelInput(in string output_port, inout CConnPolicy policy)
-            raises(CNoCorbaTransport,CNoSuchPortException);
+            raises(CNoCorbaTransport,CNoSuchPortException,CInvalidArgument);
 
       /**
        * Connect the given named port to the given remote port.
@@ -199,6 +230,13 @@ module RTT
             raises(CNoSuchPortException);
 
       /**
+       * Use this to connect a port to an existing connection that can be looked up
+       * by the given policy.
+       */
+      boolean createSharedConnection(in string input_port, inout CConnPolicy policy)
+            raises(CNoSuchPortException,CInvalidArgument);
+
+      /**
        * Removes the specified connection created with createConnection.
        */
       boolean removeConnection(in string local_port,
@@ -220,20 +258,6 @@ module RTT
        * after the call to createStream.
        */
       void removeStream(in string local_port, in string stream_name)
-            raises(CNoSuchPortException);
-
-      /**
-       * Checks if the connection channel elements are ready for a given
-       * input port.
-       * This is typically called by the createConnection setup logic to see
-       * if the input side agrees with the connection and can use it.
-       * For example, the input port can use this opportunity to check the
-       *
-       * @throw CNoSuchPortException if input_port is not an input port
-       * or not present in this interface.
-       * @return false if the connection could not be used.
-       */
-	boolean channelReady(in string input_port,in CChannelElement channel, in CConnPolicy cp)
             raises(CNoSuchPortException);
     };
   };

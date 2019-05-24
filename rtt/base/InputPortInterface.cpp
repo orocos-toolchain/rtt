@@ -41,18 +41,18 @@
 #include "OutputPortInterface.hpp"
 #include "DataFlowInterface.hpp"
 #include "../internal/ConnInputEndPoint.hpp"
+#include "../internal/ConnFactory.hpp"
 #include "../Logger.hpp"
 #include <exception>
 #include <stdexcept>
+#include <../os/traces.h>
 
 using namespace RTT;
 using namespace RTT::detail;
 using namespace std;
 
-
 InputPortInterface::InputPortInterface(std::string const& name, ConnPolicy const& default_policy)
 : PortInterface(name)
-  , cmanager(this)
   , default_policy( default_policy )
 #ifdef ORO_SIGNALLING_PORTS
   , new_data_on_port_event(0)
@@ -82,6 +82,7 @@ InputPortInterface::NewDataOnPortEvent* InputPortInterface::getNewDataOnPortEven
     return new_data_on_port_event;
 }
 #endif
+
 bool InputPortInterface::connectTo(PortInterface* other, ConnPolicy const& policy)
 {
     OutputPortInterface* output = dynamic_cast<OutputPortInterface*>(other);
@@ -97,42 +98,10 @@ bool InputPortInterface::connectTo(PortInterface* other)
     return connectTo(other, default_policy);
 }
 
-bool InputPortInterface::addConnection(ConnID* port_id, ChannelElementBase::shared_ptr channel_output, const ConnPolicy& policy)
+bool InputPortInterface::addConnection(ConnID* cid, ChannelElementBase::shared_ptr channel, const ConnPolicy& policy)
 {
     // input ports don't check the connection policy.
-    cmanager.addConnection( port_id, channel_output, policy);
-    return true;
-}
-
-bool InputPortInterface::channelReady(ChannelElementBase::shared_ptr channel, RTT::ConnPolicy const& policy)
-{
-    // cid is deleted/owned by the ConnectionManager.
-    if ( channel ) {
-        internal::ConnID* cid = channel->getConnID();
-        if (cid ) {
-            this->addConnection(cid, channel, policy);
-            if ( channel->inputReady() )
-                return true;
-        } else {
-            log(Error) << "Can't add ChannelElement which is not a ConnInputEndPoint to Port "<< this->getName() <<endlog();
-        }            
-    }
-    if (channel) {
-        // in-the-middle disconnection, we need to inform both ends of
-        // the channel that it's going to be disposed. Both endpoints
-        // will inform their ports with a removal request.
-        // From a design perspective, this removal must be initiated
-        // by our connection manager and not by us.
-        channel->disconnect(false);
-        channel->disconnect(true);
-    }
-
-    return false;
-}
-
-bool InputPortInterface::removeConnection(ConnID* conn)
-{
-    return cmanager.removeConnection(conn);
+    return cmanager.addConnection( cid, channel, policy);
 }
 
 #ifndef ORO_SIGNALLING_PORTS
@@ -141,20 +110,25 @@ void InputPortInterface::signal()
     if (iface && msignal_interface)
         iface->dataOnPort(this);
 }
+
 void InputPortInterface::signalInterface(bool true_false)
 {
     msignal_interface = true_false;
 }
 #endif
+
 FlowStatus InputPortInterface::read(DataSourceBase::shared_ptr source, bool copy_old_data)
 { throw std::runtime_error("calling default InputPortInterface::read(datasource) implementation"); }
+
 /** Returns true if this port is connected */
 bool InputPortInterface::connected() const
-{ return cmanager.connected(); }
-
-void InputPortInterface::clear()
 {
-    cmanager.clear();
+    return getEndpoint()->connected();
+}
+
+void InputPortInterface::traceRead(RTT::FlowStatus status)
+{
+    tracepoint(orocos_rtt, InputPort_read, status, getFullName().c_str());
 }
 
 void InputPortInterface::disconnect()
@@ -167,6 +141,11 @@ bool InputPortInterface::disconnect(PortInterface* port)
     return cmanager.disconnect(port);
 }
 
+bool InputPortInterface::createConnection( internal::SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy )
+{
+    return internal::ConnFactory::createSharedConnection(0, this, shared_connection, policy);
+}
+
 base::ChannelElementBase::shared_ptr InputPortInterface::buildRemoteChannelOutput(
                 base::OutputPortInterface& output_port,
                 types::TypeInfo const* type_info,
@@ -174,4 +153,3 @@ base::ChannelElementBase::shared_ptr InputPortInterface::buildRemoteChannelOutpu
 {
     return base::ChannelElementBase::shared_ptr();
 }
-

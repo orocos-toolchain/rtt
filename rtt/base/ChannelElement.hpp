@@ -42,7 +42,11 @@
 #include <boost/intrusive_ptr.hpp>
 #include <boost/call_traits.hpp>
 #include "ChannelElementBase.hpp"
+#include "../ConnPolicy.hpp"
 #include "../FlowStatus.hpp"
+#include "../os/MutexLock.hpp"
+
+#include <boost/bind.hpp>
 
 namespace RTT { namespace base {
 
@@ -51,24 +55,22 @@ namespace RTT { namespace base {
      * type-specific (like write and read)
      */
     template<typename T>
-    class ChannelElement : public ChannelElementBase
+    class ChannelElement : virtual public ChannelElementBase
     {
     public:
-        typedef T value_t;
         typedef boost::intrusive_ptr< ChannelElement<T> > shared_ptr;
+        typedef T value_t;
         typedef typename boost::call_traits<T>::param_type param_t;
         typedef typename boost::call_traits<T>::reference reference_t;
 
         shared_ptr getOutput()
         {
-             return boost::static_pointer_cast< base::ChannelElement<T> >(
-                    ChannelElementBase::getOutput());
+             return ChannelElementBase::narrow<T>(ChannelElementBase::getOutput().get());
         }
 
         shared_ptr getInput()
         {
-            return boost::static_pointer_cast< base::ChannelElement<T> >(
-                    ChannelElementBase::getInput());
+            return ChannelElementBase::narrow<T>(ChannelElementBase::getInput().get());
         }
 
         /**
@@ -79,12 +81,12 @@ namespace RTT { namespace base {
          *
          * @returns false if an error occured that requires the channel to be invalidated.
          */
-        virtual bool data_sample(param_t sample)
+        virtual WriteStatus data_sample(param_t sample, bool reset = true)
         {
             typename ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< ChannelElement<T> >(getOutput());
             if (output)
-                return output->data_sample(sample);
-            return false;
+                return output->data_sample(sample, reset);
+            return WriteSuccess;
         }
 
         virtual value_t data_sample()
@@ -100,12 +102,12 @@ namespace RTT { namespace base {
          *
          * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
          */
-        virtual bool write(param_t sample)
+        virtual WriteStatus write(param_t sample)
         {
-            typename ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< ChannelElement<T> >(getOutput());
+            typename ChannelElement<T>::shared_ptr output = getOutput();
             if (output)
                 return output->write(sample);
-            return false;
+            return NotConnected;
         }
 
         /** Reads a sample from the connection. \a sample is a reference which
@@ -113,7 +115,7 @@ namespace RTT { namespace base {
          * if a sample was available, and false otherwise. If false is returned,
          * then \a sample is not modified by the method
          */
-        virtual FlowStatus read(reference_t sample, bool copy_old_data)
+        virtual FlowStatus read(reference_t sample, bool copy_old_data = true)
         {
             typename ChannelElement<T>::shared_ptr input = this->getInput();
             if (input)
@@ -121,6 +123,224 @@ namespace RTT { namespace base {
             else
                 return NoData;
         }
+    };
+
+    /** A typed version of MultipleInputsChannelElementBase.
+     */
+    template<typename T>
+    class MultipleInputsChannelElement : virtual public MultipleInputsChannelElementBase, virtual public ChannelElement<T>
+    {
+    public:
+        typedef boost::intrusive_ptr< MultipleInputsChannelElement<T> > shared_ptr;
+        typedef typename ChannelElement<T>::value_t value_t;
+        typedef typename ChannelElement<T>::param_t param_t;
+        typedef typename ChannelElement<T>::reference_t reference_t;
+
+        MultipleInputsChannelElement()
+            : last()
+        {}
+
+        /**
+         * Overridden implementation of MultipleInputsChannelElementBase::data_sample() that gets a sample from the currently selected input.
+         */
+        virtual value_t data_sample()
+        {
+            RTT::os::SharedMutexLock lock(inputs_lock);
+            typename ChannelElement<T>::shared_ptr input = currentInput();
+            if (input) {
+                return input->data_sample();
+            }
+            return value_t();
+        }
+
+        /** Reads a sample from the connection. \a sample is a reference which
+         * will get updated if a sample is available. The method returns true
+         * if a sample was available, and false otherwise. If false is returned,
+         * then \a sample is not modified by the method
+         */
+        virtual FlowStatus read(reference_t sample, bool copy_old_data = true)
+        {
+            FlowStatus result = NoData;
+            RTT::os::SharedMutexLock lock(inputs_lock);
+
+            // read and iterate if necessary.
+            select_reader_channel( boost::bind( &MultipleInputsChannelElement<T>::do_read, this, boost::ref(sample), boost::ref(result), _1, _2), copy_old_data );
+            return result;
+        }
+
+    private:
+        typename ChannelElement<T>::shared_ptr currentInput() {
+            typename ChannelElement<T>::shared_ptr last = this->last;
+            if ( !last && !inputs.empty() ) last = inputs.front()->template narrow<T>();
+            return last;
+        }
+
+        bool do_read(reference_t sample, FlowStatus& result, bool copy_old_data, typename ChannelElement<T>::shared_ptr& input)
+        {
+            assert( result != NewData );
+            if ( input ) {
+                FlowStatus tresult = input->read(sample, copy_old_data);
+                // the result trickery is for not overwriting OldData with NoData.
+                if (tresult == NewData) {
+                    result = tresult;
+                    return true;
+                }
+                // stores OldData result
+                if (tresult > result)
+                    result = tresult;
+            }
+            return false;
+        }
+
+        /**
+         * Selects a connection as the current channel
+         * if pred(connection) is true. It will first check
+         * the current channel ( getCurrentChannel() ), if that
+         * does not satisfy pred, iterate over \b all connections.
+         * If none satisfy pred, the current channel remains unchanged.
+         * @param pred
+         */
+        template<typename Pred>
+        void select_reader_channel(Pred pred, bool copy_old_data) {
+            typename ChannelElement<T>::shared_ptr new_input =
+                find_if(pred, copy_old_data);
+
+            if (new_input)
+            {
+                // We don't clear the current channel (to get it to NoData state), because there is a race
+                // between find_if and this line. We have to accept (in other parts of the code) that eventually,
+                // all channels return 'OldData'.
+                last = new_input.get();
+            }
+        }
+
+        template<typename Pred>
+        typename ChannelElement<T>::shared_ptr find_if(Pred pred, bool copy_old_data) {
+            typename ChannelElement<T>::shared_ptr current = currentInput();
+
+            // We only copy OldData in the initial read of the current channel.
+            // if it has no new data, the search over the other channels starts,
+            // but no old data is needed.
+            if ( current )
+                if ( pred( copy_old_data, current ) )
+                    return current;
+
+            for (Inputs::iterator it = inputs.begin(); it != inputs.end(); ++it) {
+                if (*it == current) continue;
+                typename ChannelElement<T>::shared_ptr input = (*it)->narrow<T>();
+                assert(input);
+                if ( pred(false, input) == true)
+                    return input;
+            }
+
+            return typename ChannelElement<T>::shared_ptr();
+        }
+
+    protected:
+        virtual void removeInput(ChannelElementBase::shared_ptr const& input)
+        {
+            if (last == input) last = 0;
+            MultipleInputsChannelElementBase::removeInput(input);
+        }
+
+    private:
+        ChannelElement<T> *last;
+    };
+
+    /** A typed version of MultipleOutputsChannelElementBase.
+     */
+    template<typename T>
+    class MultipleOutputsChannelElement : virtual public MultipleOutputsChannelElementBase, virtual public ChannelElement<T>
+    {
+    public:
+        typedef boost::intrusive_ptr< MultipleInputsChannelElement<T> > shared_ptr;
+        typedef typename ChannelElement<T>::value_t value_t;
+        typedef typename ChannelElement<T>::param_t param_t;
+        typedef typename ChannelElement<T>::reference_t reference_t;
+
+        virtual WriteStatus data_sample(param_t sample, bool reset = true)
+        {
+            WriteStatus result = WriteSuccess;
+            bool at_least_one_output_is_disconnected = false;
+            bool at_least_one_output_is_connected = false;
+
+            {
+                RTT::os::SharedMutexLock lock(outputs_lock);
+                if (outputs.empty()) return WriteSuccess;
+                for(Outputs::iterator it = outputs.begin(); it != outputs.end(); ++it)
+                {
+                    typename ChannelElement<T>::shared_ptr output = it->channel->narrow<T>();
+                    WriteStatus fs = output->data_sample(sample, reset);
+                    if (result < fs) result = fs;
+                    if (fs == NotConnected) {
+                        it->disconnected = true;
+                        at_least_one_output_is_disconnected = true;
+                    } else {
+                        at_least_one_output_is_connected = true;
+                    }
+                }
+            }
+
+            if (at_least_one_output_is_disconnected) {
+                removeDisconnectedOutputs();
+                if (!at_least_one_output_is_connected) result = NotConnected;
+            }
+
+            return result;
+        }
+
+        /** Writes a new sample on this connection. \a sample is the sample to
+         * write. Writes the sample to all connected channels
+         *
+         * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
+         */
+        virtual WriteStatus write(param_t sample)
+        {
+            WriteStatus result = WriteSuccess;
+            bool at_least_one_output_is_disconnected = false;
+            bool at_least_one_output_is_connected = false;
+
+            {
+                RTT::os::SharedMutexLock lock(outputs_lock);
+                if (outputs.empty()) return NotConnected;
+                for(Outputs::iterator it = outputs.begin(); it != outputs.end(); ++it)
+                {
+                    typename ChannelElement<T>::shared_ptr output = it->channel->narrow<T>();
+                    WriteStatus fs = output->write(sample);
+                    if (it->mandatory && (result < fs)) result = fs;
+                    if (fs == NotConnected) {
+                        it->disconnected = true;
+                        at_least_one_output_is_disconnected = true;
+                    } else {
+                        at_least_one_output_is_connected = true;
+                    }
+                }
+            }
+
+            if (at_least_one_output_is_disconnected) {
+                removeDisconnectedOutputs();
+                if (!at_least_one_output_is_connected) result = NotConnected;
+            }
+
+            return result;
+        }
+    };
+
+    /** A typed version of MultipleInputsMultipleOutputsChannelElementBase.
+     */
+    template<typename T>
+    class MultipleInputsMultipleOutputsChannelElement : public MultipleInputsMultipleOutputsChannelElementBase, public MultipleInputsChannelElement<T>, public MultipleOutputsChannelElement<T>
+    {
+    public:
+        typedef boost::intrusive_ptr< MultipleInputsMultipleOutputsChannelElement<T> > shared_ptr;
+        typedef typename ChannelElement<T>::value_t value_t;
+        typedef typename ChannelElement<T>::param_t param_t;
+        typedef typename ChannelElement<T>::reference_t referene_t;
+
+        using MultipleInputsChannelElement<T>::data_sample;
+        using MultipleOutputsChannelElement<T>::data_sample;
+
+        using MultipleInputsMultipleOutputsChannelElementBase::disconnect;
     };
 }}
 

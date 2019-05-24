@@ -33,6 +33,9 @@
 #include <transports/corba/ServiceC.h>
 #include <transports/corba/CorbaLib.hpp>
 #include <transports/corba/CorbaConnPolicy.hpp>
+#include <transports/corba/RTTCorbaConversion.hpp>
+
+#include <boost/scoped_ptr.hpp>
 
 #include "operations_fixture.hpp"
 
@@ -48,7 +51,10 @@ public:
         pint1("pint1", "", 3), pdouble1(new Property<double>("pdouble1", "", -3.0)),
         aint1(3), adouble1(-3.0)
     {
-    // connect DataPorts
+        // check operations (moved from OperationCallerComponent constructor for reuseability in corba-ipc-server)
+        BOOST_REQUIRE( caller->ready() );
+
+        // connect DataPorts
         mi1 = new InputPort<double> ("mi");
         mo1 = new OutputPort<double> ("mo");
 
@@ -57,6 +63,7 @@ public:
 
         tc->ports()->addEventPort(*mi1);
         tc->ports()->addPort(*mo1);
+        tc->start();
 
         t2 = new TaskContext("local");
         t2->ports()->addEventPort(*mi2,boost::bind(&CorbaTest::new_data_listener, this, _1));
@@ -196,6 +203,56 @@ void CorbaTest::testPortDisconnected()
     BOOST_CHECK( !mi2->connected() );
 }
 
+template <typename T>
+static void testCorbaType(const T &value = T()) {
+    CORBA::Any any;
+    T copy = T();
+
+    BOOST_TEST_CHECKPOINT("Testing CORBA conversion for type " << typeid(T).name());
+    BOOST_CHECK( RTT::corba::AnyConversion<T>::updateAny(value, any) );
+    BOOST_CHECK( RTT::corba::AnyConversion<T>::update(any, copy) );
+    BOOST_CHECK_EQUAL( copy, value );
+}
+
+template <typename T>
+static void testCorbaTypeSequence(std::size_t size = 3, const T &value = T())
+{
+    CORBA::Any any;
+
+    BOOST_TEST_CHECKPOINT("Testing CORBA conversion for a vector with elements of type " << typeid(T).name());
+    std::vector<T> vec(size, value);
+    BOOST_CHECK( RTT::corba::AnyConversion< std::vector<T> >::updateAny(vec, any) );
+    BOOST_CHECK( RTT::corba::AnyConversion< std::vector<T> >::update(any, vec) );
+}
+
+namespace RTT {
+    static bool operator==(const ConnPolicy &, const ConnPolicy &) { return true; }
+}
+
+BOOST_AUTO_TEST_CASE( testCorbaTypes )
+{
+    testCorbaType<double>(1.0);
+    testCorbaTypeSequence<double>(3, 1.0);
+    testCorbaType<float>(2.0);
+    testCorbaTypeSequence<float>(3, 2.0);
+    testCorbaType<int>(-3);
+    testCorbaTypeSequence<int>(3, -3);
+    testCorbaType<unsigned int>(4);
+    testCorbaTypeSequence<unsigned int>(3, 4);
+    testCorbaType<long long>(-9223372036854775807ll);
+    testCorbaTypeSequence<long long>(3, 9223372036854775807ll);
+    testCorbaType<unsigned long long>(18446744073709551615ull);
+    testCorbaTypeSequence<unsigned long long>(3, 18446744073709551615ull);
+    testCorbaType<bool>(true);
+    testCorbaType<char>('c');
+    testCorbaTypeSequence<char>(3, 'c');
+    testCorbaType<std::string>("foo");
+    testCorbaTypeSequence<std::string>(3, "foo");
+    testCorbaType<RTT::ConnPolicy>();
+#ifdef OS_RT_MALLOC
+    testCorbaType<rt_string>("bar");
+#endif
+}
 
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  CorbaTestSuite,  CorbaTest )
@@ -356,7 +413,7 @@ BOOST_AUTO_TEST_CASE( testOperationCallerC_Send )
     BOOST_CHECK_EQUAL( r, 0.0 );
     BOOST_CHECK_EQUAL( cr, -5.0 );
 
-    
+#ifndef RTT_CORBA_SEND_ONEWAY_OPERATIONS
     mc = tp->provides("methods")->create("m0except", caller->engine());
     BOOST_CHECK_NO_THROW( mc.check() );
     shc = mc.send();
@@ -365,6 +422,7 @@ BOOST_AUTO_TEST_CASE( testOperationCallerC_Send )
     // now collect:
     BOOST_CHECK_THROW( shc.collect(), std::runtime_error);
     BOOST_REQUIRE( tc->inException() );
+#endif
 }
 
 BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCall )
@@ -470,7 +528,7 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
     corba::CDataFlowInterface_var ports = ts->server()->ports();
 
     corba::CDataFlowInterface::CPortNames_var names =
-	ports->getPorts();
+    ports->getPorts();
 
     BOOST_CHECK_EQUAL(CORBA::ULong(2), names->length());
     BOOST_CHECK_EQUAL(string("mi"), string(names[CORBA::ULong(0)]));
@@ -478,14 +536,14 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 
     // Now check directions
     BOOST_CHECK_EQUAL(RTT::corba::COutput,
-	    ports->getPortType("mo"));
+        ports->getPortType("mo"));
     BOOST_CHECK_EQUAL(RTT::corba::CInput,
-	    ports->getPortType("mi"));
+        ports->getPortType("mi"));
 
     // And check type names
-	CORBA::String_var cstr = ports->getDataType("mo");
+    CORBA::String_var cstr = ports->getDataType("mo");
     BOOST_CHECK_EQUAL(string("double"),
-	    string(cstr.in()));
+        string(cstr.in()));
 }
 
 BOOST_AUTO_TEST_CASE( testPortConnections )
@@ -526,7 +584,9 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     policy.type = RTT::corba::CData;
     policy.pull = true;
     BOOST_CHECK( ports->createConnection("mo", ports2, "mi", policy) );
+#ifndef RTT_CORBA_PORTS_DISABLE_SIGNAL
     testPortDataConnection();
+#endif // RTT_CORBA_PORTS_DISABLE_SIGNAL
     ports2->disconnectPort("mi");
     testPortDisconnected();
 
@@ -541,7 +601,9 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     policy.type = RTT::corba::CBuffer;
     policy.pull = true;
     BOOST_CHECK( ports->createConnection("mo", ports2, "mi", policy) );
+#ifndef RTT_CORBA_PORTS_DISABLE_SIGNAL
     testPortBufferConnection();
+#endif // RTT_CORBA_PORTS_DISABLE_SIGNAL
     // Here, check removal of specific connections. So first add another
     // connection ...
     mo1->createConnection(*mi1);
@@ -551,6 +613,131 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     BOOST_CHECK(mo1->connected());
     BOOST_CHECK(mi1->connected());
     BOOST_CHECK(!mi2->connected());
+}
+
+BOOST_AUTO_TEST_CASE( testSharedConnections )
+{
+    // This test installs shared connections between mo1 and mo2 as writers and mi2 and mi3 as readers
+
+//    // Add a second input port mo3 to tc
+//    boost::scoped_ptr<RTT::OutputPort<double> > mo3(new RTT::OutputPort<double>());
+//    tc->addPort("mo3", *mo3);
+
+    // Add a second input port mi3 to t2
+    boost::scoped_ptr<RTT::InputPort<double> > mi3(new RTT::InputPort<double>());
+    t2->addPort("mi3", *mi3);
+
+    // This test tests shared connections port-to-port connections.
+    ts  = corba::TaskContextServer::Create( tc, false ); //no-naming
+    ts2 = corba::TaskContextServer::Create( t2, false ); //no-naming
+
+    // must be running to catch event port signalling.
+    BOOST_CHECK( t2->start() );
+
+    // Create a CORBA policy specification
+    RTT::corba::CConnPolicy policy = toCORBA(ConnPolicy::data(ConnPolicy::LOCKED));
+    policy.init = false;
+    policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
+
+    corba::CDataFlowInterface_var ports  = ts->server()->ports();
+    corba::CDataFlowInterface_var ports2 = ts2->server()->ports();
+    double value = 0.0;
+
+    // Shared push connection...
+    policy.buffer_policy = RTT::corba::CShared;
+    policy.pull = false;
+    BOOST_CHECK( ports->createConnection("mo", ports2, "mi", policy) );
+    BOOST_CHECK( ports->createConnection("mo", ports2, "mi3", policy) );
+    BOOST_CHECK( ports2->createConnection("mo", ports2, "mi", policy) );
+    BOOST_CHECK( mi3->connected() );
+    BOOST_CHECK( mo2->connected() );
+    BOOST_REQUIRE( mi2->getManager()->getSharedConnection() );
+    BOOST_REQUIRE( mi3->getManager()->getSharedConnection() );
+    BOOST_CHECK_EQUAL( mi2->getManager()->getSharedConnection()->getName(), mi3->getManager()->getSharedConnection()->getName() );
+    BOOST_CHECK_EQUAL( mi3->read(value), NoData );
+    testPortDataConnection(); // communication between mo and mi should work the same as for private connections
+    BOOST_CHECK_EQUAL( mi3->read(value), OldData );
+    BOOST_CHECK_EQUAL( value, 2.0 );
+    BOOST_CHECK_EQUAL( mo2->write(3.0), WriteSuccess );
+    value = 0.0;
+    BOOST_CHECK_EQUAL( mi3->read(value), NewData );
+    BOOST_CHECK_EQUAL( value, 3.0 );
+    value = 0.0;
+    BOOST_CHECK_EQUAL( mi2->read(value), OldData );
+    BOOST_CHECK_EQUAL( value, 3.0 );
+
+    ports->disconnectPort("mo"); // disconnect from the output side
+    ports2->disconnectPort("mo"); // disconnect from the output side
+    BOOST_CHECK( !mo1->connected() );
+    BOOST_CHECK( !mo2->connected() );
+    BOOST_CHECK( !mi2->connected() );
+    BOOST_CHECK( !mi3->connected() );
+
+    // Shared pull connection...
+    policy.buffer_policy = RTT::corba::CShared;
+    policy.pull = true;
+    BOOST_CHECK( ports->createConnection("mo", ports2, "mi", policy) );
+    BOOST_CHECK( ports->createConnection("mo", ports2, "mi3", policy) );
+    BOOST_CHECK( ports2->createConnection("mo", ports2, "mi", policy) );
+    BOOST_CHECK( mi3->connected() );
+    BOOST_CHECK( mo2->connected() );
+    BOOST_REQUIRE( mi2->getManager()->getSharedConnection() );
+    BOOST_REQUIRE( mi3->getManager()->getSharedConnection() );
+    BOOST_CHECK_EQUAL( mi2->getManager()->getSharedConnection()->getName(), mi3->getManager()->getSharedConnection()->getName() );
+    BOOST_CHECK_EQUAL( mi3->read(value), NoData );
+    testPortDataConnection(); // communication between mo and mi should work the same as for private connections
+    BOOST_CHECK_EQUAL( mi3->read(value), OldData );
+    BOOST_CHECK_EQUAL( value, 2.0 );
+    BOOST_CHECK_EQUAL( mo2->write(3.0), WriteSuccess );
+    value = 0.0;
+    BOOST_CHECK_EQUAL( mi3->read(value), NewData );
+    BOOST_CHECK_EQUAL( value, 3.0 );
+    value = 0.0;
+    BOOST_CHECK_EQUAL( mi2->read(value), OldData );
+    BOOST_CHECK_EQUAL( value, 3.0 );
+
+    ports->disconnectPort("mo"); // disconnect from the output side
+    ports2->disconnectPort("mo"); // disconnect from the output side
+    BOOST_CHECK( !mo1->connected() );
+    BOOST_CHECK( !mo2->connected() );
+    BOOST_CHECK( !mi2->connected() );
+    BOOST_CHECK( !mi3->connected() );
+
+    // PerOutputPort pull connection...
+    policy.buffer_policy = RTT::corba::CPerOutputPort;
+    policy.pull = true;
+    BOOST_CHECK( ports->createConnection("mo", ports2, "mi", policy) );
+    BOOST_CHECK( ports->createConnection("mo", ports2, "mi3", policy) );
+    BOOST_CHECK( ports2->createConnection("mo", ports2, "mi", policy) ); // cannot use the DataFlowInterface CORBA API here, as it will find the local SharedConnection instance and fail.
+    BOOST_CHECK( mi3->connected() );
+    BOOST_CHECK( mo2->connected() );
+    BOOST_CHECK( mo1->getSharedBuffer() );
+    BOOST_CHECK( mo2->getSharedBuffer() );
+    BOOST_CHECK_EQUAL( mi3->read(value), NoData );
+    testPortDataConnection(); // communication between mo and mi should work the same as for private connections
+    BOOST_CHECK_EQUAL( mi3->read(value), OldData );
+    BOOST_CHECK_EQUAL( value, 2.0 );
+    BOOST_CHECK_EQUAL( mo1->write(3.0), WriteSuccess );
+    BOOST_CHECK_EQUAL( mo2->write(4.0), WriteSuccess );
+    value = 0.0;
+    BOOST_CHECK_EQUAL( mi3->read(value), NewData );
+    BOOST_CHECK_EQUAL( value, 3.0 );
+    value = 0.0;
+    BOOST_CHECK_EQUAL( mi2->read(value), NewData );
+    BOOST_CHECK_EQUAL( value, 4.0 );
+    value = 0.0;
+    BOOST_CHECK_EQUAL( mi3->read(value), OldData );
+    BOOST_CHECK_EQUAL( value, 3.0 );
+    value = 0.0;
+    BOOST_CHECK_EQUAL( mi2->read(value), OldData );
+    BOOST_CHECK_EQUAL( value, 4.0 );
+
+    ports2->disconnectPort("mi"); // disconnect from the input side
+    ports2->disconnectPort("mi3"); // disconnect from the input side
+    BOOST_CHECK( !mo1->connected() );
+    BOOST_CHECK( !mo2->connected() );
+    BOOST_CHECK( !mi2->connected() );
+    BOOST_CHECK( !mi3->connected() );
 }
 
 BOOST_AUTO_TEST_CASE( testPortProxying )
@@ -735,7 +922,7 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
 
     // test unbuffered Corba write --> C++ read
     cce = ports->buildChannelOutput("mi", policy);
-    ports->channelReady("mi", cce, policy);
+    cce->channelReady(policy);
     sample = new CORBA::Any();
     BOOST_REQUIRE( cce.in() );
 
@@ -793,7 +980,7 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
 
     // test unbuffered Corba write --> C++ read
     cce = ports->buildChannelOutput("mi", policy);
-    ports->channelReady("mi", cce, policy);
+    cce->channelReady(policy);
     sample = new CORBA::Any();
     BOOST_REQUIRE( cce.in() );
 

@@ -174,6 +174,8 @@ namespace RTT
 
         virtual bool trigger();
 
+        virtual bool timeout();
+
         virtual bool stop();
 
         virtual bool isRunning() const;
@@ -201,6 +203,11 @@ namespace RTT
          * @see base::RunnableInterface::step()
          */
         virtual void step();
+
+        /**
+         * @see base::RunnableInterface::work()
+         */
+        virtual void work(base::RunnableInterface::WorkReason reason);
 
         /**
          * @see base::RunnableInterface::finalize()

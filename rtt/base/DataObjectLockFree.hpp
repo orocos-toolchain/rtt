@@ -41,6 +41,9 @@
 
 #include "../os/oro_arch.h"
 #include "DataObjectInterface.hpp"
+#include "../Logger.hpp"
+#include "../types/Types.hpp"
+#include "../internal/DataSourceTypeInfo.hpp"
 
 namespace RTT
 { namespace base {
@@ -78,17 +81,17 @@ namespace RTT
         : public DataObjectInterface<T>
     {
     public:
-        /**
-         * The type of the data.
-         */
-        typedef T DataType;
+        typedef typename DataObjectInterface<T>::value_t value_t;
+        typedef typename DataObjectInterface<T>::reference_t reference_t;
+        typedef typename DataObjectInterface<T>::param_t param_t;
+
+        typedef typename DataObjectBase::Options Options;
 
         /**
          * @brief The maximum number of threads.
-         *
-         * When used in data flow, this is always 2.
          */
-        const unsigned int MAX_THREADS; // = 2
+        const unsigned int MAX_THREADS;
+
     private:
         /**
          * Conversion of number of threads to size of buffer.
@@ -104,11 +107,15 @@ namespace RTT
          */
         struct DataBuf {
             DataBuf()
-                : data(), counter(), next()
+                : data(), status(NoData), read_counter(), write_lock(), next()
             {
-                oro_atomic_set(&counter, 0);
+                oro_atomic_set(&read_counter, 0);
+                oro_atomic_set(&write_lock, -1);
             }
-            DataType data; mutable oro_atomic_t counter; DataBuf* next;
+            value_t data;
+            FlowStatus status;
+            mutable oro_atomic_t read_counter, write_lock;
+            DataBuf* next;
         };
 
         typedef DataBuf* volatile VolPtrType;
@@ -122,22 +129,41 @@ namespace RTT
          * A 3 element Data buffer
          */
         DataBuf* data;
+
+        bool initialized;
+
     public:
 
         /**
-         * Construct a DataObjectLockFree by name.
-         *
-         * @param _name The name of this DataObject.
-         * @param initial_value The initial value of this DataObject.
+         * Construct an uninitialized DataObjectLockFree.
+         * @param max_threads The maximum number of threads accessing this DataObject.
          */
-        DataObjectLockFree( const T& initial_value = T(), unsigned int max_threads = 2 )
-            : MAX_THREADS(max_threads), BUF_LEN( max_threads + 2),
+        DataObjectLockFree( const Options &options = Options() )
+            : MAX_THREADS(options.max_threads()), BUF_LEN( options.max_threads() + 2),
               read_ptr(0),
-              write_ptr(0)
+              write_ptr(0),
+              initialized(false)
         {
         	data = new DataBuf[BUF_LEN];
         	read_ptr = &data[0];
         	write_ptr = &data[1];
+        }
+
+        /**
+         * Construct a DataObjectLockFree.
+         * @param initial_value The initial value of this DataObject.
+         * @param max_threads The maximum number of threads accessing this DataObject.
+         * @note You have to specify the maximum number of threads explicitly
+         */
+        DataObjectLockFree( param_t initial_value, const Options &options = Options() )
+            : MAX_THREADS(options.max_threads()), BUF_LEN( options.max_threads() + 2),
+              read_ptr(0),
+              write_ptr(0),
+              initialized(false)
+        {
+            data = new DataBuf[BUF_LEN];
+            read_ptr = &data[0];
+            write_ptr = &data[1];
             data_sample(initial_value);
         }
 
@@ -148,11 +174,15 @@ namespace RTT
         /**
          * Get a copy of the data.
          * This method will allocate memory twice if data is not a value type.
-         * Use Get(DataType&) for the non-allocating version.
+         * Use Get(reference_t) for the non-allocating version.
          *
          * @return A copy of the data.
          */
-        virtual DataType Get() const {DataType cache; Get(cache); return cache; }
+        virtual value_t Get() const {
+            value_t cache = value_t();
+            Get(cache);
+            return cache;
+        }
 
         /**
          * Get a copy of the Data (non allocating).
@@ -160,27 +190,61 @@ namespace RTT
          * no memory will be allocated.
          *
          * @param pull A copy of the data.
+         * @param copy_old_data If true, also copy the data if the data object
+         *                      has not been updated since the last call.
+         * @param copy_sample   If true, copy the data unconditionally.
          */
-        virtual void Get( DataType& pull ) const
+        virtual FlowStatus Get( reference_t pull, bool copy_old_data, bool copy_sample ) const
         {
+            if (!initialized && !copy_sample) {
+                return NoData;
+            }
+
             PtrType reading;
             // loop to combine Read/Modify of counter
             // This avoids a race condition where read_ptr
             // could become write_ptr ( then we would read corrupted data).
             do {
                 reading = read_ptr;            // copy buffer location
-                oro_atomic_inc(&reading->counter); // lock buffer, no more writes
+                oro_atomic_inc(&reading->read_counter); // lock buffer, no more writes
                 // XXX smp_mb
                 if ( reading != read_ptr )     // if read_ptr changed,
-                    oro_atomic_dec(&reading->counter); // better to start over.
+                    oro_atomic_dec(&reading->read_counter); // better to start over.
                 else
                     break;
             } while ( true );
             // from here on we are sure that 'reading'
             // is a valid buffer to read from.
-            pull = reading->data;               // takes some time
+
+            // compare-and-swap FlowStatus field to make sure that only one reader
+            // returns NewData
+            FlowStatus result;
+            do {
+                result = reading->status;
+            } while((result != NoData) && !os::CAS(&reading->status, result, OldData));
+
+            if ((result == NewData) ||
+                ((result == OldData) && copy_old_data) || copy_sample) {
+                pull = reading->data;               // takes some time
+            }
+
             // XXX smp_mb
-            oro_atomic_dec(&reading->counter);       // release buffer
+            oro_atomic_dec(&reading->read_counter);       // release buffer
+            return result;
+        }
+
+        /**
+         * Get a copy of the Data (non allocating).
+         * If pull has reserved enough memory to store the copy,
+         * no memory will be allocated.
+         *
+         * @param pull A copy of the data.
+         * @param copy_old_data If true, also copy the data if the data object
+         *                      has not been updated since the last call.
+         */
+        virtual FlowStatus Get( reference_t pull, bool copy_old_data = true ) const
+        {
+            return Get( pull, copy_old_data, /* copy_sample = */ false );
         }
 
         /**
@@ -188,44 +252,118 @@ namespace RTT
          *
          * @param push The data which must be set.
          */
-        virtual void Set( const DataType& push )
+        virtual bool Set( param_t push )
         {
-            /**
-             * This method can not be called concurrently (only one
-             * producer). With a minimum of 3 buffers, if the
-             * write_ptr+1 field is not occupied, it will remain so
-             * because the read_ptr is at write_ptr-1 (and can
-             * not increment the counter on write_ptr+1). Hence, no
-             * locking is needed.
-             */
-            // writeout in any case
-            write_ptr->data = push;
-            PtrType wrote_ptr = write_ptr;
+            if (!initialized) {
+                log(Error) << "You set a lock-free data object of type " << internal::DataSourceTypeInfo<T>::getType() << " without initializing it with a data sample. "
+                           << "This might not be real-time safe." << endlog();
+                data_sample(value_t(), true);
+            }
+
+            PtrType writing = write_ptr;            // copy buffer location
+            if (!oro_atomic_inc_and_test(&writing->write_lock)) {
+                // abort, another thread already successfully locked this buffer element
+                oro_atomic_dec(&writing->write_lock);
+                return false;
+            }
+
+            // Additional check that resolves the following race condition:
+            //  - writer A copies the write_ptr and acquires the lock writing->write_lock
+            //  - writer B copies the write_ptr
+            //  - writer A continues to update and increments the write_ptr
+            //  - writer A releases the lock writing->write_lock
+            //  - writer B acquires the lock successfully, but for the same buffer element that already
+            //    has been written by writer A and can potentially be accessed by readers now!
+            if ( writing != write_ptr ) {
+                // abort, another thread already updated the write_ptr, which could imply that read_ptr == writing now
+                oro_atomic_dec(&writing->write_lock);
+                return false;
+            }
+            // from here on we are sure that 'writing'
+            // is a valid buffer to write to and we
+            // have exclusive access
+
+            // copy sample
+            writing->data = push;
+            writing->status = NewData;
+
             // if next field is occupied (by read_ptr or counter),
             // go to next and check again...
-            while ( oro_atomic_read( &write_ptr->next->counter ) != 0 || write_ptr->next == read_ptr )
+            PtrType next_write_ptr = writing->next;
+            while ( oro_atomic_read( &next_write_ptr->read_counter ) != 0 ||
+                    next_write_ptr == read_ptr )
                 {
-                    write_ptr = write_ptr->next;
-                    if (write_ptr == wrote_ptr)
-                        return; // nothing found, to many readers !
+                    next_write_ptr = next_write_ptr->next;
+                    if (next_write_ptr == writing) {
+                        oro_atomic_dec(&writing->write_lock);
+                        return false; // nothing found, too many readers !
+                    }
                 }
 
             // we will be able to move, so replace read_ptr
-            read_ptr  = wrote_ptr;
-            write_ptr = write_ptr->next; // we checked this in the while loop
+            read_ptr  = writing;
+            write_ptr = next_write_ptr; // we checked this in the while loop
+            oro_atomic_dec(&writing->write_lock);
+            return true;
         }
 
-        virtual void data_sample( const DataType& sample ) {
-            // prepare the buffer.
-            for (unsigned int i = 0; i < BUF_LEN-1; ++i) {
-                data[i].data = sample;
-                data[i].next = &data[i+1];
+        virtual bool data_sample( param_t sample, bool reset = true ) {
+            if (!initialized || reset) {
+                // prepare the buffer.
+                for (unsigned int i = 0; i < BUF_LEN; ++i) {
+                    data[i].data = sample;
+                    data[i].status = NoData;
+                    data[i].next = &data[i+1];
+                }
+                data[BUF_LEN-1].next = &data[0];
+                initialized = true;
+                return true;
+            } else {
+                return initialized;
             }
-            data[BUF_LEN-1].data = sample;
-            data[BUF_LEN-1].next = &data[0];
+        }
+
+        /**
+         * Reads back a data sample.
+         */
+        virtual value_t data_sample() const {
+            value_t sample;
+            (void) Get(sample, /* copy_old_data = */ true, /* copy_sample = */ true);
+            return sample;
+        }
+
+        // This is actually a copy of Get(), but it only sets the status to NoData once a valid buffer has been found.
+        // Subsequent read() calls will read from the same buffer and will return NoData until a new sample has been written.
+        virtual void clear() {
+            if (!initialized) return;
+
+            PtrType reading;
+            // loop to combine Read/Modify of counter
+            // This avoids a race condition where read_ptr
+            // could become write_ptr ( then we would read corrupted data).
+            do {
+                reading = read_ptr;            // copy buffer location
+                oro_atomic_inc(&reading->read_counter); // lock buffer, no more writes
+                // XXX smp_mb
+                if ( reading != read_ptr )     // if read_ptr changed,
+                    oro_atomic_dec(&reading->read_counter); // better to start over.
+                else
+                    break;
+            } while ( true );
+            // from here on we are sure that 'reading'
+            // is a valid buffer to read from.
+
+            // compare-and-swap FlowStatus field to avoid the race condition
+            // where a reader replaces it by OldData
+            FlowStatus result;
+            do {
+                result = reading->status;
+            } while(!os::CAS(&reading->status, result, NoData));
+
+            // XXX smp_mb
+            oro_atomic_dec(&reading->read_counter);       // release buffer
         }
     };
 }}
 
 #endif
-

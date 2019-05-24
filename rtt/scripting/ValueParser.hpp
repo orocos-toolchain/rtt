@@ -57,7 +57,7 @@ namespace RTT
      */
   class ValueParser
   {
-    rule_t constant, const_float, const_double, const_int, const_uint, const_bool, named_constant,
+    rule_t constant, const_float, const_double, const_int, const_uint, const_llong, const_ullong, const_bool, named_constant,
       const_string, const_char, const_hex;
     CommonParser& commonparser;
     PeerParser peerparser;
@@ -86,6 +86,8 @@ namespace RTT
     void seenintconstant( int c );
     void seenhexconstant( unsigned int c );
     void seenuintconstant( unsigned int c ); // RobWork uint -> unsigned int
+    void seenllongconstant( long long c );
+    void seenullongconstant( unsigned long long c );
     void seencharconstant( iter_t c );
     void seenfloatconstant( double c );
     void seendoubleconstant( double c );
@@ -94,7 +96,6 @@ namespace RTT
     void seennull();
     void seenpeer();
 
-      TaskContext* context;
   public:
       ValueParser( TaskContext* tc, CommonParser& cp );
 

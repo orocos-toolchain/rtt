@@ -86,37 +86,49 @@ namespace RTT
 
         /**
          * introspect a property of type bool.
-         * @param v The property to be introspectd.
+         * @param v The property to be introspected.
          */
         virtual void introspect(Property<bool> &v) = 0;
 
         /**
          * introspect a property of type char.
-         * @param v The property to be introspectd.
+         * @param v The property to be introspected.
          */
         virtual void introspect(Property<char> &v) = 0;
 
         /**
          * introspect a property of type int.
-         * @param v The property to be introspectd.
+         * @param v The property to be introspected.
          */
         virtual void introspect(Property<int> &v) = 0;
 
         /**
          * introspect a property of type unsigned int.
-         * @param v The property to be introspectd.
+         * @param v The property to be introspected.
          */
         virtual void introspect(Property<unsigned int> &v) = 0;
 
         /**
+         * introspect a property of type long long.
+         * @param v The property to be introspected.
+         */
+        virtual void introspect(Property<long long> &v) = 0;
+
+        /**
+         * introspect a property of type unsigned long long.
+         * @param v The property to be introspected.
+         */
+        virtual void introspect(Property<unsigned long long> &v) = 0;
+
+        /**
          * introspect a property of type double.
-         * @param v The property to be introspectd.
+         * @param v The property to be introspected.
          */
         virtual void introspect(Property<double> &v) = 0;
 
         /**
          * introspect a property of type string.
-         * @param v The property to be introspectd.
+         * @param v The property to be introspected.
          */
         virtual void introspect(Property<std::string> &v) = 0;
 

@@ -130,7 +130,12 @@ RTT_corba_CConfigurationInterface_i::~RTT_corba_CConfigurationInterface_i (void)
     vector<string> names = mar->getAttributeNames();
     ret->length( names.size() );
     for(size_t i=0; i != names.size(); ++i)
-        ret[i] = CORBA::string_dup( names[i].c_str() );
+    {
+        base::DataSourceBase::shared_ptr ds = getAttributeDataSource(names[i]);
+        ret[i].name = CORBA::string_dup( names[i].c_str() );
+        ret[i].type_name = CORBA::string_dup( ds->getTypeName().c_str() );
+        ret[i].assignable = ds->isAssignable();
+    }
     return ret._retn();
 }
 
@@ -152,6 +157,7 @@ RTT_corba_CConfigurationInterface_i::~RTT_corba_CConfigurationInterface_i (void)
         ::RTT::corba::CConfigurationInterface::CProperty prop;
         prop.name = CORBA::string_dup( it->c_str() );
         prop.description = CORBA::string_dup( dit->c_str() );
+        prop.type_name = getPropertyType((*it).c_str());
         ret[index] = prop;
     }
     return ret._retn();

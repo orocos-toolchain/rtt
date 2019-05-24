@@ -64,12 +64,28 @@ static __inline__ void oro_atomic_add( oro_atomic_t *v, int i)
 		:"ir" (i), "m" (v->counter));
 }
 
+static __inline__ int oro_atomic_add_return( oro_atomic_t *v, int i)
+{
+  /* Modern 486+ processor */
+	int __i = i;
+	__asm__ __volatile__(
+		ORO_LOCK "xaddl %0, %1"
+		: "+r" (i), "+m" (v->counter)
+		: : "memory");
+	return i + __i;
+}
+
 static __inline__ void oro_atomic_sub( oro_atomic_t *v, int i)
 {
 	__asm__ __volatile__(
 		ORO_LOCK "subl %1,%0"
 		:"=m" (v->counter)
 		:"ir" (i), "m" (v->counter));
+}
+
+static __inline__ int oro_atomic_sub_return( oro_atomic_t *v, int i)
+{
+	return oro_atomic_add_return( v, -i );
 }
 
 static __inline__ void oro_atomic_inc(oro_atomic_t *v)
@@ -87,6 +103,9 @@ static __inline__ void oro_atomic_dec(oro_atomic_t *v)
 		:"=m" (v->counter)
 		:"m" (v->counter));
 }
+
+#define oro_atomic_inc_return(v) (oro_atomic_add_return(v, 1))
+#define oro_atomic_dec_return(v) (oro_atomic_sub_return(v, 1))
 
 static __inline__ int oro_atomic_dec_and_test(oro_atomic_t *v)
 {

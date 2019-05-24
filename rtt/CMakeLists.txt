@@ -99,6 +99,9 @@ OPTION(PLUGINS_ENABLE_SCRIPTING "Enable loading Orocos program scripts." ON)
 ### RTT-Typekit
 OPTION(PLUGINS_ENABLE_TYPEKIT "Enable default RTT typekit plugin." ON)
 
+### Orocos Device Interfaces
+OPTION(ENABLE_OROCOS_DEVICE_INTERFACES "Include Orocos Device Interface classes" OFF)
+
 ### TaskContext & Activities
 OPTION(ORO_ACT_DEFAULT_ACTIVITY "Create default Activity object (thread) for each created TaskContext." ON)
 CMAKE_DEPENDENT_OPTION(ORO_ACT_DEFAULT_SEQUENTIAL "Make the default activity a SequentialActivity (not-threaded) for each created TaskContext." OFF "ORO_ACT_DEFAULT_ACTIVITY" OFF)
@@ -244,3 +247,20 @@ IF(BUILD_STATIC)
           ARCHIVE DESTINATION lib )
 ENDIF(BUILD_STATIC)
 
+### LTTNG UST Traces 
+IF (OROCOS_TARGET STREQUAL "gnulinux")
+  option(OROBLD_ENABLE_LTTNG "Enable tracing support with lttng-ust" OFF)
+  if (OROBLD_ENABLE_LTTNG)
+    find_path(Lttng_ust_INCLUDE_DIRS "lttng/tracepoint.h")
+    find_library(Lttng_ust_LIBRARIES NAMES "lttng-ust")
+    if (Lttng_ust_INCLUDE_DIRS AND Lttng_ust_LIBRARIES)
+      message(STATUS "lttng-ust tracing support enabled")
+      include_directories(${Lttng_ust_INCLUDE_DIRS})
+      target_link_libraries(orocos-rtt-${OROCOS_TARGET}_dynamic ${Lttng_ust_LIBRARIES})
+      add_definitions("-DHAVE_LTTNG_UST")
+      add_subdirectory( os/gnulinux/traces )
+    else()
+      message(FATAL_ERROR "could not find lttng-ust headers and libraries, necessary for lttng support")
+    endif()
+  endif()
+endif()

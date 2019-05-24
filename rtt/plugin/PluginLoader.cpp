@@ -94,15 +94,6 @@ static const std::string delimiters(":;");
 static const std::string default_delimiter(":");
 # endif
 
-// define RTT_UNUSED macro
-#ifndef RTT_UNUSED
-  #ifdef __GNUC__
-    #define RTT_UNUSED __attribute__((unused))
-  #else
-    #define RTT_UNUSED
-  #endif
-#endif
-
 /** Determine whether a file extension is actually part of a library version
 
     @return true if \a ext satisfies "^\.[:digit:]+$"
@@ -371,9 +362,15 @@ bool PluginLoader::loadService(string const& servicename, TaskContext* tc) {
                 }
             } else {
                 // loadPlugin( 0 ) was already called. So drop the service in the global service.
-                if (it->is_service)
+                if (it->is_service) {
                     try {
-                        return internal::GlobalService::Instance()->addService( it->createService()  );
+                        Service::shared_ptr service = it->createService();
+                        if (service) {
+                            return internal::GlobalService::Instance()->addService( service );
+                        } else {
+                            log(Error) << "Service " << servicename << " cannot be loaded into the global service." << endlog();
+                            return false;
+                        }
                     } catch(std::exception& e) {
                         log(Error) << "Service "<< servicename <<" threw an exception during loading in global service." << endlog();
                         log(Error) << "Exception: "<< e.what() << endlog();
@@ -382,10 +379,14 @@ bool PluginLoader::loadService(string const& servicename, TaskContext* tc) {
                         log(Error) << "Service "<< servicename <<" threw an unknown exception during loading in global service. " << endlog();
                         return false;
                     }
-                log(Error) << "Plugin "<< servicename << " was found, but it's not a Service." <<endlog();
+                } else {
+                    log(Error) << "Plugin "<< servicename << " was found, but it's not a Service." <<endlog();
+                    return false;
+                }
             }
         }
     }
+
     log(Error) << "No such service or plugin: '"<< servicename << "'"<< endlog();
     return false;
 }

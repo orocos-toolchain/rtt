@@ -15,6 +15,28 @@ module RTT
     module corba
     {
 
+    interface CService;
+    struct CServiceDescription;
+    typedef sequence<CService> CServices;
+    typedef sequence<CServiceDescription> CServiceDescriptions;
+
+    /**
+     * Complete description of a Service
+     * @ingroup CompIDL
+     */
+    struct CServiceDescription
+    {
+        string name;
+        string description;
+        COperationInterface::COperationDescriptions operations;
+        CConfigurationInterface::CPropertyNames properties;
+        CConfigurationInterface::CAttributeNames attributes;
+        CDataFlowInterface::CPortDescriptions ports;
+
+        CServices children;
+        CServiceDescriptions children_descriptions;
+    };
+
 	/**
 	 * An Orocos Service which hosts operations, attributes and properties.
 	 * @ingroup CompIDL
@@ -31,7 +53,13 @@ module RTT
 	    /**
 	     * Return the description of this service.
 	     */
-	    string getServiceDescription();
+        string getServiceDescription();
+
+        /**
+         * Return the full description of this service
+         * that includes all Service objects
+         */
+        CServiceDescription getCServiceDescription();
 
 	    /**
 	     * Get a list of all the child services this service offers.

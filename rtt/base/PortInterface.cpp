@@ -40,21 +40,33 @@
 #include "../Service.hpp"
 #include "../OperationCaller.hpp"
 #include "../internal/ConnFactory.hpp"
+#include "../TaskContext.hpp"
+#include <cstring>
 
 using namespace RTT;
 using namespace RTT::detail;
 using namespace std;
 
 PortInterface::PortInterface(const std::string& name)
-    : name(name), iface(0) {}
+    : name(name), fullName(name), iface(0), cmanager(this) {}
 
-bool PortInterface::setName(const std::string& name)
-{
+PortInterface::~PortInterface() {}
+
+bool PortInterface::setName(const std::string& name) {
     if ( !connected() ) {
         this->name = name;
+        updateFullName();
         return true;
     }
     return false;
+}
+
+void PortInterface::updateFullName() {
+    DataFlowInterface* dataflow = getInterface();
+    if (dataflow && dataflow->getOwner())
+        fullName = dataflow->getOwner()->getName() + "." + getName();
+    else
+        fullName = getName();
 }
 
 PortInterface& PortInterface::doc(const std::string& desc) {
@@ -62,6 +74,10 @@ PortInterface& PortInterface::doc(const std::string& desc) {
     if (iface)
         iface->setPortDescription(name, desc);
     return *this;
+}
+
+bool PortInterface::connectedTo(PortInterface* port) {
+    return cmanager.connectedTo(port);
 }
 
 bool PortInterface::isLocal() const
@@ -88,8 +104,14 @@ Service* PortInterface::createPortObject()
 #endif
 }
 
+bool PortInterface::removeConnection(ConnID* conn)
+{
+    return cmanager.removeConnection(conn);
+}
+
 void PortInterface::setInterface(DataFlowInterface* dfi) {
     iface = dfi;
+    updateFullName();
 }
 
 DataFlowInterface* PortInterface::getInterface() const
@@ -97,3 +119,7 @@ DataFlowInterface* PortInterface::getInterface() const
     return iface;
 }
 
+internal::SharedConnectionBase::shared_ptr PortInterface::getSharedConnection() const
+{
+    return cmanager.getSharedConnection();
+}

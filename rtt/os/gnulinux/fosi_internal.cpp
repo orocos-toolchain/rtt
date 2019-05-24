@@ -312,7 +312,12 @@ namespace RTT
 	}
 
 	INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask) {
-        pthread_join( mytask->thread, 0);
+        int ret = pthread_join( mytask->thread, 0);
+        if (ret != 0) {
+            log(Error) << "Failed to join thread " << mytask->name << ": "
+                       << strerror(ret) << endlog();
+            return;
+        }
         pthread_attr_destroy( &(mytask->attr) );
 	    free(mytask->name);
         mytask->name = NULL;
