@@ -53,8 +53,8 @@
 # variables is recommended.
 #
 # Example usage:
-#  find_package(OROCOS-RTT 2.0.5 EXACT REQUIRED rtt-scripting foo) # Defines OROCOS-RTT_RTT-SCRIPTING_*
-#  find_package(OROCOS-RTT QUIET COMPONENTS rtt-transport-mqueue foo) # Defines OROCOS-RTT_RTT-TRANSPORT-MQUEUE_*
+#  find_package(OROCOS-RTT 2.0.5 EXACT REQUIRED rtt-scripting) # Defines OROCOS-RTT_RTT-SCRIPTING_*
+#  find_package(OROCOS-RTT QUIET COMPONENTS rtt-transport-mqueue) # Defines OROCOS-RTT_RTT-TRANSPORT-MQUEUE_*
 #
 ########################################################################################################################
 
@@ -159,19 +159,6 @@ set(OROCOS-RTT_DEFINITIONS "-DOROCOS_TARGET=${OROCOS_TARGET}")
 set(OROCOS-RTT_USE_FILE_PATH ${SELF_DIR})
 set(OROCOS-RTT_USE_FILE ${SELF_DIR}/UseOROCOS-RTT.cmake)
 
-# Confirm found, not cached !
-message(STATUS "Orocos-RTT found in ${OROCOS-RTT_IMPORT_FILE}")
-set(OROCOS-RTT_FOUND TRUE)
-
-endif()
-
-
-########################################################################################################################
-#
-# Components: This is called each time a find_package is done:
-#
-########################################################################################################################
-
 # Default component search path
 list(APPEND OROCOS-RTT_PLUGIN_PATH "${OROCOS-RTT_PLUGINS_PATH}"
                                       "${OROCOS-RTT_TYPES_PATH}")
@@ -186,6 +173,19 @@ endforeach()
 foreach(CUSTOM_COMPONENT_PATH ${ENV_RTT_COMPONENT_PATH})
   list(APPEND OROCOS-RTT_COMPONENT_PATH "${CUSTOM_COMPONENT_PATH}")
 endforeach()
+
+# Confirm found, not cached !
+message(STATUS "Orocos-RTT found in ${OROCOS-RTT_IMPORT_FILE}")
+set(OROCOS-RTT_FOUND TRUE)
+
+endif()
+
+
+########################################################################################################################
+#
+# Components: This is called each time a find_package is done:
+#
+########################################################################################################################
 
 # Find components
 foreach(COMPONENT ${OROCOS-RTT_FIND_COMPONENTS} ${Orocos-RTT_FIND_COMPONENTS})
@@ -240,3 +240,9 @@ if(NOT OROCOS-RTT_FIND_QUIETLY AND NOT Orocos-RTT_FIND_QUIETLY)
     message(STATUS "- Could NOT find requested orocos-rtt components:${MISSING_COMPONENTS}")
   endif()
 endif()
+
+# Reset temporary variables to not mess up with later invocations
+unset(FOUND_TRANSPORTS)
+unset(AVAILABLE_TRANSPORTS)
+unset(FOUND_COMPONENTS)
+unset(MISSING_COMPONENTS)

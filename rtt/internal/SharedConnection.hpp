@@ -148,7 +148,9 @@ namespace internal {
             : SharedConnectionBase(policy)
             , mstorage(storage)
             , mstorage_initialized(false)
-        {}
+        {
+            assert(policy.buffer_policy == Shared);
+        }
         virtual ~SharedConnection() {}
 
         using base::MultipleInputsMultipleOutputsChannelElement<T>::signal;

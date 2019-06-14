@@ -191,11 +191,9 @@ namespace RTT
         
         bool Push( param_t item)
         {
-            if ( capacity() == (size_type)bufs->size() ) {
-                if (!mcircular) {
-                    droppedSamples.inc();
-                    return false;
-                }
+            if (!mcircular && ( capacity() == (size_type)bufs->size() )) {
+                droppedSamples.inc();
+                return false;
                 // we will recover below in case of circular
             }
             Item* mitem = mpool->allocate();

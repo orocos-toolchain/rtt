@@ -294,18 +294,28 @@ template <typename T, PortTypes> struct Adaptor;
 
 #if !RTT_VERSION_GTE(2,8,99)
     typedef enum { WriteSuccess, WriteFailure, NotConnected } WriteStatus;
-    typedef enum { UnspecifiedReadPolicy, ReadUnordered, ReadShared } ReadPolicy;
-    typedef enum { UnspecifiedWritePolicy, WritePrivate, WriteShared } WritePolicy;
+    typedef enum { UnspecifiedBufferPolicy, PerConnection, PerInputPort, PerOutputPort, Shared } BufferPolicy;
 
     // dummy RTT v2.8.99 compatible ConnPolicy
     struct ConnPolicy : public RTT::ConnPolicy {
         static const bool PUSH = false;
         static const bool PULL = true;
 
-        ReadPolicy read_policy;
-        WritePolicy write_policy;
-        bool mandatory;
+        int buffer_policy;
         int max_threads;
+        bool mandatory;
+
+        ConnPolicy() :  RTT::ConnPolicy(), buffer_policy(), max_threads(), mandatory() {}
+        explicit ConnPolicy(int type) : RTT::ConnPolicy(type), buffer_policy(), max_threads(), mandatory() {}
+        explicit ConnPolicy(int type, int lock_policy) : RTT::ConnPolicy(type, lock_policy), buffer_policy(), max_threads(), mandatory() {}
+
+        ConnPolicy &operator==(const RTT::ConnPolicy &other) {
+            static_cast<RTT::ConnPolicy&>(*this) = other;
+            buffer_policy = 0;
+            max_threads = 0;
+            mandatory = false;
+            return *this;
+        }
     };
 
 #else
@@ -410,9 +420,9 @@ template <typename T, PortTypes> struct Adaptor;
         }
 
         std::string pull;
-        switch(cp.pull) {
-            case ConnPolicy::PUSH: pull = "PUSH"; break;
-            case ConnPolicy::PULL: pull = "PULL"; break;
+        switch(int(cp.pull)) {
+            case int(ConnPolicy::PUSH): pull = "PUSH"; break;
+            case int(ConnPolicy::PULL): pull = "PULL"; break;
         }
 
         os << pull << " ";
@@ -432,7 +442,11 @@ template <typename T, PortTypes> struct Adaptor;
 #endif
 
 struct CopyAndAssignmentCountedDetails {
-    CopyAndAssignmentCountedDetails() { oro_atomic_set(&copies, 0); oro_atomic_set(&assignments, 0); oro_atomic_set(&refcount, 0); }
+    CopyAndAssignmentCountedDetails() {
+        oro_atomic_set(&copies, 0);
+        oro_atomic_set(&assignments, 0);
+        oro_atomic_set(&refcount, 0);
+    }
     oro_atomic_t copies;
     oro_atomic_t assignments;
     oro_atomic_t refcount;
@@ -448,11 +462,54 @@ public:
     typedef Derived value_type;
     typedef CopyAndAssignmentCounted<Derived> this_type;
 
-    CopyAndAssignmentCounted() : Derived(), _counter_details(new CopyAndAssignmentCountedDetails) {}
-    CopyAndAssignmentCounted(const value_type &value) : Derived(value), _counter_details(new CopyAndAssignmentCountedDetails) {}
-    CopyAndAssignmentCounted(const this_type &other) : Derived(other), _counter_details(other._counter_details) { oro_atomic_inc(&(_counter_details->copies)); }
+    CopyAndAssignmentCounted()
+        : Derived(), sleep_usecs_during_assignment(0), _counter_details(new CopyAndAssignmentCountedDetails)
+    {
+        ORO_ATOMIC_SETUP(&_write_guard, 1);
+        ORO_ATOMIC_SETUP(&_read_guard, 1);
+    }
+    CopyAndAssignmentCounted(const value_type &value)
+        : Derived(value), sleep_usecs_during_assignment(0), _counter_details(new CopyAndAssignmentCountedDetails)
+    {
+        ORO_ATOMIC_SETUP(&_write_guard, 1);
+        ORO_ATOMIC_SETUP(&_read_guard, 1);
+    }
+    CopyAndAssignmentCounted(const this_type &other)
+        : Derived(other), sleep_usecs_during_assignment(0), _counter_details(other._counter_details)
+    {
+        ORO_ATOMIC_SETUP(&_write_guard, 1);
+        ORO_ATOMIC_SETUP(&_read_guard, 1);
+        oro_atomic_inc(&(_counter_details->copies));
+    }
+    ~CopyAndAssignmentCounted() {
+        ORO_ATOMIC_CLEANUP(&_write_guard);
+        ORO_ATOMIC_CLEANUP(&_read_guard);
+    }
+
     this_type &operator=(const value_type &) { throw std::runtime_error("Cannot assign CopyAndAssignmentCounted type from its value_type directly!"); }
-    this_type &operator=(const this_type &other) { static_cast<value_type &>(*this) = other; _counter_details = other._counter_details; oro_atomic_inc(&(_counter_details->assignments)); return *static_cast<this_type *>(this); }
+    this_type &operator=(const this_type &other) {
+        if (this == &other) return *this;
+
+        // lock guards to detect concurrent reading and writing
+        if (!oro_atomic_dec_and_test(&_write_guard))
+            throw std::runtime_error("Conflicting assignment detected: instance is concurrently being assigned by another thread!");
+        oro_atomic_inc(&other._read_guard);
+        if (!oro_atomic_dec_and_test(&_read_guard))
+            throw std::runtime_error("Conflicting assignment detected: instance being assigned is concurrently read by another thread!");
+
+        // copy
+        static_cast<value_type &>(*this) = other;
+        _counter_details = other._counter_details;
+        oro_atomic_inc(&(_counter_details->assignments));
+        if (sleep_usecs_during_assignment > 0) usleep(sleep_usecs_during_assignment);
+        if (other.sleep_usecs_during_assignment > 0) usleep(other.sleep_usecs_during_assignment);
+
+        // cleanup guards
+        oro_atomic_inc(&_read_guard);
+        oro_atomic_dec(&other._read_guard);
+        oro_atomic_inc(&_write_guard);
+        return *this;
+    }
 
     int getCopyCount() { return oro_atomic_read(&(_counter_details->copies)); }
     int getAssignmentCount() { return oro_atomic_read(&(_counter_details->assignments)); }
@@ -463,8 +520,13 @@ public:
 
     this_type detachedCopy() const { return this_type(static_cast<const value_type &>(*this)); }
 
+public:
+    int sleep_usecs_during_assignment;
+
 private:
     boost::intrusive_ptr<CopyAndAssignmentCountedDetails> _counter_details;
+    oro_atomic_t _write_guard;
+    mutable oro_atomic_t _read_guard;
 };
 
 template <typename T>
@@ -708,6 +770,10 @@ public:
         return *this;
     }
 
+    ~ReaderWriterTaskContextBase() {
+        BOOST_REQUIRE_MESSAGE(!this->inException(), exception_reason_);
+    }
+
     void afterUpdateHook(bool trigger)
     {
         bool finished = false;
@@ -731,6 +797,7 @@ public:
 
     void waitUntilFinished()
     {
+        if (inException()) return;
         MutexLock lock(mutex_);
         while(number_of_cycles_ < desired_number_of_cycles_) {
             finished_.wait(mutex_);
@@ -755,6 +822,8 @@ protected:
 
     std::size_t number_of_cycles_;
     std::size_t desired_number_of_cycles_;
+
+    std::string exception_reason_;
 };
 
 template <typename T, PortTypes PortType>
@@ -793,13 +862,18 @@ public:
 
     void updateHook()
     {
-        WriteStatus fs = WriteSuccess;
-        {
-            Timer::Section section(timer);
-            fs = AdaptorType::write(output_port, sample);
+        try {
+            WriteStatus fs = WriteSuccess;
+            {
+                Timer::Section section(timer);
+                fs = AdaptorType::write(output_port, sample);
+            }
+            timer_by_status[fs].updateFrom(timer);
+            this->afterUpdateHook(/* trigger = */ true);
+        } catch(std::exception &e) {
+            exception_reason_ = e.what();
+            throw;
         }
-        timer_by_status[fs].updateFrom(timer);
-        this->afterUpdateHook(/* trigger = */ true);
     }
 
     bool breakUpdateHook()
@@ -841,17 +915,22 @@ public:
 
     void updateHook()
     {
-        FlowStatus fs = NewData;
-        while(fs == NewData) {
-            {
-                Timer::Section section(timer);
-                fs = Adaptor<SampleType,PortType>::read(input_port, sample, copy_old_data_);
+        try {
+            FlowStatus fs = NewData;
+            while(fs == NewData) {
+                {
+                    Timer::Section section(timer);
+                    fs = Adaptor<SampleType,PortType>::read(input_port, sample, copy_old_data_);
+                }
+                timer_by_status[fs].updateFrom(timer);
+                if (!read_loop_) break;
             }
-            timer_by_status[fs].updateFrom(timer);
-            if (!read_loop_) break;
-        }
 
-        this->afterUpdateHook(/* trigger = */ false);
+            this->afterUpdateHook(/* trigger = */ false);
+        } catch(std::exception &e) {
+            exception_reason_ = e.what();
+            throw;
+        }
     }
 
     bool breakUpdateHook()
@@ -881,7 +960,8 @@ struct TestOptions {
     bool KeepLastWrittenValue;
     bool ReadLoop;
     bool CopyOldData;
-
+    int SleepUsecsDuringWriteAssignment;
+    int SleepUsecsDuringReadAssignment;
     int SchedulerType;
     int ThreadPriority;
     std::bitset<16> CpuAffinity;
@@ -896,6 +976,8 @@ struct TestOptions {
           KeepLastWrittenValue(false),
           ReadLoop(false),
           CopyOldData(false),
+          SleepUsecsDuringWriteAssignment(1),
+          SleepUsecsDuringReadAssignment(10),
           SchedulerType(ORO_SCHED_RT),
           ThreadPriority(HighestPriority),
           CpuAffinity(getDefaultCpuAffinity() & std::bitset<16>(0x000f)) // run with at most 4 cores
@@ -936,6 +1018,10 @@ std::ostream &operator<<(std::ostream &os, const TestOptions &options)
     os << " * Writers:                 " << options.NumberOfWriters << std::endl;
     os << " * Readers:                 " << options.NumberOfReaders << std::endl;
     os << " * Cycles:                  " << options.NumberOfCycles << std::endl;
+    os << " *" << std::endl;
+    os << " * Sleep during write:      " << options.SleepUsecsDuringWriteAssignment << " usecs" << std::endl;
+    os << " * Sleep during read:       " << options.SleepUsecsDuringReadAssignment << " usecs" << std::endl;
+    os << " *" << std::endl;
     os << " * Scheduler:               " << schedulerTypeToString(options.SchedulerType) << std::endl;
     os << " * Priority:                " << options.ThreadPriority << std::endl;
     os << " * CPU affinity:            " << options.CpuAffinity << " (" << options.CpuAffinity.count() << " cores)" << std::endl;
@@ -985,20 +1071,12 @@ public:
     Readers readers;
     Tasks tasks;
 
-    TestRunner(const std::string &name, const TestOptions &options)
+    TestRunner(const TestOptions &options)
         : options_(options)
     {
-#if RTT_VERSION_GTE(2,8,99)
-        if ((options_.policy.buffer_policy == PerInputPort || options_.policy.buffer_policy == Shared) &&
-            options_.policy.type == ConnPolicy::DATA &&
-            options_.policy.lock_policy == ConnPolicy::LOCK_FREE) {
-            options_.policy.lock_policy = ConnPolicy::LOCKED;
-            log(Warning) << "Falling back to locking policy LOCKED for a shared input data object connection!" << endlog();
-        }
-#endif
 
         for(std::size_t index = 0; index < options_.NumberOfWriters; ++index) {
-            WriterPtr writer(new Writer<T,PortType>(name + "Writer", index, options_.SampleSize, options_.KeepLastWrittenValue));
+            WriterPtr writer(new Writer<T,PortType>("Writer", index, options_.SampleSize, options_.KeepLastWrittenValue));
             writers.push_back(writer);
             tasks.push_back(writer);
             switch(options_.WriteMode) {
@@ -1017,10 +1095,11 @@ public:
             default:
                 break;
             }
+            writer->sample.sleep_usecs_during_assignment = options.SleepUsecsDuringWriteAssignment;
         }
 
         for(std::size_t index = 0; index < options_.NumberOfReaders; ++index) {
-            ReaderPtr reader(new Reader<T,PortType>(name + "Reader", index, options_.ReadLoop, options_.CopyOldData));
+            ReaderPtr reader(new Reader<T,PortType>("Reader", index, options_.ReadLoop, options_.CopyOldData));
             readers.push_back(reader);
             tasks.push_back(reader);
             switch(options_.ReadMode) {
@@ -1038,6 +1117,7 @@ public:
             default:
                 break;
             }
+            reader->sample.sleep_usecs_during_assignment = options.SleepUsecsDuringReadAssignment;
         }
     }
 
@@ -1192,6 +1272,21 @@ public:
                   << "  " << std::setw(9) << total_write_timer_by_status[WriteSuccess].count()
                   << " " << std::setw(9) << total_write_timer_by_status[WriteFailure].count()
                   << std::endl;
+        std::cout << std::left
+                  << " " << std::setw(30) << "Average"
+                  << " " << std::setw(16) << ""
+                  << " " << std::setw(9)  << total_write_timer.count() / writers.size()
+                  << " " << std::setw(12) << total_write_timer.total().monotonic / writers.size()
+                  << " " << std::setw(12) << (total_write_timer.total().monotonic / total_write_timer.count()) / writers.size()
+                  << " " << std::setw(12) << total_write_timer.max().monotonic / writers.size()
+                  << " " << std::setw(12) << total_write_timer.total().cputime / writers.size()
+                  << " " << std::setw(12) << (total_write_timer.total().cputime / total_write_timer.count()) / writers.size()
+                  << " " << std::setw(12) << total_write_timer.max().cputime / writers.size()
+                  << " " << std::setw(9) << ""
+                  << " " << std::setw(9) << ""
+                  << "  " << std::setw(9) << total_write_timer_by_status[WriteSuccess].count() / writers.size()
+                  << " " << std::setw(9) << total_write_timer_by_status[WriteFailure].count() / writers.size()
+                  << std::endl;
         std::cout << std::endl;
 
         Timer total_read_timer;
@@ -1261,7 +1356,7 @@ public:
             total_read_timer_by_status[OldData] += (*task)->timer_by_status[OldData];
             total_read_timer_by_status[NoData] += (*task)->timer_by_status[NoData];
         }
-        std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+        std::cout << "---------------------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
         std::cout << std::left
                   << " " << std::setw(30) << "Total"
                   << " " << std::setw(16) << ""
@@ -1285,342 +1380,281 @@ private:
     TestOptions options_;
 };
 
-// Registers the test suite into the 'registry'
-BOOST_AUTO_TEST_SUITE( DataFlowPerformanceTest )
-
-BOOST_AUTO_TEST_CASE( dataConnections )
-{
+template <PortTypes PortType, typename Enabled = void>
+struct DataFlowPerformanceTest_ {
     TestOptions options;
-    const PortTypes PortType = DataPortType;
     typedef TestRunner<SampleType,PortType> RunnerType;
+    typename RunnerType::shared_ptr runner;
 
+    DataFlowPerformanceTest_();
+    void run() {
+        std::cout << runner->getOptions();
+        BOOST_CHECK( runner->connectAll() );
+        BOOST_CHECK( runner->run() );
+
+        runner->printStats();
+        std::cout << std::endl;
+    }
+};
+
+template <>
+DataFlowPerformanceTest_<DataPortType>::DataFlowPerformanceTest_()
+{
     options.policy.type = ConnPolicy::DATA;
-    options.policy.lock_policy = ConnPolicy::LOCK_FREE;
-
-#if (RTT_VERSION_MAJOR >= 2)
-    // 7 writers, 1 reader, PerConnection
-    {
-        options.NumberOfWriters = 7;
-        options.NumberOfReaders = 1;
-        options.policy.buffer_policy = PerConnection;
-        RunnerType::shared_ptr runner(new RunnerType("dataPerConnection", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-#endif
-
-#if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 7 writers, 1 reader, PerInputPort
-    {
-        options.NumberOfWriters = 7;
-        options.NumberOfReaders = 1;
-        options.policy.buffer_policy = PerInputPort;
-        RunnerType::shared_ptr runner(new RunnerType("dataPerInputPort", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-#endif
-
-#if (RTT_VERSION_MAJOR >= 2)
-    // 1 writer, 7 readers, PerConnection
-    {
-        options.NumberOfWriters = 1;
-        options.NumberOfReaders = 7;
-        options.policy.buffer_policy = PerConnection;
-        RunnerType::shared_ptr runner(new RunnerType("dataPerConnection", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-#endif
-
-#if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 1 writer, 7 readers, PerOutputPort
-    {
-        options.NumberOfWriters = 1;
-        options.NumberOfReaders = 7;
-        options.policy.buffer_policy = PerOutputPort;
-        RunnerType::shared_ptr runner(new RunnerType("dataPerOutputPort", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-#endif
-
-#if (RTT_VERSION_MAJOR >= 2)
-    // 4 writers, 4 readers, PerConnection
-    {
-        options.NumberOfWriters = 4;
-        options.NumberOfReaders = 4;
-        options.policy.buffer_policy = PerConnection;
-        RunnerType::shared_ptr runner(new RunnerType("dataPerConnection", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-
-#if RTT_VERSION_GTE(2,8,99)
-    // 4 writers, 4 readers, PerInputPort
-    {
-        options.NumberOfWriters = 4;
-        options.NumberOfReaders = 4;
-        options.policy.buffer_policy = PerInputPort;
-        RunnerType::shared_ptr runner(new RunnerType("dataPerInputPort", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-
-    // 4 writers, 4 readers, PerOutputPort
-    {
-        options.NumberOfWriters = 4;
-        options.NumberOfReaders = 4;
-        options.policy.buffer_policy = PerOutputPort;
-        RunnerType::shared_ptr runner(new RunnerType("dataPerOutputPort", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-#endif
-#endif
-
-#if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 4 writers, 4 readers, Shared
-    {
-        options.NumberOfWriters = 4;
-        options.NumberOfReaders = 4;
-        options.policy.buffer_policy = Shared;
-        RunnerType::shared_ptr runner(new RunnerType("dataShared", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-#endif
+//    options.policy.lock_policy = ConnPolicy::LOCK_FREE;
 }
 
-BOOST_AUTO_TEST_CASE( bufferConnections )
+template <>
+DataFlowPerformanceTest_<BufferPortType>::DataFlowPerformanceTest_()
 {
-    TestOptions options;
-    const PortTypes PortType = BufferPortType;
-    typedef TestRunner<SampleType,PortType> RunnerType;
-
     options.policy.type = ConnPolicy::BUFFER;
     options.policy.size = 100;
-    options.policy.lock_policy = ConnPolicy::LOCK_FREE;
-
-#if (RTT_VERSION_MAJOR >= 2)
-    // 7 writers, 1 reader, PerConnection
-    {
-        options.NumberOfWriters = 7;
-        options.NumberOfReaders = 1;
-        options.policy.buffer_policy = PerConnection;
-        RunnerType::shared_ptr runner(new RunnerType("bufferPerConnection", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-#endif
-
-#if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 7 writers, 1 reader, PerInputPort
-    {
-        options.NumberOfWriters = 7;
-        options.NumberOfReaders = 1;
-        options.policy.buffer_policy = PerInputPort;
-        RunnerType::shared_ptr runner(new RunnerType("bufferPerInputPort", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-#endif
-
-#if (RTT_VERSION_MAJOR >= 2)
-    // 1 writer, 7 readers, PerConnection
-    {
-        options.NumberOfWriters = 1;
-        options.NumberOfReaders = 7;
-        options.policy.buffer_policy = PerConnection;
-        RunnerType::shared_ptr runner(new RunnerType("bufferPerConnection", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-#endif
-
-#if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 1 writer, 7 readers, PerOutputPort
-    {
-        options.NumberOfWriters = 1;
-        options.NumberOfReaders = 7;
-        options.policy.buffer_policy = PerOutputPort;
-        RunnerType::shared_ptr runner(new RunnerType("bufferPerOutputPort", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-#endif
-
-#if (RTT_VERSION_MAJOR >= 2)
-    // 4 writers, 4 readers, PerConnection
-    {
-        options.NumberOfWriters = 4;
-        options.NumberOfReaders = 4;
-        options.policy.buffer_policy = PerConnection;
-        RunnerType::shared_ptr runner(new RunnerType("bufferPerConnection", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-
-#if RTT_VERSION_GTE(2,8,99)
-    // 4 writers, 4 readers, PerInputPort
-    {
-        options.NumberOfWriters = 4;
-        options.NumberOfReaders = 4;
-        options.policy.buffer_policy = PerInputPort;
-        RunnerType::shared_ptr runner(new RunnerType("bufferPerInputPort", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-
-    // 4 writers, 4 readers, PerOutputPort
-    {
-        options.NumberOfWriters = 4;
-        options.NumberOfReaders = 4;
-        options.policy.buffer_policy = PerOutputPort;
-        RunnerType::shared_ptr runner(new RunnerType("bufferPerOutputPort", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-#endif
-#endif
-
-#if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 4 writers, 4 readers, Shared
-    {
-        options.NumberOfWriters = 4;
-        options.NumberOfReaders = 4;
-        options.policy.buffer_policy = Shared;
-        RunnerType::shared_ptr runner(new RunnerType("bufferShared", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
-#endif
+//    options.policy.lock_policy = ConnPolicy::LOCK_FREE;
 }
 
-BOOST_AUTO_TEST_CASE( emptyReads )
+struct EmptyReads;
+template <>
+DataFlowPerformanceTest_<DataPortType, EmptyReads>::DataFlowPerformanceTest_()
 {
-    TestOptions options;
-    const PortTypes PortType = DataPortType;
-    typedef TestRunner<SampleType,PortType> RunnerType;
+    options.policy.type = ConnPolicy::DATA;
+//    options.policy.lock_policy = ConnPolicy::LOCKED;
 
-    options.policy.lock_policy = ConnPolicy::LOCKED;
     options.WriteMode = TestOptions::NoWrite;
     options.ReadMode = TestOptions::ReadSynchronous;
+}
+
+// Registers the fixture into the 'registry'
+typedef DataFlowPerformanceTest_<DataPortType> DataFlowPerformanceTest_Data;
+BOOST_FIXTURE_TEST_SUITE( DataFlowPerformanceTest_Data_Suite, DataFlowPerformanceTest_Data )
 
 #if (RTT_VERSION_MAJOR >= 2)
-    // 7 writers, 1 reader, PerConnection
-    {
-        options.NumberOfWriters = 7;
-        options.NumberOfReaders = 1;
-        options.policy.buffer_policy = PerConnection;
-        RunnerType::shared_ptr runner(new RunnerType("emptyPerConnection", options));
+// 7 writers, 1 reader, PerConnection
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_Data_PerConnection_7Writers1Reader )
+{
+    options.NumberOfWriters = 7;
+    options.NumberOfReaders = 1;
+    options.policy.buffer_policy = PerConnection;
+    runner.reset(new RunnerType(options));
+    run();
+}
+#endif
 
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
+#if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
+// 7 writers, 1 reader, PerInputPort
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_Data_PerInputPort_7Writers1Reader )
+{
+    options.NumberOfWriters = 7;
+    options.NumberOfReaders = 1;
+    options.policy.buffer_policy = PerInputPort;
+    runner.reset(new RunnerType(options));
+    run();
+}
+#endif
 
-        runner->printStats();
-        std::cout << std::endl;
+#if (RTT_VERSION_MAJOR >= 2)
+// 1 writer, 7 readers, PerConnection
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_Data_PerConnection_1Writer7Readers )
+{
+    options.NumberOfWriters = 1;
+    options.NumberOfReaders = 7;
+    options.policy.buffer_policy = PerConnection;
+    runner.reset(new RunnerType(options));
+    run();
+}
+#endif
+
+#if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
+// 1 writer, 7 readers, PerOutputPort
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_Data_PerOutputPort_1Writer7Readers )
+{
+    options.NumberOfWriters = 1;
+    options.NumberOfReaders = 7;
+    options.policy.buffer_policy = PerOutputPort;
+    runner.reset(new RunnerType(options));
+    run();
+}
+#endif
+
+#if (RTT_VERSION_MAJOR >= 2)
+// 4 writers, 4 readers, PerConnection
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_Data_PerConnection_4Writers4Readers )
+{
+    options.NumberOfWriters = 4;
+    options.NumberOfReaders = 4;
+    options.policy.buffer_policy = PerConnection;
+    runner.reset(new RunnerType(options));
+    run();
+}
+
+#if RTT_VERSION_GTE(2,8,99)
+// 4 writers, 4 readers, PerInputPort
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_Data_PerInputPort_4Writers4Readers )
+{
+    options.NumberOfWriters = 4;
+    options.NumberOfReaders = 4;
+    options.policy.buffer_policy = PerInputPort;
+    runner.reset(new RunnerType(options));
+    run();
+}
+
+// 4 writers, 4 readers, PerOutputPort
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_Data_PerOutputPort_4Writers4Readers )
+{
+    options.NumberOfWriters = 4;
+    options.NumberOfReaders = 4;
+    options.policy.buffer_policy = PerOutputPort;
+    runner.reset(new RunnerType(options));
+    run();
+}
+#endif
+#endif
+
+#if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
+// 4 writers, 4 readers, Shared
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_Data_Shared_4Writers4Readers )
+{
+    options.NumberOfWriters = 4;
+    options.NumberOfReaders = 4;
+    options.policy.buffer_policy = Shared;
+    runner.reset(new RunnerType(options));
+    run();
+}
+#endif
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// Registers the fixture into the 'registry'
+typedef DataFlowPerformanceTest_<BufferPortType> DataFlowPerformanceTest_Buffer;
+BOOST_FIXTURE_TEST_SUITE( DataFlowPerformanceTest_Buffer_Suite, DataFlowPerformanceTest_Buffer )
+
+#if (RTT_VERSION_MAJOR >= 2)
+// 7 writers, 1 reader, PerConnection
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_Buffer_PerConnection_7Writers1Reader )
+{
+      options.NumberOfWriters = 7;
+      options.NumberOfReaders = 1;
+      options.policy.buffer_policy = PerConnection;
+      runner.reset(new RunnerType(options));
+
+      std::cout << runner->getOptions();
+      BOOST_CHECK( runner->connectAll() );
+      BOOST_CHECK( runner->run() );
+
+      runner->printStats();
+      std::cout << std::endl;
     }
 #endif
 
 #if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
-    // 7 writers, 1 reader, Shared
-    {
-        options.NumberOfWriters = 7;
-        options.NumberOfReaders = 1;
-        options.policy.buffer_policy = Shared;
-        RunnerType::shared_ptr runner(new RunnerType("emptyShared", options));
-
-        std::cout << runner->getOptions();
-        BOOST_CHECK( runner->connectAll() );
-        BOOST_CHECK( runner->run() );
-
-        runner->printStats();
-        std::cout << std::endl;
-    }
+// 7 writers, 1 reader, PerInputPort
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_Buffer_PerInputPort_7Writers1Reader )
+{
+    options.NumberOfWriters = 7;
+    options.NumberOfReaders = 1;
+    options.policy.buffer_policy = PerInputPort;
+    runner.reset(new RunnerType(options));
+    run();
+}
 #endif
+
+#if (RTT_VERSION_MAJOR >= 2)
+// 1 writer, 7 readers, PerConnection
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_Buffer_PerInputPort_1Writer7Readers )
+{
+    options.NumberOfWriters = 1;
+    options.NumberOfReaders = 7;
+    options.policy.buffer_policy = PerConnection;
+    runner.reset(new RunnerType(options));
+    run();
+}
+#endif
+
+#if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
+// 1 writer, 7 readers, PerOutputPort
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_Buffer_PerOutputPort_1Writer7Readers )
+{
+    options.NumberOfWriters = 1;
+    options.NumberOfReaders = 7;
+    options.policy.buffer_policy = PerOutputPort;
+    runner.reset(new RunnerType(options));
+    run();
+}
+#endif
+
+#if (RTT_VERSION_MAJOR >= 2)
+// 4 writers, 4 readers, PerConnection
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_Buffer_PerConnection_4Writers4Readers )
+{
+    options.NumberOfWriters = 4;
+    options.NumberOfReaders = 4;
+    options.policy.buffer_policy = PerConnection;
+    runner.reset(new RunnerType(options));
+    run();
 }
 
+#if RTT_VERSION_GTE(2,8,99)
+// 4 writers, 4 readers, PerInputPort
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_Buffer_PerInputPort_4Writers4Readers )
+{
+    options.NumberOfWriters = 4;
+    options.NumberOfReaders = 4;
+    options.policy.buffer_policy = PerInputPort;
+    runner.reset(new RunnerType(options));
+    run();
+}
+
+// 4 writers, 4 readers, PerOutputPort
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_Buffer_PerOutputPort_4Writers4Readers )
+{
+    options.NumberOfWriters = 4;
+    options.NumberOfReaders = 4;
+    options.policy.buffer_policy = PerOutputPort;
+    runner.reset(new RunnerType(options));
+    run();
+}
+#endif
+#endif
+
+#if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
+// 4 writers, 4 readers, Shared
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_Buffer_Shared_4Writers4Readers )
+{
+    options.NumberOfWriters = 4;
+    options.NumberOfReaders = 4;
+    options.policy.buffer_policy = Shared;
+    runner.reset(new RunnerType(options));
+    run();
+}
+#endif
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// Registers the fixture into the 'registry'
+typedef DataFlowPerformanceTest_<DataPortType, EmptyReads> DataFlowPerformanceTest_EmptyReads;
+BOOST_FIXTURE_TEST_SUITE( DataFlowPerformanceTest_EmptyReads_Suite, DataFlowPerformanceTest_EmptyReads )
+
+#if (RTT_VERSION_MAJOR >= 2)
+// 7 writers, 1 reader, PerConnection
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_EmptyReads_PerConnection_7Writers1Reader )
+{
+    options.NumberOfWriters = 7;
+    options.NumberOfReaders = 1;
+    options.policy.buffer_policy = PerConnection;
+    runner.reset(new RunnerType(options));
+    run();
+}
+#endif
+
+#if (RTT_VERSION_MAJOR == 1) || RTT_VERSION_GTE(2,8,99)
+// 7 writers, 1 reader, Shared
+BOOST_AUTO_TEST_CASE( DataFlowPerformanceTest_EmptyReads_Shared_7Writers1Reader )
+{
+    options.NumberOfWriters = 7;
+    options.NumberOfReaders = 1;
+    options.policy.buffer_policy = Shared;
+    runner.reset(new RunnerType(options));
+    run();
+}
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()

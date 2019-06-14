@@ -75,11 +75,9 @@ namespace RTT { namespace base {
     protected:
         shared_ptr input;
         shared_ptr output;
-        int buffer_policy;
 
         mutable RTT::os::SharedMutex input_lock;
         mutable RTT::os::SharedMutex output_lock;
-        mutable RTT::os::SharedMutex buffer_policy_lock;
 
     protected:
         /** Increases the reference count */
@@ -140,7 +138,7 @@ namespace RTT { namespace base {
          * Returns the last output channel element of this connection.
          * Will return the channel element the furthest away from the output port,
          * or \a this if none.
-         * @return getOutput() ? getOutput()->getInputEndPoint() : this
+         * @return getOutput() ? getOutput()->getOutputEndPoint() : this
          */
         virtual shared_ptr getOutputEndPoint();
 
@@ -172,7 +170,7 @@ namespace RTT { namespace base {
         /** Signals that there is new data available on this channel
          * Forwards to \ref signal() unless overwritten in a derived class.
          */
-        virtual bool signalFrom(ChannelElementBase *caller) { return signal(); }
+        virtual bool signalFrom(ChannelElementBase *) { return signal(); }
 
         /**
          * This is called on the output half of a new connection by the connection
@@ -236,22 +234,6 @@ namespace RTT { namespace base {
          * instance of ConnPolicy otherwise.
          */
         virtual const ConnPolicy* getConnPolicy() const;
-
-        /**
-         * Set the \ref BufferPolicy of this channel element.
-         * The BufferPolicy controls how reads and writes are handled for channel elements which have multiple connections.
-         * The policy can only be set once unless the force argument is set to true.
-         * @param policy the new buffer policy
-         * @param force overwrite a buffer policy set previously
-         * @return true if the given policy was successfully applied
-         */
-        virtual bool setBufferPolicy(int policy, bool force = false);
-
-        /**
-         * Returns the current \ref BufferPolicy of this channel element.
-         * @return a BufferPolicy instance
-         */
-        virtual BufferPolicy getBufferPolicy() const;
 
         RTT_DEPRECATED void setOutput(const ChannelElementBase::shared_ptr &output)
         {
@@ -355,7 +337,6 @@ namespace RTT { namespace base {
     protected:
         Inputs inputs;
         mutable RTT::os::SharedMutex inputs_lock;
-        ChannelElementBase *last_signalled;
 
     public:
         MultipleInputsChannelElementBase();

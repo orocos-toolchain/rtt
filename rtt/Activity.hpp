@@ -232,7 +232,7 @@ namespace RTT
          */
         bool mtimeout;
         bool mstopRequested;
-        bool mabswaitpolicy;
+        int mwaitpolicy;
     };
 
 }

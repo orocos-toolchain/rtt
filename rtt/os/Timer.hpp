@@ -75,8 +75,8 @@ namespace RTT
         typedef int TimerId;
     protected:
         base::ActivityInterface* mThread;
-        Semaphore msem;
-        mutable Mutex m;
+        Condition mcond;
+        mutable Mutex mmutex;
         typedef TimeService::nsecs Time;
 
         struct TimerInfo

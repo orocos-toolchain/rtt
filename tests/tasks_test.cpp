@@ -22,7 +22,9 @@
 #include "tasks_test.hpp"
 
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
+#include <vector>
 
 #include <extras/PeriodicActivity.hpp>
 #include <os/TimeService.hpp>
@@ -35,23 +37,49 @@ using namespace boost;
 using namespace RTT;
 using namespace RTT::detail;
 
-#define BOOST_CHECK_EQUAL_MESSAGE(M, v1, v2) BOOST_CHECK_MESSAGE( v1==v2, M)
+#define BOOST_CHECK_EQUAL_MESSAGE(v1, v2, M)   BOOST_CHECK_MESSAGE( v1==v2, M)
+#define BOOST_REQUIRE_EQUAL_MESSAGE(v1, v2, M) BOOST_REQUIRE_MESSAGE( v1==v2, M)
 
 struct TestOverrun
   : public RunnableInterface
 {
+  nsecs sleep_time;
   bool fini;
-  bool initialize() { fini = false; return true; }
+  std::vector<nsecs> wakeup_time;  // record wakeup times
+  std::vector<nsecs> additional_sleep_time;  // sleep ... additional nsecs in cycle i
+  unsigned int cycle;
+
+  TestOverrun()
+          : sleep_time(Seconds_to_nsecs(0.2)), fini(false), wakeup_time(3), additional_sleep_time(), cycle(0)
+  {
+  }
+
+  bool initialize() {
+      sleep_time = Seconds_to_nsecs(0.2);
+      fini = false;
+      wakeup_time.assign(wakeup_time.size(), 0);
+      cycle = 0;
+      return true;
+  }
 
   void step() {
-      //requires that getPeriod() << 1
-      usleep(200*1000);
+      if (cycle < wakeup_time.size())
+      {
+          wakeup_time[cycle] = os::TimeService::Instance()->getNSecs();
+      }
+      if (cycle < additional_sleep_time.size() && additional_sleep_time[cycle] > 0) {
+          usleep(additional_sleep_time[cycle]/1000);
+      }
+      ++cycle;
+
+      //requires that getPeriod() << sleep_time
+      usleep(sleep_time/1000);
       // Tried to implement it like this for Xenomai, but the
       // underlying rt_task_sleep function always returns immediately
       // and returns zero (success). A plain usleep still works.
 #if 0
       TIME_SPEC timevl;
-      timevl = ticks2timespec( nano2ticks(200*1000*1000) );
+      timevl = ticks2timespec( nano2ticks(sleep_time) );
       rtos_nanosleep( &timevl, 0);
 #endif
   }
@@ -270,15 +298,13 @@ BOOST_AUTO_TEST_CASE( testFailInit )
 
 }
 
-#if !defined( OROCOS_TARGET_WIN32 )  && !defined(OROCOS_TARGET_LXRT)
-BOOST_AUTO_TEST_CASE( testOverrun )
+BOOST_AUTO_TEST_CASE( testMaxOverrun )
 {
-  bool r = false;
   // create
   boost::scoped_ptr<TestOverrun> run( new TestOverrun() );
   boost::scoped_ptr<Activity> t( new Activity(25, 0.1, 0,"ORThread") );
-  //BOOST_CHECK_EQUAL(25,t->getPriority() );
-  BOOST_CHECK_EQUAL(0.1,t->getPeriod() );
+  BOOST_REQUIRE_EQUAL(0.1,t->getPeriod() );
+
   t->thread()->setMaxOverrun(1);
 
   t->run( run.get() );
@@ -294,16 +320,76 @@ BOOST_AUTO_TEST_CASE( testOverrun )
   usleep(400*1000);
   Logger::log().setLogLevel(ll);
 
-  r = !t->isRunning();
-
-  t->run(0);
-
-  BOOST_REQUIRE_MESSAGE( r, "Failed to detect step overrun in Thread");
-
+  BOOST_REQUIRE_MESSAGE( !t->isRunning(), "Failed to detect step overrun in Thread");
   BOOST_CHECK_MESSAGE( run->fini, "Failed to execute finalize in emergencyStop" );
-
 }
-#endif
+
+static const nsecs WaitPeriodPolicyTolerance = Seconds_to_nsecs(0.01);
+
+BOOST_AUTO_TEST_CASE( testDefaultWaitPeriodPolicy )
+{
+  // create
+  boost::scoped_ptr<TestOverrun> run( new TestOverrun() );
+  boost::scoped_ptr<Activity> t( new Activity(25, 0.3, 0,"ORThread") );
+  t->run( run.get() );
+  run->additional_sleep_time.resize(1);
+  run->additional_sleep_time[0] = Seconds_to_nsecs(0.2);
+  nsecs period = Seconds_to_nsecs(t->getPeriod()); (void) period;
+
+  // test default wait period policy (== ORO_WAIT_ABS)
+  BOOST_REQUIRE_MESSAGE( t->start(), "start thread");
+  // In Xenomai (2.5), the first usleep returns immediately.
+  // We can 'fix' this by adding a log() statement before usleep() .... crap
+  usleep(100*1000);
+  usleep(1000*1000);
+  BOOST_REQUIRE_MESSAGE( t->stop(), "stop thread");
+  BOOST_CHECK_SMALL( ((run->wakeup_time[1] - run->wakeup_time[0]) - Seconds_to_nsecs(0.4)), WaitPeriodPolicyTolerance ); // Second wakeup: 2 * sleep_time
+  BOOST_CHECK_SMALL( ((run->wakeup_time[2] - run->wakeup_time[1]) - Seconds_to_nsecs(0.2)), WaitPeriodPolicyTolerance ); // Third wakeup right after end of second step (ORO_WAIT_ABS)
+}
+
+BOOST_AUTO_TEST_CASE( testAbsoluteWaitPeriodPolicy )
+{
+  // create
+  boost::scoped_ptr<TestOverrun> run( new TestOverrun() );
+  boost::scoped_ptr<Activity> t( new Activity(25, 0.3, 0,"ORThread") );
+  t->run( run.get() );
+  run->additional_sleep_time.resize(1);
+  run->additional_sleep_time[0] = Seconds_to_nsecs(0.2);
+  nsecs period = Seconds_to_nsecs(t->getPeriod()); (void) period;
+
+  // test absolute wait period policy (ORO_WAIT_ABS)
+  t->setWaitPeriodPolicy(ORO_WAIT_ABS);
+  BOOST_REQUIRE_MESSAGE( t->start(), "start thread");
+  // In Xenomai (2.5), the first usleep returns immediately.
+  // We can 'fix' this by adding a log() statement before usleep() .... crap
+  usleep(100*1000);
+  usleep(1000*1000);
+  BOOST_REQUIRE_MESSAGE( t->stop(), "stop thread");
+  BOOST_CHECK_SMALL( ((run->wakeup_time[1] - run->wakeup_time[0]) - Seconds_to_nsecs(0.4)), WaitPeriodPolicyTolerance ); // Second wakeup: 2 * sleep_time (overrun)
+  BOOST_CHECK_SMALL( ((run->wakeup_time[2] - run->wakeup_time[1]) - Seconds_to_nsecs(0.2)), WaitPeriodPolicyTolerance ); // Third wakeup right after end of second step (ORO_WAIT_ABS)
+}
+
+BOOST_AUTO_TEST_CASE( testRelativeWaitPeriodPolicy )
+{
+  // create
+  boost::scoped_ptr<TestOverrun> run( new TestOverrun() );
+  boost::scoped_ptr<Activity> t( new Activity(25, 0.3, 0,"ORThread") );
+  t->run( run.get() );
+  run->additional_sleep_time.resize(1);
+  run->additional_sleep_time[0] = Seconds_to_nsecs(0.2);
+  nsecs period = Seconds_to_nsecs(t->getPeriod()); (void) period;
+
+  // test relative wait period policy (ORO_WAIT_REL)
+  t->setWaitPeriodPolicy(ORO_WAIT_REL);
+  BOOST_REQUIRE_MESSAGE( t->start(), "start thread");
+  // In Xenomai (2.5), the first usleep returns immediately.
+  // We can 'fix' this by adding a log() statement before usleep() .... crap
+  usleep(100*1000);
+  usleep(1000*1000);
+  BOOST_REQUIRE_MESSAGE( t->stop(), "stop thread");
+  BOOST_CHECK_SMALL( ((run->wakeup_time[1] - run->wakeup_time[0]) - Seconds_to_nsecs(0.4)), WaitPeriodPolicyTolerance ); // Second wakeup: 2 * sleep_time (overrun)
+  BOOST_CHECK_SMALL( ((run->wakeup_time[2] - run->wakeup_time[1]) - period), WaitPeriodPolicyTolerance ); // Third wakeup after period (ORO_WAIT_REL)
+}
 
 BOOST_AUTO_TEST_CASE( testThread )
 {
@@ -320,9 +406,8 @@ BOOST_AUTO_TEST_CASE( testThread )
   r = t->stop();
   BOOST_CHECK_MESSAGE( r, "Failed to stop Thread" );
   BOOST_CHECK_MESSAGE( run->stepped == true, "Step not executed" );
-  BOOST_CHECK_EQUAL_MESSAGE("Periodic Failure: period of step() too long !", run->overfail, 0);
-  BOOST_CHECK_EQUAL_MESSAGE("Periodic Failure: period of step() too short!", run->underfail, 0);
-  t->run(0);
+  BOOST_CHECK_EQUAL_MESSAGE(run->overfail, 0, "Periodic Failure: period of step() too long !");
+  BOOST_CHECK_EQUAL_MESSAGE(run->underfail, 0, "Periodic Failure: period of step() too short!");
 }
 
 #if defined( OROCOS_TARGET_GNULINUX )
@@ -338,16 +423,6 @@ void testAffinity2(boost::scoped_ptr<TestPeriodic>& run,
     BOOST_CHECK(t->setCpuAffinity(1 << targetCPU));
     BOOST_CHECK_EQUAL((1 << targetCPU), t->getCpuAffinity());
 
-    if ( t->getScheduler() == os::HighestPriority) {
-        r = t->start();
-        BOOST_CHECK_MESSAGE( r, "Failed to start Thread");
-        r = t->stop();
-        BOOST_CHECK_MESSAGE( r, "Failed to stop Thread");
-        BOOST_CHECK_MESSAGE( run->stepped == true, "Step not executed" );
-        BOOST_CHECK_EQUAL(targetCPU, run->cpu);
-        BOOST_CHECK_LT(0, run->succ);
-        run->reset();
-    }
     BOOST_CHECK_EQUAL(0, run->cpu);
     r = t->start();
     BOOST_CHECK_MESSAGE( r, "Failed to start Thread");
@@ -543,13 +618,21 @@ BOOST_AUTO_TEST_CASE( testAllocation )
 BOOST_AUTO_TEST_SUITE_END()
 
 #if defined( OROCOS_TARGET_GNULINUX ) && defined( ORO_HAVE_PTHREAD_SETNAME_NP )
-BOOST_AUTO_TEST_CASE( testThreadName )
+BOOST_AUTO_TEST_CASE( testThreadName1 )
 {
-    Activity activity(0, 0, "thread_name_34567890");
+    Activity activity(0, 0, "hello-world");
     RTT::os::ThreadInterface *thread = activity.thread();
     char buffer[256];
     pthread_getname_np(thread->getTask()->thread, buffer, sizeof(buffer));
-    BOOST_CHECK_EQUAL(std::string(buffer), std::string("d_name_34567890"));
+    BOOST_CHECK_EQUAL(std::string(buffer), std::string("hello-world"));
+}
+BOOST_AUTO_TEST_CASE( testThreadName2 )
+{
+    Activity activity(0, 0, "abcdefgXXXXX1234567");
+    RTT::os::ThreadInterface *thread = activity.thread();
+    char buffer[256];
+    pthread_getname_np(thread->getTask()->thread, buffer, sizeof(buffer));
+    BOOST_CHECK_EQUAL(std::string(buffer), std::string("abcdefg~1234567"));
 }
 #endif
 

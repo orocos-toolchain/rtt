@@ -47,8 +47,12 @@
 #include <boost/tuple/tuple.hpp>
 #include "internal/mystd.hpp"
 
-#define TRACE_INIT() Logger::In in( _name )
-#define TRACE(msg) if (mtrace) log(Info) << '[' << this->getStatusStr() << ']' << std::string(" ") + msg <<endlog()
+#define TRACE(msg) do {                                                                     \
+    if (!mtrace)                                                                            \
+      break;                                                                                \
+    Logger::In in( _name );                                                                 \
+    log(Info) << '[' << this->getStatusStr() << ']' << std::string(" ") + msg <<endlog();   \
+} while(0)
 
 namespace RTT {
     using namespace detail;
@@ -70,7 +74,6 @@ namespace RTT {
 
    StateMachine::~StateMachine()
     {
-       TRACE_INIT();
        if ( this->isLoaded() ){
            getEngine()->removeFunction(this);
        }
@@ -79,7 +82,6 @@ namespace RTT {
     }
 
    void StateMachine::loading() {
-       TRACE_INIT();
        TRACE( "Being Loaded in ExecutionEngine." );
        smStatus = Status::inactive;
        for(TransitionMap::iterator it=stateMap.begin(); it != stateMap.end(); ++it) {
@@ -103,7 +105,6 @@ namespace RTT {
    }
 
    void StateMachine::unloading() {
-       TRACE_INIT();
        TRACE( "Being unloaded from ExecutionEngine." );
            if ( this->isActive() == false)
                return;
@@ -171,7 +172,6 @@ namespace RTT {
     bool StateMachine::pause()
     {
         if ( smStatus != Status::inactive && smStatus != Status::unloaded ) {
-            TRACE_INIT();
             TRACE( "Will pause." );
             if (currentProg) {
                 currentProg->pause();
@@ -186,7 +186,6 @@ namespace RTT {
 
     bool StateMachine::step()
     {
-        TRACE_INIT();
         if ( smStatus == Status::paused && mstep == false ) {
             TRACE( "Will step." );
             mstep = true;
@@ -208,7 +207,6 @@ namespace RTT {
 
     bool StateMachine::automatic()
     {
-        TRACE_INIT();
         // if you go from reactive to automatic,
         // first execute the run program, before
         // evaluating transitions.
@@ -225,7 +223,6 @@ namespace RTT {
 
     bool StateMachine::reactive()
     {
-        TRACE_INIT();
         if ( smStatus != Status::inactive && smStatus != Status::unloaded && smStatus != Status::error ) {
             TRACE( "Will enter reactive mode." );
             smStatus = Status::active;
@@ -237,7 +234,6 @@ namespace RTT {
 
     bool StateMachine::stop()
     {
-        TRACE_INIT();
         if ( smStatus != Status::inactive && smStatus != Status::unloaded ) {
             TRACE( "Will stop." );
             smpStatus = gostop;
@@ -249,7 +245,6 @@ namespace RTT {
 
     bool StateMachine::reset()
     {
-        TRACE_INIT();
         // if waiting in final state, go ahead.
         if ( smStatus == Status::stopped ) {
             TRACE( "Will reset.");
@@ -262,8 +257,6 @@ namespace RTT {
 
     bool StateMachine::execute()
     {
-        TRACE_INIT();
-
         // before dealing with transitional states,
         // check if we're actually running.
         if (smStatus == Status::inactive || smStatus == Status::unloaded) {
@@ -382,7 +375,6 @@ namespace RTT {
 
     bool StateMachine::requestInitialState()
     {
-        TRACE_INIT();
         os::MutexLock lock(execlock);
         // all conditions that must be satisfied to enter the initial state :
         if ( interruptible() && ( current == initstate || current == finistate ) )
@@ -398,7 +390,6 @@ namespace RTT {
 
     bool StateMachine::requestFinalState()
     {
-        TRACE_INIT();
         os::MutexLock lock(execlock);
         // if we are inactive or in transition, don't do anything.
         if ( current == 0 || ( !inError() && !interruptible() ) ) {
@@ -416,7 +407,6 @@ namespace RTT {
     }
 
     void StateMachine::changeState(StateInterface* newState, ProgramInterface* transProg, bool stepping) {
-        TRACE_INIT();
         if ( newState == current )
             {
                 // this is only true if current state was selected in a transition of current.
@@ -479,7 +469,6 @@ namespace RTT {
     }
     void StateMachine::enableEvents( StateInterface* s )
     {
-//        TRACE_INIT();
 //        if (s) {
 //            TRACE("Enabling events for state '"+s->getName()+"'.");
 //        } else
@@ -494,7 +483,6 @@ namespace RTT {
     }
     void StateMachine::disableEvents( StateInterface* s )
     {
-//        TRACE_INIT();
 //        if (s) {
 //            TRACE("Disabling events for state '"+s->getName()+"'.");
 //        } else
@@ -572,7 +560,6 @@ namespace RTT {
 
     bool StateMachine::eventTransition(StateInterface* from, ConditionInterface* c, ProgramInterface* p, StateInterface* to, ProgramInterface* elsep, StateInterface* elseto )
     {
-        TRACE_INIT();
         // called by event to begin Transition to 'to'.
         // This interrupts the current run program at yield point
         // the transition and/or exit program can cleanup...
@@ -628,7 +615,6 @@ namespace RTT {
 
     StateInterface* StateMachine::requestNextState(bool stepping)
     {
-        TRACE_INIT();
         os::MutexLock lock(execlock);
         // bad idea, user, don't run this if we're not active...
         if( current == 0 )
@@ -911,7 +897,6 @@ namespace RTT {
                                       ConditionInterface* cnd, boost::shared_ptr<ProgramInterface> transprog,
                                       int priority, int line )
     {
-        TRACE_INIT();
         // we must be inactive.
         if ( current != 0)
             return;
@@ -942,7 +927,6 @@ namespace RTT {
     void StateMachine::leaveState( StateInterface* s )
     {
         assert(s);
-//        TRACE_INIT();
 //        TRACE( "Planning to leave state " + s->getName() );
         currentExit = s->getExitProgram();
         if ( currentExit ) {
@@ -954,7 +938,6 @@ namespace RTT {
 
     void StateMachine::runState( StateInterface* s )
     {
-        TRACE_INIT();
         assert(s);
         currentRun = s->getRunProgram();
         if ( currentRun ) {
@@ -978,7 +961,6 @@ namespace RTT {
     void StateMachine::enterState( StateInterface* s )
     {
         assert(s);
-//        TRACE_INIT();
 //        TRACE( "Planning to enter state " + s->getName() );
 
         // Before a state is entered, all transitions are reset !
@@ -996,7 +978,6 @@ namespace RTT {
 
     bool StateMachine::executePending( bool stepping )
     {
-        TRACE_INIT();
         // This function has great resposibility, since it acts like
         // a scheduler for pending requests. It tries to devise what to
         // do on basis of the contents of variables (like current*, next,...).
@@ -1127,7 +1108,6 @@ namespace RTT {
 
     bool StateMachine::executeProgram(ProgramInterface*& cp, bool stepping)
     {
-        TRACE_INIT();
         if ( cp == 0)
             return false;
         // execute this stateprogram and cleanup if needed.
@@ -1179,7 +1159,6 @@ namespace RTT {
 
     bool StateMachine::activate()
     {
-        TRACE_INIT();
         // inactive implies loaded, but check additionally if smp is at least active
         if ( smStatus != Status::inactive ) {
             TRACE("Won't activate: already active.");
@@ -1232,7 +1211,6 @@ namespace RTT {
 
     bool StateMachine::deactivate()
     {
-        TRACE_INIT();
         // the only time to refuse executing this is when we did set ourselves to inactive before.
         if ( smStatus == Status::inactive) {
             TRACE("Won't deactivate: already inactive.");

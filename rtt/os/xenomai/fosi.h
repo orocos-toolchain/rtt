@@ -135,8 +135,8 @@ static const double    InfiniteSeconds = DBL_MAX;
 #define ORO_SCHED_RT    0 /** Hard real-time */
 #define ORO_SCHED_OTHER 1 /** Soft real-time */
 
-#define ORO_WAIT_ABS 0 /** Not supported for the xenomai target */
-#define ORO_WAIT_REL 1 /** Not supported for the xenomai target */
+#define ORO_WAIT_ABS 0
+#define ORO_WAIT_REL 1
 
 // turn this on to have maximum detection of valid system calls.
 #ifdef OROSEM_OS_XENO_CHECK
@@ -286,14 +286,14 @@ static const double    InfiniteSeconds = DBL_MAX;
         return rt_mutex_delete(m);
     }
 
-    static inline int rtos_mutex_rec_init(rt_mutex_t* m)
+    static inline int rtos_mutex_rec_init(rt_rec_mutex_t* m)
     {
         CHK_XENO_CALL();
     // a Xenomai mutex is always recursive
         return rt_mutex_create(m, 0);
     }
 
-    static inline int rtos_mutex_rec_destroy(rt_mutex_t* m )
+    static inline int rtos_mutex_rec_destroy(rt_rec_mutex_t* m )
     {
         CHK_XENO_CALL();
         return rt_mutex_delete(m);
@@ -336,6 +336,12 @@ static const double    InfiniteSeconds = DBL_MAX;
 #endif
     }
 
+    static inline int rtos_mutex_trylock_for( rt_mutex_t* m, NANO_TIME relative_time)
+    {
+        CHK_XENO_CALL();
+        return rt_mutex_acquire(m, rt_timer_ns2ticks(relative_time) );
+    }
+
     static inline int rtos_mutex_unlock( rt_mutex_t* m)
     {
         CHK_XENO_CALL();
@@ -355,6 +361,11 @@ static const double    InfiniteSeconds = DBL_MAX;
     static inline int rtos_mutex_rec_lock_until( rt_rec_mutex_t* m, NANO_TIME abs_time)
     {
         return rtos_mutex_lock_until(m, abs_time);
+    }
+
+    static inline int rtos_mutex_rec_trylock_for( rt_rec_mutex_t* m, NANO_TIME relative_time)
+    {
+        return rtos_mutex_trylock_for(m, relative_time);
     }
 
     static inline int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)

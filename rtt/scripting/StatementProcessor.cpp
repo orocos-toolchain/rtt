@@ -53,7 +53,8 @@
 using namespace boost;
 
 namespace RTT
-{
+{ namespace scripting {
+
     using namespace detail;
     struct StatementProcessor::D
     {
@@ -260,5 +261,5 @@ namespace RTT
         return -1;
     }
 
-}
+}}
 

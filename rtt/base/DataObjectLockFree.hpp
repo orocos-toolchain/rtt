@@ -107,13 +107,14 @@ namespace RTT
          */
         struct DataBuf {
             DataBuf()
-                : data(), status(NoData), counter(), next()
+                : data(), status(NoData), next()
             {
-                oro_atomic_set(&counter, 0);
+                oro_atomic_set(&read_counter, 0);
+                oro_atomic_set(&write_lock, -1);
             }
             value_t data;
             FlowStatus status;
-            mutable oro_atomic_t counter;
+            mutable oro_atomic_t read_counter, write_lock;
             DataBuf* next;
         };
 
@@ -205,26 +206,30 @@ namespace RTT
             // could become write_ptr ( then we would read corrupted data).
             do {
                 reading = read_ptr;            // copy buffer location
-                oro_atomic_inc(&reading->counter); // lock buffer, no more writes
+                oro_atomic_inc(&reading->read_counter); // lock buffer, no more writes
                 // XXX smp_mb
                 if ( reading != read_ptr )     // if read_ptr changed,
-                    oro_atomic_dec(&reading->counter); // better to start over.
+                    oro_atomic_dec(&reading->read_counter); // better to start over.
                 else
                     break;
             } while ( true );
             // from here on we are sure that 'reading'
             // is a valid buffer to read from.
 
-            FlowStatus result = reading->status;
-            if (result == NewData) {
-                pull = reading->data;               // takes some time
-                reading->status = OldData;          // CAS?
-            } else if (((result == OldData) && copy_old_data) || copy_sample) {
+            // compare-and-swap FlowStatus field to make sure that only one reader
+            // returns NewData
+            FlowStatus result;
+            do {
+                result = reading->status;
+            } while((result != NoData) && !os::CAS(&reading->status, result, OldData));
+
+            if ((result == NewData) ||
+                ((result == OldData) && copy_old_data) || copy_sample) {
                 pull = reading->data;               // takes some time
             }
 
             // XXX smp_mb
-            oro_atomic_dec(&reading->counter);       // release buffer
+            oro_atomic_dec(&reading->read_counter);       // release buffer
             return result;
         }
 
@@ -249,38 +254,56 @@ namespace RTT
          */
         virtual bool Set( param_t push )
         {
-            /**
-             * This method can not be called concurrently (only one
-             * producer). With a minimum of 3 buffers, if the
-             * write_ptr+1 field is not occupied, it will remain so
-             * because the read_ptr is at write_ptr-1 (and can
-             * not increment the counter on write_ptr+1). Hence, no
-             * locking is needed.
-             */
-
             if (!initialized) {
                 log(Error) << "You set a lock-free data object of type " << internal::DataSourceTypeInfo<T>::getType() << " without initializing it with a data sample. "
                            << "This might not be real-time safe." << endlog();
                 data_sample(value_t(), true);
             }
 
-            // writeout in any case
-            PtrType writing = write_ptr;
+            PtrType writing = write_ptr;            // copy buffer location
+            if (!oro_atomic_inc_and_test(&writing->write_lock)) {
+                // abort, another thread already successfully locked this buffer element
+                oro_atomic_dec(&writing->write_lock);
+                return false;
+            }
+
+            // Additional check that resolves the following race condition:
+            //  - writer A copies the write_ptr and acquires the lock writing->write_lock
+            //  - writer B copies the write_ptr
+            //  - writer A continues to update and increments the write_ptr
+            //  - writer A releases the lock writing->write_lock
+            //  - writer B acquires the lock successfully, but for the same buffer element that already
+            //    has been written by writer A and can potentially be accessed by readers now!
+            if ( writing != write_ptr ) {
+                // abort, another thread already updated the write_ptr, which could imply that read_ptr == writing now
+                oro_atomic_dec(&writing->write_lock);
+                return false;
+            }
+            // from here on we are sure that 'writing'
+            // is a valid buffer to write to and we
+            // have exclusive access
+
+            // copy sample
             writing->data = push;
             writing->status = NewData;
 
             // if next field is occupied (by read_ptr or counter),
             // go to next and check again...
-            while ( oro_atomic_read( &write_ptr->next->counter ) != 0 || write_ptr->next == read_ptr )
+            PtrType next_write_ptr = writing->next;
+            while ( oro_atomic_read( &next_write_ptr->read_counter ) != 0 ||
+                    next_write_ptr == read_ptr )
                 {
-                    write_ptr = write_ptr->next;
-                    if (write_ptr == writing)
-                        return false; // nothing found, to many readers !
+                    next_write_ptr = next_write_ptr->next;
+                    if (next_write_ptr == writing) {
+                        oro_atomic_dec(&writing->write_lock);
+                        return false; // nothing found, too many readers !
+                    }
                 }
 
             // we will be able to move, so replace read_ptr
             read_ptr  = writing;
-            write_ptr = write_ptr->next; // we checked this in the while loop
+            write_ptr = next_write_ptr; // we checked this in the while loop
+            oro_atomic_dec(&writing->write_lock);
             return true;
         }
 
@@ -320,20 +343,25 @@ namespace RTT
             // could become write_ptr ( then we would read corrupted data).
             do {
                 reading = read_ptr;            // copy buffer location
-                oro_atomic_inc(&reading->counter); // lock buffer, no more writes
+                oro_atomic_inc(&reading->read_counter); // lock buffer, no more writes
                 // XXX smp_mb
                 if ( reading != read_ptr )     // if read_ptr changed,
-                    oro_atomic_dec(&reading->counter); // better to start over.
+                    oro_atomic_dec(&reading->read_counter); // better to start over.
                 else
                     break;
             } while ( true );
             // from here on we are sure that 'reading'
             // is a valid buffer to read from.
 
-            reading->status = NoData;
+            // compare-and-swap FlowStatus field to avoid the race condition
+            // where a reader replaces it by OldData
+            FlowStatus result;
+            do {
+                result = reading->status;
+            } while(!os::CAS(&reading->status, result, NoData));
 
             // XXX smp_mb
-            oro_atomic_dec(&reading->counter);       // release buffer
+            oro_atomic_dec(&reading->read_counter);       // release buffer
         }
     };
 }}

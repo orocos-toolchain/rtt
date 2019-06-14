@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens Fri Nov 19 17:41:42 2010 +0100 GlobalService.hpp
+  tag: Peter Soetens  Thu July 19 23:09:08 CEST 2018  PortConnectionLock.hpp
 
-                        GlobalService.hpp -  description
+                        PortConnectionLock.hpp -  description
                            -------------------
-    begin                : Fri Nov 19 2010
-    copyright            : (C) 2010 Peter Soetens
-    email                : peter@thesourceworks.com
+    begin                : Thu July 19 2018
+    copyright            : (C) 2018 Johannes Meyer
+    email                : johannes@intermodalics.eu
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -26,7 +26,7 @@
  *   This library is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   General Public License for more details.                              *
+ *   Lesser General Public License for more details.                       *
  *                                                                         *
  *   You should have received a copy of the GNU General Public             *
  *   License along with this library; if not, write to the Free Software   *
@@ -35,46 +35,30 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef ORO_PORT_CONNECTION_LOCK_HPP
+#define ORO_PORT_CONNECTION_LOCK_HPP
 
-
-#ifndef ORO_GLOBALSERVICE_HPP_
-#define ORO_GLOBALSERVICE_HPP_
-
-#include "../Service.hpp"
-#include <boost/shared_ptr.hpp>
+#include "../base/PortInterface.hpp"
 
 namespace RTT
-{
+{ namespace internal {
 
-    namespace internal
+    class RTT_API PortConnectionLock
     {
+        base::PortInterface *mport;
 
-        /**
-         * A process-wide services that hosts services not local
-         * to a single component.
-         */
-        class GlobalService: public RTT::Service
+    public:
+        PortConnectionLock(base::PortInterface *port)
+            : mport(port) {
+            if (mport) mport->connection_lock.lock();
+        }
+
+        ~PortConnectionLock()
         {
-            GlobalService();
-        public:
-            virtual ~GlobalService();
-            RTT_API static Service::shared_ptr Instance();
-            RTT_API static void Release();
+            if (mport) mport->connection_lock.unlock();
+        }
+    };
 
-            /**
-             * Require that a certain service is loaded in the global service.
-             * You may require the same \a servicename multiple times. This function
-             * will each subsequent time return the same value as the first time
-             * it was called with \a servicename.
-             * @param servicename The name of the service to load
-             * @return true if the service was loaded, false if the servicename was
-             * unknown.
-             */
-            bool require(const std::string servicename);
-        };
+}}
 
-    }
-
-}
-
-#endif /* ORO_GLOBALSERVICE_HPP_ */
+#endif // ORO_PORT_CONNECTION_LOCK_HPP

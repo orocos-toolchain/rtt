@@ -660,8 +660,8 @@ BOOST_AUTO_TEST_CASE( testSharedConnections )
     BOOST_CHECK( ports2->createConnection("mo", ports2, "mi", policy) );
     BOOST_CHECK( mi3->connected() );
     BOOST_CHECK( mo2->connected() );
-    BOOST_ASSERT( mi2->getManager()->getSharedConnection() );
-    BOOST_ASSERT( mi3->getManager()->getSharedConnection() );
+    BOOST_REQUIRE( mi2->getManager()->getSharedConnection() );
+    BOOST_REQUIRE( mi3->getManager()->getSharedConnection() );
     BOOST_CHECK_EQUAL( mi2->getManager()->getSharedConnection()->getName(), mi3->getManager()->getSharedConnection()->getName() );
     BOOST_CHECK_EQUAL( mi3->read(value), NoData );
     testPortDataConnection(); // communication between mo and mi should work the same as for private connections
@@ -690,8 +690,8 @@ BOOST_AUTO_TEST_CASE( testSharedConnections )
     BOOST_CHECK( ports2->createConnection("mo", ports2, "mi", policy) );
     BOOST_CHECK( mi3->connected() );
     BOOST_CHECK( mo2->connected() );
-    BOOST_ASSERT( mi2->getManager()->getSharedConnection() );
-    BOOST_ASSERT( mi3->getManager()->getSharedConnection() );
+    BOOST_REQUIRE( mi2->getManager()->getSharedConnection() );
+    BOOST_REQUIRE( mi3->getManager()->getSharedConnection() );
     BOOST_CHECK_EQUAL( mi2->getManager()->getSharedConnection()->getName(), mi3->getManager()->getSharedConnection()->getName() );
     BOOST_CHECK_EQUAL( mi3->read(value), NoData );
 #ifndef RTT_CORBA_PORTS_DISABLE_SIGNAL

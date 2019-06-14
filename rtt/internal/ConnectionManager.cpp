@@ -44,6 +44,7 @@
  */
 
 #include "ConnectionManager.hpp"
+#include "PortConnectionLock.hpp"
 #include <boost/bind.hpp>
 #include <boost/scoped_ptr.hpp>
 #include "../base/PortInterface.hpp"
@@ -100,18 +101,21 @@ namespace RTT
 
         void ConnectionManager::disconnect()
         {
-            RTT::os::MutexLock lock(connection_lock);
+            PortConnectionLock lock(mport);
             for(Connections::iterator conn_it = connections.begin(); conn_it != connections.end(); ) {
                 conn_it = eraseConnection(conn_it, true);
             }
         }
 
         bool ConnectionManager::connected() const
-        { return !connections.empty(); }
+        {
+            PortConnectionLock lock(mport);
+            return !connections.empty();
+        }
 
         bool ConnectionManager::connectedTo(base::PortInterface* port)
         {
-            RTT::os::MutexLock lock(connection_lock);
+            PortConnectionLock lock(mport);
             boost::scoped_ptr<ConnID> conn_id( port->getPortID() );
             for(Connections::const_iterator conn_it = connections.begin(); conn_it != connections.end(); ++conn_it ) {
                 if (conn_it->get<0>() && conn_id->isSameID(*conn_it->get<0>())) return true;
@@ -120,7 +124,8 @@ namespace RTT
         }
 
         bool ConnectionManager::addConnection(ConnID* conn_id, ChannelElementBase::shared_ptr channel, ConnPolicy policy)
-        { RTT::os::MutexLock lock(connection_lock);
+        {
+            PortConnectionLock lock(mport);
             assert(conn_id);
 
             // check if the new connection is a shared connection
@@ -138,7 +143,7 @@ namespace RTT
 
         bool ConnectionManager::removeConnection(ConnID* conn_id, bool disconnect /* = true */)
         {
-            RTT::os::MutexLock lock(connection_lock);
+            PortConnectionLock lock(mport);
             bool found = false;
             for(Connections::iterator conn_it = connections.begin(); conn_it != connections.end(); ) {
                 if (conn_it->get<0>() && conn_id->isSameID(*conn_it->get<0>())) {
@@ -153,7 +158,7 @@ namespace RTT
 
         bool ConnectionManager::removeConnection(base::ChannelElementBase* channel, bool disconnect /* = true */)
         {
-            RTT::os::MutexLock lock(connection_lock);
+            PortConnectionLock lock(mport);
             bool found = false;
             for(Connections::iterator conn_it = connections.begin(); conn_it != connections.end(); ) {
                 if (conn_it->get<1>() && channel == conn_it->get<1>()) {
