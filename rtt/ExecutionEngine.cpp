@@ -105,7 +105,12 @@ namespace RTT
             assert(foo);
             if ( foo->execute() == false ){
                 foo->unloaded();
-                msg_cond.broadcast(); // required for waitForFunctions() (3rd party thread)
+                {
+#if defined(OROPKG_OS_XENOMAI) && (CONFIG_XENO_VERSION_MAJOR == 3)
+                    os::MutexLock lock(msg_lock);
+#endif
+                    msg_cond.broadcast(); // required for waitForFunctions() (3rd party thread)
+                }
             } else {
                 f_queue->enqueue( foo );
             }
@@ -218,7 +223,12 @@ namespace RTT
             MutexLock locker( msg_lock );
         }
         if ( com )
+        {
+#if defined(OROPKG_OS_XENOMAI) && (CONFIG_XENO_VERSION_MAJOR == 3)
+            os::MutexLock lock(msg_lock);
+#endif
             msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
+        }
     }
 
     void ExecutionEngine::processPortCallbacks()
@@ -253,7 +263,12 @@ namespace RTT
         if ( c && this->getActivity() ) {
             bool result = mqueue->enqueue( c );
             this->getActivity()->trigger();
-            msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
+            {
+#if defined(OROPKG_OS_XENOMAI) && (CONFIG_XENO_VERSION_MAJOR == 3)
+                os::MutexLock lock(msg_lock);
+#endif
+                msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
+            }
             return result;
         }
         return false;

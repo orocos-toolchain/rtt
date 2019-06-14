@@ -162,25 +162,33 @@ if(OROCOS_TARGET STREQUAL "xenomai")
   set(OS_HAS_TLSF TRUE)
 
   find_package(Xenomai REQUIRED)
-  find_package(Pthread REQUIRED)
   find_package(XenomaiPosix)
 
   add_definitions( -Wall )
 
-  if(XENOMAI_FOUND)
-    # Input for .pc and .cmake generated files:
-    list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XENOMAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
-    list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI_LIBRARIES} ${PTHREAD_LIBRARIES} dl) 
-    list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
-    # Direct input only for .pc file:
-    list(APPEND RTT_USER_LDFLAGS ${XENOMAI_LDFLAGS} )
-    list(APPEND RTT_USER_CFLAGS ${XENOMAI_CFLAGS} )
-    if (XENOMAI_POSIX_FOUND)
-      set(MQ_LDFLAGS ${XENOMAI_POSIX_LDFLAGS} )
-      set(MQ_CFLAGS ${XENOMAI_POSIX_CFLAGS} )
-      set(MQ_INCLUDE_DIRS ${XENOMAI_POSIX_INCLUDE_DIRS})
-      set(MQ_LIBRARIES ${XENOMAI_POSIX_LIBRARIES})
-    endif()
+  # Input for .pc and .cmake generated files:
+  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XENOMAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
+  list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI_LIBRARIES} ${PTHREAD_LIBRARIES} dl)
+  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}" ${XENOMAI_DEFINITIONS})
+  
+  # TLSF is included in Xenomai 3 (libalchemy)
+  # And the symbols are read from this
+  # so we need to match the defines in 
+  # xenomai3/lib/boilerplate/tlsf/tlsf.c
+  if(XENOMAI_VERSION_MAJOR EQUAL 3)
+      add_definitions(-DTLSF_USE_LOCKS=0)
+  endif()
+
+  # Direct input only for .pc file:
+  list(APPEND RTT_USER_LDFLAGS ${XENOMAI_LDFLAGS} )
+#  list(APPEND RTT_USER_CFLAGS ${XENOMAI_CFLAGS} )
+
+  if (XENOMAI_POSIX_FOUND)
+    set(MQ_LDFLAGS ${XENOMAI_POSIX_LDFLAGS} )
+    set(MQ_CFLAGS ${XENOMAI_POSIX_CFLAGS} )
+    set(MQ_DEFINITIONS ${XENOMAI_POSIX_DEFINITIONS} )
+    set(MQ_INCLUDE_DIRS ${XENOMAI_POSIX_INCLUDE_DIRS})
+    set(MQ_LIBRARIES ${XENOMAI_POSIX_LIBRARIES})
   endif()
 else()
   set(OROPKG_OS_XENOMAI FALSE CACHE INTERNAL "" FORCE)

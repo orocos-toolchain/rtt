@@ -51,12 +51,29 @@ extern "C" {
 
 #include "../../rtt-config.h"
 
-	//Xenomai headers
-	//#include <linux/types.h>
-	// xenomai assumes presence of u_long
+//Xenomai headers
+//#include <linux/types.h>
+// xenomai assumes presence of u_long
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
+
+#include <xeno_config.h> // version number
+#if CONFIG_XENO_VERSION_MAJOR == 2
+#include <native/task.h>
+#include <native/timer.h>
+#include <native/mutex.h>
+#include <native/sem.h>
+#include <native/cond.h>
+#endif
+#if CONFIG_XENO_VERSION_MAJOR == 3
+#include <alchemy/task.h>
+#include <alchemy/timer.h>
+#include <alchemy/mutex.h>
+#include <alchemy/sem.h>
+#include <alchemy/cond.h>
+#endif
+
 #include <sys/mman.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -72,12 +89,11 @@ extern "C" {
 #include <float.h>
 #include "../oro_limits.h"
 
-#include <xeno_config.h> // version number
-#include <native/task.h>
-#include <native/timer.h>
-#include <native/mutex.h>
-#include <native/sem.h>
-#include <native/cond.h>
+#if CONFIG_XENO_VERSION_MAJOR == 3
+// HACK: prevent confliting macros
+#undef debug
+#undef barrier
+#endif
 
 // BC: support Xenomai < 2.3.0
 #if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) < 2300
@@ -90,29 +106,29 @@ extern "C" {
 #endif
 
 
-	typedef RT_MUTEX rt_mutex_t;
-	typedef RT_MUTEX rt_rec_mutex_t;
-	typedef RT_SEM rt_sem_t;
-	typedef RT_COND rt_cond_t;
+typedef RT_MUTEX rt_mutex_t;
+typedef RT_MUTEX rt_rec_mutex_t;
+typedef RT_SEM rt_sem_t;
+typedef RT_COND rt_cond_t;
 
-	// Time Related
-	// 'S' -> Signed long long
-	typedef SRTIME          NANO_TIME;
-	typedef SRTIME          TICK_TIME;
-	typedef struct timespec TIME_SPEC;
-	typedef RT_TASK         RTOS_XENO_TASK;
+// Time Related
+// 'S' -> Signed long long
+typedef SRTIME          NANO_TIME;
+typedef SRTIME          TICK_TIME;
+typedef struct timespec TIME_SPEC;
+typedef RT_TASK         RTOS_XENO_TASK;
 
-    // Thread/Task related.
-    typedef struct {
-        char * name;
-        RTOS_XENO_TASK xenotask;
-        RTOS_XENO_TASK* xenoptr;
-        int sched_type;
-    } RTOS_TASK;
+// Thread/Task related.
+typedef struct {
+    char * name;
+    RTOS_XENO_TASK xenotask;
+    RTOS_XENO_TASK* xenoptr;
+    int sched_type;
+} RTOS_TASK;
 
-    static const TICK_TIME InfiniteTicks = LONG_LONG_MAX;
-    static const NANO_TIME InfiniteNSecs = LONG_LONG_MAX;
-    static const double    InfiniteSeconds = DBL_MAX;
+static const TICK_TIME InfiniteTicks = LONG_LONG_MAX;
+static const NANO_TIME InfiniteNSecs = LONG_LONG_MAX;
+static const double    InfiniteSeconds = DBL_MAX;
 
 #define SCHED_XENOMAI_HARD 0 /** Hard real-time */
 #define SCHED_XENOMAI_SOFT 1 /** Soft real-time */
@@ -121,21 +137,6 @@ extern "C" {
 
 #define ORO_WAIT_ABS 0
 #define ORO_WAIT_REL 1
-
-	// hrt is in ticks
-static inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
-{
-	TIME_SPEC timevl;
-	timevl.tv_sec = rt_timer_tsc2ns(hrt) / 1000000000LL;
-	timevl.tv_nsec = rt_timer_tsc2ns(hrt) % 1000000000LL;
-	return timevl;
-}
-
-	// hrt is in ticks
-static inline TICK_TIME timespec2ticks(const TIME_SPEC* ts)
-{
-	return  rt_timer_ns2tsc(ts->tv_nsec + ts->tv_sec*1000000000LL);
-}
 
 // turn this on to have maximum detection of valid system calls.
 #ifdef OROSEM_OS_XENO_CHECK
@@ -154,32 +155,72 @@ static inline TICK_TIME timespec2ticks(const TIME_SPEC* ts)
 #define CHK_XENO_PTR( a )
 #endif
 
-static inline NANO_TIME rtos_get_time_ns(void) { return rt_timer_ticks2ns(rt_timer_read()); }
+    static inline NANO_TIME rtos_get_time_ns(void) { return rt_timer_ticks2ns(rt_timer_read()); }
 
-static inline TICK_TIME rtos_get_time_ticks(void) { return rt_timer_tsc(); }
+#if CONFIG_XENO_VERSION_MAJOR < 3
+    static inline TICK_TIME rtos_get_time_ticks(void) { return rt_timer_tsc(); }
 
-static inline TICK_TIME ticksPerSec(void) { return rt_timer_ns2tsc( 1000 * 1000 * 1000 ); }
+    static inline TICK_TIME ticksPerSec(void) { return rt_timer_ns2tsc( 1000 * 1000 * 1000 ); }
 
-// WARNING: Orocos 'ticks' are 'Xenomai tsc' and Xenomai `ticks' are not
-// used in the Orocos API. Thus Orocos uses `Xenomai tsc' and `Xenomai ns',
-// yet Xenomai requires `Xenomai ticks' at the interface
-// ==> do not use nano2ticks to convert to `Xenomai ticks' because it
-// converts to `Xenomai tsc'.
-static inline TICK_TIME nano2ticks(NANO_TIME t) { return rt_timer_ns2tsc(t); }
-static inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
+    // WARNING Xenomai < 3: Orocos 'ticks' are 'Xenomai tsc' and Xenomai `ticks' are not
+    // used in the Orocos API. Thus Orocos uses `Xenomai tsc' and `Xenomai ns',
+    // yet Xenomai requires `Xenomai ticks' at the interface
+    // ==> do not use nano2ticks to convert to `Xenomai ticks' because it
+    // converts to `Xenomai tsc'.
+    static inline TICK_TIME nano2ticks(NANO_TIME t) { return rt_timer_ns2tsc(t); }
 
-static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
-	{
-		CHK_XENO_CALL();
-		RTIME ticks = rqtp->tv_sec * 1000000000LL + rqtp->tv_nsec;
-		rt_task_sleep( rt_timer_ns2ticks(ticks) );
-		return 0;
-	}
+    static inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
+    // hrt is in ticks
+    static inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
+    {
+        TIME_SPEC timevl;
+        timevl.tv_sec = rt_timer_tsc2ns(hrt) / 1000000000LL;
+        timevl.tv_nsec = rt_timer_tsc2ns(hrt) % 1000000000LL;
+        return timevl;
+    }
+    // hrt is in ticks
+    static inline TICK_TIME timespec2ticks(const TIME_SPEC* ts)
+    {
+        return  rt_timer_ns2tsc(ts->tv_nsec + ts->tv_sec*1000000000LL);
+    }
+
+#else
+
+    static inline TICK_TIME rtos_get_time_ticks(void) { return rt_timer_read(); }
+
+    static inline TICK_TIME ticksPerSec(void) { return rt_timer_ns2ticks( 1000 * 1000 * 1000 ); }
+
+    static inline TICK_TIME nano2ticks(NANO_TIME t) { return rt_timer_ns2ticks(t); }
+
+    static inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_ticks2ns(t); }
+
+    static inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
+    {
+        TIME_SPEC timevl;
+        timevl.tv_sec = rt_timer_ticks2ns(hrt) / 1000000000LL;
+        timevl.tv_nsec = rt_timer_ticks2ns(hrt) % 1000000000LL;
+        return timevl;
+    }
+
+    static inline TICK_TIME timespec2ticks(const TIME_SPEC* ts)
+    {
+        return  rt_timer_ns2ticks(ts->tv_nsec + ts->tv_sec*1000000000LL);
+    }
+
+#endif
+
+    static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
+    {
+        CHK_XENO_CALL();
+        RTIME ticks = rqtp->tv_sec * 1000000000LL + rqtp->tv_nsec;
+        rt_task_sleep( rt_timer_ns2ticks(ticks) );
+        return 0;
+    }
 
     static inline int rtos_sem_init(rt_sem_t* m, int value )
     {
         CHK_XENO_CALL();
-		return rt_sem_create( m, 0, value, S_PRIO);
+        return rt_sem_create( m, 0, value, S_PRIO);
     }
 
     static inline int rtos_sem_destroy(rt_sem_t* m )
@@ -209,11 +250,11 @@ static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     static inline int rtos_sem_value(rt_sem_t* m )
     {
         CHK_XENO_CALL();
-	RT_SEM_INFO sinfo;
+        RT_SEM_INFO sinfo;
         if (rt_sem_inquire(m, &sinfo) == 0 ) {
-	  return sinfo.count;
-	}
-	return -1;
+            return sinfo.count;
+        }
+        return -1;
     }
 
     static inline int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay )
@@ -225,13 +266,17 @@ static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     static inline int rtos_sem_wait_until(rt_sem_t* m, NANO_TIME when )
     {
         CHK_XENO_CALL();
+#if CONFIG_XENO_VERSION_MAJOR < 3
         return rt_sem_p(m, rt_timer_ns2ticks(when) - rt_timer_read() ) == 0 ? 0 : -1;
+#else
+        return rt_sem_p_until(m,rt_timer_ns2ticks(when)) == 0 ? 0 : -1;
+#endif
     }
 
     static inline int rtos_mutex_init(rt_mutex_t* m)
     {
         CHK_XENO_CALL();
-		// a Xenomai mutex is always recursive
+        // a Xenomai mutex is always recursive
         return rt_mutex_create(m, 0);
     }
 
@@ -263,14 +308,16 @@ static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     static inline int rtos_mutex_trylock( rt_mutex_t* m)
     {
         CHK_XENO_CALL();
+#if CONFIG_XENO_VERSION_MAJOR < 3
         struct rt_mutex_info info;
         rt_mutex_inquire(m, &info );
-#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) >= 2500
+#  if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) >= 2500
         if (info.locked)
             return 0;
-#else
+#  else
         if (info.lockcnt)
             return 0;
+#  endif
 #endif
         // from here on: we're sure our thread didn't lock it
         // now check if any other thread locked it:
