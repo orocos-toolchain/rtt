@@ -782,6 +782,7 @@ BOOST_AUTO_TEST_CASE(testInvalidSharedConnection)
     BOOST_CHECK( !wp2.createConnection(rp1) );          // different connection => failure
 }
 
+#ifndef ORO_DISABLE_PORT_DATA_SCRIPTING
 BOOST_AUTO_TEST_CASE( testPortObjects)
 {
     OutputPort<double> wp1("Write");
@@ -825,6 +826,7 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
     BOOST_CHECK( tc->provides()->hasService("Write") == 0 );
     BOOST_CHECK( tc->ports()->getPort("Write") == 0 );
 }
+#endif
 
 #ifdef ORO_SIGNALLING_PORTS
 BOOST_AUTO_TEST_CASE(testPortSignalling)
