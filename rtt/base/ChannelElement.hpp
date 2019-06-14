@@ -98,7 +98,7 @@ namespace RTT { namespace base {
         }
 
         /** Writes a new sample on this connection. \a sample is the sample to
-         * write. 
+         * write.
          *
          * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
          */
@@ -241,6 +241,12 @@ namespace RTT { namespace base {
         {
             if (last == input) last = 0;
             MultipleInputsChannelElementBase::removeInput(input);
+        }
+
+        virtual void removedInputs(Inputs const& inputs)
+        {
+            if (find(inputs.begin(), inputs.end(), last) != inputs.end())
+                last = 0;
         }
 
     private:
