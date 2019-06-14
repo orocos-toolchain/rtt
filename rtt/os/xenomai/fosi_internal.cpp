@@ -48,6 +48,10 @@
 #include <signal.h>
 #include <execinfo.h>
 
+#if CONFIG_XENO_VERSION_MAJOR == 3
+#include <xenomai/init.h>
+#endif
+
 extern "C"
 void warn_upon_switch(int /*sig*/)
 {
@@ -77,14 +81,15 @@ namespace RTT
                 exit(1);
 #endif
             }
-
+            // Locking is bootstrapped in --auto-init-solib
+#if CONFIG_XENO_VERSION_MAJOR < 3
             // locking of all memory for this process
             int rv = mlockall(MCL_CURRENT | MCL_FUTURE);
             if ( rv != 0 ) {
                 perror( "rtos_task_create_main: Could not lock memory using mlockall" ); // Logger unavailable.
                 exit(1);
             }
-
+#endif
             struct sched_param param;
             // we set the MT to the highest sched priority to allow the console
             // to interrupt a loose running thread.
@@ -173,7 +178,9 @@ namespace RTT
             //rt_task_delete( &(main_task->xenotask) );
             free (main_task->name);
             main_task->name = NULL;
+#if CONFIG_XENO_VERSION_MAJOR < 3
             munlockall();
+#endif
             return 0;
         }
 
@@ -212,25 +219,25 @@ namespace RTT
                 name = "XenoThread";
             task->name = strncpy( (char*)malloc( (strlen(name)+1)*sizeof(char) ), name, strlen(name)+1 );
             task->sched_type = sched_type; // User requested scheduler.
-            int rv;
-
+            int rv = 0;
+#if (CONFIG_XENO_VERSION_MAJOR <= 2)
             unsigned int aff = 0;
             if ( cpu_affinity != 0 ) {
                 // calculate affinity:
                 for(unsigned i = 0; i < 8*sizeof(cpu_affinity); i++) {
-                    if(cpu_affinity & (1 << i)) { 
+                    if(cpu_affinity & (1 << i)) {
                         // RTHAL_NR_CPUS is defined in the kernel, not in user space. So we just limit up to 7, until Xenomai allows us to get the maximum.
                         if ( i > 7 ) {
                             const unsigned int all_cpus = ~0;
                             if ( cpu_affinity != all_cpus ) // suppress this warning when ~0 is provided
                                 log(Warning) << "rtos_task_create: ignoring cpu_affinity for "<< name << " on CPU " << i << " since it's larger than RTHAL_NR_CPUS - 1 (="<< 7 <<")"<<endlog();
                         } else {
-                            aff |= T_CPU(i); 
+                            aff |= T_CPU(i);
                         }
                     }
                 }
             }
-            
+#endif
             if (stack_size == 0) {
                 log(Debug) << "Raizing default stack size to 128kb for Xenomai threads in Orocos." <<endlog();
                 stack_size = 128000;
@@ -238,7 +245,11 @@ namespace RTT
 
             // task, name, stack, priority, mode, fun, arg
             // UGLY, how can I check in Xenomai that a name is in use before calling rt_task_spawn ???
+#if (CONFIG_XENO_VERSION_MAJOR <= 2)
             rv = rt_task_spawn(&(task->xenotask), name, stack_size, priority, T_JOINABLE | (aff & T_CPUMASK), rtos_xeno_thread_wrapper, xcookie);
+#else
+            rv = rt_task_spawn(&(task->xenotask), name, stack_size, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
+#endif
             if ( rv == -EEXIST ) {
                 free( task->name );
                 task->name = strncpy( (char*)malloc( (strlen(name)+2)*sizeof(char) ), name, strlen(name)+1 );
@@ -246,18 +257,39 @@ namespace RTT
                 task->name[ strlen(name)+1 ] = 0;
                 while ( rv == -EEXIST &&  task->name[ strlen(name) ] != '9') {
                     task->name[ strlen(name) ] += 1;
-                    rv = rt_task_spawn(&(task->xenotask), task->name, stack_size, priority, T_JOINABLE | (aff & T_CPUMASK), rtos_xeno_thread_wrapper, xcookie);
+#if (CONFIG_XENO_VERSION_MAJOR <= 2)
+                    rv = rt_task_spawn(&(task->xenotask), name, stack_size, priority, T_JOINABLE | (aff & T_CPUMASK), rtos_xeno_thread_wrapper, xcookie);
+#else
+                    rv = rt_task_spawn(&(task->xenotask), name, stack_size, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
+#endif
                 }
             }
             if ( rv == -EEXIST ) {
                 log(Warning) << name << ": an object with that name is already existing in Xenomai." << endlog();
+#if (CONFIG_XENO_VERSION_MAJOR <= 2)
                 rv = rt_task_spawn(&(task->xenotask), 0, stack_size, priority, T_JOINABLE | (aff & T_CPUMASK), rtos_xeno_thread_wrapper, xcookie);
+#else
+                rv = rt_task_spawn(&(task->xenotask), 0, stack_size, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
+#endif
             }
             if ( rv != 0) {
-                log(Error) << name << " : CANNOT INIT Xeno TASK " << task->name <<" error code: "<< rv << endlog();
+                log(Error) << name << " cannot spawn Xenomai task [" << task->name <<"] error code: "<< rv << endlog();
+                switch (rv) {
+                    case -EINVAL:
+                    log(Error) << "-EINVAL : prio, mode or stksize are invalid" << endlog();
+                    break;
+                    case -ENOMEM:
+                    log(Error) << "-ENOMEM : the system fails to get memory from the main heap in order to create the task" << endlog();
+                    break;
+                    case -EEXIST:
+                    log(Error) << "-EEXIST : the name is conflicting with an already registered task" << endlog();
+                    break;
+                }
                 return rv;
             }
-
+#if CONFIG_XENO_VERSION_MAJOR == 3
+            rtos_task_set_cpu_affinity(task,cpu_affinity);
+#endif
             rt_task_yield();
             return 0;
         }
@@ -315,6 +347,14 @@ namespace RTT
             *priority = 99;
             ret = -1;
         }
+
+#if CONFIG_XENO_VERSION_MAJOR == 3
+        // SCHED_OTHER means priority 0 in xenomai 3
+        if(*scheduler == SCHED_XENOMAI_SOFT)
+        {
+            *priority = 0;
+        }
+#endif
         return ret;
     }
 
@@ -357,28 +397,17 @@ namespace RTT
         }
 
         INTERNAL_QUAL int rtos_task_get_scheduler(const RTOS_TASK* mytask) {
-#if 0
-            // WORK AROUND constness: (need non-const mytask)
-            RT_TASK* tt = mytask->xenoptr;
-            RT_TASK_INFO info;
-            if ( tt )
-                if ( rt_task_inquire( tt, &info) == 0 )
-                    if ( info.status & XNRELAX )
-                        return SCHED_XENOMAI_SOFT;
-                    else
-                        return SCHED_XENOMAI_HARD;
-            return -1;
-#else
             return mytask->sched_type;
-#endif
         }
 
         INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, NANO_TIME nanosecs )
         {
-            if (nanosecs == 0) {
+            if (nanosecs == 0)
+            {
                 rt_task_set_periodic( &(mytask->xenotask), TM_NOW, TM_INFINITE);
             }
-            else {
+            else
+            {
                 rt_task_set_periodic( &(mytask->xenotask), TM_NOW, rt_timer_ns2ticks(nanosecs) );
             }
         }
@@ -386,7 +415,6 @@ namespace RTT
         INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs )
         {
             rtos_task_make_periodic( mytask, nanosecs);
-            //rt_task_set_period(&(mytask->xenotask), rt_timer_ns2ticks( nanosecs ));
         }
 
         INTERNAL_QUAL void rtos_task_set_wait_period_policy( RTOS_TASK* task, int policy )
@@ -418,13 +446,36 @@ namespace RTT
 
         INTERNAL_QUAL int rtos_task_set_cpu_affinity(RTOS_TASK * task, unsigned cpu_affinity)
         {
+#if (CONFIG_XENO_VERSION_MAJOR == 3)
+            cpu_set_t cpu;
+            CPU_ZERO(&cpu);
+            CPU_SET(cpu_affinity, &cpu);
+            return rt_task_set_affinity(&(task->xenotask),&cpu);
+#endif
             log(Error) << "rtos_task_set_cpu_affinity: Xenomai tasks don't allow to migrate to another CPU once created." << endlog();
             return -1;
         }
 
         INTERNAL_QUAL unsigned rtos_task_get_cpu_affinity(const RTOS_TASK *task)
         {
+#if (CONFIG_XENO_VERSION_MAJOR == 3)
+            RT_TASK_INFO info;
+            // WORK AROUND constness: (need non-const mytask)
+            RT_TASK* tt = task->xenoptr;
+            if ( tt )
+            {
+                if ( rt_task_inquire ( tt, &info) == 0 )
+                    return info.stat.cpu;
+                else
+                    return ~0;
+            }
+            else
+            {
+                return ~0;
+            }
+#else
             return ~0;
+#endif
         }
 
         INTERNAL_QUAL const char* rtos_task_get_name(const RTOS_TASK* mytask) {
@@ -433,7 +484,24 @@ namespace RTT
 
     	INTERNAL_QUAL unsigned int rtos_task_get_pid(const RTOS_TASK* task)
     	{
+#if (CONFIG_XENO_VERSION_MAJOR == 3)
+            RT_TASK_INFO info;
+            // WORK AROUND constness: (need non-const mytask)
+            RT_TASK* tt = task->xenoptr;
+            if ( tt )
+            {
+                if ( rt_task_inquire ( tt, &info) == 0 )
+                    return info.pid;
+                else
+                    return 0;
+            }
+            else
+            {
+                return 0;
+            }
+#else
     		return 0;
+#endif
     	}
 
     	INTERNAL_QUAL int rtos_task_get_priority(const RTOS_TASK* mytask) {
@@ -442,7 +510,11 @@ namespace RTT
             RT_TASK* tt = mytask->xenoptr;
             if ( tt )
                 if ( rt_task_inquire ( tt, &info) == 0 )
+#if (CONFIG_XENO_VERSION_MAJOR <= 2)
                     return info.bprio;
+#else
+                    return info.prio;
+#endif
             return -1;
         }
 

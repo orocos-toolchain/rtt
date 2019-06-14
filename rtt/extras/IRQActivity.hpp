@@ -42,7 +42,7 @@
 #include "../Activity.hpp"
 #include "../rtt-config.h"
 
-#ifdef OROPKG_OS_XENOMAI
+#if defined(OROPKG_OS_XENOMAI) && (CONFIG_XENO_VERSION_MAJOR == 2)
 #include <native/intr.h>
 #else
 // Provide a dump RT_INTR type. start() always returns false on non-Xenomai
@@ -52,7 +52,7 @@ struct RT_INTR { };
 #ifdef _MSC_VER
 	#pragma message( "IRQActivity is available only on Xenomai. It will fail on startup")
 #else
-#warning "IRQActivity is available only on Xenomai. It will fail on startup"
+#warning "IRQActivity is available only on Xenomai 2. It will fail on startup"
 #endif
 #endif
 #endif
@@ -114,7 +114,7 @@ namespace RTT { namespace extras {
         void setIRQ(int irq);
 
         virtual bool start();
-#ifdef OROPKG_OS_XENOMAI
+#if defined(OROPKG_OS_XENOMAI) && (CONFIG_XENO_VERSION_MAJOR == 2)
         virtual void loop();
         virtual bool breakLoop();
         virtual void step();

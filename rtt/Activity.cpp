@@ -149,7 +149,12 @@ namespace RTT
         if ( ! Thread::isActive() )
             return false;
         //a trigger is always allowed when active
-        msg_cond.broadcast();
+         {
+#if defined(OROPKG_OS_XENOMAI) && (CONFIG_XENO_VERSION_MAJOR == 3)
+             os::MutexLock lock(msg_lock);
+#endif
+             msg_cond.broadcast();
+         }
         Thread::start();
         return true;
     }
@@ -165,7 +170,12 @@ namespace RTT
             return false;
         }
         mtimeout = true;
-        msg_cond.broadcast();
+        {
+#if defined(OROPKG_OS_XENOMAI) && (CONFIG_XENO_VERSION_MAJOR == 3)
+            os::MutexLock lock(msg_lock);
+#endif
+            msg_cond.broadcast();
+        }
         Thread::start();
         return true;
     }
