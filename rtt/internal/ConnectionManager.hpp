@@ -163,8 +163,13 @@ namespace RTT
             /** Helper method for disconnect()
              *
              * Unconditionally removes the given connection and returns the next connection in the list or connections.end()
+             *
+             * It requires the lock to be taken, but does not perform any disconnection itself
              */
-            Connections::iterator eraseConnection(const Connections::iterator& descriptor, bool disconnect);
+            Connections::iterator eraseConnection(const Connections::iterator& descriptor, Connections& erased);
+
+            /** Helper for disconnection methods */
+            void disconnectConnections(Connections& connections);
 
             /**
              * The port for which we manage connections.
