@@ -1,17 +1,46 @@
 ################################################################################
-#
-# CMake script for finding the XENOMAI 2 native or XENOMAI 3 alchemy skin.
+# Copyright 2019 Antoine HOARAU <antoine [at] fuzzylogicrobotics.com>
+# 
+# CMake script for finding the XENOMAI 2 native or XENOMAI 3 alchemy/posix/rtdm skin.
 # If the optional XENOMAI_ROOT_DIR environment variable exists, header files and
 # libraries will be searched in the XENOMAI_ROOT_DIR/include and XENOMAI_ROOT_DIR/lib
 # directories, respectively. Otherwise the default CMake search process will be
 # used.
 #
-# This script creates the following variables:
+# This script creates the following variables for each skin.
+#
+#  Native/Alchemy skin :
+#
 #  XENOMAI_FOUND: Boolean that indicates if the package was found
 #  XENOMAI_INCLUDE_DIRS: Paths to the necessary header files
 #  XENOMAI_LIBRARIES: Package libraries
+#  XENOMAI_CFLAGS: Package cflags for additional parsing
+#  XENOMAI_LD_FLAGS: Package linker flags for additional parsing
+#  XENOMAI_COMPILE_DEFINITIONS: Package compile flags
 #
+#  And it also set the XENOMAI_POSIX_* and XENOMAI_RTDM_* variables.
+#
+#  Posix Interface : 
+#
+#  XENOMAI_POSIX_FOUND: Boolean that indicates if the package was found
+#  XENOMAI_POSIX_INCLUDE_DIRS: Paths to the necessary header files
+#  XENOMAI_POSIX_LIBRARIES: Package libraries
+#  XENOMAI_POSIX_CFLAGS: Package cflags for additional parsing
+#  XENOMAI_POSIX_LD_FLAGS: Package linker flags for additional parsing
+#  XENOMAI_POSIX_COMPILE_DEFINITIONS: Package compile flags
+#
+#  RTDM Interface :
+#
+#  XENOMAI_RTDM_FOUND: Boolean that indicates if the package was found
+#  XENOMAI_RTDM_INCLUDE_DIRS: Paths to the necessary header files
+#  XENOMAI_RTDM_LIBRARIES: Package libraries
+#  XENOMAI_RTDM_CFLAGS: Package cflags for additional parsing
+#  XENOMAI_RTDM_LD_FLAGS: Package linker flags for additional parsing
+#  XENOMAI_RTDM_COMPILE_DEFINITIONS: Package compile flags
+#
+#  NOTE: You still need FindRTnet.cmake for rtnet support on xenomai 2.x
 ################################################################################
+
 include(LibFindMacros)
 
 # Get hint from environment variable (if any)
