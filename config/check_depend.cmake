@@ -162,7 +162,6 @@ if(OROCOS_TARGET STREQUAL "xenomai")
   set(OS_HAS_TLSF TRUE)
 
   find_package(Xenomai REQUIRED)
-  find_package(XenomaiPosix)
 
   add_definitions( -Wall )
 
@@ -170,6 +169,8 @@ if(OROCOS_TARGET STREQUAL "xenomai")
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XENOMAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
   list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI_LIBRARIES} ${PTHREAD_LIBRARIES} dl)
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}" ${XENOMAI_DEFINITIONS})
+  
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${XENOMAI_CFLAGS_OTHER}")
   
   # TLSF is included in Xenomai 3 (libalchemy)
   # And the symbols are read from this
@@ -181,7 +182,7 @@ if(OROCOS_TARGET STREQUAL "xenomai")
 
   # Direct input only for .pc file:
   list(APPEND RTT_USER_LDFLAGS ${XENOMAI_LDFLAGS} )
-#  list(APPEND RTT_USER_CFLAGS ${XENOMAI_CFLAGS} )
+  list(APPEND RTT_USER_CFLAGS ${XENOMAI_CFLAGS} )
 
   if (XENOMAI_POSIX_FOUND)
     set(MQ_LDFLAGS ${XENOMAI_POSIX_LDFLAGS} )
