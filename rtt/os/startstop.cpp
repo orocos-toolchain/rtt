@@ -54,6 +54,10 @@
 # include <boost/scoped_ptr.hpp>
 # include "../extras/dev/DigitalOutInterface.hpp"
   using namespace RTT;
+#elif defined(HAVE_LTTNG_UST) && defined(OROPKG_OS_GNULINUX)
+#define TRACEPOINT_DEFINE
+#define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
+#include "gnulinux/traces/lttng_ust.h"
 #endif
 
 #ifdef OS_HAVE_IOSTREAM
