@@ -136,10 +136,10 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
             base::DataSourceBase::shared_ptr converted = clone->getTypeInfo()->decomposeType(clone);
             if ( converted && converted != clone ) {
                 // converted contains another type
-                targetbag.add( converted->getTypeInfo()->buildProperty(*it, "", converted) );
+                targetbag.ownProperty( converted->getTypeInfo()->buildProperty(*it, "", converted) );
             } else {
                 // use the original
-                targetbag.add( newpb );
+                targetbag.ownProperty( newpb );
             }
         } else {
             assert( recurse_bag->rvalue().size() >= 1 ); 

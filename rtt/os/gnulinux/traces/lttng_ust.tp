@@ -1,0 +1,14 @@
+TRACEPOINT_EVENT
+(
+    /* provider name */
+    orocos_rtt,
+    /* tracepoint name */
+    thread_scope,
+    /* arguments passed to the tracepoint */
+    TP_ARGS(int, on_off),
+    /* the fields */
+    TP_FIELDS
+    (
+        ctf_integer(int, value, on_off)
+    )
+)
