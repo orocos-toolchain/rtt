@@ -377,9 +377,10 @@ static __inline__ bhdr_t *FIND_SUITABLE_BLOCK(tlsf_t * _tlsf, int *_fl, int *_sl
 }
 
 static __inline__ void corrupt(const char *msg) {
-    static const char *k =  "* Heap corruption detected: *\n";
-    write( STDERR_FILENO, k, strlen(k) );
-    write( STDERR_FILENO, msg, strlen(msg) );
+#ifdef USE_PRINTF
+    fputs("* Heap corruption detected: *\n", stderr);
+    fputs(msg, stderr);
+#endif
     abort();
 }
 
