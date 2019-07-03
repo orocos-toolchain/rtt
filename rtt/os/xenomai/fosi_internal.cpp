@@ -219,7 +219,7 @@ namespace RTT
                 name = "XenoThread";
             task->name = strncpy( (char*)malloc( (strlen(name)+1)*sizeof(char) ), name, strlen(name)+1 );
             task->sched_type = sched_type; // User requested scheduler.
-            int rv = 0;
+
 #if (CONFIG_XENO_VERSION_MAJOR <= 2)
             unsigned int aff = 0;
             if ( cpu_affinity != 0 ) {
@@ -246,9 +246,9 @@ namespace RTT
             // task, name, stack, priority, mode, fun, arg
             // UGLY, how can I check in Xenomai that a name is in use before calling rt_task_spawn ???
 #if (CONFIG_XENO_VERSION_MAJOR <= 2)
-            rv = rt_task_spawn(&(task->xenotask), name, stack_size, priority, T_JOINABLE | (aff & T_CPUMASK), rtos_xeno_thread_wrapper, xcookie);
+            int rv = rt_task_spawn(&(task->xenotask), task->name, stack_size, priority, T_JOINABLE | (aff & T_CPUMASK), rtos_xeno_thread_wrapper, xcookie);
 #else
-            rv = rt_task_spawn(&(task->xenotask), name, stack_size, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
+            int rv = rt_task_spawn(&(task->xenotask), task->name, stack_size, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
 #endif
             if ( rv == -EEXIST ) {
                 free( task->name );
@@ -258,9 +258,10 @@ namespace RTT
                 while ( rv == -EEXIST &&  task->name[ strlen(name) ] != '9') {
                     task->name[ strlen(name) ] += 1;
 #if (CONFIG_XENO_VERSION_MAJOR <= 2)
-                    rv = rt_task_spawn(&(task->xenotask), name, stack_size, priority, T_JOINABLE | (aff & T_CPUMASK), rtos_xeno_thread_wrapper, xcookie);
+                    log(Info) << "Trying to spawn Xenomai task '" << task->name << "' stack size " << stack_size << " prio " << priority << endlog();
+                    rv = rt_task_spawn(&(task->xenotask), task->name, stack_size, priority, T_JOINABLE | (aff & T_CPUMASK), rtos_xeno_thread_wrapper, xcookie);
 #else
-                    rv = rt_task_spawn(&(task->xenotask), name, stack_size, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
+                    rv = rt_task_spawn(&(task->xenotask), task->name, stack_size, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
 #endif
                 }
             }
@@ -290,6 +291,12 @@ namespace RTT
 #if CONFIG_XENO_VERSION_MAJOR == 3
             rtos_task_set_cpu_affinity(task,cpu_affinity);
 #endif
+            log(Debug) << "Spawned Xenomai task '" << task->name << "'\n" 
+                    << "    stack_size " << stack_size << '\n'
+                    << "    priority " << priority  << '\n'
+                    << "    cpu_affinity " << cpu_affinity  << '\n'
+                    << endlog();
+
             rt_task_yield();
             return 0;
         }
