@@ -276,25 +276,21 @@ namespace RTT
             if ( rv != 0) {
                 log(Error) << name << " cannot spawn Xenomai task [" << task->name <<"] error code: "<< rv << endlog();
                 switch (rv) {
-                    case -EINVAL:
-                    log(Error) << "-EINVAL : prio, mode or stksize are invalid" << endlog();
-                    break;
-                    case -ENOMEM:
-                    log(Error) << "-ENOMEM : the system fails to get memory from the main heap in order to create the task" << endlog();
-                    break;
-                    case -EEXIST:
-                    log(Error) << "-EEXIST : the name is conflicting with an already registered task" << endlog();
-                    break;
+                    case -EINVAL: { log(Error) << "-EINVAL : prio, mode or stksize are invalid" << endlog(); break; }
+                    case -ENOMEM: { log(Error) << "-ENOMEM : the system fails to get memory from the main heap in order to create the task" << endlog(); break; }
+                    case -EEXIST: { log(Error) << "-EEXIST : the name is conflicting with an already registered task" << endlog(); break; }
                 }
                 return rv;
             }
 #if CONFIG_XENO_VERSION_MAJOR == 3
             rtos_task_set_cpu_affinity(task,cpu_affinity);
 #endif
-            log(Debug) << "Spawned Xenomai task '" << task->name << "'\n" 
-                    << "    stack_size " << stack_size << '\n'
-                    << "    priority " << priority  << '\n'
-                    << "    cpu_affinity " << cpu_affinity  << '\n'
+            log(Debug) << "Spawned Xenomai task for"
+                    << ", scheduler=" << (sched_type == ORO_SCHED_RT ? "ORO_SCHED_RT" : "ORO_SCHED_OTHER")
+                    << ", stack size=" << stack_size
+                    << ", priority=" << priority
+                    << ", CPU affinity=" << cpu_affinity
+                    << ", with name=" << task->name
                     << endlog();
 
             rt_task_yield();
