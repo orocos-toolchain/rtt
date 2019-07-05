@@ -523,6 +523,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     if (ORO_USE_ROSBUILD)
       MESSAGE( STATUS "[UseOrocos] Configuring executable ${EXE_TARGET_NAME} in rosbuild source tree." )
+      MESSAGE( FATAL_ERROR "rosbuild_add_executable not yet supported!")
 # TODO      rosbuild_add_executable(${EXE_TARGET_NAME} ${SOURCES} )
     else()
       MESSAGE( STATUS "[UseOrocos] Configuring executable ${EXE_TARGET_NAME}" )
