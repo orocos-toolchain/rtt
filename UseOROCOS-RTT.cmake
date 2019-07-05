@@ -510,21 +510,16 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # WARNING the target name is *not* suffixed with OROCOS_TARGET. That is left
   # to the caller, if necessary.
   #
-  # Usage: orocos_configure_executable( executablename src1 src2 src3 [INSTALL bin] )
+  # Usage: orocos_configure_executable( executablename src1 src2 src3)
   #
   macro( orocos_configure_executable EXE_TARGET_NAME )
 
     ORO_PARSE_ARGUMENTS(ORO_EXECUTABLE
-      "INSTALL"
+      ""
       ""
       ${ARGN}
       )
     SET( SOURCES ${ORO_EXECUTABLE_DEFAULT_ARGS} )
-    if ( ORO_EXECUTABLE_INSTALL )
-      set(AC_INSTALL_DIR ${ORO_EXECUTABLE_INSTALL})
-    else()
-      set(AC_INSTALL_DIR lib)
-    endif()
 
     if (ORO_USE_ROSBUILD)
       MESSAGE( STATUS "[UseOrocos] Configuring executable ${EXE_TARGET_NAME} in rosbuild source tree." )
