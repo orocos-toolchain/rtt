@@ -351,6 +351,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       ${ARGN}
       )
     SET( SOURCES ${ORO_LIBRARY_DEFAULT_ARGS} )
+    # Extract install directory:
     if ( ORO_LIBRARY_INSTALL )
       set(AC_INSTALL_DIR ${ORO_LIBRARY_INSTALL})
       set(AC_INSTALL_RT_DIR bin)
@@ -366,15 +367,25 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       set(AC_INSTALL_EXPORT EXPORT ${PROJECT_NAME}-${OROCOS_TARGET})
     endif()
   
+    # Set library name:
     if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
     else()
       set( LIB_NAME ${LIB_TARGET_NAME})
     endif()
 
+    # Set component version:
+    if (COMPONENT_VERSION)
+      set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
+    endif(COMPONENT_VERSION)
+    if (ORO_LIBRARY_VERSION)
+      set( LIB_COMPONENT_VERSION VERSION ${ORO_LIBRARY_VERSION})
+    endif(ORO_LIBRARY_VERSION)
+
     # Clear the dependencies such that a target switch can be detected:
     unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
 
+    # Use rosbuild in ros environments:
     if (ORO_USE_ROSBUILD)
       MESSAGE( STATUS "[UseOrocos] Building library ${LIB_TARGET_NAME} in rosbuild source tree." )
       rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
@@ -383,13 +394,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
     endif()
 
-    if (COMPONENT_VERSION)
-      set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
-    endif(COMPONENT_VERSION)
-    if (ORO_LIBRARY_VERSION)
-      set( LIB_COMPONENT_VERSION VERSION ${ORO_LIBRARY_VERSION})
-    endif(ORO_LIBRARY_VERSION)
-
+    # Prepare lib for out-of-the-ordinary lib directories
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
       OUTPUT_NAME ${LIB_NAME}
       ${LIB_COMPONENT_VERSION}
@@ -418,7 +423,6 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       add_dependencies( ${LIB_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
     endif()
 
-    # Install
     INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
 
     # Necessary for .pc file generation
@@ -629,6 +633,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       ${ARGN}
       )
     SET( SOURCES ${ORO_TYPEKIT_DEFAULT_ARGS} )
+    # Extract install directory:
     if ( ORO_TYPEKIT_INSTALL )
       set(AC_INSTALL_DIR ${ORO_TYPEKIT_INSTALL})
       set(AC_INSTALL_RT_DIR bin)
@@ -644,6 +649,14 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       set(AC_INSTALL_EXPORT EXPORT ${PROJECT_NAME}-${OROCOS_TARGET})
     endif()
 
+    # Set library name:
+    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+      set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
+    else()
+      set( LIB_NAME ${LIB_TARGET_NAME})
+    endif()
+
+    # Set component version:
     if (COMPONENT_VERSION)
       set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
     endif(COMPONENT_VERSION)
@@ -651,21 +664,19 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       set( LIB_COMPONENT_VERSION VERSION ${ORO_TYPEKIT_VERSION})
     endif(ORO_TYPEKIT_VERSION)
 
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
-      set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
-    else()
-      set( LIB_NAME ${LIB_TARGET_NAME})
-    endif()
-
     # Clear the dependencies such that a target switch can be detected:
     unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
 
-    MESSAGE( STATUS "[UseOrocos] Building typekit library ${LIB_TARGET_NAME}" )
+    # Use rosbuild in ros environments:
     if (ORO_USE_ROSBUILD)
+      MESSAGE( STATUS "[UseOrocos] Building typekit library ${LIB_TARGET_NAME} in rosbuild source tree." )
       rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
     else()
+      MESSAGE( STATUS "[UseOrocos] Building typekit library ${LIB_TARGET_NAME}" )
       ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
     endif()
+
+    # Prepare typekit lib for out-of-the-ordinary lib directories
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
       OUTPUT_NAME ${LIB_NAME}
       LIBRARY_OUTPUT_DIRECTORY ${ORO_TYPEKIT_OUTPUT_DIRECTORY}
@@ -723,6 +734,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       ${ARGN}
       )
     SET( SOURCES ${ORO_PLUGIN_DEFAULT_ARGS} )
+    # Extract install directory:
     if ( ORO_PLUGIN_INSTALL )
       set(AC_INSTALL_DIR ${ORO_PLUGIN_INSTALL})
       set(AC_INSTALL_RT_DIR bin)
@@ -738,6 +750,14 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       set(AC_INSTALL_EXPORT EXPORT ${PROJECT_NAME}-${OROCOS_TARGET})
     endif()
 
+    # Set library name:
+    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+      set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
+    else()
+      set( LIB_NAME ${LIB_TARGET_NAME})
+    endif()
+
+    # Set component version:
     if (COMPONENT_VERSION)
       set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
     endif(COMPONENT_VERSION)
@@ -745,15 +765,10 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       set( LIB_COMPONENT_VERSION VERSION ${ORO_PLUGIN_VERSION})
     endif(ORO_PLUGIN_VERSION)
 
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
-      set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
-    else()
-      set( LIB_NAME ${LIB_TARGET_NAME})
-    endif()
-
     # Clear the dependencies such that a target switch can be detected:
     unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
 
+    # Use rosbuild in ros environments:
     if (ORO_USE_ROSBUILD)
       MESSAGE( STATUS "[UseOrocos] Building plugin library ${LIB_TARGET_NAME} in rosbuild source tree." )
       rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
@@ -762,6 +777,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
     endif()
 
+    # Prepare plugin lib for out-of-the-ordinary lib directories
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
       OUTPUT_NAME ${LIB_NAME}
       LIBRARY_OUTPUT_DIRECTORY ${ORO_PLUGIN_OUTPUT_DIRECTORY}
