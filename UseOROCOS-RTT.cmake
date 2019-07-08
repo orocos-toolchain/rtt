@@ -335,6 +335,94 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_component )
 
+  # Configure a component library to work with Orocos
+  #
+  # The caller is responsible for any ADD_LIBRARY() or INSTALL() calls for this
+  # target.
+  #
+  # WARNING the target library name *is* suffixed with OROCOS_TARGET, but the
+  # target name is *not* suffixed with OROCOS_TARGET.
+  #
+  # You can set a variable COMPONENT_VERSION x.y.z to set a version or
+  # specify the optional VERSION parameter. For ros builds, the version
+  # number is ignored.
+  #
+  # Usage: orocos_configure_component( COMPONENT_NAME [VERSION x.y.z] )
+  #
+  # EXAMPLE USAGE
+  #
+  #   ADD_LIBRARY(acme-lib SHARED ...)
+  #   orocos_configure_component(acme-lib)
+  #   TARGET_LINK_LIBRARIES(acme-lib ...)
+  #   INSTALL(TARGETS acme-lib LIBRARY DESTINATION lib/${ORO_COMPONENT_OUTPUT_DIRECTORY})
+  #
+  macro( orocos_configure_component COMPONENT_NAME )
+    ORO_PARSE_ARGUMENTS(ADD_COMPONENT
+      "VERSION"
+      ""
+      ${ARGN}
+      )
+    SET( SOURCES ${ADD_COMPONENT_DEFAULT_ARGS} )
+
+    # Set library name:
+    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+      set( COMPONENT_LIB_NAME ${COMPONENT_NAME}-${OROCOS_TARGET})
+    else()
+      set( COMPONENT_LIB_NAME ${COMPONENT_NAME})
+    endif()
+
+    # Set component version:
+    if (COMPONENT_VERSION)
+      set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
+    endif(COMPONENT_VERSION)
+    if (ADD_COMPONENT_VERSION)
+      set( LIB_COMPONENT_VERSION VERSION ${ADD_COMPONENT_VERSION})
+    endif(ADD_COMPONENT_VERSION)
+
+    # Clear the dependencies such that a target switch can be detected:
+    unset( ${COMPONENT_NAME}_LIB_DEPENDS )
+
+    # Use rosbuild in ros environments:
+    if (ORO_USE_ROSBUILD)
+      MESSAGE( STATUS "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME} in rosbuild source tree." )
+      MESSAGE( FATAL_ERROR "rosbuild_add_library not yet supported!")
+# TODO      rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
+    else()
+      MESSAGE( STATUS "[UseOrocos] Configuring component library ${COMPONENT_NAME} as ${COMPONENT_LIB_NAME}" )
+    endif()
+
+    # Prepare component lib for out-of-the-ordinary lib directories
+    SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
+      OUTPUT_NAME ${COMPONENT_LIB_NAME}
+      LIBRARY_OUTPUT_DIRECTORY ${ORO_COMPONENT_OUTPUT_DIRECTORY}
+      DEFINE_SYMBOL "RTT_COMPONENT"
+      ${LIB_COMPONENT_VERSION}
+      )
+
+    orocos_add_include_directories( ${COMPONENT_NAME} ${OROCOS-RTT_INCLUDE_DIRS} ${USE_OROCOS_INCLUDE_DIRS})
+    orocos_add_compile_flags( ${COMPONENT_NAME} ${USE_OROCOS_CFLAGS_OTHER})
+    orocos_add_link_flags( ${COMPONENT_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
+    orocos_set_install_rpath( ${COMPONENT_NAME} ${USE_OROCOS_LIBRARY_DIRS})
+
+    TARGET_LINK_LIBRARIES( ${COMPONENT_NAME}
+      ${OROCOS-RTT_LIBRARIES}
+      #${OROCOS-RTT_TYPEKIT_LIBRARIES}
+      )
+
+    # Only link in case there is something *and* the user didn't opt-out:
+    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
+      target_link_libraries( ${COMPONENT_NAME} ${USE_OROCOS_LIBRARIES} )
+      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+        message(STATUS "[UseOrocos] Linking target '${COMPONENT_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
+      endif()
+    endif()
+
+    # Necessary for .pc file generation
+    list(APPEND OROCOS_DEFINED_COMPS " -l${COMPONENT_LIB_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${COMPONENT_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
+  endmacro( orocos_configure_component )
+
   # Utility libraries should add themselves by calling 'orocos_library()'
   # instead of 'ADD_LIBRARY' in CMakeLists.txt.
   # You can set a variable COMPONENT_VERSION x.y.z to set a version or
@@ -430,6 +518,92 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES "${LIB_TARGET_NAME}")
     list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_library )
+
+  # Configure a utility library to work with Orocos
+  #
+  # The caller is responsible for any ADD_LIBRARY() or INSTALL() calls for this
+  # target.
+  #
+  # WARNING the target library name *is* suffixed with OROCOS_TARGET, but the
+  # target name is *not* suffixed with OROCOS_TARGET.
+  #
+  # You can set a variable COMPONENT_VERSION x.y.z to set a version or
+  # specify the optional VERSION parameter. For ros builds, the version
+  # number is ignored.
+  #
+  # Usage: orocos_configure_library( libraryname [VERSION x.y.z] )
+  #
+  # EXAMPLE USAGE
+  #
+  #   ADD_LIBRARY(acme-lib SHARED ...)
+  #   orocos_configure_library(acme-lib)
+  #   TARGET_LINK_LIBRARIES(acme-lib ...)
+  #   INSTALL(TARGETS acme-lib LIBRARY DESTINATION lib)
+  #
+  macro( orocos_configure_library LIB_TARGET_NAME )
+
+    ORO_PARSE_ARGUMENTS(ORO_LIBRARY
+      "VERSION"
+      ""
+      ${ARGN}
+      )
+
+    # Set library name:
+    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+      set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
+    else()
+      set( LIB_NAME ${LIB_TARGET_NAME})
+    endif()
+
+    # Set component version:
+    if (COMPONENT_VERSION)
+      set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
+    endif(COMPONENT_VERSION)
+    if (ORO_LIBRARY_VERSION)
+      set( LIB_COMPONENT_VERSION VERSION ${ORO_LIBRARY_VERSION})
+    endif(ORO_LIBRARY_VERSION)
+
+    # Clear the dependencies such that a target switch can be detected:
+    unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
+
+    # Use rosbuild in ros environments:
+    if (ORO_USE_ROSBUILD)
+      MESSAGE( STATUS "[UseOrocos] Configuring utility library ${LIB_TARGET_NAME} in rosbuild source tree." )
+      MESSAGE( FATAL_ERROR "rosbuild_add_library not yet supported!")
+# TODO      rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
+    else()
+      MESSAGE( STATUS "[UseOrocos] Configuring utility library ${LIB_TARGET_NAME}" )
+    endif()
+
+    # Prepare lib for out-of-the-ordinary lib directories
+    SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+      OUTPUT_NAME ${LIB_NAME}
+      ${LIB_COMPONENT_VERSION}
+      )
+
+    orocos_add_include_directories( ${LIB_TARGET_NAME} ${OROCOS-RTT_INCLUDE_DIRS} ${USE_OROCOS_INCLUDE_DIRS})
+    orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER} )
+    orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER} )
+    orocos_set_install_rpath( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARY_DIRS} )
+
+    TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME}
+      ${OROCOS-RTT_LIBRARIES}
+      #${OROCOS-RTT_TYPEKIT_LIBRARIES}
+      )
+
+    # Only link in case there is something *and* the user didn't opt-out:
+    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
+      target_link_libraries( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARIES} )
+      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+        message(STATUS "[UseOrocos] Linking target '${LIB_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
+      endif()
+    endif()
+
+    # Necessary for .pc file generation
+    list(APPEND OROCOS_DEFINED_LIBS " -l${LIB_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${LIB_TARGET_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
+  endmacro( orocos_configure_library )
 
   # Executables should add themselves by calling 'orocos_executable()'
   # instead of 'ADD_EXECUTABLE' in CMakeLists.txt.
@@ -732,7 +906,93 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_typekit )
 
-  # plugin libraries should add themselves by calling 'orocos_plugin()' 
+  # Configure a typekit library to work with Orocos
+  #
+  # The caller is responsible for any ADD_LIBRARY() or INSTALL() calls for this
+  # target.
+  #
+  # WARNING the target library name *is* suffixed with OROCOS_TARGET, but the
+  # target name is *not* suffixed with OROCOS_TARGET.
+  #
+  # You can set a variable COMPONENT_VERSION x.y.z to set a version or
+  # specify the optional VERSION parameter. For ros builds, the version
+  # number is ignored.
+  #
+  # Usage: orocos_configure_typekit( COMPONENT_NAME [VERSION x.y.z] )
+  #
+  # EXAMPLE USAGE
+  #
+  #   ADD_LIBRARY(acme-libtk SHARED ...)
+  #   orocos_configure_typekit(acme-libtk)
+  #   TARGET_LINK_LIBRARIES(acme-libtk ...)
+  #   INSTALL(TARGETS acme-libtk LIBRARY DESTINATION lib/${ORO_TYPEKIT_OUTPUT_DIRECTORY})
+  #
+  macro( orocos_configure_typekit LIB_TARGET_NAME )
+
+    ORO_PARSE_ARGUMENTS(ORO_TYPEKIT
+      "VERSION"
+      ""
+      ${ARGN}
+      )
+    SET( SOURCES ${ORO_TYPEKIT_DEFAULT_ARGS} )
+
+    # Set library name:
+    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+      set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
+    else()
+      set( LIB_NAME ${LIB_TARGET_NAME})
+    endif()
+
+    # Set component version:
+    if (COMPONENT_VERSION)
+      set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
+    endif(COMPONENT_VERSION)
+    if (ORO_TYPEKIT_VERSION)
+      set( LIB_COMPONENT_VERSION VERSION ${ORO_TYPEKIT_VERSION})
+    endif(ORO_TYPEKIT_VERSION)
+
+    # Clear the dependencies such that a target switch can be detected:
+    unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
+
+    if (ORO_USE_ROSBUILD)
+      MESSAGE( STATUS "[UseOrocos] Configuring typekit library ${LIB_TARGET_NAME} in rosbuild source tree." )
+      MESSAGE( FATAL_ERROR "rosbuild_add_library not yet supported!")
+# TODO      rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
+    else()
+      MESSAGE( STATUS "[UseOrocos] Configuring typekit library ${LIB_TARGET_NAME}" )
+    endif()
+
+    # Prepare typekit lib for out-of-the-ordinary lib directories
+    SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+      OUTPUT_NAME ${LIB_NAME}
+      LIBRARY_OUTPUT_DIRECTORY ${ORO_TYPEKIT_OUTPUT_DIRECTORY}
+      ${LIB_COMPONENT_VERSION}
+      )
+
+    orocos_add_include_directories( ${LIB_TARGET_NAME} ${OROCOS-RTT_INCLUDE_DIRS} ${USE_OROCOS_INCLUDE_DIRS})
+    orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER})
+    orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
+    orocos_set_install_rpath( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARY_DIRS})
+
+    TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME}
+      ${OROCOS-RTT_LIBRARIES}
+      )
+
+    # Only link in case there is something *and* the user didn't opt-out:
+    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
+      target_link_libraries( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARIES} )
+      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+        message(STATUS "[UseOrocos] Linking target '${LIB_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
+      endif()
+    endif()
+
+    # Necessary for .pc file generation
+    list(APPEND OROCOS_DEFINED_TYPES " -l${LIB_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${LIB_TARGET_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
+  endmacro( orocos_configure_typekit )
+
+  # plugin libraries should add themselves by calling 'orocos_plugin()'
   # instead of 'ADD_LIBRARY' in CMakeLists.txt.
   # You can set a variable COMPONENT_VERSION x.y.z to set a version or 
   # specify the optional VERSION parameter. For ros builds, the version
@@ -834,7 +1094,94 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_plugin )
 
-  # service libraries should add themselves by calling 'orocos_service()' 
+  # Configure a plugin library to work with Orocos
+  #
+  # The caller is responsible for any ADD_LIBRARY() or INSTALL() calls for this
+  # target.
+  #
+  # WARNING the target library name *is* suffixed with OROCOS_TARGET, but the
+  # target name is *not* suffixed with OROCOS_TARGET.
+  #
+  # You can set a variable COMPONENT_VERSION x.y.z to set a version or
+  # specify the optional VERSION parameter. For ros builds, the version
+  # number is ignored.
+  #
+  # Usage: orocos_configure_plugin( COMPONENT_NAME [VERSION x.y.z] )
+  #
+  # EXAMPLE USAGE
+  #
+  #   ADD_LIBRARY(acme-lib SHARED ...)
+  #   orocos_configure_plugin(acme-lib)
+  #   TARGET_LINK_LIBRARIES(acme-lib ...)
+  #   INSTALL(TARGETS acme-lib LIBRARY DESTINATION lib/${ORO_PLUGIN_OUTPUT_DIRECTORY})
+  #
+  macro( orocos_configure_plugin LIB_TARGET_NAME )
+
+    ORO_PARSE_ARGUMENTS(ORO_PLUGIN
+      "VERSION"
+      ""
+      ${ARGN}
+      )
+    SET( SOURCES ${ORO_PLUGIN_DEFAULT_ARGS} )
+
+    # Export target
+    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+      set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
+    else()
+      set( LIB_NAME ${LIB_TARGET_NAME})
+    endif()
+
+    # Set component version:
+    if (COMPONENT_VERSION)
+      set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
+    endif(COMPONENT_VERSION)
+    if (ORO_PLUGIN_VERSION)
+      set( LIB_COMPONENT_VERSION VERSION ${ORO_PLUGIN_VERSION})
+    endif(ORO_PLUGIN_VERSION)
+
+    # Clear the dependencies such that a target switch can be detected:
+    unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
+
+    if (ORO_USE_ROSBUILD)
+      MESSAGE( STATUS "[UseOrocos] Configuring plugin library ${LIB_TARGET_NAME} in rosbuild source tree." )
+      MESSAGE( FATAL_ERROR "rosbuild_add_library not yet supported!")
+#TODO      rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
+    else()
+      MESSAGE( STATUS "[UseOrocos] Configuring plugin library ${LIB_TARGET_NAME}" )
+    endif()
+
+    # Prepare plugin lib for out-of-the-ordinary lib directories
+    SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+      OUTPUT_NAME ${LIB_NAME}
+      LIBRARY_OUTPUT_DIRECTORY ${ORO_PLUGIN_OUTPUT_DIRECTORY}
+      ${LIB_COMPONENT_VERSION}
+      )
+
+    orocos_add_include_directories( ${LIB_TARGET_NAME} ${OROCOS-RTT_INCLUDE_DIRS} ${USE_OROCOS_INCLUDE_DIRS})
+    orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER})
+    orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
+    orocos_set_install_rpath( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARY_DIRS})
+
+    TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME}
+      ${OROCOS-RTT_LIBRARIES}
+      #${OROCOS-RTT_TYPEKIT_LIBRARIES}
+      )
+
+    # Only link in case there is something *and* the user didn't opt-out:
+    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
+      target_link_libraries( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARIES} )
+      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
+        message(STATUS "[UseOrocos] Linking target '${LIB_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
+      endif()
+    endif()
+
+    # Necessary for .pc file generation
+    list(APPEND OROCOS_DEFINED_PLUGINS " -l${LIB_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${LIB_TARGET_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
+  endmacro( orocos_configure_plugin )
+
+  # service libraries should add themselves by calling 'orocos_service()'
   # instead of 'ADD_LIBRARY' in CMakeLists.txt.
   #
   # Usage: orocos_service( servicename src1 src2 src3 )
