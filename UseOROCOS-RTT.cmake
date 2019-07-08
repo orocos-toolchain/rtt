@@ -511,10 +511,18 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # Configure an executable to work with Orocos.
   # The caller is responsible for any ADD_EXECUTABLE(), ADD_TEST(), or INSTALL()
   # calls for this target.
-  # WARNING the target name is *not* suffixed with OROCOS_TARGET. That is left
-  # to the caller, if necessary.
+  #
+  # WARNING the target executable name *is* suffixed with OROCOS_TARGET, but the
+  # target name is *not* suffixed with OROCOS_TARGET.
   #
   # Usage: orocos_configure_executable( executablename src1 src2 src3)
+  #
+  # EXAMPLE USAGE
+  #
+  #   ADD_EXECUTABLE(acme ...)
+  #   orocos_configure_executable(acme)
+  #   TARGET_LINK_LIBRARIES(acme ...)
+  #   INSTALL(TARGETS acme RUNTIME DESTINATION bin)
   #
   macro( orocos_configure_executable EXE_TARGET_NAME )
 
@@ -525,6 +533,12 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       )
     SET( SOURCES ${ORO_EXECUTABLE_DEFAULT_ARGS} )
 
+    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+      set( EXE_NAME ${EXE_TARGET_NAME}-${OROCOS_TARGET})
+    else()
+      set( EXE_NAME ${EXE_TARGET_NAME})
+    endif()
+
     if (ORO_USE_ROSBUILD)
       MESSAGE( STATUS "[UseOrocos] Configuring executable ${EXE_TARGET_NAME} in rosbuild source tree." )
       MESSAGE( FATAL_ERROR "rosbuild_add_executable not yet supported!")
@@ -534,7 +548,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     endif()
 
     SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
-      OUTPUT_NAME ${EXE_TARGET_NAME}
+      OUTPUT_NAME ${EXE_NAME}
       )
 
     if(CMAKE_DEBUG_POSTFIX)
