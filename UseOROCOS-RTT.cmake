@@ -237,12 +237,18 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # specify the optional VERSION parameter. For ros builds, the version
   # number is ignored.
   #
-  # Usage: orocos_component( COMPONENT_NAME src1 src2 src3 [INSTALL lib/orocos/${PROJECT_NAME}] [VERSION x.y.z] )
+  # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the library name
+  # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
+  # With NO_TARGET_SUFFIX set the target name and library name will be the same.
+  # WARNING without NO_TARGET_SUFFIX the target library name *is* suffixed with
+  # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
+  #
+  # Usage: orocos_component( COMPONENT_NAME src1 src2 src3 [INSTALL lib/orocos/${PROJECT_NAME}] [VERSION x.y.z] [NO_TARGET_SUFFIX] )
   #
   macro( orocos_component COMPONENT_NAME )
     ORO_PARSE_ARGUMENTS(ADD_COMPONENT
       "INSTALL;VERSION;EXPORT"
-      ""
+      "NO_TARGET_SUFFIX"
       ${ARGN}
       )
     SET( SOURCES ${ADD_COMPONENT_DEFAULT_ARGS} )
@@ -264,7 +270,8 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     endif()
 
     # Set library name:
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+    if ( NOT ADD_COMPONENT_NO_TARGET_SUFFIX AND
+        ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
       set( COMPONENT_LIB_NAME ${COMPONENT_NAME}-${OROCOS_TARGET})
     else()
       set( COMPONENT_LIB_NAME ${COMPONENT_NAME})
@@ -340,14 +347,17 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # The caller is responsible for any ADD_LIBRARY() or INSTALL() calls for this
   # target.
   #
-  # WARNING the target library name *is* suffixed with OROCOS_TARGET, but the
-  # target name is *not* suffixed with OROCOS_TARGET.
-  #
   # You can set a variable COMPONENT_VERSION x.y.z to set a version or
   # specify the optional VERSION parameter. For ros builds, the version
   # number is ignored.
   #
-  # Usage: orocos_configure_component( COMPONENT_NAME [VERSION x.y.z] )
+  # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the library name
+  # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
+  # With NO_TARGET_SUFFIX set the target name and library name will be the same.
+  # WARNING without NO_TARGET_SUFFIX the target library name *is* suffixed with
+  # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
+  #
+  # Usage: orocos_configure_component( COMPONENT_NAME [VERSION x.y.z] [NO_TARGET_SUFFIX] )
   #
   # EXAMPLE USAGE
   #
@@ -359,13 +369,14 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   macro( orocos_configure_component COMPONENT_NAME )
     ORO_PARSE_ARGUMENTS(ADD_COMPONENT
       "VERSION"
-      ""
+      "NO_TARGET_SUFFIX"
       ${ARGN}
       )
     SET( SOURCES ${ADD_COMPONENT_DEFAULT_ARGS} )
 
     # Set library name:
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+    if ( NOT ADD_COMPONENT_NO_TARGET_SUFFIX AND
+        ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
       set( COMPONENT_LIB_NAME ${COMPONENT_NAME}-${OROCOS_TARGET})
     else()
       set( COMPONENT_LIB_NAME ${COMPONENT_NAME})
@@ -429,13 +440,19 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # specify the optional VERSION parameter. For ros builds, the version
   # number is ignored.
   #
-  # Usage: orocos_library( libraryname src1 src2 src3 [VERSION x.y.z] )
+  # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the library name
+  # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
+  # With NO_TARGET_SUFFIX set the target name and library name will be the same.
+  # WARNING without NO_TARGET_SUFFIX the target library name *is* suffixed with
+  # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
+  #
+  # Usage: orocos_library( libraryname src1 src2 src3 [VERSION x.y.z]  [NO_TARGET_SUFFIX] )
   #
   macro( orocos_library LIB_TARGET_NAME )
 
     ORO_PARSE_ARGUMENTS(ORO_LIBRARY
       "INSTALL;VERSION;EXPORT"
-      ""
+      "NO_TARGET_SUFFIX"
       ${ARGN}
       )
     SET( SOURCES ${ORO_LIBRARY_DEFAULT_ARGS} )
@@ -456,7 +473,8 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     endif()
   
     # Set library name:
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+    if ( NOT ORO_LIBRARY_NO_TARGET_SUFFIX AND
+        ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
     else()
       set( LIB_NAME ${LIB_TARGET_NAME})
@@ -524,14 +542,17 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # The caller is responsible for any ADD_LIBRARY() or INSTALL() calls for this
   # target.
   #
-  # WARNING the target library name *is* suffixed with OROCOS_TARGET, but the
-  # target name is *not* suffixed with OROCOS_TARGET.
-  #
   # You can set a variable COMPONENT_VERSION x.y.z to set a version or
   # specify the optional VERSION parameter. For ros builds, the version
   # number is ignored.
   #
-  # Usage: orocos_configure_library( libraryname [VERSION x.y.z] )
+  # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the library name
+  # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
+  # With NO_TARGET_SUFFIX set the target name and library name will be the same.
+  # WARNING without NO_TARGET_SUFFIX the target library name *is* suffixed with
+  # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
+  #
+  # Usage: orocos_configure_library( libraryname [VERSION x.y.z] [NO_TARGET_SUFFIX] )
   #
   # EXAMPLE USAGE
   #
@@ -544,12 +565,13 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     ORO_PARSE_ARGUMENTS(ORO_LIBRARY
       "VERSION"
-      ""
+      "NO_TARGET_SUFFIX"
       ${ARGN}
       )
 
     # Set library name:
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+    if ( NOT ORO_LIBRARY_NO_TARGET_SUFFIX AND
+        ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
     else()
       set( LIB_NAME ${LIB_TARGET_NAME})
@@ -608,13 +630,19 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # Executables should add themselves by calling 'orocos_executable()'
   # instead of 'ADD_EXECUTABLE' in CMakeLists.txt.
   #
-  # Usage: orocos_executable( executablename src1 src2 src3 [INSTALL bin] )
+  # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the executable name
+  # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
+  # With NO_TARGET_SUFFIX set the target name and executable name will be the same.
+  # WARNING without NO_TARGET_SUFFIX the target executable name *is* suffixed with
+  # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
+  #
+  # Usage: orocos_executable( executablename src1 src2 src3 [INSTALL bin] [NO_TARGET_SUFFIX] )
   #
   macro( orocos_executable EXE_TARGET_NAME )
 
     ORO_PARSE_ARGUMENTS(ORO_EXECUTABLE
       "INSTALL;EXPORT"
-      ""
+      "NO_TARGET_SUFFIX"
       ${ARGN}
       )
     SET( SOURCES ${ORO_EXECUTABLE_DEFAULT_ARGS} )
@@ -633,7 +661,8 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       set(AC_INSTALL_EXPORT EXPORT ${PROJECT_NAME}-${OROCOS_TARGET})
     endif()
 
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+    if ( NOT ORO_EXECUTABLE_NO_TARGET_SUFFIX AND
+        ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
       set( EXE_NAME ${EXE_TARGET_NAME}-${OROCOS_TARGET})
     else()
       set( EXE_NAME ${EXE_TARGET_NAME})
@@ -686,10 +715,13 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # The caller is responsible for any ADD_EXECUTABLE(), ADD_TEST(), or INSTALL()
   # calls for this target.
   #
-  # WARNING the target executable name *is* suffixed with OROCOS_TARGET, but the
-  # target name is *not* suffixed with OROCOS_TARGET.
+  # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the executable name
+  # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
+  # With NO_TARGET_SUFFIX set the target name and executable name will be the same.
+  # WARNING without NO_TARGET_SUFFIX the target executable name *is* suffixed with
+  # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
   #
-  # Usage: orocos_configure_executable( executablename src1 src2 src3)
+  # Usage: orocos_configure_executable( executablename src1 src2 src3 [NO_TARGET_SUFFIX] )
   #
   # EXAMPLE USAGE
   #
@@ -702,12 +734,13 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     ORO_PARSE_ARGUMENTS(ORO_EXECUTABLE
       ""
-      ""
+      "NO_TARGET_SUFFIX"
       ${ARGN}
       )
     SET( SOURCES ${ORO_EXECUTABLE_DEFAULT_ARGS} )
 
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+    if ( NOT ORO_EXECUTABLE_NO_TARGET_SUFFIX AND
+        ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
       set( EXE_NAME ${EXE_TARGET_NAME}-${OROCOS_TARGET})
     else()
       set( EXE_NAME ${EXE_TARGET_NAME})
@@ -811,13 +844,19 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # specify the optional VERSION parameter. For ros builds, the version
   # number is ignored.
   #
-  # Usage: orocos_typekit( typekitname src1 src2 src3 [INSTALL lib/orocos/project/types] [VERSION x.y.z] )
+  # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the typekit name
+  # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
+  # With NO_TARGET_SUFFIX set the target name and typekit name will be the same.
+  # WARNING without NO_TARGET_SUFFIX the target typekit name *is* suffixed with
+  # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
+  #
+  # Usage: orocos_typekit( typekitname src1 src2 src3 [INSTALL lib/orocos/project/types] [VERSION x.y.z] [NO_TARGET_SUFFIX] )
   #
   macro( orocos_typekit LIB_TARGET_NAME )
 
     ORO_PARSE_ARGUMENTS(ORO_TYPEKIT
       "INSTALL;VERSION;EXPORT"
-      ""
+      "NO_TARGET_SUFFIX"
       ${ARGN}
       )
     SET( SOURCES ${ORO_TYPEKIT_DEFAULT_ARGS} )
@@ -838,7 +877,8 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     endif()
 
     # Set library name:
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+    if ( NOT ORO_TYPEKIT_NO_TARGET_SUFFIX AND
+        ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
     else()
       set( LIB_NAME ${LIB_TARGET_NAME})
@@ -911,14 +951,17 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # The caller is responsible for any ADD_LIBRARY() or INSTALL() calls for this
   # target.
   #
-  # WARNING the target library name *is* suffixed with OROCOS_TARGET, but the
-  # target name is *not* suffixed with OROCOS_TARGET.
-  #
   # You can set a variable COMPONENT_VERSION x.y.z to set a version or
   # specify the optional VERSION parameter. For ros builds, the version
   # number is ignored.
   #
-  # Usage: orocos_configure_typekit( COMPONENT_NAME [VERSION x.y.z] )
+  # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the typekit name
+  # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
+  # With NO_TARGET_SUFFIX set the target name and typekit name will be the same.
+  # WARNING without NO_TARGET_SUFFIX the target typekit name *is* suffixed with
+  # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
+  #
+  # Usage: orocos_configure_typekit( COMPONENT_NAME [VERSION x.y.z] [NO_TARGET_SUFFIX] )
   #
   # EXAMPLE USAGE
   #
@@ -931,13 +974,14 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     ORO_PARSE_ARGUMENTS(ORO_TYPEKIT
       "VERSION"
-      ""
+      "NO_TARGET_SUFFIX"
       ${ARGN}
       )
     SET( SOURCES ${ORO_TYPEKIT_DEFAULT_ARGS} )
 
     # Set library name:
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+    if ( NOT ORO_TYPEKIT_NO_TARGET_SUFFIX AND
+        ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
     else()
       set( LIB_NAME ${LIB_TARGET_NAME})
@@ -998,13 +1042,19 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # specify the optional VERSION parameter. For ros builds, the version
   # number is ignored.
   #
-  # Usage: orocos_plugin( pluginname src1 src2 src3 [INSTALL lib/orocos/project/plugins] [VERSION x.y.z])
+  # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the plugin name
+  # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
+  # With NO_TARGET_SUFFIX set the target name and plugin name will be the same.
+  # WARNING without NO_TARGET_SUFFIX the target plugin name *is* suffixed with
+  # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
+  #
+  # Usage: orocos_plugin( pluginname src1 src2 src3 [INSTALL lib/orocos/project/plugins] [VERSION x.y.z] [NO_TARGET_SUFFIX] )
   #
   macro( orocos_plugin LIB_TARGET_NAME )
 
     ORO_PARSE_ARGUMENTS(ORO_PLUGIN
       "INSTALL;VERSION;EXPORT"
-      ""
+      "NO_TARGET_SUFFIX"
       ${ARGN}
       )
     SET( SOURCES ${ORO_PLUGIN_DEFAULT_ARGS} )
@@ -1025,7 +1075,8 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     endif()
 
     # Set library name:
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+    if ( NOT ORO_PLUGIN_NO_TARGET_SUFFIX AND
+        ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
     else()
       set( LIB_NAME ${LIB_TARGET_NAME})
@@ -1099,14 +1150,17 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # The caller is responsible for any ADD_LIBRARY() or INSTALL() calls for this
   # target.
   #
-  # WARNING the target library name *is* suffixed with OROCOS_TARGET, but the
-  # target name is *not* suffixed with OROCOS_TARGET.
-  #
   # You can set a variable COMPONENT_VERSION x.y.z to set a version or
   # specify the optional VERSION parameter. For ros builds, the version
   # number is ignored.
   #
-  # Usage: orocos_configure_plugin( COMPONENT_NAME [VERSION x.y.z] )
+  # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the plugin name
+  # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
+  # With NO_TARGET_SUFFIX set the target name and plugin name will be the same.
+  # WARNING without NO_TARGET_SUFFIX the target plugin name *is* suffixed with
+  # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
+  #
+  # Usage: orocos_configure_plugin( COMPONENT_NAME [VERSION x.y.z] [NO_TARGET_SUFFIX] )
   #
   # EXAMPLE USAGE
   #
@@ -1119,13 +1173,14 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     ORO_PARSE_ARGUMENTS(ORO_PLUGIN
       "VERSION"
-      ""
+      "NO_TARGET_SUFFIX"
       ${ARGN}
       )
     SET( SOURCES ${ORO_PLUGIN_DEFAULT_ARGS} )
 
     # Export target
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
+    if ( NOT ORO_PLUGIN_NO_TARGET_SUFFIX AND
+        ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
     else()
       set( LIB_NAME ${LIB_TARGET_NAME})
