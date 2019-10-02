@@ -84,6 +84,8 @@ namespace RTT
         DataObjectLocked( param_t initial_value )
             : data(initial_value), status(NoData), initialized(true) {}
 
+        virtual ~DataObjectLocked() { }
+
         /**
          * The type of the data.
          */

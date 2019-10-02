@@ -167,7 +167,7 @@ namespace RTT
             data_sample(initial_value);
         }
 
-        ~DataObjectLockFree() {
+        virtual ~DataObjectLockFree() {
             delete[] data;
         }
 

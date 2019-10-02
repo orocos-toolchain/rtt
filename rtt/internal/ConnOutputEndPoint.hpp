@@ -77,7 +77,7 @@ namespace RTT
         {
         }
 
-        ~ConnOutputEndpoint()
+        virtual ~ConnOutputEndpoint()
         {
         }
 

@@ -63,6 +63,8 @@ namespace RTT { namespace base {
         typedef typename boost::call_traits<T>::param_type param_t;
         typedef typename boost::call_traits<T>::reference reference_t;
 
+        virtual ~ChannelElement() { }
+
         shared_ptr getOutput()
         {
              return ChannelElementBase::narrow<T>(ChannelElementBase::getOutput().get());
@@ -139,6 +141,8 @@ namespace RTT { namespace base {
         MultipleInputsChannelElement()
             : last()
         {}
+
+        virtual ~MultipleInputsChannelElement() { }
 
         /**
          * Overridden implementation of MultipleInputsChannelElementBase::data_sample() that gets a sample from the currently selected input.

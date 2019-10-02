@@ -341,6 +341,8 @@ namespace RTT { namespace base {
     public:
         MultipleInputsChannelElementBase();
 
+        virtual ~MultipleInputsChannelElementBase() { }
+
         /**
          * Returns true, if this channel element has at least one input, independent of whether is has an
          * output connection or not.
@@ -409,6 +411,8 @@ namespace RTT { namespace base {
     public:
         MultipleOutputsChannelElementBase();
 
+        virtual ~MultipleOutputsChannelElementBase() { }
+
         /**
          * Returns true, if this channel element has at least one output, independent of whether is has an
          * input connection or not.
@@ -463,6 +467,8 @@ namespace RTT { namespace base {
     {
     public:
         typedef boost::intrusive_ptr<MultipleInputsMultipleOutputsChannelElementBase> shared_ptr;
+
+        virtual ~MultipleInputsMultipleOutputsChannelElementBase() { }
 
         /**
          * Returns true, if this channel element has at least one input AND at least one output.
