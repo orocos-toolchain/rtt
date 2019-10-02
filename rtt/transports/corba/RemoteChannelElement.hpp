@@ -45,6 +45,8 @@
 #include "CorbaConnPolicy.hpp"
 #include "ApplicationServer.hpp"
 
+#include <boost/scoped_ptr.hpp>
+
 namespace RTT {
 
     namespace corba {
@@ -97,10 +99,10 @@ namespace RTT {
                 // Force creation of dispatcher.
                 CorbaDispatcher::Instance(msender);
                 
-                localUri = ApplicationServer::orb->object_to_string(_this());
+                localUri = boost::scoped_ptr<char>( ApplicationServer::orb->object_to_string(_this()) ).get();
             }
 
-            ~RemoteChannelElement()
+            virtual ~RemoteChannelElement()
             {
             }
 
@@ -493,7 +495,7 @@ namespace RTT {
                 if(base->getOutput())
                     return RTT::base::ChannelElementBase::getRemoteURI();
                 
-                std::string uri = ApplicationServer::orb->object_to_string(remote_side);
+                std::string uri = boost::scoped_ptr<char>( ApplicationServer::orb->object_to_string(remote_side) ).get();
                 return uri;
             }
             
