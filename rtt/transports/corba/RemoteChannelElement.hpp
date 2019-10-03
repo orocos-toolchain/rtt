@@ -102,7 +102,7 @@ namespace RTT {
                 localUri = boost::scoped_ptr<char>( ApplicationServer::orb->object_to_string(_this()) ).get();
             }
 
-            virtual ~RemoteChannelElement()
+            ~RemoteChannelElement()
             {
             }
 

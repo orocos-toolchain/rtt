@@ -87,8 +87,6 @@ namespace RTT
             : DataObjectLockFree<T>(initial_value)
 #endif
         {}
-
-        virtual ~DataObject() { }
     };
 }}
 

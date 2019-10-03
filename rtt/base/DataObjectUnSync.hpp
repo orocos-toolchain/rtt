@@ -80,8 +80,6 @@ namespace RTT
         DataObjectUnSync( param_t initial_value )
             : data(initial_value), status(NoData), initialized(true) {}
 
-        virtual ~DataObjectUnSync() { }
-
         virtual FlowStatus Get( reference_t pull, bool copy_old_data = true ) const {
             FlowStatus result = status;
             if (status == NewData) {
