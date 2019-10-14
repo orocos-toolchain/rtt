@@ -163,4 +163,14 @@
 #define RTT_UNUSED
 #endif
 
+#if __cplusplus > 199711L
+#define RTT_OVERRIDE override
+#define RTT_FINAL final
+#define RTT_NOEXCEPT noexcept
+#else
+#define RTT_OVERRIDE
+#define RTT_FINAL
+#define RTT_NOEXCEPT throw()
+#endif
+
 #endif
