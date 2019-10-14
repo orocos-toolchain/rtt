@@ -239,7 +239,7 @@ namespace RTT {
                 return success;
             }
 
-            FlowStatus read(typename base::ChannelElement<T>::reference_t sample, bool copy_old_data)
+            virtual FlowStatus read(typename base::ChannelElement<T>::reference_t sample, bool copy_old_data) RTT_OVERRIDE RTT_FINAL
             {
                 if (!valid)
                     return NoData;
@@ -312,7 +312,17 @@ namespace RTT {
                 return (CFlowStatus)fs;
             }
 
-            WriteStatus write(typename base::ChannelElement<T>::param_t sample)
+            WriteStatus writeReliable(typename base::ChannelElement<T>::param_t sample) RTT_OVERRIDE RTT_FINAL
+            {
+                return this->remoteWrite(sample, true);
+            }
+
+            WriteStatus write(typename base::ChannelElement<T>::param_t sample) RTT_OVERRIDE RTT_FINAL
+            {
+                return this->remoteWrite(sample, false);
+            }
+
+            WriteStatus remoteWrite(typename base::ChannelElement<T>::param_t sample, bool reliable)
             {
                 WriteStatus result;
 
@@ -347,6 +357,10 @@ namespace RTT {
                     CWriteStatus cfs = remote_side->write(write_any);
                     return (WriteStatus)cfs;
 #else
+                    if (reliable) {
+                        CWriteStatus cfs = remote_side->write(write_any);
+                        return (WriteStatus)cfs;
+                    }
                     remote_side->writeOneway(write_any);
                     return WriteSuccess;
 #endif
