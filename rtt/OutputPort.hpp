@@ -85,7 +85,7 @@ namespace RTT
                 T const& initial_sample = sample->Get();
                 if ( channel_el_input->data_sample(initial_sample, /* reset = */ false) != NotConnected ) {
                     if ( has_last_written_value && policy.init )
-                        return ( channel_el_input->write(initial_sample) != NotConnected );
+                        return ( channel_el_input->writeReliable(initial_sample) != NotConnected );
                     return true;
                 } else {
                     Logger::In in("OutputPort");
