@@ -161,9 +161,20 @@ namespace internal {
          *
          * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
          */
-        virtual WriteStatus write(param_t sample)
+        virtual WriteStatus write(param_t sample) RTT_OVERRIDE
         {
             WriteStatus result = mstorage->write(sample);
+            if (result == WriteSuccess) {
+                if (!this->signal()) {
+                    return WriteFailure;
+                }
+            }
+            return result;
+        }
+
+        virtual WriteStatus writeReliable(param_t sample) RTT_OVERRIDE
+        {
+            WriteStatus result = mstorage->writeReliable(sample);
             if (result == WriteSuccess) {
                 if (!this->signal()) {
                     return WriteFailure;

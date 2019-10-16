@@ -96,10 +96,15 @@ namespace RTT { namespace internal {
          *
          * @return true if there was room in the FIFO for the new sample, and false otherwise.
          */
-        virtual WriteStatus write(param_t sample)
+        virtual WriteStatus write(param_t sample) RTT_OVERRIDE
         {
             if (!buffer->Push(sample)) return WriteFailure;
             return this->signal() ? WriteSuccess : NotConnected;
+        }
+
+        virtual WriteStatus writeReliable(param_t sample) RTT_OVERRIDE
+        {
+            return write(sample);
         }
 
         /** Pops and returns the first element of the FIFO

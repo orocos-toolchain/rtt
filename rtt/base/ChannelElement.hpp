@@ -104,11 +104,13 @@ namespace RTT { namespace base {
          */
         virtual WriteStatus writeReliable(param_t sample)
         {
-            return this->write(sample);
+            typename ChannelElement<T>::shared_ptr output = getOutput();
+            if (output)
+                return output->writeReliable(sample);
+            return NotConnected;
         }
 
-        /** Writes a new sample on this connection. \a sample is the sample to
-         * write. 
+        /** Writes a new sample on this connection. \a sample is the sample to write. 
          *
          * @returns false if an error occured that requires the channel to be invalidated.
          *          In no way does it indicate that the sample has been received by the other side of the channel.
@@ -305,7 +307,17 @@ namespace RTT { namespace base {
          *
          * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
          */
-        virtual WriteStatus write(param_t sample)
+        virtual WriteStatus write(param_t sample) RTT_OVERRIDE
+        {
+            return do_write(sample, false);
+        }
+
+        virtual WriteStatus writeReliable(param_t sample) RTT_OVERRIDE
+        {
+            return do_write(sample, true);
+        }
+
+        virtual WriteStatus do_write(param_t sample, bool reliable)
         {
             WriteStatus result = WriteSuccess;
             bool at_least_one_output_is_disconnected = false;
@@ -317,7 +329,7 @@ namespace RTT { namespace base {
                 for(Outputs::iterator it = outputs.begin(); it != outputs.end(); ++it)
                 {
                     typename ChannelElement<T>::shared_ptr output = it->channel->narrow<T>();
-                    WriteStatus fs = output->write(sample);
+                    WriteStatus fs = reliable ? output->writeReliable(sample) : output->write(sample);
                     if (it->mandatory && (result < fs)) result = fs;
                     if (fs == NotConnected) {
                         it->disconnected = true;

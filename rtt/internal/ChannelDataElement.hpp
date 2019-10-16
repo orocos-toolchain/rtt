@@ -63,10 +63,15 @@ namespace RTT { namespace internal {
 
         /** Update the data sample stored in this element.
          * It always returns true. */
-        virtual WriteStatus write(param_t sample)
+        virtual WriteStatus write(param_t sample) RTT_OVERRIDE
         {
             if (!data->Set(sample)) return WriteFailure;
             return this->signal() ? WriteSuccess : NotConnected;
+        }
+
+        virtual WriteStatus writeReliable(param_t sample) RTT_OVERRIDE
+        {
+            return write(sample);
         }
 
         /** Reads the last sample given to write()

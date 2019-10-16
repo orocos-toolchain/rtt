@@ -159,13 +159,18 @@ namespace RTT
              * @param sample the data sample to write
              * @return true if it could be sent.
              */
-            WriteStatus write(typename base::ChannelElement<T>::param_t sample)
+            WriteStatus write(typename base::ChannelElement<T>::param_t sample) RTT_OVERRIDE
             {
                 write_sample->setPointer(&sample);
                 if (!mqWrite(write_sample)) {
                     return WriteFailure;
                 }
                 return WriteSuccess;
+            }
+
+            WriteStatus writeReliable(typename base::ChannelElement<T>::param_t sample) RTT_OVERRIDE
+            {
+                return write(sample);
             }
 
             virtual bool isRemoteElement() const
