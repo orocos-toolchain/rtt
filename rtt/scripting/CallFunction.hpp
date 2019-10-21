@@ -124,6 +124,7 @@ namespace RTT
 
         ~CallFunction() {
             this->reset();
+            delete minit;
         }
 
         /**
