@@ -66,8 +66,6 @@ namespace RTT {
             CDataFlowInterface_var dataflow;
             PortableServer::POA_var mpoa;
 
-            bool connectionAdded( base::ChannelElementBase::shared_ptr channel, ConnPolicy const& policy ) { assert(false && "Can/Should not add connection to remote port object !");return false; }
-
         public:
             RemotePort(types::TypeInfo const* type_info,
                     CDataFlowInterface_ptr dataflow,

@@ -57,6 +57,10 @@ namespace RTT
         {
             if (mport) mport->connection_lock.unlock();
         }
+
+        operator void *() const {
+            return mport;
+        }
     };
 
 }}

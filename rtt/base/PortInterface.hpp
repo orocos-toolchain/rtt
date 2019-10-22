@@ -44,6 +44,7 @@
 #include "../ConnPolicy.hpp"
 #include "../internal/ConnectionManager.hpp"
 #include "../internal/ConnID.hpp"
+#include "../internal/SharedConnection.hpp"
 #include "ChannelElementBase.hpp"
 #include "../types/rtt-types-fwd.hpp"
 #include "../os/Mutex.hpp"
@@ -67,6 +68,12 @@ namespace RTT
     protected:
         DataFlowInterface* iface;
         internal::ConnectionManager cmanager;
+
+        /**
+         * A pointer to the shared connection this port may be connected to.
+         */
+        internal::SharedConnectionBase::shared_ptr shared_connection;
+
         os::MutexRecursive connection_lock;
         friend class internal::PortConnectionLock;
 
@@ -114,7 +121,7 @@ namespace RTT
 
 
         /** Returns true if this port is connected */
-        virtual bool connected() const = 0;
+        virtual bool connected() const;
 
         /** Returns true if this port is connected to the given port*/
         virtual bool connectedTo(PortInterface* port);
@@ -123,13 +130,13 @@ namespace RTT
         virtual const types::TypeInfo* getTypeInfo() const = 0;
 
         /** Removes any connection that either go to or come from this port */
-        virtual void disconnect() = 0;
+        virtual void disconnect();
 
         /** Removes the connection that links this port and the given port
          *
          * Returns true if there was such a connection, false otherwise
          */
-        virtual bool disconnect(PortInterface* port) = 0;
+        virtual bool disconnect(PortInterface* port);
 
         /** Returns true if this port is located on this process, and false
          * otherwise
@@ -193,7 +200,8 @@ namespace RTT
         /**
          * Connects this port to an existing shared connection instance.
          */
-        virtual bool createConnection(internal::SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy = ConnPolicy()) = 0;
+        virtual bool createConnection(internal::SharedConnectionBase::shared_ptr shared_connection,
+                                      ConnPolicy const& policy = ConnPolicy()) = 0;
 
         /**
          * Adds a user created connection to this port.
@@ -245,6 +253,14 @@ namespace RTT
          * Returns a pointer to the shared connection element this port may be connected to.
          */
         virtual internal::SharedConnectionBase::shared_ptr getSharedConnection() const;
+
+        /**
+         * Assigns a shared connection to this port. Every port can only participate in
+         * at most one connection. If getSharedConnection() != nullptr, the previous pointer
+         * remains valid and this call has no effect.
+         */
+        virtual void setDefaultSharedConnection(
+            const internal::SharedConnectionBase::shared_ptr& = internal::SharedConnectionBase::shared_ptr());
     };
 
 }}

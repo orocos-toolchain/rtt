@@ -300,8 +300,9 @@ namespace RTT { namespace base {
         /**
          * Remove an output from the outputs list.
          * @param output the element to be removed, or null to remove unconditionally
+         * @returns the removed channel if the element has been found and removed, nullptr otherwise
          */
-        virtual void removeOutput(shared_ptr const& output);
+        virtual ChannelElementBase::shared_ptr removeOutput(shared_ptr const& output);
 
         /**
          * Sets the new input channel element of this element or adds a channel to the inputs list.
@@ -313,8 +314,9 @@ namespace RTT { namespace base {
         /**
          * Remove an input from the inputs list.
          * @param input the element to be removed, or null to remove unconditionally
+         * @returns the removed channel if the element has been found and removed, nullptr otherwise
          */
-        virtual void removeInput(shared_ptr const& input);
+        virtual ChannelElementBase::shared_ptr removeInput(shared_ptr const& input);
 
     private:
         /**
@@ -384,10 +386,21 @@ namespace RTT { namespace base {
         /**
          * Remove an input from the inputs list.
          * @param input the element to be removed
+         * @returns the removed channel if the element has been found and removed, nullptr otherwise
          */
-        virtual void removeInput(ChannelElementBase::shared_ptr const& input);
+        virtual ChannelElementBase::shared_ptr removeInput(ChannelElementBase::shared_ptr const& input);
 
-        virtual void removedInputs(Inputs const& inputs) = 0;
+        /**
+         * Remove an input from the inputs list.
+         * @param inputs_lock Make sure that the caller holds a lock of the inputs list.
+         * @param input the element to be removed
+         * @param was_last will be set to true if the removed element was the last input element
+         * @returns the removed channel if the element has been found and removed, nullptr otherwise
+         */
+        virtual ChannelElementBase::shared_ptr removeInput(
+            RTT::os::MutexLock& inputs_lock,
+            ChannelElementBase::shared_ptr const& input,
+            bool& was_last);
     };
 
     /**
@@ -459,8 +472,22 @@ namespace RTT { namespace base {
         /**
          * Remove an output from the outputs list.
          * @param output the element to be removed
+         * @returns the removed channel if the element has been found and removed, nullptr otherwise
          */
-        virtual void removeOutput(ChannelElementBase::shared_ptr const& output);
+        virtual ChannelElementBase::shared_ptr removeOutput(ChannelElementBase::shared_ptr const& output);
+
+        /**
+         * Remove an output from the outputs list.
+         * @param outputs_lock Make sure that the caller holds a lock of the outputs list.
+         * @param output the element to be removed
+         * @param was_last will be set to true if the removed element was the last output element
+         * @param was_mandatory will be set to true if the removed element was mandatory
+         * @returns the removed channel if the element has been found and removed, nullptr otherwise
+         */
+        virtual ChannelElementBase::shared_ptr removeOutput(
+            RTT::os::MutexLock& outputs_lock,
+            ChannelElementBase::shared_ptr const& output,
+            bool& was_last, bool& was_mandatory);
 
         /**
          * Iterate over all output channels and remove the ones that have been marked as disconnected

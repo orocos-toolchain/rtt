@@ -76,8 +76,25 @@ PortInterface& PortInterface::doc(const std::string& desc) {
     return *this;
 }
 
-bool PortInterface::connectedTo(PortInterface* port) {
+/** Returns true if this port is connected */
+bool PortInterface::connected() const
+{
+    return getEndpoint()->connected();
+}
+
+bool PortInterface::connectedTo(PortInterface* port)
+{
     return cmanager.connectedTo(port);
+}
+
+bool PortInterface::disconnect(PortInterface* port)
+{
+    return cmanager.disconnect(port);
+}
+
+void PortInterface::disconnect()
+{
+    cmanager.disconnect();
 }
 
 bool PortInterface::isLocal() const
@@ -119,7 +136,12 @@ DataFlowInterface* PortInterface::getInterface() const
     return iface;
 }
 
-internal::SharedConnectionBase::shared_ptr PortInterface::getSharedConnection() const
-{
-    return cmanager.getSharedConnection();
+internal::SharedConnectionBase::shared_ptr PortInterface::getSharedConnection() const {
+    return shared_connection;
+}
+
+void PortInterface::setDefaultSharedConnection(const internal::SharedConnectionBase::shared_ptr& c) {
+    if (!shared_connection.get() || !c) {
+        shared_connection = c;
+    }
 }

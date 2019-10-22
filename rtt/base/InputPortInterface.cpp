@@ -120,25 +120,9 @@ void InputPortInterface::signalInterface(bool true_false)
 FlowStatus InputPortInterface::read(DataSourceBase::shared_ptr source, bool copy_old_data)
 { throw std::runtime_error("calling default InputPortInterface::read(datasource) implementation"); }
 
-/** Returns true if this port is connected */
-bool InputPortInterface::connected() const
-{
-    return getEndpoint()->connected();
-}
-
 void InputPortInterface::traceRead(RTT::FlowStatus status)
 {
     tracepoint(orocos_rtt, InputPort_read, status, getFullName().c_str());
-}
-
-void InputPortInterface::disconnect()
-{
-    cmanager.disconnect();
-}
-
-bool InputPortInterface::disconnect(PortInterface* port)
-{
-    return cmanager.disconnect(port);
 }
 
 bool InputPortInterface::createConnection( internal::SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy )

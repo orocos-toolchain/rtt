@@ -52,20 +52,9 @@ namespace RTT
     class RTT_API OutputPortInterface : public PortInterface
     {
     protected:
-        /**
-         * Upcall to OutputPort.
-         */
-        virtual bool connectionAdded(ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy) = 0;
-
         OutputPortInterface(OutputPortInterface const& orig);
-    public:
-        /**
-         * Adds a new connection to this output port and initializes the connection if required by \a policy.
-         * Use with care. Allows you to add any arbitrary connection to this output port. It is your responsibility
-         * to do any further bookkeeping, such as informing the input that a new output has been added.
-         */
-        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
 
+    public:
         OutputPortInterface(std::string const& name);
 
         virtual ~OutputPortInterface();
@@ -90,13 +79,6 @@ namespace RTT
          * a null pointer if this port does not keep its last written value.
          */
         virtual DataSourceBase::shared_ptr getDataSource() const = 0;
-
-        virtual void disconnect();
-
-        /** Returns true if there is at least one channel registered in this
-         * port's list of outputs
-         */
-        virtual bool connected() const;
 
         /**
          * Write this port using the value stored in source.
@@ -131,8 +113,12 @@ namespace RTT
          */
         virtual bool createConnection( internal::SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy = ConnPolicy() );
 
-        /** Removes the channel that connects this port to \c port */
-        virtual bool disconnect(PortInterface* port);
+        /**
+         * Adds a new connection to this output port and initializes the connection if required by \a policy.
+         * Use with care. Allows you to add any arbitrary connection to this output port. It is your responsibility
+         * to do any further bookkeeping, such as informing the input that a new output has been added.
+         */
+        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
 
         virtual bool connectTo(PortInterface* other, ConnPolicy const& policy);
 

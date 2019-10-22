@@ -237,16 +237,14 @@ namespace RTT { namespace base {
         }
 
     protected:
-        virtual void removeInput(ChannelElementBase::shared_ptr const& input)
+        using MultipleInputsChannelElementBase::removeInput;
+        virtual ChannelElementBase::shared_ptr removeInput(
+            RTT::os::MutexLock& inputs_lock,
+            ChannelElementBase::shared_ptr const& input,
+            bool& was_last)
         {
             if (last == input) last = 0;
-            MultipleInputsChannelElementBase::removeInput(input);
-        }
-
-        virtual void removedInputs(Inputs const& inputs)
-        {
-            if (find(inputs.begin(), inputs.end(), last) != inputs.end())
-                last = 0;
+            return MultipleInputsChannelElementBase::removeInput(inputs_lock, input, was_last);
         }
 
     private:

@@ -83,9 +83,7 @@ namespace RTT
                 base::ChannelElementBase::shared_ptr channel = it->get<1>();
 
                 // disconnect needs to know if we're from Out->In (forward) or from In->Out
-                bool is_forward = true;
-                if ( dynamic_cast<InputPortInterface*>(mport) )
-                    is_forward = false; // disconnect on input port = backward.
+                const bool is_forward = !dynamic_cast<InputPortInterface*>(mport);
 
                 mport->getEndpoint()->disconnect(channel, is_forward);
             }
@@ -96,11 +94,6 @@ namespace RTT
         {
             base::ChannelElementBase::shared_ptr channel = descriptor->get<1>();
 
-            // disconnect from a shared connection
-            if (channel == shared_connection) {
-                RTT::log(Debug) << "Port " << mport->getName() << " disconnected from shared connection " << shared_connection->getName() << RTT::endlog();
-                shared_connection.reset();
-            }
             Connections::iterator next = descriptor; // invalidates descriptor
             ++next;
 
@@ -133,16 +126,22 @@ namespace RTT
             return false;
         }
 
+        bool ConnectionManager::isSingleConnection() const
+        {
+            PortConnectionLock lock(mport);
+            return connections.size() == 1;
+        }
+
+        ConnectionManager::Connections ConnectionManager::getConnections() const
+        {
+            PortConnectionLock lock(mport);
+            return connections;
+        }
+
         bool ConnectionManager::addConnection(ConnID* conn_id, ChannelElementBase::shared_ptr channel, ConnPolicy policy)
         {
             PortConnectionLock lock(mport);
             assert(conn_id);
-
-            // check if the new connection is a shared connection
-            {
-                SharedConnectionBase::shared_ptr is_shared_connection = boost::dynamic_pointer_cast<SharedConnectionBase>(channel);
-                if (is_shared_connection) shared_connection.swap(is_shared_connection);
-            }
 
             // add ChannelDescriptor to the connections list
             ChannelDescriptor descriptor = boost::make_tuple(conn_id, channel, policy);
@@ -184,6 +183,10 @@ namespace RTT
                     } else {
                         conn_it++;
                     }
+                }
+                if (erased.empty()) {
+                    log(Error) << "ConnectionManager::removeConnection() was called for channel 0x" << std::hex << reinterpret_cast<uintptr_t>(channel)
+                               << " for port " << mport->getName() << ", but the ConnectionManager did not track this connection!" << endlog();
                 }
             }
 

@@ -79,8 +79,8 @@ namespace RTT
 
         void traceRead(RTT::FlowStatus status);
         InputPortInterface(const InputPortInterface& orig);
-    public:
 
+    public:
         InputPortInterface(std::string const& name, ConnPolicy const& default_policy = ConnPolicy());
 
         virtual ~InputPortInterface();
@@ -105,20 +105,6 @@ namespace RTT
          * \a source has to be an assignable data source
          */
         virtual FlowStatus read(DataSourceBase::shared_ptr source, bool copy_old_data = true);
-
-        /** Removes any connection that either go to or come from this port
-         *  *and* removes all callbacks and cleans up the NewDataOnPortEvent.
-         */
-        virtual void disconnect();
-
-        /** Removes the channel that connects this port to \c port.
-         *  All other ports or callbacks remain unaffected.
-         */
-        virtual bool disconnect(PortInterface* port);
-
-
-        /** Returns true if this port is connected */
-        virtual bool connected() const;
 
 #ifdef ORO_SIGNALLING_PORTS
         /** Returns the event object that gets emitted when new data is

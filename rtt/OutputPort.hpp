@@ -73,31 +73,6 @@ namespace RTT
         friend class internal::ConnInputEndpoint<T>;
         typename internal::ConnInputEndpoint<T>::shared_ptr endpoint;
 
-        virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy ) {
-            // Initialize the new channel with last written data if requested
-            // (and available)
-
-            // This this the input channel element of the whole connection
-            typename base::ChannelElement<T>::shared_ptr channel_el_input = channel_input.get()->narrow<T>();
-
-            if (has_initial_sample)
-            {
-                T const& initial_sample = sample->Get();
-                if ( channel_el_input->data_sample(initial_sample, /* reset = */ false) != NotConnected ) {
-                    if ( has_last_written_value && policy.init )
-                        return ( channel_el_input->write(initial_sample) != NotConnected );
-                    return true;
-                } else {
-                    Logger::In in("OutputPort");
-                    log(Error) << "Failed to pass data sample to data channel. Aborting connection."<<endlog();
-                    return false;
-                }
-            }
-
-            // even if we're not written, test the connection with a default sample.
-            return ( channel_el_input->data_sample( T(), /* reset = */ false ) != NotConnected );
-        }
-
         /// True if \c sample has been set at least once by a call to write()
         bool has_last_written_value;
         /// True if \c sample has been written at least once, either by calling
@@ -229,11 +204,11 @@ namespace RTT
             has_last_written_value = false;
             getEndpoint()->getWriteEndpoint()->clear(); // only affects shared pull connections, where getInputEndpoint() would return the port's buffer object
 
-            // eventually clear shared connection
-            internal::SharedConnectionBase::shared_ptr shared_connection = cmanager.getSharedConnection();
-            if (shared_connection) {
-                shared_connection->clear();
-            }
+//            // eventually clear shared connection
+//            internal::SharedConnectionBase::shared_ptr shared_connection = cmanager.getSharedConnection();
+//            if (shared_connection) {
+//                shared_connection->clear();
+//            }
         }
 
         /**
@@ -255,7 +230,7 @@ namespace RTT
                 traceWrite();
                 result = getEndpoint()->getWriteEndpoint()->write(sample);
                 if (result == NotConnected) {
-                    log(Error) << "A channel of port " << getName() << " has been invalidated during write(), it will be removed" << endlog();
+                    log(Debug) << "A channel of port " << getName() << " has been invalidated during write(), it will be removed" << endlog();
                 }
             }
 
@@ -314,6 +289,43 @@ namespace RTT
         virtual bool createStream(ConnPolicy const& policy)
         {
             return internal::ConnFactory::createStream(*this, policy);
+        }
+
+        /**
+         * Adds a new connection to this output port and initializes the connection if required by \a policy.
+         * Use with care. Allows you to add any arbitrary connection to this output port. It is your responsibility
+         * to do any further bookkeeping, such as informing the input that a new output has been added.
+         */
+        virtual bool addConnection(internal::ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy)
+        {
+            // Initialize the new channel with last written data if requested
+            // (and available)
+
+            // This this the input channel element of the whole connection
+            typename base::ChannelElement<T>::shared_ptr channel_el_input = channel_input.get()->narrow<T>();
+
+            if (has_initial_sample)
+            {
+                T const& initial_sample = sample->Get();
+                if ( channel_el_input->data_sample(initial_sample, /* reset = */ false) != NotConnected ) {
+                    if ( has_last_written_value && policy.init ) {
+                        if ( channel_el_input->write(initial_sample) == NotConnected ) {
+                            return false;
+                        }
+                    }
+                } else {
+                    Logger::In in("OutputPort");
+                    log(Error) << "Failed to pass data sample to data channel. Aborting connection."<<endlog();
+                    return false;
+                }
+            } else {
+                // even if we're not written, test the connection with a default sample.
+                if ( channel_el_input->data_sample( T(), /* reset = */ false ) == NotConnected ) {
+                    return false;
+                }
+            }
+
+            return cmanager.addConnection(port_id, channel_input, policy);
         }
 
 #ifndef ORO_DISABLE_PORT_DATA_SCRIPTING

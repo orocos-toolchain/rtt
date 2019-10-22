@@ -100,19 +100,23 @@ base::ChannelElementBase::shared_ptr RTT::internal::ConnFactory::buildRemoteChan
 bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, base::ChannelElementBase::shared_ptr channel_input, base::ChannelElementBase::shared_ptr channel_output, ConnPolicy const& policy) {
     // connect channel input to channel output
     if (!channel_input->connectTo(channel_output, policy.mandatory)) {
+        log(Error) << "Failed to connect input and output channel elements to connect " << output_port.getName()
+                   << " and " << input_port.getName() << endlog();
         channel_input->disconnect(channel_output, true);
         channel_output->disconnect(channel_input, false);
         return false;
     }
 
     // Register the channel's input to the output port.
-    // This is a bit hacky. We have to find the next channel element in the pipeline as seen from the ConnOutputEndpoint:
-    base::ChannelElementBase::shared_ptr next_hop = channel_output;
+    // Go backwards from channel_output and find the next channel element in the pipeline as seen from the ConnInputEndpoint:
+    base::ChannelElementBase::shared_ptr next_hop;
     if (channel_input != output_port.getEndpoint()) {
         next_hop = channel_input;
-        while(next_hop->getInput() && next_hop->getInput() != output_port.getEndpoint()) {
-            next_hop = next_hop->getInput();
-        }
+    } else {
+        next_hop = channel_output;
+    }
+    while(next_hop->getInput() && next_hop->getInput() != output_port.getEndpoint()) {
+        next_hop = next_hop->getInput();
     }
     if ( !output_port.addConnection( input_port.getPortID(), next_hop, policy ) ) {
         // setup failed.
@@ -248,6 +252,7 @@ bool ConnFactory::createAndCheckSharedConnection(base::OutputPortInterface* outp
             return false;
         }
 
+        output_port->setDefaultSharedConnection(shared_connection);
         output_port->getEndpoint()->connectTo(shared_connection, policy.mandatory);
     }
 
@@ -260,6 +265,7 @@ bool ConnFactory::createAndCheckSharedConnection(base::OutputPortInterface* outp
             return false;
         }
 
+        input_port->setDefaultSharedConnection(shared_connection);
         shared_connection->connectTo(input_port->getEndpoint(), policy.mandatory);
     }
 

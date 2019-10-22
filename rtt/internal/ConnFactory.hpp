@@ -212,7 +212,9 @@ namespace RTT
          *
          * @param port The output port to which the connection is added.
          * @param policy The policy dictating which kind of buffer must be installed.
-         * The transport and other parameters are ignored.
+         *               The transport and other parameters are ignored.
+         * @param force_unbuffered If true, no local buffer will be created independent
+         *               of the connection policy.
          *
          * @see buildChannelOutput
          */
@@ -226,9 +228,9 @@ namespace RTT
             if (policy.buffer_policy == PerInputPort) pull = ConnPolicy::PUSH;
             if (policy.buffer_policy == PerOutputPort) pull = ConnPolicy::PULL;
 
-            // Special case: PerOutputPort
+            // Create or check shared buffer for PerOutputPort connections
             typename base::ChannelElement<T>::shared_ptr buffer = port.getSharedBuffer();
-            if (policy.buffer_policy == PerOutputPort) {
+            if (policy.buffer_policy == PerOutputPort && !force_unbuffered) {
                 if (!buffer) {
                     if (endpoint->connected()) {
                         log(Error) << "You tried to create a shared output buffer connection for output port " << port.getName() << ", "
@@ -236,11 +238,13 @@ namespace RTT
                         return base::ChannelElementBase::shared_ptr();
                     }
 
+                    log(Debug) << "Constructing a shared output buffer for output port " << port.getName() << "." << endlog();
                     buffer = buildDataStorage<T>(policy, port.getLastWrittenValue());
                     if (!buffer) return base::ChannelElementBase::shared_ptr();
 
                     // For PerOutputPort connections, the buffer is installed BEFORE the output endpoint!
                     if (!buffer->connectTo(endpoint)) {
+                        assert(false && "Could not connect the newly constructed shared output buffer to the input endpoint.");
                         return base::ChannelElementBase::shared_ptr();
                     }
                 } else {
@@ -293,7 +297,7 @@ namespace RTT
          *
          * @param port The input port to which the connection is added.
          * @param policy The policy dictating which kind of buffer must be installed.
-         * The transport and other parameters are ignored.
+         *               The transport and other parameters are ignored.
          * @param initial_value The value to use to initialize the connection's storage buffer.
          *
          * @see buildChannelInput
@@ -308,7 +312,7 @@ namespace RTT
             if (policy.buffer_policy == PerInputPort) pull = ConnPolicy::PUSH;
             if (policy.buffer_policy == PerOutputPort) pull = ConnPolicy::PULL;
 
-            // Special case: PerInputPort
+            // Create shared input buffer for PerInputPort connections
             typename base::ChannelElement<T>::shared_ptr buffer = endpoint->getSharedBuffer();
             if (policy.buffer_policy == PerInputPort) {
                 if (!buffer) {
@@ -318,11 +322,13 @@ namespace RTT
                         return base::ChannelElementBase::shared_ptr();
                     }
 
+                    log(Debug) << "Constructing a shared input buffer for input port " << port.getName() << "." << endlog();
                     buffer = buildDataStorage<T>(policy, initial_value);
                     if (!buffer) return base::ChannelElementBase::shared_ptr();
 
                     // For PerInputPort connections, the buffer is installed AFTER the output endpoint!
                     if (!endpoint->connectTo(buffer)) {
+                        assert(false && "Could not connect the newly constructed shared input buffer to the output endpoint.");
                         return base::ChannelElementBase::shared_ptr();
                     }
                 } else {
@@ -408,14 +414,14 @@ namespace RTT
 
                 // If no existing shared connection has been found, ask the remote side to build a shared channel output and create a local proxy.
                 if (!shared_connection) {
-                    base::ChannelElementBase::shared_ptr output_half = buildRemoteChannelOutput( *output_port, *input_port, policy);
-                    if (!output_half) {
+                    base::ChannelElementBase::shared_ptr channel_output = buildRemoteChannelOutput( *output_port, *input_port, policy);
+                    if (!channel_output) {
                         log(Error) << "Could not create a shared remote connection for input port '" << input_port->getName() << "'." << endlog();
                         return SharedConnectionBase::shared_ptr();
                     }
 
                     shared_connection = new SharedRemoteConnection<T>(policy);
-                    shared_connection->connectTo(output_half, policy.mandatory);
+                    shared_connection->connectTo(channel_output, policy.mandatory);
 
                 // ...or only ask the remote side to connect the additional input port to an existing remote shared connection
                 } else {
@@ -457,18 +463,18 @@ namespace RTT
         template<typename T>
         static bool createConnection(OutputPort<T>& output_port, base::InputPortInterface& input_port, ConnPolicy const& policy)
         {
-            PortConnectionLock lock_output_port(&output_port);
-            PortConnectionLock lock_input_port(&input_port);
-
             if ( !output_port.isLocal() ) {
                 log(Error) << "Need a local OutputPort to create connections." <<endlog();
                 return false;
             }
 
             if (output_port.connectedTo(&input_port)) {
-                log(Info) << "OutputPort " << output_port.getName() << " is already connected to " << input_port.getName() << ", ignoring new connection." << endlog();
-                return true;
+                log(Error) << "OutputPort " << output_port.getName() << " is already connected to " << input_port.getName() << ", ignoring new connection." << endlog();
+                return false;
             }
+
+            PortConnectionLock lock_output_port(&output_port);
+            PortConnectionLock lock_input_port(&input_port);
 
             InputPort<T>* input_p = dynamic_cast<InputPort<T>*>(&input_port);
 
@@ -478,7 +484,7 @@ namespace RTT
             }
 
             // This is the input and output channel element of the output half
-            base::ChannelElementBase::shared_ptr output_half;
+            base::ChannelElementBase::shared_ptr channel_output;
             if (input_port.isLocal() && policy.transport == 0)
             {
                 // Local connection
@@ -489,7 +495,7 @@ namespace RTT
                 }
 
                 // local ports, create buffer here.
-                output_half = buildChannelOutput<T>(*input_p, policy, output_port.getLastWrittenValue());
+                channel_output = buildChannelOutput<T>(*input_p, policy, output_port.getLastWrittenValue());
             }
             else
             {
@@ -498,7 +504,7 @@ namespace RTT
                 // than plain memory, rare case, but we accept it. The unit tests use this for example
                 // to test the OOB transports.
                 if ( !input_port.isLocal() ) {
-                    output_half = buildRemoteChannelOutput( output_port, input_port, policy);
+                    channel_output = buildRemoteChannelOutput( output_port, input_port, policy);
                 } else if (input_p) {
                     return createOutOfBandConnection<T>( output_port, *input_p, policy);
                 } else {
@@ -507,8 +513,10 @@ namespace RTT
                 }
             }
 
-            if (!output_half)
+            if (!channel_output) {
+                log(Error) << "Failed to construct channel output for input port " << input_port.getName() << endlog();
                 return false;
+            }
 
             // Since output is local, buildChannelInput is local as well.
             // This this the input channel element of the whole connection
@@ -516,12 +524,15 @@ namespace RTT
             channel_input = buildChannelInput<T>(output_port, policy);
 
             if (!channel_input) {
-                output_half->disconnect(true);
+                log(Error) << "Failed to construct channel input for output port " << output_port.getName() << endlog();
+                if (channel_output != input_port.getEndpoint()) {
+                    channel_output->disconnect(true);
+                }
                 return false;
             }
 
             // NOTE: channel_input and output_half are not yet connected!
-            return createAndCheckConnection(output_port, input_port, channel_input, output_half, policy);
+            return createAndCheckConnection(output_port, input_port, channel_input, channel_output, policy);
         }
 
         /**
@@ -538,10 +549,13 @@ namespace RTT
 
             StreamConnID *sid = new StreamConnID(policy.name_id);
             // Stream channel inputs are always unbuffered (push). It's the transport that has to add a buffer element if required.
-            RTT::base::ChannelElementBase::shared_ptr chan = buildChannelInput( output_port, policy, /* force_unbuffered = */ true );
-            if (!chan) return false;
-            if (!bool(createAndCheckStream(output_port, policy, chan, sid))) {
-                chan->disconnect(false);
+            RTT::base::ChannelElementBase::shared_ptr channel_input
+                = buildChannelInput( output_port, policy, /* force_unbuffered = */ true );
+            if (!channel_input) return false;
+            if (!bool(createAndCheckStream(output_port, policy, channel_input, sid))) {
+                if (channel_input != output_port.getEndpoint()) {
+                    channel_input->disconnect(false);
+                }
                 return false;
             }
             return true;
@@ -560,10 +574,13 @@ namespace RTT
             PortConnectionLock lock_input_port(&input_port);
 
             StreamConnID *sid = new StreamConnID(policy.name_id);
-            RTT::base::ChannelElementBase::shared_ptr outhalf = buildChannelOutput( input_port, policy );
-            if (!outhalf) return false;
-            if (!bool(createAndCheckStream(input_port, policy, outhalf, sid))) {
-                outhalf->disconnect(true);
+            RTT::base::ChannelElementBase::shared_ptr channel_output
+                = buildChannelOutput( input_port, policy );
+            if (!channel_output) return false;
+            if (!bool(createAndCheckStream(input_port, policy, channel_output, sid))) {
+                if (channel_output != input_port.getEndpoint()) {
+                    channel_output->disconnect(true);
+                }
                 return false;
             }
             return true;
@@ -603,7 +620,7 @@ namespace RTT
             RTT::base::ChannelElementBase::shared_ptr stream_input = createAndCheckStream(output_port, policy, channel_input, new StreamConnID(policy.name_id));
             if (!stream_input) return false;
 
-            RTT::base::ChannelElementBase::shared_ptr channel_output = ConnFactory::buildChannelOutput<T>(input_port, policy, output_port.getLastWrittenValue());
+            RTT::base::ChannelElementBase::shared_ptr channel_output = buildChannelOutput<T>(input_port, policy, output_port.getLastWrittenValue());
             if (!channel_output) return false;
 
             RTT::base::ChannelElementBase::shared_ptr stream_output = createAndCheckStream(input_port, policy, channel_output, new StreamConnID(policy.name_id));

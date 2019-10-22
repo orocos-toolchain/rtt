@@ -66,7 +66,7 @@ namespace RTT
         friend class internal::ConnOutputEndpoint<T>;
         typename internal::ConnOutputEndpoint<T>::shared_ptr endpoint;
 
-        virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy ) { return true; }
+//        virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy ) { return true; }
 
         /**
          * You are not allowed to copy ports.

@@ -43,6 +43,8 @@
 #include "ConnID.hpp"
 #include "PortConnectionLock.hpp"
 
+#include "../Logger.hpp"
+
 namespace RTT
 { namespace internal {
 
@@ -129,26 +131,47 @@ namespace RTT
 
         virtual bool disconnect(const base::ChannelElementBase::shared_ptr& channel, bool forward)
         {
-            InputPort<T>* port = this->port;
-            PortConnectionLock lock(port);
-
-//            // Lock port connections if the request is coming from the remote end (forward == true)
-//            PortConnectionLock lock(forward ? port : 0);
-
-            if (port && channel && forward)
-            {
-                port->getManager()->removeConnection(channel.get(), /* disconnect = */ false);
-            }
+            // Lock port connections if the request is coming from the remote end (forward == true)
+            PortConnectionLock lock((channel && forward) ? port : 0);
 
             // Call the base class: it does the common cleanup
             if (!Base::disconnect(channel, forward)) {
+//                log(Error) << "Failed to disconnect an input channel from a ConnOutputEndPoint for port " << port->getName() << "." << endlog();
                 return false;
             }
 
+            // This method is called recursively from MultipleInputsChannelElementBase::disconnectSingleInputChannel()
+            // if the removed input was the last one. In this case the call to the base class above already removed the
+            // shared buffer and we can exit here to avoid a dead-lock on locking the mutex twice.
+            if (!channel && forward) return true;
+
+            // Otherwise (forward == false) lock port connections now.
+            PortConnectionLock lock2(!lock ? port : 0);
+
+//            PortConnectionLock lock(forward ? port : 0);
+
             // If this was the last connection, remove the buffer, too.
-            // For forward == true this was already done by the base class.
+//            // For forward == true this was already done by the base class.
             if (!this->connected() && !forward) {
-                Base::disconnect(0, true);
+                if (getSharedBuffer()) {
+                    log(Debug) << "Removing the shared input buffer for port " << port->getName() << " in ConnOutputEndPoint::disconnect()." << endlog();
+                }
+                Base::disconnect(0, !forward /*= true*/);
+            }
+
+            // Disconnect from a shared connection
+            SharedConnectionBase::shared_ptr shared_connection = port->getSharedConnection();
+            if (shared_connection && (channel == shared_connection)) {
+                log(Debug) << "Port " << port->getName() << " disconnected from shared connection " << shared_connection->getName() << endlog();
+                port->setDefaultSharedConnection();
+                shared_connection.reset();
+            }
+
+            // If the request is coming from the remote end (forward == true),
+            // also notify the ConnectionManager.
+            if (port && channel && forward)
+            {
+                port->getManager()->removeConnection(channel.get(), /* disconnect = */ false);
             }
 
             return true;

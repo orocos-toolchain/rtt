@@ -57,28 +57,12 @@ OutputPortInterface::~OutputPortInterface()
     cmanager.disconnect();
 }
 
-/** Returns true if this port is connected */
-bool OutputPortInterface::connected() const
-{
-    return getEndpoint()->connected();
-}
-
-bool OutputPortInterface::disconnect(PortInterface* port)
-{
-    return cmanager.disconnect(port);
-}
-
-void OutputPortInterface::disconnect()
-{
-    cmanager.disconnect();
-}
-
 bool OutputPortInterface::addConnection(ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy)
 {
-    if ( this->connectionAdded(channel_input, policy) ) {
+//    if ( this->connectionAdded(channel_input, policy) ) {
         return cmanager.addConnection(port_id, channel_input, policy);
-    }
-    return false;
+//    }
+//    return false;
 }
 
 WriteStatus OutputPortInterface::write(DataSourceBase::shared_ptr source)
