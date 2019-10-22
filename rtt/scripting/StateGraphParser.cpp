@@ -392,7 +392,14 @@ namespace RTT
         curinitialstateflag = false;
         curfinalstateflag = false;
         // clear all port-triggered transitions for this state.
+        for (std::map<std::string,ConditionCache*>::iterator i = cur_port_events.begin();
+            i != cur_port_events.end(); ++i )
+          delete i->second;
         cur_port_events.clear();
+        for (std::map<std::string,ConditionCache*>::iterator i = global_port_events.begin();
+            i != global_port_events.end(); ++i )
+          delete i->second;
+        global_port_events.clear();
     }
 
     void StateGraphParser::inprogram(const std::string& name)
@@ -854,7 +861,14 @@ namespace RTT
               i != machinebuilders.end(); ++i )
           delete i->second;
         machinebuilders.clear();
-
+        for (std::map<std::string,ConditionCache*>::iterator i = cur_port_events.begin();
+            i != cur_port_events.end(); ++i )
+          delete i->second;
+        cur_port_events.clear();
+        for (std::map<std::string,ConditionCache*>::iterator i = global_port_events.begin();
+            i != global_port_events.end(); ++i )
+          delete i->second;
+        global_port_events.clear();
     }
 
     void StateGraphParser::seenstatemachinename( iter_t begin, iter_t end ) {

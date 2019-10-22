@@ -101,6 +101,7 @@ public:
         delete tc;
         delete tce;
         delete tc2;
+        delete tc3;
     }
 };
 

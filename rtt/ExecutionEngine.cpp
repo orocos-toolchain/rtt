@@ -105,6 +105,14 @@ namespace RTT
             assert(foo);
             if ( foo->execute() == false ){
                 foo->unloaded();
+                {
+                    // There's no need to hold the lock while
+                    // processing the queue. But we must hold the
+                    // lock once between foo->execute() and the
+                    // broadcast to avoid the race condition in
+                    // waitForMessagesInternal().
+                    MutexLock locker( msg_lock );
+                }
                 msg_cond.broadcast(); // required for waitForFunctions() (3rd party thread)
             } else {
                 f_queue->enqueue( foo );
