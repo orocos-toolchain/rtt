@@ -302,16 +302,21 @@ namespace RTT { namespace base {
             return result;
         }
 
-        /** Writes a new sample on this connection. \a sample is the sample to
-         * write. Writes the sample to all connected channels
+        /** Writes a new sample on this connection. \a sample is the sample to write. 
          *
-         * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
+         * @returns false if an error occured that requires the channel to be invalidated.
+         *          In no way does it indicate that the sample has been received by the other side of the channel.
          */
         virtual WriteStatus write(param_t sample) RTT_OVERRIDE
         {
             return do_write(sample, false);
         }
 
+        /** Writes a new sample on this connection. \a sample is the sample to write. 
+         *
+         * @returns false if an error occured that requires the channel to be invalidated.
+         *          In case of failure, we will know that the sample was not received.
+         */
         virtual WriteStatus writeReliable(param_t sample) RTT_OVERRIDE
         {
             return do_write(sample, true);
