@@ -314,15 +314,17 @@ namespace RTT {
 
             WriteStatus writeReliable(typename base::ChannelElement<T>::param_t sample) RTT_OVERRIDE RTT_FINAL
             {
+                WriteStatus result;
+
+                // try to write locally first
+                result = base::ChannelElement<T>::writeReliable(sample);
+                if (result != NotConnected)
+                    return result;
+
                 return this->remoteWrite(sample, true);
             }
 
             WriteStatus write(typename base::ChannelElement<T>::param_t sample) RTT_OVERRIDE RTT_FINAL
-            {
-                return this->remoteWrite(sample, false);
-            }
-
-            WriteStatus remoteWrite(typename base::ChannelElement<T>::param_t sample, bool reliable)
             {
                 WriteStatus result;
 
@@ -331,6 +333,11 @@ namespace RTT {
                 if (result != NotConnected)
                     return result;
 
+                return this->remoteWrite(sample, false);
+            }
+
+            WriteStatus remoteWrite(typename base::ChannelElement<T>::param_t sample, bool reliable)
+            {
                 // can only write through corba if remote_side is known
                 if ( CORBA::is_nil(remote_side.in()) ) {
                     return NotConnected;
