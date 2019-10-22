@@ -291,6 +291,10 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     else()
       INSTALL(TARGETS ${COMPONENT_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
     endif()
+
+    # Export library for other packages within the same build-space (e.g. for catkin_make)
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES "${COMPONENT_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_component )
 
   # Configure a component library to work with Orocos
@@ -379,8 +383,6 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_COMPS " -l${COMPONENT_LIB_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${COMPONENT_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_configure_component )
 
   # Utility libraries should add themselves by calling 'orocos_library()'
@@ -439,6 +441,10 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     # Install
     INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
+
+    # Export library for other packages within the same build-space (e.g. for catkin_make)
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES "${LIB_TARGET_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_library )
 
   # Configure a utility library to work with Orocos
@@ -526,8 +532,6 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_LIBS " -l${LIB_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${LIB_TARGET_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_configure_library )
 
   # Executables should add themselves by calling 'orocos_executable()'
@@ -772,6 +776,10 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     else()
       INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
     endif()
+
+    # Export library for other packages within the same build-space (e.g. for catkin_make)
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES "${LIB_TARGET_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_typekit )
 
   # Configure a typekit library to work with Orocos
@@ -859,8 +867,6 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_TYPES " -l${LIB_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${LIB_TARGET_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_configure_typekit )
 
   # plugin libraries should add themselves by calling 'orocos_plugin()'
@@ -923,6 +929,10 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     else()
       INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
     endif()
+
+    # Export library for other packages within the same build-space (e.g. for catkin_make)
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES "${LIB_TARGET_NAME}")
+    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_plugin )
 
   # Configure a plugin library to work with Orocos
@@ -1011,8 +1021,6 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_PLUGINS " -l${LIB_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${LIB_TARGET_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_configure_plugin )
 
   # service libraries should add themselves by calling 'orocos_service()'
