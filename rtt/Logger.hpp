@@ -94,23 +94,7 @@ namespace RTT
      */
     class RTT_API Logger
     {
-        struct D;
-        D* d;
-        /**
-         * These three are required to have a correct
-         * operator<<(T t) behavior for setting the stream
-         * formatting etc.
-         */
-        os::Mutex& inpguard;
-        std::ostream& logline;
-        std::ostream& fileline;
     public:
-
-        /**
-         * Function to get the loggers starting timestamp
-         */
-        os::TimeService::ticks getReferenceTime()const;
-
         /**
          * Enumerate all log-levels from absolute silence to
          * everything.
@@ -119,6 +103,31 @@ namespace RTT
          * @see allowRealTime()
          */
         enum LogLevel { Never = 0, Fatal, Critical, Error, Warning, Info, Debug, RealTime };
+
+    private:
+        struct D;
+        D* d;
+
+        /**
+         * This hidden struct stores all thread-local data required for logging.
+         */
+        struct E {
+            std::stringstream logline;
+#if defined(OROSEM_FILE_LOGGING) || defined(OROSEM_REMOTE_LOGGING)
+            std::stringstream fileline;
+#endif
+            LogLevel inloglevel;
+            std::string moduleptr;
+
+            E();
+        };
+        E* threadLocal() const;
+
+    public:
+        /**
+         * Function to get the loggers starting timestamp
+         */
+        os::TimeService::ticks getReferenceTime()const;
 
         /**
          * Allow messages of the LogLevel 'RealTime' to appear on the console.

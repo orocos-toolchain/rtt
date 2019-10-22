@@ -55,14 +55,13 @@ namespace RTT
         if ( !mayLog() )
             return *this;
 
-        os::MutexLock lock( inpguard );
         if ( this->mayLogStdOut() )
-            logline << t;
+            threadLocal()->logline << t;
 
 #if defined(OROSEM_FILE_LOGGING) || defined(OROSEM_REMOTE_LOGGING)
         // log Info or better to log file, even if not started.
         if ( this->mayLogFile() )
-            fileline << t;
+            threadLocal()->fileline << t;
 #endif
 #endif
         return *this;
