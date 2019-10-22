@@ -234,8 +234,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # Components should add themselves by calling 'OROCOS_COMPONENT' 
   # instead of 'ADD_LIBRARY' in CMakeLists.txt.
   # You can set a variable COMPONENT_VERSION x.y.z to set a version or 
-  # specify the optional VERSION parameter. For ros builds, the version
-  # number is ignored.
+  # specify the optional VERSION parameter.
   #
   # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the library name
   # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
@@ -243,16 +242,32 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # WARNING without NO_TARGET_SUFFIX the target library name *is* suffixed with
   # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
   #
-  # Usage: orocos_component( COMPONENT_NAME src1 src2 src3 [INSTALL lib/orocos/${PROJECT_NAME}] [VERSION x.y.z] [NO_TARGET_SUFFIX] )
+  # Usage: orocos_component( COMPONENT_NAME src1 src2 src3 [INSTALL lib/orocos/${PROJECT_NAME}] [VERSION x.y.z] [NO_TARGET_SUFFIX] [QUIET] )
   #
   macro( orocos_component COMPONENT_NAME )
-    ORO_PARSE_ARGUMENTS(ADD_COMPONENT
+    ORO_PARSE_ARGUMENTS(ORO_COMPONENT
       "INSTALL;VERSION;EXPORT"
-      "NO_TARGET_SUFFIX"
+      "NO_TARGET_SUFFIX;QUIET"
       ${ARGN}
       )
-    SET( SOURCES ${ADD_COMPONENT_DEFAULT_ARGS} )
-    SET( LIB_NAME "${COMPONENT_NAME}-${OROCOS_TARGET}")
+    SET( SOURCES ${ORO_COMPONENT_DEFAULT_ARGS} )
+
+    # Add the component library target
+    if (ORO_USE_ROSBUILD)
+      if (NOT ORO_COMPONENT_QUIET)
+        message( STATUS "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME} in rosbuild source tree." )
+      endif()
+      rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
+    else()
+      if (NOT ORO_COMPONENT_QUIET)
+        message( STATUS "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
+      endif()
+      ADD_LIBRARY( ${COMPONENT_NAME} SHARED ${SOURCES} )
+    endif()
+
+    # Configure the component library target (see below)
+    orocos_configure_component( ${COMPONENT_NAME} ${ARGN} QUIET )
+
     # Extract install directory:
     if ( ADD_COMPONENT_INSTALL )
       set(AC_INSTALL_DIR ${ADD_COMPONENT_INSTALL}${OROCOS_SUFFIX})
@@ -263,69 +278,10 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     endif()
 
     # Export target
-    if ( ADD_COMPONENT_EXPORT )
-      set(AC_INSTALL_EXPORT EXPORT ${ADD_COMPONENT_EXPORT})
+    if ( ORO_COMPONENT_EXPORT )
+      set(AC_INSTALL_EXPORT EXPORT ${ORO_COMPONENT_EXPORT})
     else()
       set(AC_INSTALL_EXPORT EXPORT ${PROJECT_NAME}-${OROCOS_TARGET})
-    endif()
-
-    # Set library name:
-    if ( NOT ADD_COMPONENT_NO_TARGET_SUFFIX AND
-        ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
-      set( COMPONENT_LIB_NAME ${COMPONENT_NAME}-${OROCOS_TARGET})
-    else()
-      set( COMPONENT_LIB_NAME ${COMPONENT_NAME})
-    endif()
-
-    # Set component version:
-    if (COMPONENT_VERSION)
-      set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
-    endif(COMPONENT_VERSION)
-    if (ADD_COMPONENT_VERSION)
-      set( LIB_COMPONENT_VERSION VERSION ${ADD_COMPONENT_VERSION})
-    endif(ADD_COMPONENT_VERSION)
-
-    # Clear the dependencies such that a target switch can be detected:
-    unset( ${COMPONENT_NAME}_LIB_DEPENDS )
-
-    # Use rosbuild in ros environments:
-    if (ORO_USE_ROSBUILD)
-      MESSAGE( STATUS "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME} in rosbuild source tree." )
-      rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
-    else()
-      MESSAGE( STATUS "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
-      ADD_LIBRARY( ${COMPONENT_NAME} SHARED ${SOURCES} )
-    endif()
-
-    # Prepare component lib for out-of-the-ordinary lib directories
-    SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
-      OUTPUT_NAME ${COMPONENT_LIB_NAME}
-      LIBRARY_OUTPUT_DIRECTORY ${ORO_COMPONENT_OUTPUT_DIRECTORY}
-      DEFINE_SYMBOL "RTT_COMPONENT"
-      ${LIB_COMPONENT_VERSION}
-      )
-
-    orocos_add_include_directories( ${COMPONENT_NAME} ${OROCOS-RTT_INCLUDE_DIRS} ${USE_OROCOS_INCLUDE_DIRS})
-    orocos_add_compile_flags( ${COMPONENT_NAME} ${USE_OROCOS_CFLAGS_OTHER})
-    orocos_add_link_flags( ${COMPONENT_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
-    orocos_set_install_rpath( ${COMPONENT_NAME} ${USE_OROCOS_LIBRARY_DIRS})
-
-    TARGET_LINK_LIBRARIES( ${COMPONENT_NAME}
-      ${OROCOS-RTT_LIBRARIES} 
-      #${OROCOS-RTT_TYPEKIT_LIBRARIES} 
-      )
-
-    # Only link in case there is something *and* the user didn't opt-out:
-    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
-      target_link_libraries( ${COMPONENT_NAME} ${USE_OROCOS_LIBRARIES} )
-      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
-        message(STATUS "[UseOrocos] Linking target '${COMPONENT_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
-      endif()
-    endif()
-
-    # Add exported target dependencies
-    if(USE_OROCOS_EXPORTED_TARGETS)
-      add_dependencies( ${COMPONENT_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
     endif()
 
     # Install
@@ -335,11 +291,6 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     else()
       INSTALL(TARGETS ${COMPONENT_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
     endif()
-
-    # Necessary for .pc file generation
-    list(APPEND OROCOS_DEFINED_COMPS " -l${COMPONENT_LIB_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES "${COMPONENT_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_component )
 
   # Configure a component library to work with Orocos
@@ -348,8 +299,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # target.
   #
   # You can set a variable COMPONENT_VERSION x.y.z to set a version or
-  # specify the optional VERSION parameter. For ros builds, the version
-  # number is ignored.
+  # specify the optional VERSION parameter.
   #
   # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the library name
   # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
@@ -357,7 +307,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # WARNING without NO_TARGET_SUFFIX the target library name *is* suffixed with
   # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
   #
-  # Usage: orocos_configure_component( COMPONENT_NAME [VERSION x.y.z] [NO_TARGET_SUFFIX] )
+  # Usage: orocos_configure_component( COMPONENT_NAME [VERSION x.y.z] [NO_TARGET_SUFFIX] [QUIET] )
   #
   # EXAMPLE USAGE
   #
@@ -367,15 +317,18 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   #   INSTALL(TARGETS acme-lib LIBRARY DESTINATION lib/${ORO_COMPONENT_OUTPUT_DIRECTORY})
   #
   macro( orocos_configure_component COMPONENT_NAME )
-    ORO_PARSE_ARGUMENTS(ADD_COMPONENT
+    ORO_PARSE_ARGUMENTS(ORO_COMPONENT
       "VERSION"
-      "NO_TARGET_SUFFIX"
+      "NO_TARGET_SUFFIX;QUIET"
       ${ARGN}
       )
-    SET( SOURCES ${ADD_COMPONENT_DEFAULT_ARGS} )
+
+    if ( NOT ORO_COMPONENT_QUIET )
+      message( STATUS "[UseOrocos] Configuring component library ${COMPONENT_NAME} as ${COMPONENT_LIB_NAME}" )
+    endif()
 
     # Set library name:
-    if ( NOT ADD_COMPONENT_NO_TARGET_SUFFIX AND
+    if ( NOT ORO_COMPONENT_NO_TARGET_SUFFIX AND
         ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
       set( COMPONENT_LIB_NAME ${COMPONENT_NAME}-${OROCOS_TARGET})
     else()
@@ -386,21 +339,12 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     if (COMPONENT_VERSION)
       set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
     endif(COMPONENT_VERSION)
-    if (ADD_COMPONENT_VERSION)
-      set( LIB_COMPONENT_VERSION VERSION ${ADD_COMPONENT_VERSION})
-    endif(ADD_COMPONENT_VERSION)
+    if (ORO_COMPONENT_VERSION)
+      set( LIB_COMPONENT_VERSION VERSION ${ORO_COMPONENT_VERSION})
+    endif(ORO_COMPONENT_VERSION)
 
     # Clear the dependencies such that a target switch can be detected:
     unset( ${COMPONENT_NAME}_LIB_DEPENDS )
-
-    # Use rosbuild in ros environments:
-    if (ORO_USE_ROSBUILD)
-      MESSAGE( STATUS "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME} in rosbuild source tree." )
-      MESSAGE( FATAL_ERROR "rosbuild_add_library not yet supported!")
-# TODO      rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
-    else()
-      MESSAGE( STATUS "[UseOrocos] Configuring component library ${COMPONENT_NAME} as ${COMPONENT_LIB_NAME}" )
-    endif()
 
     # Prepare component lib for out-of-the-ordinary lib directories
     SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
@@ -428,6 +372,11 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       endif()
     endif()
 
+    # Add exported target dependencies
+    if(USE_OROCOS_EXPORTED_TARGETS)
+      add_dependencies( ${COMPONENT_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
+    endif()
+
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_COMPS " -l${COMPONENT_LIB_NAME}")
     list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${COMPONENT_NAME}")
@@ -437,8 +386,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # Utility libraries should add themselves by calling 'orocos_library()'
   # instead of 'ADD_LIBRARY' in CMakeLists.txt.
   # You can set a variable COMPONENT_VERSION x.y.z to set a version or
-  # specify the optional VERSION parameter. For ros builds, the version
-  # number is ignored.
+  # specify the optional VERSION parameter.
   #
   # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the library name
   # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
@@ -446,16 +394,33 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # WARNING without NO_TARGET_SUFFIX the target library name *is* suffixed with
   # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
   #
-  # Usage: orocos_library( libraryname src1 src2 src3 [VERSION x.y.z]  [NO_TARGET_SUFFIX] )
+  # Usage: orocos_library( libraryname src1 src2 src3 [VERSION x.y.z] [NO_TARGET_SUFFIX] [QUIET] )
   #
   macro( orocos_library LIB_TARGET_NAME )
 
     ORO_PARSE_ARGUMENTS(ORO_LIBRARY
       "INSTALL;VERSION;EXPORT"
-      "NO_TARGET_SUFFIX"
+      "NO_TARGET_SUFFIX;QUIET"
       ${ARGN}
       )
     SET( SOURCES ${ORO_LIBRARY_DEFAULT_ARGS} )
+
+    # Add the library target
+    if (ORO_USE_ROSBUILD)
+      if ( NOT ORO_LIBRARY_QUIET )
+        MESSAGE( STATUS "[UseOrocos] Building library ${LIB_TARGET_NAME} in rosbuild source tree." )
+      endif()
+      rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
+    else()
+      if ( NOT ORO_LIBRARY_QUIET )
+        MESSAGE( STATUS "[UseOrocos] Building library ${LIB_TARGET_NAME}" )
+      endif()
+      ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
+    endif()
+
+    # Configure the library target (see below)
+    orocos_configure_library( ${LIB_TARGET_NAME} ${ARGN} QUIET )
+
     # Extract install directory:
     if ( ORO_LIBRARY_INSTALL )
       set(AC_INSTALL_DIR ${ORO_LIBRARY_INSTALL})
@@ -471,70 +436,9 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     else()
       set(AC_INSTALL_EXPORT EXPORT ${PROJECT_NAME}-${OROCOS_TARGET})
     endif()
-  
-    # Set library name:
-    if ( NOT ORO_LIBRARY_NO_TARGET_SUFFIX AND
-        ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
-      set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
-    else()
-      set( LIB_NAME ${LIB_TARGET_NAME})
-    endif()
 
-    # Set component version:
-    if (COMPONENT_VERSION)
-      set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
-    endif(COMPONENT_VERSION)
-    if (ORO_LIBRARY_VERSION)
-      set( LIB_COMPONENT_VERSION VERSION ${ORO_LIBRARY_VERSION})
-    endif(ORO_LIBRARY_VERSION)
-
-    # Clear the dependencies such that a target switch can be detected:
-    unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
-
-    # Use rosbuild in ros environments:
-    if (ORO_USE_ROSBUILD)
-      MESSAGE( STATUS "[UseOrocos] Building library ${LIB_TARGET_NAME} in rosbuild source tree." )
-      rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
-    else()
-      MESSAGE( STATUS "[UseOrocos] Building library ${LIB_TARGET_NAME}" )
-      ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
-    endif()
-
-    # Prepare lib for out-of-the-ordinary lib directories
-    SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-      OUTPUT_NAME ${LIB_NAME}
-      ${LIB_COMPONENT_VERSION}
-      )
-
-    orocos_add_include_directories( ${LIB_TARGET_NAME} ${OROCOS-RTT_INCLUDE_DIRS} ${USE_OROCOS_INCLUDE_DIRS})
-    orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER} )
-    orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER} )
-    orocos_set_install_rpath( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARY_DIRS} )
-
-    TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} 
-      ${OROCOS-RTT_LIBRARIES} 
-      #${OROCOS-RTT_TYPEKIT_LIBRARIES} 
-      )
-
-    # Only link in case there is something *and* the user didn't opt-out:
-    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
-      target_link_libraries( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARIES} )
-      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
-        message(STATUS "[UseOrocos] Linking target '${LIB_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
-      endif()
-    endif()
-
-    # Add exported target dependencies
-    if(USE_OROCOS_EXPORTED_TARGETS)
-      add_dependencies( ${LIB_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
-    endif()
-
+    # Install
     INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
-
-    # Necessary for .pc file generation
-    list(APPEND OROCOS_DEFINED_LIBS " -l${LIB_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES "${LIB_TARGET_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_library )
 
   # Configure a utility library to work with Orocos
@@ -543,8 +447,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # target.
   #
   # You can set a variable COMPONENT_VERSION x.y.z to set a version or
-  # specify the optional VERSION parameter. For ros builds, the version
-  # number is ignored.
+  # specify the optional VERSION parameter.
   #
   # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the library name
   # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
@@ -552,7 +455,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # WARNING without NO_TARGET_SUFFIX the target library name *is* suffixed with
   # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
   #
-  # Usage: orocos_configure_library( libraryname [VERSION x.y.z] [NO_TARGET_SUFFIX] )
+  # Usage: orocos_configure_library( libraryname [VERSION x.y.z] [NO_TARGET_SUFFIX] [QUIET] )
   #
   # EXAMPLE USAGE
   #
@@ -565,9 +468,13 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     ORO_PARSE_ARGUMENTS(ORO_LIBRARY
       "VERSION"
-      "NO_TARGET_SUFFIX"
+      "NO_TARGET_SUFFIX;QUIET"
       ${ARGN}
       )
+
+    if ( NOT ORO_LIBRARY_QUIET )
+      MESSAGE( STATUS "[UseOrocos] Configuring utility library ${LIB_TARGET_NAME}" )
+    endif()
 
     # Set library name:
     if ( NOT ORO_LIBRARY_NO_TARGET_SUFFIX AND
@@ -587,15 +494,6 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     # Clear the dependencies such that a target switch can be detected:
     unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
-
-    # Use rosbuild in ros environments:
-    if (ORO_USE_ROSBUILD)
-      MESSAGE( STATUS "[UseOrocos] Configuring utility library ${LIB_TARGET_NAME} in rosbuild source tree." )
-      MESSAGE( FATAL_ERROR "rosbuild_add_library not yet supported!")
-# TODO      rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
-    else()
-      MESSAGE( STATUS "[UseOrocos] Configuring utility library ${LIB_TARGET_NAME}" )
-    endif()
 
     # Prepare lib for out-of-the-ordinary lib directories
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
@@ -621,6 +519,11 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       endif()
     endif()
 
+    # Add exported target dependencies
+    if(USE_OROCOS_EXPORTED_TARGETS)
+      add_dependencies( ${LIB_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
+    endif()
+
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_LIBS " -l${LIB_NAME}")
     list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${LIB_TARGET_NAME}")
@@ -636,16 +539,34 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # WARNING without NO_TARGET_SUFFIX the target executable name *is* suffixed with
   # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
   #
-  # Usage: orocos_executable( executablename src1 src2 src3 [INSTALL bin] [NO_TARGET_SUFFIX] )
+  # Usage: orocos_executable( executablename src1 src2 src3 [INSTALL bin] [NO_TARGET_SUFFIX] [QUIET] )
   #
   macro( orocos_executable EXE_TARGET_NAME )
 
     ORO_PARSE_ARGUMENTS(ORO_EXECUTABLE
       "INSTALL;EXPORT"
-      "NO_TARGET_SUFFIX"
+      "NO_TARGET_SUFFIX;QUIET"
       ${ARGN}
       )
     SET( SOURCES ${ORO_EXECUTABLE_DEFAULT_ARGS} )
+
+    # Add the executable target
+    if (ORO_USE_ROSBUILD)
+      if ( NOT ORO_EXECUTABLE_QUIET )
+        MESSAGE( STATUS "[UseOrocos] Building executable ${EXE_TARGET_NAME} in rosbuild source tree." )
+      endif()
+      rosbuild_add_executable(${EXE_TARGET_NAME} ${SOURCES} )
+    else()
+      if ( NOT ORO_EXECUTABLE_QUIET )
+        MESSAGE( STATUS "[UseOrocos] Building executable ${EXE_TARGET_NAME}" )
+      endif()
+      ADD_EXECUTABLE( ${EXE_TARGET_NAME} ${SOURCES} )
+    endif()
+
+    # Configure the executable target (see below)
+    orocos_configure_executable( ${EXE_TARGET_NAME} ${ARGN} QUIET )
+
+    # Extract install directory:
     if ( ORO_EXECUTABLE_INSTALL )
       set(AC_INSTALL_DIR ${ORO_EXECUTABLE_INSTALL})
       set(AC_INSTALL_RT_DIR bin)
@@ -659,51 +580,6 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       set(AC_INSTALL_EXPORT EXPORT ${ORO_EXECUTABLE_EXPORT})
     else()
       set(AC_INSTALL_EXPORT EXPORT ${PROJECT_NAME}-${OROCOS_TARGET})
-    endif()
-
-    if ( NOT ORO_EXECUTABLE_NO_TARGET_SUFFIX AND
-        ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
-      set( EXE_NAME ${EXE_TARGET_NAME}-${OROCOS_TARGET})
-    else()
-      set( EXE_NAME ${EXE_TARGET_NAME})
-    endif()
-
-    if (ORO_USE_ROSBUILD)
-      MESSAGE( STATUS "[UseOrocos] Building executable ${EXE_TARGET_NAME} in rosbuild source tree." )
-      rosbuild_add_executable(${EXE_TARGET_NAME} ${SOURCES} )
-    else()
-      MESSAGE( STATUS "[UseOrocos] Building executable ${EXE_TARGET_NAME}" )
-      ADD_EXECUTABLE( ${EXE_TARGET_NAME} ${SOURCES} )
-    endif()
-
-    SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
-      OUTPUT_NAME ${EXE_NAME}
-      )
-
-    if(CMAKE_DEBUG_POSTFIX)
-      set_target_properties( ${EXE_TARGET_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
-    endif(CMAKE_DEBUG_POSTFIX)
-
-    orocos_add_include_directories( ${EXE_TARGET_NAME} ${OROCOS-RTT_INCLUDE_DIRS} ${USE_OROCOS_INCLUDE_DIRS})
-    orocos_add_compile_flags(${EXE_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER})
-    orocos_add_link_flags(${EXE_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
-    orocos_set_install_rpath( ${EXE_TARGET_NAME} ${USE_OROCOS_LIBRARY_DIRS})
-
-    TARGET_LINK_LIBRARIES( ${EXE_TARGET_NAME} 
-      ${OROCOS-RTT_LIBRARIES} 
-      )
-
-    # Only link in case there is something *and* the user didn't opt-out:
-    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
-      target_link_libraries( ${EXE_TARGET_NAME} ${USE_OROCOS_LIBRARIES} )
-      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
-        message(STATUS "[UseOrocos] Linking target '${EXE_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
-      endif()
-    endif()
-
-    # Add exported target dependencies
-    if(USE_OROCOS_EXPORTED_TARGETS)
-      add_dependencies( ${EXE_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
     endif()
 
     # We install the exe, the user must make sure that the install dir is not
@@ -721,7 +597,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # WARNING without NO_TARGET_SUFFIX the target executable name *is* suffixed with
   # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
   #
-  # Usage: orocos_configure_executable( executablename src1 src2 src3 [NO_TARGET_SUFFIX] )
+  # Usage: orocos_configure_executable( executablename src1 src2 src3 [NO_TARGET_SUFFIX] [QUIET] )
   #
   # EXAMPLE USAGE
   #
@@ -734,24 +610,19 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     ORO_PARSE_ARGUMENTS(ORO_EXECUTABLE
       ""
-      "NO_TARGET_SUFFIX"
+      "NO_TARGET_SUFFIX;QUIET"
       ${ARGN}
       )
-    SET( SOURCES ${ORO_EXECUTABLE_DEFAULT_ARGS} )
+
+    if ( NOT ORO_EXECUTABLE_QUIET )
+      MESSAGE( STATUS "[UseOrocos] Configuring executable ${EXE_TARGET_NAME}" )
+    endif()
 
     if ( NOT ORO_EXECUTABLE_NO_TARGET_SUFFIX AND
         ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
       set( EXE_NAME ${EXE_TARGET_NAME}-${OROCOS_TARGET})
     else()
       set( EXE_NAME ${EXE_TARGET_NAME})
-    endif()
-
-    if (ORO_USE_ROSBUILD)
-      MESSAGE( STATUS "[UseOrocos] Configuring executable ${EXE_TARGET_NAME} in rosbuild source tree." )
-      MESSAGE( FATAL_ERROR "rosbuild_add_executable not yet supported!")
-# TODO      rosbuild_add_executable(${EXE_TARGET_NAME} ${SOURCES} )
-    else()
-      MESSAGE( STATUS "[UseOrocos] Configuring executable ${EXE_TARGET_NAME}" )
     endif()
 
     SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
@@ -803,14 +674,17 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   macro( orocos_typegen_headers )
     ORO_PARSE_ARGUMENTS(ORO_TYPEGEN_HEADERS
       "DEPENDS"
-      ""
+      "QUIET"
       ${ARGN}
       )
 
-    if ( ORO_TYPEGEN_HEADERS_DEPENDS )
-      set (ORO_TYPEGEN_HEADERS_DEP_INFO_MSG "using: ${ORO_TYPEGEN_HEADERS_DEPENDS}")
+    if ( NOT ORO_TYPEGEN_HEADERS_QUIET )
+      if ( ORO_TYPEGEN_HEADERS_DEPENDS )
+        MESSAGE( STATUS "[UseOrocos] Generating typekit for ${PROJECT_NAME} using: ${ORO_TYPEGEN_HEADERS_DEPENDS}..." )
+      else()
+        MESSAGE( STATUS "[UseOrocos] Generating typekit for ${PROJECT_NAME}" )
+      endif()
     endif()
-    MESSAGE( STATUS "[UseOrocos] Generating typekit for ${PROJECT_NAME} ${ORO_TYPEGEN_HEADERS_DEP_INFO_MSG}..." )
 
     # Works in top level source dir:
     set(TYPEGEN_EXE typegen-NOTFOUND) #re-check for typegen each time !
@@ -841,8 +715,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # typekit libraries should add themselves by calling 'orocos_typekit()' 
   # instead of 'ADD_LIBRARY' in CMakeLists.txt.
   # You can set a variable COMPONENT_VERSION x.y.z to set a version or 
-  # specify the optional VERSION parameter. For ros builds, the version
-  # number is ignored.
+  # specify the optional VERSION parameter.
   #
   # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the typekit name
   # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
@@ -850,16 +723,33 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # WARNING without NO_TARGET_SUFFIX the target typekit name *is* suffixed with
   # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
   #
-  # Usage: orocos_typekit( typekitname src1 src2 src3 [INSTALL lib/orocos/project/types] [VERSION x.y.z] [NO_TARGET_SUFFIX] )
+  # Usage: orocos_typekit( typekitname src1 src2 src3 [INSTALL lib/orocos/project/types] [VERSION x.y.z] [NO_TARGET_SUFFIX] [QUIET] )
   #
   macro( orocos_typekit LIB_TARGET_NAME )
 
     ORO_PARSE_ARGUMENTS(ORO_TYPEKIT
       "INSTALL;VERSION;EXPORT"
-      "NO_TARGET_SUFFIX"
+      "NO_TARGET_SUFFIX;QUIET"
       ${ARGN}
       )
     SET( SOURCES ${ORO_TYPEKIT_DEFAULT_ARGS} )
+
+    # Add the typekit library target
+    if (ORO_USE_ROSBUILD)
+      if ( NOT ORO_TYPEKIT_QUIET )
+        MESSAGE( STATUS "[UseOrocos] Building typekit library ${LIB_TARGET_NAME} in rosbuild source tree." )
+      endif()
+      rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
+    else()
+      if ( NOT ORO_TYPEKIT_QUIET )
+        MESSAGE( STATUS "[UseOrocos] Building typekit library ${LIB_TARGET_NAME}" )
+      endif()
+      ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
+    endif()
+
+    # Configure the typekit library target (see below)
+    orocos_configure_typekit( ${LIB_TARGET_NAME} ${ARGN} QUIET )
+
     # Extract install directory:
     if ( ORO_TYPEKIT_INSTALL )
       set(AC_INSTALL_DIR ${ORO_TYPEKIT_INSTALL})
@@ -876,74 +766,12 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       set(AC_INSTALL_EXPORT EXPORT ${PROJECT_NAME}-${OROCOS_TARGET})
     endif()
 
-    # Set library name:
-    if ( NOT ORO_TYPEKIT_NO_TARGET_SUFFIX AND
-        ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
-      set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
-    else()
-      set( LIB_NAME ${LIB_TARGET_NAME})
-    endif()
-
-    # Set component version:
-    if (COMPONENT_VERSION)
-      set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
-    endif(COMPONENT_VERSION)
-    if (ORO_TYPEKIT_VERSION)
-      set( LIB_COMPONENT_VERSION VERSION ${ORO_TYPEKIT_VERSION})
-    endif(ORO_TYPEKIT_VERSION)
-
-    # Clear the dependencies such that a target switch can be detected:
-    unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
-
-    # Use rosbuild in ros environments:
-    if (ORO_USE_ROSBUILD)
-      MESSAGE( STATUS "[UseOrocos] Building typekit library ${LIB_TARGET_NAME} in rosbuild source tree." )
-      rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
-    else()
-      MESSAGE( STATUS "[UseOrocos] Building typekit library ${LIB_TARGET_NAME}" )
-      ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
-    endif()
-
-    # Prepare typekit lib for out-of-the-ordinary lib directories
-    SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-      OUTPUT_NAME ${LIB_NAME}
-      LIBRARY_OUTPUT_DIRECTORY ${ORO_TYPEKIT_OUTPUT_DIRECTORY}
-      ${LIB_COMPONENT_VERSION}
-      )
-
-    orocos_add_include_directories( ${LIB_TARGET_NAME} ${OROCOS-RTT_INCLUDE_DIRS} ${USE_OROCOS_INCLUDE_DIRS})
-    orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER})
-    orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
-    orocos_set_install_rpath( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARY_DIRS})
-
-    TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME}
-      ${OROCOS-RTT_LIBRARIES} 
-      )
-
-    # Only link in case there is something *and* the user didn't opt-out:
-    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
-      target_link_libraries( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARIES} )
-      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
-        message(STATUS "[UseOrocos] Linking target '${LIB_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
-      endif()
-    endif()
-
-    # Add exported target dependencies
-    if(USE_OROCOS_EXPORTED_TARGETS)
-      add_dependencies( ${LIB_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
-    endif()
-
     # On win32, typekit runtime (.dll) should go in orocos/types folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
       INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_DIR})
     else()
       INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
     endif()
-
-    # Necessary for .pc file generation
-    list(APPEND OROCOS_DEFINED_TYPES " -l${LIB_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES "${LIB_TARGET_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_typekit )
 
   # Configure a typekit library to work with Orocos
@@ -952,8 +780,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # target.
   #
   # You can set a variable COMPONENT_VERSION x.y.z to set a version or
-  # specify the optional VERSION parameter. For ros builds, the version
-  # number is ignored.
+  # specify the optional VERSION parameter.
   #
   # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the typekit name
   # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
@@ -961,7 +788,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # WARNING without NO_TARGET_SUFFIX the target typekit name *is* suffixed with
   # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
   #
-  # Usage: orocos_configure_typekit( COMPONENT_NAME [VERSION x.y.z] [NO_TARGET_SUFFIX] )
+  # Usage: orocos_configure_typekit( COMPONENT_NAME [VERSION x.y.z] [NO_TARGET_SUFFIX] [QUIET] )
   #
   # EXAMPLE USAGE
   #
@@ -974,10 +801,13 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     ORO_PARSE_ARGUMENTS(ORO_TYPEKIT
       "VERSION"
-      "NO_TARGET_SUFFIX"
+      "NO_TARGET_SUFFIX;QUIET"
       ${ARGN}
       )
-    SET( SOURCES ${ORO_TYPEKIT_DEFAULT_ARGS} )
+
+    if ( NOT ORO_TYPEKIT_QUIET )
+      MESSAGE( STATUS "[UseOrocos] Configuring typekit library ${LIB_TARGET_NAME}" )
+    endif()
 
     # Set library name:
     if ( NOT ORO_TYPEKIT_NO_TARGET_SUFFIX AND
@@ -997,14 +827,6 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     # Clear the dependencies such that a target switch can be detected:
     unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
-
-    if (ORO_USE_ROSBUILD)
-      MESSAGE( STATUS "[UseOrocos] Configuring typekit library ${LIB_TARGET_NAME} in rosbuild source tree." )
-      MESSAGE( FATAL_ERROR "rosbuild_add_library not yet supported!")
-# TODO      rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
-    else()
-      MESSAGE( STATUS "[UseOrocos] Configuring typekit library ${LIB_TARGET_NAME}" )
-    endif()
 
     # Prepare typekit lib for out-of-the-ordinary lib directories
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
@@ -1030,6 +852,11 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       endif()
     endif()
 
+    # Add exported target dependencies
+    if(USE_OROCOS_EXPORTED_TARGETS)
+      add_dependencies( ${LIB_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
+    endif()
+
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_TYPES " -l${LIB_NAME}")
     list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS "${LIB_TARGET_NAME}")
@@ -1039,8 +866,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # plugin libraries should add themselves by calling 'orocos_plugin()'
   # instead of 'ADD_LIBRARY' in CMakeLists.txt.
   # You can set a variable COMPONENT_VERSION x.y.z to set a version or 
-  # specify the optional VERSION parameter. For ros builds, the version
-  # number is ignored.
+  # specify the optional VERSION parameter.
   #
   # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the plugin name
   # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
@@ -1048,16 +874,33 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # WARNING without NO_TARGET_SUFFIX the target plugin name *is* suffixed with
   # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
   #
-  # Usage: orocos_plugin( pluginname src1 src2 src3 [INSTALL lib/orocos/project/plugins] [VERSION x.y.z] [NO_TARGET_SUFFIX] )
+  # Usage: orocos_plugin( pluginname src1 src2 src3 [INSTALL lib/orocos/project/plugins] [VERSION x.y.z] [NO_TARGET_SUFFIX] [QUIET] )
   #
   macro( orocos_plugin LIB_TARGET_NAME )
 
     ORO_PARSE_ARGUMENTS(ORO_PLUGIN
       "INSTALL;VERSION;EXPORT"
-      "NO_TARGET_SUFFIX"
+      "NO_TARGET_SUFFIX;QUIET"
       ${ARGN}
       )
     SET( SOURCES ${ORO_PLUGIN_DEFAULT_ARGS} )
+
+    # Add the plugin library target
+    if (ORO_USE_ROSBUILD)
+      if ( NOT ORO_PLUGIN_QUIET )
+        MESSAGE( STATUS "[UseOrocos] Building plugin library ${LIB_TARGET_NAME} in rosbuild source tree." )
+      endif()
+      rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
+    else()
+      if ( NOT ORO_PLUGIN_QUIET )
+        MESSAGE( STATUS "[UseOrocos] Building plugin library ${LIB_TARGET_NAME}" )
+      endif()
+      ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
+    endif()
+
+    # Configure the plugin library target (see below)
+    orocos_configure_plugin( ${LIB_TARGET_NAME} ${ARGN} QUIET )
+
     # Extract install directory:
     if ( ORO_PLUGIN_INSTALL )
       set(AC_INSTALL_DIR ${ORO_PLUGIN_INSTALL})
@@ -1074,75 +917,12 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       set(AC_INSTALL_EXPORT EXPORT ${PROJECT_NAME}-${OROCOS_TARGET})
     endif()
 
-    # Set library name:
-    if ( NOT ORO_PLUGIN_NO_TARGET_SUFFIX AND
-        ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx") )
-      set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
-    else()
-      set( LIB_NAME ${LIB_TARGET_NAME})
-    endif()
-
-    # Set component version:
-    if (COMPONENT_VERSION)
-      set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
-    endif(COMPONENT_VERSION)
-    if (ORO_PLUGIN_VERSION)
-      set( LIB_COMPONENT_VERSION VERSION ${ORO_PLUGIN_VERSION})
-    endif(ORO_PLUGIN_VERSION)
-
-    # Clear the dependencies such that a target switch can be detected:
-    unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
-
-    # Use rosbuild in ros environments:
-    if (ORO_USE_ROSBUILD)
-      MESSAGE( STATUS "[UseOrocos] Building plugin library ${LIB_TARGET_NAME} in rosbuild source tree." )
-      rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
-    else()
-      MESSAGE( STATUS "[UseOrocos] Building plugin library ${LIB_TARGET_NAME}" )
-      ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
-    endif()
-
-    # Prepare plugin lib for out-of-the-ordinary lib directories
-    SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-      OUTPUT_NAME ${LIB_NAME}
-      LIBRARY_OUTPUT_DIRECTORY ${ORO_PLUGIN_OUTPUT_DIRECTORY}
-      ${LIB_COMPONENT_VERSION}
-      )
-
-    orocos_add_include_directories( ${LIB_TARGET_NAME} ${OROCOS-RTT_INCLUDE_DIRS} ${USE_OROCOS_INCLUDE_DIRS})
-    orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_CFLAGS_OTHER})
-    orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LDFLAGS_OTHER})
-    orocos_set_install_rpath( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARY_DIRS})
-
-    TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} 
-      ${OROCOS-RTT_LIBRARIES}
-      #${OROCOS-RTT_TYPEKIT_LIBRARIES} 
-      )
-
-    # Only link in case there is something *and* the user didn't opt-out:
-    if(NOT OROCOS_NO_AUTO_LINKING AND USE_OROCOS_LIBRARIES)
-      target_link_libraries( ${LIB_TARGET_NAME} ${USE_OROCOS_LIBRARIES} )
-      if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
-        message(STATUS "[UseOrocos] Linking target '${LIB_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
-      endif()
-    endif()
-
-    # Add exported target dependencies
-    if(USE_OROCOS_EXPORTED_TARGETS)
-      add_dependencies( ${LIB_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
-    endif()
-
     # On win32, plugins runtime (.dll) should go in orocos/plugins folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
       INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_DIR})
     else()
       INSTALL(TARGETS ${LIB_TARGET_NAME} ${AC_INSTALL_EXPORT} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
     endif()
-
-    # Necessary for .pc file generation
-    list(APPEND OROCOS_DEFINED_PLUGINS " -l${LIB_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARIES "${LIB_TARGET_NAME}")
-    list(APPEND ${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}")
   endmacro( orocos_plugin )
 
   # Configure a plugin library to work with Orocos
@@ -1151,8 +931,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # target.
   #
   # You can set a variable COMPONENT_VERSION x.y.z to set a version or
-  # specify the optional VERSION parameter. For ros builds, the version
-  # number is ignored.
+  # specify the optional VERSION parameter.
   #
   # Pass the optional NO_TARGET_SUFFIX parameter to NOT suffix the plugin name
   # with the Orocos target (e.g. removes the "-macosx" or "-gnulinux" suffix).
@@ -1160,7 +939,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   # WARNING without NO_TARGET_SUFFIX the target plugin name *is* suffixed with
   # OROCOS_TARGET, but the target name is *not* suffixed with OROCOS_TARGET.
   #
-  # Usage: orocos_configure_plugin( COMPONENT_NAME [VERSION x.y.z] [NO_TARGET_SUFFIX] )
+  # Usage: orocos_configure_plugin( COMPONENT_NAME [VERSION x.y.z] [NO_TARGET_SUFFIX] [QUIET] )
   #
   # EXAMPLE USAGE
   #
@@ -1173,10 +952,13 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     ORO_PARSE_ARGUMENTS(ORO_PLUGIN
       "VERSION"
-      "NO_TARGET_SUFFIX"
+      "NO_TARGET_SUFFIX;QUIET"
       ${ARGN}
       )
-    SET( SOURCES ${ORO_PLUGIN_DEFAULT_ARGS} )
+
+    if ( NOT ORO_PLUGIN_QUIET )
+      MESSAGE( STATUS "[UseOrocos] Configuring plugin library ${LIB_TARGET_NAME}" )
+    endif()
 
     # Export target
     if ( NOT ORO_PLUGIN_NO_TARGET_SUFFIX AND
@@ -1196,14 +978,6 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     # Clear the dependencies such that a target switch can be detected:
     unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
-
-    if (ORO_USE_ROSBUILD)
-      MESSAGE( STATUS "[UseOrocos] Configuring plugin library ${LIB_TARGET_NAME} in rosbuild source tree." )
-      MESSAGE( FATAL_ERROR "rosbuild_add_library not yet supported!")
-#TODO      rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
-    else()
-      MESSAGE( STATUS "[UseOrocos] Configuring plugin library ${LIB_TARGET_NAME}" )
-    endif()
 
     # Prepare plugin lib for out-of-the-ordinary lib directories
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
@@ -1228,6 +1002,11 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       if("$ENV{VERBOSE}" OR ORO_USE_VERBOSE)
         message(STATUS "[UseOrocos] Linking target '${LIB_TARGET_NAME}' with libraries from packages '${USE_OROCOS_PACKAGES}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
       endif()
+    endif()
+
+    # Add exported target dependencies
+    if(USE_OROCOS_EXPORTED_TARGETS)
+      add_dependencies( ${LIB_TARGET_NAME} ${USE_OROCOS_EXPORTED_TARGETS} )
     endif()
 
     # Necessary for .pc file generation
@@ -1324,7 +1103,7 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
 
     oro_parse_arguments(ORO_CREATE_PC
       "VERSION;DEPENDS;DEPENDS_TARGETS;INCLUDE_DIRS"
-      ""
+      "QUIET"
       ${ARGN}
       )
 
@@ -1332,16 +1111,24 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
     if (NOT ORO_CREATE_PC_VERSION)
       if (COMPONENT_VERSION)
         set( ORO_CREATE_PC_VERSION ${COMPONENT_VERSION})
-        message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} from COMPONENT_VERSION.")
+        if ( NOT ORO_CREATE_PC_QUIET )
+          message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} from COMPONENT_VERSION.")
+        endif()
       elseif (${PROJECT_NAME}_VERSION)
         set( ORO_CREATE_PC_VERSION ${${PROJECT_NAME}_VERSION})
-        message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} from ${PROJECT_NAME}_VERSION (package.xml).")
+        if ( NOT ORO_CREATE_PC_QUIET )
+          message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} from ${PROJECT_NAME}_VERSION (package.xml).")
+        endif()
       else ()
         set( ORO_CREATE_PC_VERSION "1.0")
-        message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} (default version).")
+        if ( NOT ORO_CREATE_PC_QUIET )
+          message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} (default version).")
+        endif()
       endif (COMPONENT_VERSION)
     else (NOT ORO_CREATE_PC_VERSION)
-      message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION}.")
+      if ( NOT ORO_CREATE_PC_QUIET )
+        message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION}.")
+      endif()
     endif (NOT ORO_CREATE_PC_VERSION)
 
     # Create filename
@@ -1429,7 +1216,9 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
 
     # Generate additional pkg-config files for other build toolchains
     if (ORO_USE_ROSBUILD)
-      message(STATUS "[UseOrocos] Generating pkg-config file for rosbuild package.")
+      if ( NOT ORO_CREATE_PC_QUIET )
+        message(STATUS "[UseOrocos] Generating pkg-config file for rosbuild package.")
+      endif()
 
       # For ros package trees, we install the .pc file also next to the manifest file:
       set(PC_PREFIX ${PROJECT_SOURCE_DIR})
@@ -1452,7 +1241,9 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       file(WRITE ${PROJECT_SOURCE_DIR}/lib/pkgconfig/${PC_NAME}.pc ${ROSBUILD_PC_CONTENTS})
 
     elseif (ORO_USE_CATKIN)
-      message(STATUS "[UseOrocos] Generating pkg-config file for package in catkin devel space.")
+      if ( NOT ORO_CREATE_PC_QUIET )
+        message(STATUS "[UseOrocos] Generating pkg-config file for package in catkin devel space.")
+      endif()
 
       # For catkin workspaces we also install a pkg-config file in the develspace
       set(PC_COMMENT "# This pkg-config file is for use in a catkin devel space")
@@ -1496,19 +1287,27 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
     # Store a list of exported targets, libraries and include directories on the cache so that other packages within the same workspace can use them.
     set(${PC_NAME}_OROCOS_PACKAGE True CACHE INTERNAL "Mark ${PC_NAME} package as an Orocos package built in this workspace")
     if(${PROJECT_NAME}_EXPORTED_TARGETS)
-      message(STATUS "[UseOrocos] Exporting targets ${${PROJECT_NAME}_EXPORTED_TARGETS}.")
+      if ( NOT ORO_CREATE_PC_QUIET )
+        message(STATUS "[UseOrocos] Exporting targets ${${PROJECT_NAME}_EXPORTED_TARGETS}.")
+      endif()
       set(${PC_NAME}_EXPORTED_TARGETS ${${PROJECT_NAME}_EXPORTED_TARGETS} CACHE INTERNAL "Targets exported by package ${PC_NAME}")
     endif()
     if(${PROJECT_NAME}_EXPORTED_LIBRARIES)
-      message(STATUS "[UseOrocos] Exporting libraries ${${PROJECT_NAME}_EXPORTED_LIBRARIES}.")
+      if ( NOT ORO_CREATE_PC_QUIET )
+        message(STATUS "[UseOrocos] Exporting libraries ${${PROJECT_NAME}_EXPORTED_LIBRARIES}.")
+      endif()
       set(${PC_NAME}_EXPORTED_LIBRARIES ${${PROJECT_NAME}_EXPORTED_LIBRARIES} CACHE INTERNAL "Libraries exported by package ${PC_NAME}")
     endif()
     if(${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS)
-      message(STATUS "[UseOrocos] Exporting include directories ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS}.")
+      if ( NOT ORO_CREATE_PC_QUIET )
+        message(STATUS "[UseOrocos] Exporting include directories ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS}.")
+      endif()
       set(${PC_NAME}_EXPORTED_INCLUDE_DIRS ${${PROJECT_NAME}_EXPORTED_INCLUDE_DIRS} CACHE INTERNAL "Include directories exported by package ${PC_NAME}")
     endif()
     if(${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS)
-      message(STATUS "[UseOrocos] Exporting library directories ${${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS}.")
+      if ( NOT ORO_CREATE_PC_QUIET )
+        message(STATUS "[UseOrocos] Exporting library directories ${${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS}.")
+      endif()
       set(${PC_NAME}_EXPORTED_LIBRARY_DIRS ${${PROJECT_NAME}_EXPORTED_LIBRARY_DIRS} CACHE INTERNAL "Library directories exported by package ${PC_NAME}")
     endif()
 
