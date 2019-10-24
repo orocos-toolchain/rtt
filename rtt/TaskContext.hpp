@@ -124,7 +124,8 @@ namespace RTT
          * @param new_act The new activity for this TaskContext,
          * which becomes owned by this TaskContext, in case this method
          * returns true.
-         * @return false if this->isRunning(). You can not change the
+         * @return false if this->isRunning() or if called by the thread that currently
+         * executes this activity and that would need to be stopped. You cannot change the
          * activity of a TaskContext once it is running. In that case,
          * new_act is not destroyed.
          * @note This function may not be called from the current

@@ -77,7 +77,7 @@ void PropertyBagIntrospector::introspect(base::PropertyBase* v)
         return; // nothing to do.
 
     // unknown, so add it to the stack:
-    mystack.top()->add( v->clone() );
+    mystack.top()->ownProperty( v->clone() );
 }
 
 void PropertyBagIntrospector::introspect(Property<PropertyBag> &v)
@@ -87,11 +87,10 @@ void PropertyBagIntrospector::introspect(Property<PropertyBag> &v)
         = new Property<PropertyBag>( v.getName(),
                                      v.getDescription(),
                                      PropertyBag( v.get().getType() ) );
-    cur_bag->add( bag_cl );
 
-    mystack.push( &bag_cl->value() );
-
-    v.value().identify(this);
-
-    mystack.pop();
+    if (cur_bag->ownProperty( bag_cl )) {
+      mystack.push( &bag_cl->value() );
+      v.value().identify(this);
+      mystack.pop();
+    }
 }

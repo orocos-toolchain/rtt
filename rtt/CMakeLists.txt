@@ -99,6 +99,9 @@ OPTION(PLUGINS_ENABLE_SCRIPTING "Enable loading Orocos program scripts." ON)
 ### RTT-Typekit
 OPTION(PLUGINS_ENABLE_TYPEKIT "Enable default RTT typekit plugin." ON)
 
+### Orocos Device Interfaces
+OPTION(ENABLE_OROCOS_DEVICE_INTERFACES "Include Orocos Device Interface classes" OFF)
+
 ### TaskContext & Activities
 OPTION(ORO_ACT_DEFAULT_ACTIVITY "Create default Activity object (thread) for each created TaskContext." ON)
 CMAKE_DEPENDENT_OPTION(ORO_ACT_DEFAULT_SEQUENTIAL "Make the default activity a SequentialActivity (not-threaded) for each created TaskContext." OFF "ORO_ACT_DEFAULT_ACTIVITY" OFF)
@@ -186,22 +189,24 @@ INCLUDE_DIRECTORIES(BEFORE ${PROJ_BINARY_DIR}/rtt ${PROJ_BINARY_DIR}/rtt/os ${PR
 IF ( BUILD_STATIC )
   ADD_LIBRARY(orocos-rtt-${OROCOS_TARGET}_static STATIC $ENV{GLOBAL_LIBRARY_SRCS})
   SET_TARGET_PROPERTIES( orocos-rtt-${OROCOS_TARGET}_static
-  PROPERTIES DEFINE_SYMBOL "RTT_DLL_EXPORT"
-  OUTPUT_NAME orocos-rtt-${OROCOS_TARGET}
-  COMPILE_DEFINITIONS OROCOS_TARGET=${OROCOS_TARGET}
-  VERSION "${RTT_VERSION}"
-  CLEAN_DIRECT_OUTPUT 1)
+      PROPERTIES
+        DEFINE_SYMBOL "RTT_STATIC"
+        DEFINE_SYMBOL "RTT_DLL_EXPORT"
+      OUTPUT_NAME orocos-rtt-${OROCOS_TARGET}
+      COMPILE_DEFINITIONS OROCOS_TARGET=${OROCOS_TARGET}
+      VERSION "${RTT_VERSION}"
+      CLEAN_DIRECT_OUTPUT 1)
 ENDIF ( BUILD_STATIC )
 
   ADD_LIBRARY(orocos-rtt-${OROCOS_TARGET}_dynamic SHARED $ENV{GLOBAL_LIBRARY_SRCS})
   SET_TARGET_PROPERTIES( orocos-rtt-${OROCOS_TARGET}_dynamic PROPERTIES
-  DEFINE_SYMBOL "RTT_DLL_EXPORT"
-  VERSION "${RTT_VERSION}"
-  SOVERSION "${RTT_SOVERSION}"
-  OUTPUT_NAME orocos-rtt-${OROCOS_TARGET}
-  COMPILE_DEFINITIONS OROCOS_TARGET=${OROCOS_TARGET}
-  INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib"
-  CLEAN_DIRECT_OUTPUT 1)
+      DEFINE_SYMBOL "RTT_DLL_EXPORT"
+      VERSION "${RTT_VERSION}"
+      SOVERSION "${RTT_SOVERSION}"
+      OUTPUT_NAME orocos-rtt-${OROCOS_TARGET}
+      COMPILE_DEFINITIONS OROCOS_TARGET=${OROCOS_TARGET}
+      INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib"
+      CLEAN_DIRECT_OUTPUT 1)
   IF (UNIX AND NOT APPLE)
 	SET_TARGET_PROPERTIES( orocos-rtt-${OROCOS_TARGET}_dynamic PROPERTIES
 	  LINK_FLAGS "-Wl,-zdefs")
@@ -242,3 +247,20 @@ IF(BUILD_STATIC)
           ARCHIVE DESTINATION lib )
 ENDIF(BUILD_STATIC)
 
+### LTTNG UST Traces 
+IF (OROCOS_TARGET STREQUAL "gnulinux")
+  option(OROBLD_ENABLE_LTTNG "Enable tracing support with lttng-ust" OFF)
+  if (OROBLD_ENABLE_LTTNG)
+    find_path(Lttng_ust_INCLUDE_DIRS "lttng/tracepoint.h")
+    find_library(Lttng_ust_LIBRARIES NAMES "lttng-ust")
+    if (Lttng_ust_INCLUDE_DIRS AND Lttng_ust_LIBRARIES)
+      message(STATUS "lttng-ust tracing support enabled")
+      include_directories(${Lttng_ust_INCLUDE_DIRS})
+      target_link_libraries(orocos-rtt-${OROCOS_TARGET}_dynamic ${Lttng_ust_LIBRARIES})
+      add_definitions("-DHAVE_LTTNG_UST")
+      add_subdirectory( os/gnulinux/traces )
+    else()
+      message(FATAL_ERROR "could not find lttng-ust headers and libraries, necessary for lttng support")
+    endif()
+  endif()
+endif()

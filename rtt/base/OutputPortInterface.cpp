@@ -42,6 +42,7 @@
 #include "../internal/ConnFactory.hpp"
 #include <exception>
 #include <stdexcept>
+#include "../os/traces.h"
 
 using namespace RTT;
 using namespace RTT::detail;
@@ -58,7 +59,9 @@ OutputPortInterface::~OutputPortInterface()
 
 /** Returns true if this port is connected */
 bool OutputPortInterface::connected() const
-{ return cmanager.connected(); }
+{
+    return getEndpoint()->connected();
+}
 
 bool OutputPortInterface::disconnect(PortInterface* port)
 {
@@ -92,7 +95,7 @@ bool OutputPortInterface::createConnection( InputPortInterface& input )
 
 bool OutputPortInterface::createConnection( internal::SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy )
 {
-    return internal::ConnFactory::createAndCheckSharedConnection(this, 0, shared_connection, policy);
+    return internal::ConnFactory::createSharedConnection(this, 0, shared_connection, policy);
 }
 
 bool OutputPortInterface::connectTo(PortInterface* other, ConnPolicy const& policy)
@@ -110,3 +113,9 @@ bool OutputPortInterface::connectTo(PortInterface* other)
         return false;
     return createConnection(*input);
 }
+
+void OutputPortInterface::traceWrite()
+{
+    tracepoint(orocos_rtt, OutputPort_write, getFullName().c_str());
+}
+

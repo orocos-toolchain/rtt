@@ -46,7 +46,7 @@ namespace RTT
     namespace corba
     {
         /** The CORBA transport plugin */
-        struct CorbaLibPlugin: public RTT::types::TransportPlugin
+        struct RTT_API CorbaLibPlugin: public RTT::types::TransportPlugin
         {
             bool registerTransport(std::string name, RTT::types::TypeInfo* ti);
             std::string getTransportName() const;

@@ -41,21 +41,29 @@
 #include "../OperationCaller.hpp"
 #include "../internal/ConnFactory.hpp"
 #include "../internal/ConnectionIntrospector.hpp"
+#include "../TaskContext.hpp"
+#include <cstring>
 
 using namespace RTT;
 using namespace RTT::detail;
 using namespace std;
 
 PortInterface::PortInterface(const std::string& name)
-    : name(name), iface(0), cmanager(this) {}
+    : name(name), fullName(name), iface(0), cmanager(this) {}
 
-bool PortInterface::setName(const std::string& name)
-{
+PortInterface::~PortInterface() {}
+
+bool PortInterface::setName(const std::string& name) {
     if ( !connected() ) {
         this->name = name;
+        updateFullName();
         return true;
     }
     return false;
+}
+
+void PortInterface::updateFullName() {
+    fullName = getQualifiedName();
 }
 
 std::string PortInterface::getQualifiedName() const
@@ -124,6 +132,7 @@ bool PortInterface::removeConnection(ConnID* conn)
 
 void PortInterface::setInterface(DataFlowInterface* dfi) {
     iface = dfi;
+    updateFullName();
 }
 
 DataFlowInterface* PortInterface::getInterface() const

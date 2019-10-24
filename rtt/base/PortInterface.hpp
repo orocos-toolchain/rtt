@@ -46,6 +46,7 @@
 #include "../internal/ConnID.hpp"
 #include "ChannelElementBase.hpp"
 #include "../types/rtt-types-fwd.hpp"
+#include "../os/Mutex.hpp"
 #include "../rtt-fwd.hpp"
 
 namespace RTT
@@ -58,15 +59,21 @@ namespace RTT
     class RTT_API PortInterface
     {
         std::string name;
+        std::string fullName;
         std::string mdesc;
+
+        void updateFullName();
+
     protected:
         DataFlowInterface* iface;
         internal::ConnectionManager cmanager;
+        os::MutexRecursive connection_lock;
+        friend class internal::PortConnectionLock;
 
         PortInterface(const std::string& name);
 
     public:
-        virtual ~PortInterface() {}
+        virtual ~PortInterface();
 
         /**
          * Returns the identity of this port in a ConnID object.
@@ -77,6 +84,12 @@ namespace RTT
          * Get the name of this Port.
          */
         const std::string& getName() const { return name; }
+
+        /**
+         * Get a combination of the name of this port and of its owner, if it
+         * has an owner.
+         */
+        const std::string& getFullName() const { return fullName; }
 
         /**
          * Change the name of this unconnected Port.

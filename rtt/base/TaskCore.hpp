@@ -113,7 +113,7 @@ namespace RTT
          * @param initial_state Provide the \a PreOperational parameter flag here
          * to force users in calling configure(), before they call start().
          */
-        TaskCore( TaskState initial_state = Stopped );
+        TaskCore( TaskState initial_state = Stopped, const std::string& name = std::string() );
 
         virtual ~TaskCore();
 
@@ -486,6 +486,11 @@ namespace RTT
          * Number of cycles that were caused by Trigger triggers.
          */
         unsigned int mTriggerCounter;
+
+        /** The name of this task. This is used only for debugging / tracing
+         * purposes
+         */
+        std::string mName;
     };
 }}
 

@@ -96,10 +96,10 @@ namespace RTT
                         if ( type == "boolean" )
                         {
                             if ( value_string == "1" || value_string == "true")
-                                bag_stack.top().first->add
+                                bag_stack.top().first->ownProperty
                                 ( new Property<bool>( name, description, true ) );
                             else if ( value_string == "0" || value_string == "false")
-                                bag_stack.top().first->add
+                                bag_stack.top().first->ownProperty
                                 ( new Property<bool>( name, description, false ) );
                             else {
                                 log(Error)<< "Wrong value for property '"+type+"'." \
@@ -114,7 +114,7 @@ namespace RTT
                                 return false;
                             }
                             else
-                                bag_stack.top().first->add
+                                bag_stack.top().first->ownProperty
                                     ( new Property<char>( name, description, value_string.empty() ? '\0' : value_string[0] ) );
                         }
                         else if ( type == "uchar" || type == "octet" ) {
@@ -124,7 +124,7 @@ namespace RTT
                                 return false;
                             }
                             else
-                                bag_stack.top().first->add
+                                bag_stack.top().first->ownProperty
                                     ( new Property<unsigned char>( name, description, value_string.empty() ? '\0' : value_string[0] ) );
                         }
                         else if ( type == "long" || type == "short")
@@ -135,7 +135,7 @@ namespace RTT
                             }
                             int v;
                             if ( sscanf(value_string.c_str(), "%d", &v) == 1)
-                                bag_stack.top().first->add( new Property<int>( name, description, v ) );
+                                bag_stack.top().first->ownProperty( new Property<int>( name, description, v ) );
                             else {
                                 log(Error) << "Wrong value for property '"+type+"'." \
                                     " Value should contain an integer value, got '"+ value_string +"'." << endlog();
@@ -150,7 +150,7 @@ namespace RTT
                             }
                             unsigned int v;
                             if ( sscanf(value_string.c_str(), "%u", &v) == 1)
-                                bag_stack.top().first->add( new Property<unsigned int>( name, description, v ) );
+                                bag_stack.top().first->ownProperty( new Property<unsigned int>( name, description, v ) );
                             else {
                                 log(Error) << "Wrong value for property '"+type+"'." \
                                     " Value should contain an integer value, got '"+ value_string +"'." << endlog();
@@ -161,7 +161,7 @@ namespace RTT
                         {
                             long long v;
                             if ( sscanf(value_string.c_str(), "%lld", &v) == 1)
-                                bag_stack.top().first->add( new Property<long long>( name, description, v ) );
+                                bag_stack.top().first->ownProperty( new Property<long long>( name, description, v ) );
                             else {
                                 log(Error) << "Wrong value for property '"+type+"'." \
                                     " Value should contain an integer value, got '"+ value_string +"'." << endlog();
@@ -172,7 +172,7 @@ namespace RTT
                         {
                             unsigned long long v;
                             if ( sscanf(value_string.c_str(), "%llu", &v) == 1)
-                                bag_stack.top().first->add( new Property<unsigned long long>( name, description, v ) );
+                                bag_stack.top().first->ownProperty( new Property<unsigned long long>( name, description, v ) );
                             else {
                                 log(Error) << "Wrong value for property '"+type+"'." \
                                     " Value should contain an integer value, got '"+ value_string +"'." << endlog();
@@ -183,7 +183,7 @@ namespace RTT
                         {
                             double v;
                             if ( sscanf(value_string.c_str(), "%lf", &v) == 1 )
-                                bag_stack.top().first->add
+                                bag_stack.top().first->ownProperty
                                     ( new Property<double>( name, description, v ) );
                             else {
                                 log(Error) << "Wrong value for property '"+type+"'." \
@@ -195,7 +195,7 @@ namespace RTT
                         {
                             float v;
                             if ( sscanf(value_string.c_str(), "%f", &v) == 1 )
-                                bag_stack.top().first->add
+                                bag_stack.top().first->ownProperty
                                     ( new Property<float>( name, description, v ) );
                             else {
                                 log(Error) << "Wrong value for property '"+type+"'." \
@@ -204,7 +204,7 @@ namespace RTT
                             }
                         }
                         else if ( type == "string")
-                            bag_stack.top().first->add
+                            bag_stack.top().first->ownProperty
                             ( new Property<std::string>( name, description, value_string ) );
                         else{
                         	log(Error)<<"Unknown type \""<<type<< "\" for for tag simple"<<endlog();
@@ -221,7 +221,7 @@ namespace RTT
                         {
                             Property<PropertyBag>* prop = bag_stack.top().second;
                             bag_stack.pop();
-                            bag_stack.top().first->add( prop );
+                            bag_stack.top().first->ownProperty( prop );
                             //( new Property<PropertyBag>( pn, description, *pb ) );
                             //delete pb;
                             tag_stack.pop();
@@ -385,58 +385,56 @@ namespace RTT
             return true;
             }
         };
-    }
 
-    using namespace detail;
+        using namespace detail;
 
-    class TinyDemarshaller::D {
-    public:
-        D(const std::string& f) : doc( f.c_str() ), loadOkay(false) {}
-        TiXmlDocument doc;
-        bool loadOkay;
-    };
+        class TinyDemarshaller::D {
+        public:
+            D(const std::string& f) : doc( f.c_str() ), loadOkay(false) {}
+            TiXmlDocument doc;
+            bool loadOkay;
+        };
 
-    TinyDemarshaller::TinyDemarshaller( const std::string& filename )
-        : d( new TinyDemarshaller::D(filename) )
-    {
-        Logger::In in("TinyDemarshaller");
-        d->loadOkay = d->doc.LoadFile();
+        TinyDemarshaller::TinyDemarshaller( const std::string& filename )
+            : d( new TinyDemarshaller::D(filename) )
+        {
+            Logger::In in("TinyDemarshaller");
+            d->loadOkay = d->doc.LoadFile();
 
-        if ( !d->loadOkay ) {
-            log(Error) << "Could not load " << filename << " Error: "<< d->doc.ErrorDesc() << endlog();
-            return;
+            if ( !d->loadOkay ) {
+                log(Error) << "Could not load " << filename << " Error: "<< d->doc.ErrorDesc() << endlog();
+                return;
+            }
+
+        }
+
+        TinyDemarshaller::~TinyDemarshaller()
+        {
+            delete d;
+        }
+
+        bool TinyDemarshaller::deserialize( PropertyBag &v )
+        {
+            Logger::In in("TinyDemarshaller");
+
+            if ( !d->loadOkay )
+                return false;
+
+            TiXmlHandle docHandle( &d->doc );
+            TiXmlHandle propHandle = docHandle.FirstChildElement( "properties" );
+
+            if ( ! propHandle.Node() ) {
+                log(Error) << "No <properties> element found in document!"<< endlog();
+                return false;
+            }
+
+            detail::Tiny2CPFHandler proc( v );
+
+            if ( proc.populateBag( propHandle.Node() ) == false) {
+                return false;
+            }
+            return true;
         }
 
     }
-
-    TinyDemarshaller::~TinyDemarshaller()
-    {
-        delete d;
-    }
-
-    bool TinyDemarshaller::deserialize( PropertyBag &v )
-    {
-        Logger::In in("TinyDemarshaller");
-
-        if ( !d->loadOkay )
-            return false;
-
-		TiXmlHandle docHandle( &d->doc );
-		TiXmlHandle propHandle = docHandle.FirstChildElement( "properties" );
-
-        if ( ! propHandle.Node() ) {
-            log(Error) << "No <properties> element found in document!"<< endlog();
-            return false;
-        }
-
-        detail::Tiny2CPFHandler proc( v );
-
-        if ( proc.populateBag( propHandle.Node() ) == false) {
-            deleteProperties( v );
-            return false;
-        }
-        return true;
-    }
-
 }
-

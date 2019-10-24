@@ -219,6 +219,13 @@ base::ChannelElementBase::shared_ptr ConnFactory::createAndCheckStream(base::Inp
     return chan;
 }
 
+bool ConnFactory::createSharedConnection(base::OutputPortInterface* output_port, base::InputPortInterface* input_port, SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy)
+{
+    PortConnectionLock lock_output_port(output_port);
+    PortConnectionLock lock_input_port(input_port);
+    return createAndCheckSharedConnection(output_port, input_port, shared_connection, policy);
+}
+
 bool ConnFactory::createAndCheckSharedConnection(base::OutputPortInterface* output_port, base::InputPortInterface* input_port, SharedConnectionBase::shared_ptr shared_connection, ConnPolicy const& policy)
 {
     if (!shared_connection) return false;
