@@ -36,7 +36,6 @@
  ***************************************************************************/
 
 
-#define RTT_COMPONENT_HPP_INCLUDED_FROM_COMPONENTLOADER_CPP
 #include "ComponentLoader.hpp"
 #include <rtt/TaskContext.hpp>
 #include <rtt/Logger.hpp>

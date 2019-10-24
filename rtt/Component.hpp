@@ -154,7 +154,7 @@ ORO_CREATE_COMPONENT_LIBRARY()
 
 #else
 
-#if !defined(OCL_STATIC) && !defined(RTT_STATIC) && !defined(RTT_DLL_EXPORT) && !defined(RTT_COMPONENT_HPP_INCLUDED_FROM_COMPONENTLOADER_CPP)
+#if !defined(OCL_STATIC) && !defined(RTT_STATIC) && !defined(RTT_DLL_EXPORT)
 #error "You're compiling with static library settings. The resulting component library \
  will not be loadable at runtime with the deployer.\
  Compile with -DRTT_COMPONENT to enable dynamic loadable components, \
