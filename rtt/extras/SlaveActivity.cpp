@@ -37,30 +37,53 @@
 
 
 #include "SlaveActivity.hpp"
+
+#include "../base/DisposableInterface.hpp"
 #include "../os/MainThread.hpp"
+#include "ExecutionEngine.hpp"
 #include "Logger.hpp"
 
 namespace RTT {
     using namespace extras;
     using namespace base;
+
+    class TriggerSlaveActivity : public base::DisposableInterface {
+    public:
+        SlaveActivity* mslave;
+        TriggerSlaveActivity(SlaveActivity* act) : mslave(act) {}
+        virtual void executeAndDispose() {
+            base::RunnableInterface *runner = mslave->getRunner();
+            if (runner) {
+                runner->work(RunnableInterface::Trigger);
+            } else {
+                mslave->work(RunnableInterface::Trigger);
+            }
+        }
+        virtual void dispose() {}
+    };
+
     SlaveActivity::SlaveActivity( ActivityInterface* master, RunnableInterface* run /*= 0*/ )
-        :ActivityInterface(run), mmaster(master), mperiod( master->getPeriod() ), running(false), active(false)
+        :ActivityInterface(run), mmaster(master), mperiod( master->getPeriod() ), running(false), active(false),
+        mtrigger(new TriggerSlaveActivity(this))
     {
     }
 
     SlaveActivity::SlaveActivity( double period, RunnableInterface* run /*= 0*/ )
-        :ActivityInterface(run), mmaster(0), mperiod(period), running(false), active(false)
+        :ActivityInterface(run), mmaster(0), mperiod(period), running(false), active(false),
+        mtrigger(new TriggerSlaveActivity(this))
     {
     }
 
     SlaveActivity::SlaveActivity( RunnableInterface* run /*= 0*/ )
-        :ActivityInterface(run), mmaster(0), mperiod(0.0), running(false), active(false)
+        :ActivityInterface(run), mmaster(0), mperiod(0.0), running(false), active(false),
+        mtrigger(new TriggerSlaveActivity(this))
     {
     }
 
     SlaveActivity::~SlaveActivity()
     {
         stop();
+        delete mtrigger;
     }
 
     Seconds SlaveActivity::getPeriod() const
@@ -92,11 +115,6 @@ namespace RTT {
     os::ThreadInterface* SlaveActivity::thread()
     {
         return mmaster ? mmaster->thread() : os::MainThread::Instance();
-    }
-
-    base::ActivityInterface *SlaveActivity::getMaster() const
-    {
-        return mmaster;
     }
 
     bool SlaveActivity::initialize()
@@ -187,16 +205,17 @@ namespace RTT {
 
     bool SlaveActivity::trigger()
     {
-        if (mmaster)
-            return mmaster->trigger();
-        return false;
+        if (!mmaster) { return false; }
+
+        ExecutionEngine *engine = dynamic_cast<ExecutionEngine *>(mmaster->getRunner());
+        if (!engine) { return false; }
+        return engine->process(mtrigger);
     }
 
     bool SlaveActivity::timeout()
     {
-        if (mmaster)
-            return mmaster->timeout();
-        return false;
+        if (!mmaster) { return false; }
+        return mmaster->timeout();
     }
 
     bool SlaveActivity::execute()
@@ -230,6 +249,5 @@ namespace RTT {
         }
         return running;
     }
-
 
 }

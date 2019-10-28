@@ -70,8 +70,7 @@ namespace RTT
         : taskc(owner),
           mqueue(new MWSRQueue<DisposableInterface*>(ORONUM_EE_MQUEUE_SIZE) ),
           port_queue(new MWSRQueue<PortInterface*>(ORONUM_EE_MQUEUE_SIZE) ),
-          f_queue( new MWSRQueue<ExecutableInterface*>(ORONUM_EE_MQUEUE_SIZE) ),
-          mmaster(0)
+          f_queue( new MWSRQueue<ExecutableInterface*>(ORONUM_EE_MQUEUE_SIZE) )
     {
     }
 
@@ -106,6 +105,14 @@ namespace RTT
             assert(foo);
             if ( foo->execute() == false ){
                 foo->unloaded();
+                {
+                    // There's no need to hold the lock while
+                    // processing the queue. But we must hold the
+                    // lock once between foo->execute() and the
+                    // broadcast to avoid the race condition in
+                    // waitForMessagesInternal().
+                    MutexLock locker( msg_lock );
+                }
                 msg_cond.broadcast(); // required for waitForFunctions() (3rd party thread)
             } else {
                 f_queue->enqueue( foo );
@@ -246,11 +253,6 @@ namespace RTT
         if (taskc && taskc->mTaskState == TaskCore::FatalError )
             return false;
 
-        // forward message to master ExecutionEngine if available
-        if (mmaster) {
-            return mmaster->process(c);
-        }
-
         if ( c && this->getActivity() ) {
             bool result = mqueue->enqueue( c );
             this->getActivity()->trigger();
@@ -266,11 +268,6 @@ namespace RTT
         if (taskc && taskc->mTaskState == TaskCore::FatalError )
             return false;
 
-        // forward port callback to the master ExecutionEngine if available
-        if (mmaster) {
-            return mmaster->process(port);
-        }
-
         if ( port && this->getActivity() ) {
             bool result = port_queue->enqueue( port );
             this->getActivity()->trigger();
@@ -281,41 +278,10 @@ namespace RTT
 
     void ExecutionEngine::waitForMessages(const boost::function<bool(void)>& pred)
     {
-        // forward the call to the master ExecutionEngine which is processing messages for us...
-        if (mmaster) {
-            mmaster->waitForMessages(pred);
-            return;
-        }
-
         if (isSelf())
             waitAndProcessMessages(pred);
         else
             waitForMessagesInternal(pred);
-    }
-
-    void ExecutionEngine::setMaster(ExecutionEngine *master)
-    {
-        mmaster = master;
-    }
-
-    void ExecutionEngine::setActivity( base::ActivityInterface* task )
-    {
-        extras::SlaveActivity *slave_activity = dynamic_cast<extras::SlaveActivity *>(task);
-        if (slave_activity && slave_activity->getMaster()) {
-            ExecutionEngine *master = dynamic_cast<ExecutionEngine *>(slave_activity->getMaster()->getRunner());
-            setMaster(master);
-        } else {
-            setMaster(0);
-        }
-        RTT::base::RunnableInterface::setActivity(task);
-    }
-
-    os::ThreadInterface* ExecutionEngine::getThread() const {
-        // forward to the master ExecutionEngine if available
-        if (mmaster) {
-            return mmaster->getThread();
-        }
-        return base::RunnableInterface::getThread();
     }
 
     bool ExecutionEngine::isSelf() const {
@@ -325,7 +291,6 @@ namespace RTT
 
     void ExecutionEngine::waitForMessagesInternal(boost::function<bool(void)> const& pred)
     {
-        assert( mmaster == 0 );
         if ( pred() )
             return;
         // only to be called from the thread not executing step().
@@ -338,7 +303,6 @@ namespace RTT
 
     void ExecutionEngine::waitAndProcessMessages(boost::function<bool(void)> const& pred)
     {
-        assert( mmaster == 0 );
         // optimization for the case the predicate is already true
         if ( pred() )
             return;
