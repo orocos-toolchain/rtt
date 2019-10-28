@@ -73,7 +73,7 @@ namespace RTT
         {
             // first check if root (or if have sufficient privileges)
             if ( geteuid() != 0 ) {
-#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) >= 2302
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)) >= 2400
                 printf( "WARNING: You are not root. This program *may* require that you are root.\n");
                 // \todo verify have sufficient privileges
 #else
@@ -305,7 +305,7 @@ namespace RTT
             RT_TASK* self = rt_task_self();
             if (self == 0 || task == 0)
                 return -1; // non-xeno thread. We could try to compare pthreads like in gnulinux ?
-#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) >= 2500
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)) >= 2500
             if ( rt_task_same( self, task->xenoptr ) != 0 )
                 return 1;
 #else
@@ -335,7 +335,7 @@ namespace RTT
 
         // correct priority
         // Hard & Soft:
-#if ((CONFIG_XENO_VERSION_MAJOR*10000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) >= 20500
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)) >= 2100
         const int minprio = 0;
 #else
         const int minprio = 1;
@@ -372,7 +372,7 @@ namespace RTT
             if ( rtos_task_check_scheduler( &sched_type ) == -1)
                 return -1;
 
-#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) < 2600
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)) < 2600
             if (sched_type == SCHED_XENOMAI_HARD) {
                 if ( rt_task_set_mode( 0, T_PRIMARY, 0 ) == 0 ) {
                     t->sched_type = SCHED_XENOMAI_HARD;
@@ -435,7 +435,7 @@ namespace RTT
             long unsigned int overrun = 0;
             rt_task_wait_period(&overrun);
 
-#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) < 2600
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)) < 2600
             // When running soft, switch to secondary mode:
             if ( mytask->sched_type == SCHED_XENOMAI_SOFT )
                 rt_task_set_mode(T_PRIMARY, 0, 0 );

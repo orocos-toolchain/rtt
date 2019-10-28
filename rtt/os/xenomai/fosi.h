@@ -96,12 +96,12 @@ extern "C" {
 #endif
 
 // BC: support Xenomai < 2.3.0
-#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) < 2300
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)) < 2300
 #define rt_mutex_acquire rt_mutex_lock
 #define rt_mutex_release rt_mutex_unlock
 #endif
 // BC: support Xenomai < 2.5.0
-#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) >= 2500
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)) >= 2500
 #define ORO_XENO_HAS_ACQUIRE_UNTIL
 #endif
 
@@ -311,7 +311,7 @@ static const double    InfiniteSeconds = DBL_MAX;
 #if CONFIG_XENO_VERSION_MAJOR < 3
         struct rt_mutex_info info;
         rt_mutex_inquire(m, &info );
-#  if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) >= 2500
+#  if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)) >= 2500
         if (info.locked)
             return 0;
 #  else
@@ -410,7 +410,7 @@ static const double    InfiniteSeconds = DBL_MAX;
     {
         CHK_XENO_CALL();
         // BC: support Xenomai < 2.5.0
-#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) < 2500
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)) < 2500
         return rt_cond_wait(cond, mutex, rt_timer_ns2ticks(abs_time) - rt_timer_read() );
 #else
         return rt_cond_wait_until(cond, mutex, rt_timer_ns2ticks(abs_time) );
