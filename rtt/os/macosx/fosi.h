@@ -451,6 +451,11 @@ extern "C"
         _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN ret;
     }
 
+    static inline int rtos_mutex_trylock_for( rt_mutex_t* m, NANO_TIME relative_time)
+    {
+        return rtos_mutex_lock_until(m, rtos_get_time_ns() + relative_time);
+    }
+
     static inline int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
     {
         int ret = 0;
@@ -464,6 +469,11 @@ extern "C"
         ++(m->count);
         m->owner = pthread_self();
         _RTOS_INTERNAL_MUTEX_UNLOCK_AND_RETURN ret;
+    }
+
+    static inline int rtos_mutex_rec_trylock_for( rt_rec_mutex_t* m, NANO_TIME relative_time)
+    {
+        return rtos_mutex_rec_lock_until(m, rtos_get_time_ns() + relative_time);
     }
 
     static inline int rtos_mutex_unlock( rt_mutex_t* m)
