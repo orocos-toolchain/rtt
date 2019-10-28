@@ -443,6 +443,7 @@ BOOST_AUTO_TEST_CASE( testAffinity )
       BOOST_TEST_MESSAGE("Skipping testAffinity because it can fail on integration servers.");
       return;
     }
+
     // this test is kind of irrelevant with only 1 CPU
     int numCPU = sysconf( _SC_NPROCESSORS_ONLN );
     if (1 < numCPU)

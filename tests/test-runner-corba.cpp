@@ -33,12 +33,18 @@
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
+#include <boost/test/unit_test_monitor.hpp>
 
 using boost::unit_test::test_suite;
 
 using namespace RTT;
 using namespace RTT::corba;
 using namespace std;
+
+void translate_corba_exception(const CORBA::Exception &e) {
+    BOOST_FAIL(e._name());
+    e._raise();
+}
 
 boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
 {
@@ -78,11 +84,6 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
 	assert((size_t)-1 != freeMem); // increase MEMORY_SIZE above most likely, as TLSF has a several kilobyte overhead
 	(void)freeMem;          // avoid compiler warning
 #endif
-	__os_init(argc, argv);
-
-    corba::TaskContextServer::InitOrb(argc,argv);
-    corba::TaskContextServer::ThreadOrb();
-
 
     // disable logging of errors or warnings if no ORO_LOGLEVEL was set.
     if ( log().getLogLevel() == Logger::Warning ) {
@@ -91,6 +92,13 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
     } else {
         log(Info) << "LogLevel unaltered by test-runner." << endlog();
     }
+
+	__os_init(argc, argv);
+
+    boost::unit_test::unit_test_monitor.register_exception_translator<CORBA::Exception>(&translate_corba_exception);
+
+    corba::TaskContextServer::InitOrb(argc,argv);
+    corba::TaskContextServer::ThreadOrb();
 
     return 0;
 }

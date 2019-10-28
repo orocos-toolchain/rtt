@@ -41,6 +41,7 @@
 #include "../internal/DataSourceTypeInfo.hpp"
 #include "../internal/ConnFactory.hpp"
 #include "TypeTransporter.hpp"
+#include "TypeInfoRepository.hpp"
 
 #include "rtt-config.h"
 
@@ -159,6 +160,7 @@ namespace RTT
             else {
                 log(Warning) << "The protocol with id "<<protocol_id<<" did not register a fall-back handler for unknown types!"<<endlog();
                 log(Warning) << "  triggered by: "<< getTypeName() << " which does not have a transport."<<endlog();
+                TypeInfoRepository::Instance()->logTypeInfo();
                 return 0; // That transport did not register a fall-back !
             }
         }

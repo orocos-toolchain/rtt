@@ -188,10 +188,11 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
 {
     // This test tests the different port-to-port connections.
     ts = corba::TaskContextServer::Create( tc, /* use_naming = */ false );
-    tp = corba::TaskContextProxy::Create( "other", /* is_ior = */ false );
+#ifndef ORO_NO_EMIT_CORBA_IOR
+    tp = corba::TaskContextProxy::CreateFromFile( "other.ior");
+#endif
     if (!tp)
-        tp = corba::TaskContextProxy::CreateFromFile( "other.ior");
-
+        tp = corba::TaskContextProxy::Create( "other", /* is_ior = */ false);
     BOOST_REQUIRE(tp);
 
     // Create a default CORBA policy specification

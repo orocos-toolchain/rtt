@@ -44,7 +44,12 @@ public:
         ports()->addEventPort( mi1 );
         ports()->addPort( mo1 );
         this->start();
-        ts = corba::TaskContextServer::Create( this, /* use_naming = */ true );
+#if ORO_NO_EMIT_CORBA_IOR
+        const bool use_naming = true;
+#else
+        const bool use_naming = false;
+#endif
+        ts = corba::TaskContextServer::Create( this, use_naming );
     }
     ~TheServer() {
         this->stop();

@@ -178,8 +178,8 @@ BOOST_AUTO_TEST_CASE( testArrayPartDataSource )
     index->set( 3 );
     d->set( 'L' );
     BOOST_CHECK_EQUAL( "WorLd", btype.c );
-    BOOST_CHECK( strcmp( &d->set(), &abase->get().c[3]) == 0 );
-    BOOST_CHECK_EQUAL( &d->set(), &btype.c[3] );
+    BOOST_CHECK( strcmp( &d->set(), abase->get().c + 3) == 0 );
+    BOOST_CHECK_EQUAL( &d->set(), btype.c + 3 );
 }
 
 

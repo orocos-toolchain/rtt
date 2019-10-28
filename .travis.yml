@@ -1,23 +1,79 @@
-sudo: required
-dist: trusty
-language:
-  - cpp
-compiler:
-  - gcc
-before_install:
-  # Update package indexes and install dependencies
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq -y libxml-xpath-perl libboost-all-dev omniorb omniidl omniorb-nameserver libomniorb4-dev pkg-config
+language: cpp
 
-install:
-  - export EXTRA_CMAKE_ARGS="-DENABLE_TESTS=ON -DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB"
-  - export CFLAGS="-std=c99 -Wall -Wextra -Wno-unused-parameter"
-  - export CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
+cache: ccache
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - libxml-xpath-perl
+      - libboost-all-dev
+      - omniorb
+      - omniidl
+      - omniorb-nameserver
+      - libomniorb4-dev
+      - pkg-config
+      - clang-3.8
+
+env:
+  global:
+    - EXTRA_CMAKE_ARGS="-DENABLE_TESTS=ON -DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB"
+    - BOOST_TEST_LOG_LEVEL=message
+    - CFLAGS="-Wall -Wextra -Wno-unused-parameter"
+
+matrix:
+  include:
+    - os: linux
+      dist: xenial
+      env: COMPILER=gcc CXXFLAGS="-std=c++03 -Wall -Wextra -Wno-unused-parameter"
+    - os: linux
+      dist: xenial
+      env: COMPILER=gcc CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
+    - os: linux
+      dist: xenial
+      env: COMPILER=clang-3.8 CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
+    - os: linux
+      dist: xenial
+      env: COMPILER=clang CXXFLAGS="-std=c++11 -Wall -Wextra -Wno-unused-parameter"
+    - os: osx
+      osx_image: xcode10.1
+
+branches:
+  only:
+  - master
+  - /^toolchain-[\d\.]+[\d]$/
+
+before_install:
+  # Set C/C++ compiler
+  - |
+    if [[ "${COMPILER}" != "" ]]; then
+      export CC=${COMPILER}
+      if [[ "${COMPILER}" == "gcc"* ]]; then
+        export CXX=${COMPILER/gcc/g++}
+      elif [[ "${COMPILER}" == "clang"* ]]; then
+        export CXX=${COMPILER/clang/clang++}
+      fi
+      ${CC} --version
+      ${CXX} --version
+    fi
+
+  # Install HomeBrew dependencies (macOS only)
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update
+      brew reinstall boost cmake ccache omniorb
+      export PATH="/use/local/opt/ccache/libexec:$PATH"
+    fi
+
+  # Create build directory
   - mkdir -p build && cd build
-  - cmake .. -DCMAKE_INSTALL_PREFIX=$(pwd)/install $EXTRA_CMAKE_ARGS
-  - make -j2 install
 
 script:
+  # Build and install RTT
+  - cmake .. -DCMAKE_INSTALL_PREFIX=$(pwd)/install ${EXTRA_CMAKE_ARGS}
+  - make -j2 install
+
   # Run tests
   - export BOOST_TEST_LOG_LEVEL=message
   - export ORBtraceExceptions=1
