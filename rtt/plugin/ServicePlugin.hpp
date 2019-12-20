@@ -53,11 +53,6 @@ namespace RTT {
 #define ORO_SERVICEPLUGIN_xstr(s) ORO_SERVICEPLUGIN_str(s)
 #define ORO_SERVICEPLUGIN_str(s) #s
 
-// Disable foo() has C-linkage specified, but returns UDT 'bar' which is incompatible with C
-#ifdef _MSC_VER
-#pragma warning (disable:4190)
-#endif
-
 /**
  * You can use this macro to make any Service available as a
  * plugin.
