@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright 2019 Antoine HOARAU <antoine [at] fuzzylogicrobotics.com>
+# Copyright 2020 Antoine HOARAU <antoine [at] flr.io>
 # 
 # CMake script for finding the XENOMAI 2 native or XENOMAI 3 alchemy/posix/rtdm skin.
 # If the optional XENOMAI_ROOT_DIR environment variable exists, header files and
