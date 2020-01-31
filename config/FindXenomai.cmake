@@ -67,6 +67,14 @@ endif()
 mark_as_advanced(XENOMAI_XENO_CONFIG)
 
 function(find_xeno_skin_variables prefix skin_name)
+    set(${prefix}_FOUND "")
+    set(${prefix}_INCLUDE_DIRS "")
+    set(${prefix}_LIBRARIES "")
+    set(${prefix}_DEFINITIONS "")
+    set(${prefix}_CFLAGS_OTHER "")
+    set(${prefix}_LDFLAGS_OTHER "")
+    set(${prefix}_LDFLAGS "")
+    set(${prefix}_CFLAGS "")
     
     execute_process(COMMAND ${XENOMAI_XENO_CONFIG} --skin=${skin_name} --ldflags ${XENO_CONFIG_LDFLAGS_EXTRA_ARGS}
                     OUTPUT_VARIABLE ${prefix}_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE
