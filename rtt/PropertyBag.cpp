@@ -72,9 +72,11 @@ namespace RTT
         this->clear();
     }
 
-    void PropertyBag::add(PropertyBase *p)
+    bool PropertyBag::add(PropertyBase *p)
     {
-        this->addProperty(*p);
+        if (p == 0)
+            return false;
+        return this->addProperty(*p);
     }
 
     void PropertyBag::remove(PropertyBase *p)
@@ -106,8 +108,6 @@ namespace RTT
 
     bool PropertyBag::addProperty(PropertyBase& p)
     {
-        if (&p == 0)
-            return false;
         if ( ! p.ready() )
             return false;
         mproperties.push_back(&p);
