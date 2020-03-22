@@ -53,11 +53,6 @@ namespace RTT {
     {
     }
 
-    Handle::Handle(const Handle& hs)
-        : m_conn( hs.m_conn )
-    {
-    }
-
     Handle::~Handle()
     {
     }
