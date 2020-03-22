@@ -149,7 +149,7 @@ static __inline__ int oro_atomic_inc_and_test(oro_atomic_t *a_int)
  * Compare o with *ptr and swap with n if equal.
  */
 #define oro_cmpxchg(ptr,o,n)\
-    ((__typeof__(*(ptr)))__sync_val_compare_and_swap((ptr),(o),(n)))
+    (__sync_val_compare_and_swap((ptr),(o),(n)))
 
 
 #endif // __GCC_ORO_ARCH__

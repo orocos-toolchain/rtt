@@ -78,11 +78,6 @@ namespace RTT
         SendHandle(typename internal::CollectBase<Signature>::shared_ptr coll) : CBase( coll.get() ), RBase(coll) {}
 
         /**
-         * Create a copy-equivalent SendHandle.
-         */
-        SendHandle(const SendHandle& hs) : CBase(hs.cimpl), RBase(hs.impl) {}
-
-        /**
          * No-op destructor, does not change signal/slot state.
          */
         ~SendHandle() {

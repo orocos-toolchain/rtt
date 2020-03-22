@@ -36,7 +36,11 @@
 #include <boost/test/unit_test_suite.hpp>
 #endif
 #include <boost/test/unit_test.hpp>
+#if BOOST_VERSION < 105900
 #include <boost/test/floating_point_comparison.hpp>
+#else
+#include <boost/test/tools/floating_point_comparison.hpp>
+#endif
 
 using namespace RTT;
 using namespace RTT::detail;
