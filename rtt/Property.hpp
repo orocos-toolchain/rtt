@@ -174,13 +174,38 @@ namespace RTT
         }
 
         /**
+         * Assignment copies the name, description and value
+         * as \b deep copies.
+         * @post ready() will be true if orig.ready() is true.
+         */
+        Property<T>& operator=( const Property<T>& orig)
+        {
+            if ( this == &orig )
+                return *this;
+
+            this->setName( orig.getName() );
+            this->setDescription( orig.getDescription() );
+
+            if (orig._value) {
+                _value = orig._value->clone();
+                // need to do this on the clone() in order to have access to set()/rvalue() of the data source.
+                _value->evaluate();
+            } else {
+                _value = 0;
+            }
+
+            return *this;
+        }
+
+        /**
          * Set the property's value.
          * @param value The value to be set.
          * @return A reference to newly set property value.
          */
         Property<T>& operator=( param_t value )
         {
-            _value->set( value );
+            if (_value)
+                _value->set( value );
             return *this;
         }
 

@@ -77,11 +77,6 @@ namespace RTT
         Handle(connection_t conn);
 
         /**
-         * Create a copy-equivalent Handle.
-         */
-        Handle(const Handle& hs);
-
-        /**
          * No-op destructor, does not change signal/slot state.
          */
 		~Handle();

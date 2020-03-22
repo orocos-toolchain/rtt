@@ -75,9 +75,9 @@ BOOST_AUTO_TEST_CASE( testConstantDataSource )
     DataSource<AType>::shared_ptr d = new ConstantDataSource<AType>( atype );
 
     // Do not take by reference:
-    BOOST_CHECK_EQUAL( d->get(), atype );
+    BOOST_CHECK_EQUAL( d->rvalue(), atype );
     atype.a = -atype.a;
-    BOOST_CHECK_EQUAL( d->get(), atype_orig );
+    BOOST_CHECK_EQUAL( d->rvalue(), atype_orig );
 }
 
 // Test reference to C++ data
@@ -100,9 +100,9 @@ BOOST_AUTO_TEST_CASE( testConstReferenceDataSource )
     DataSource<AType>::shared_ptr d = new ConstReferenceDataSource<AType>( atype );
 
     // Take by reference:
-    BOOST_CHECK_EQUAL( d->get(), atype );
+    BOOST_CHECK_EQUAL( d->rvalue(), atype );
     atype.a = -atype.a;
-    BOOST_CHECK_EQUAL( d->get(), atype );
+    BOOST_CHECK_EQUAL( d->rvalue(), atype );
 }
 
 // Test part reference to C++ data
@@ -118,12 +118,12 @@ BOOST_AUTO_TEST_CASE( testPartDataSource )
 
     // Test both versions of set(). This also checks updated():
     d->set( "Long gone!" );
-    BOOST_CHECK_EQUAL( d->set(), abase->get().c );
+    BOOST_CHECK_EQUAL( d->set(), abase->rvalue().c );
     BOOST_CHECK_EQUAL( d->set(), atype.c );
 
     d->set() = "And back!";
     d->updated();
-    BOOST_CHECK_EQUAL( d->set(), abase->get().c );
+    BOOST_CHECK_EQUAL( d->set(), abase->rvalue().c );
     BOOST_CHECK_EQUAL( d->set(), atype.c );
 }
 
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( testArrayDataSource )
     *d->set().address() = 'L';
     d->updated();
     BOOST_CHECK_EQUAL( "Lorld", btype.c );
-    BOOST_CHECK_EQUAL( "Lorld", d->get().address() );
+    BOOST_CHECK_EQUAL( "Lorld", d->rvalue().address() );
     BOOST_CHECK_EQUAL( d->set().address(), btype.c );
 }
 
@@ -166,19 +166,19 @@ BOOST_AUTO_TEST_CASE( testArrayPartDataSource )
     // Test both versions of set(). This also checks updated():
     d->set( 'L' );
     BOOST_CHECK_EQUAL( "Lorld", btype.c );
-    BOOST_CHECK( strcmp( &d->set(), abase->get().c) == 0 );
+    BOOST_CHECK( strcmp( &d->set(), abase->rvalue().c) == 0 );
     BOOST_CHECK_EQUAL( &d->set(), btype.c );
 
     d->set() = 'W';
     d->updated();
     BOOST_CHECK_EQUAL( "World", btype.c );
-    BOOST_CHECK( strcmp( &d->set(), abase->get().c) == 0 );
+    BOOST_CHECK( strcmp( &d->set(), abase->rvalue().c) == 0 );
     BOOST_CHECK_EQUAL( &d->set(), btype.c );
 
     index->set( 3 );
     d->set( 'L' );
     BOOST_CHECK_EQUAL( "WorLd", btype.c );
-    BOOST_CHECK( strcmp( &d->set(), &abase->get().c[3]) == 0 );
+    BOOST_CHECK( strcmp( &d->set(), &abase->rvalue().c[3]) == 0 );
     BOOST_CHECK_EQUAL( &d->set(), &btype.c[3] );
 }
 
