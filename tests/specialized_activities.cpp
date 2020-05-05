@@ -25,12 +25,17 @@ struct TestFDActivity : public FileDescriptorActivity
     int fd, other_fd, result;
 
     bool do_read;
+    base::RunnableInterface::WorkReason work_reason;
 
     RTT::os::Mutex mutex;
 
     TestFDActivity()
         : FileDescriptorActivity(0), step_count(0), count(0), other_count(0), do_read(false) {}
 
+    void work(base::RunnableInterface::WorkReason reason)
+    {
+        work_reason = reason;
+    }
     void step()
     {
         RTT::os::MutexLock lock(mutex);
@@ -97,6 +102,17 @@ BOOST_AUTO_TEST_CASE( testFileDescriptorActivity )
     BOOST_CHECK_EQUAL(0, activity->count);
     BOOST_CHECK_EQUAL(0, activity->other_count);
     BOOST_CHECK( !activity->isRunning() && activity->isActive() );
+    BOOST_CHECK_EQUAL(base::RunnableInterface::Trigger, activity->work_reason);
+
+    // Check timeout(). Disable reading as there won't be any data on the FD
+    activity->do_read = false;
+    BOOST_CHECK( activity->timeout() );
+    usleep(USLEEP);
+    BOOST_CHECK_EQUAL(2, activity->step_count);
+    BOOST_CHECK_EQUAL(0, activity->count);
+    BOOST_CHECK_EQUAL(0, activity->other_count);
+    BOOST_CHECK( !activity->isRunning() && activity->isActive() );
+    BOOST_CHECK_EQUAL(base::RunnableInterface::TimeOut, activity->work_reason);
 
     // Check normal operations. Re-enable reading.
     activity->do_read = true;
@@ -104,15 +120,16 @@ BOOST_AUTO_TEST_CASE( testFileDescriptorActivity )
     result = write(writer, &buffer, 2);
     BOOST_CHECK( result == 2 );
     usleep(USLEEP);
-    BOOST_CHECK_EQUAL(3, activity->step_count);
+    BOOST_CHECK_EQUAL(4, activity->step_count);
     BOOST_CHECK_EQUAL(2, activity->count);
     BOOST_CHECK_EQUAL(0, activity->other_count);
     BOOST_CHECK( !activity->isRunning() && activity->isActive() );
+    BOOST_CHECK_EQUAL(base::RunnableInterface::IOReady, activity->work_reason);
 
     result = write(other_writer, &buffer, 2);
     BOOST_CHECK( result == 2 );
     usleep(USLEEP);
-    BOOST_CHECK_EQUAL(5, activity->step_count);
+    BOOST_CHECK_EQUAL(6, activity->step_count);
     BOOST_CHECK_EQUAL(2, activity->count);
     BOOST_CHECK_EQUAL(2, activity->other_count);
     BOOST_CHECK( !activity->isRunning() && activity->isActive() );
@@ -143,11 +160,11 @@ BOOST_AUTO_TEST_CASE( testFileDescriptorActivity )
     // step is blocking now
     // trigger another 65537 times
     for(std::size_t i = 0; i < 65537; ++i) activity->trigger();
+    BOOST_CHECK_EQUAL(base::RunnableInterface::TimeOut, activity->work_reason);
     activity->mutex.unlock();
     sleep(1);
     BOOST_CHECK_EQUAL(2, activity->step_count);
     BOOST_CHECK( activity->stop() );
-
 }
 
 
