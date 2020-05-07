@@ -120,12 +120,23 @@ namespace RTT { namespace extras {
         RTT::os::Mutex m_command_mutex;
         bool m_break_loop;
         bool m_trigger;
+        bool m_user_timeout;
         bool m_update_sets;
 
         /** Internal method that makes sure loop() takes into account
          * modifications in the set of watched FDs
          */
         void triggerUpdateSets();
+
+        /** Internal method that writes on an internal pipe to wake up
+         * the main loop
+         */
+        void writeInterruptPipe();
+
+        /** Internal method that clears the interrupt pipe used to wake
+         * up the main loop
+         */
+        void clearInterruptPipe();
 
     public:
         /**
@@ -274,28 +285,55 @@ namespace RTT { namespace extras {
          */
         int getTimeout_us() const;
 
+        /** Start the underlying thread and make it call \c loop
+         */
         virtual bool start();
+
+        /** The main loop, listening to various wake-up events
+         *
+         * The loop can be broken by calling \c breakLoop. \c timeout and \c trigger
+         * will wake it up and make it call work with resp. a TimeOut and Trigger
+         * reason. Available I/O on watched file descriptors will wake it up and
+         * make it call \c work with a IOReady reason
+         */
         virtual void loop();
+
+        /** Wake-up \c loop and make it return */
         virtual bool breakLoop();
         virtual bool stop();
-    
-        /** Called by loop() when data is available on the file descriptor. By
-         * default, it calls step() on the associated runner interface (if any)
+
+        /** @deprecated does nothing, FileDescriptorActivity uses the \c work interface
          */
         virtual void step();
 
-        /** Called by loop() when data is available on the file descriptor. By
-         * default, it calls step() on the associated runner interface (if any)
+        /** Called by loop() when it is woken up
+         *
+         * The reason parameter allows to know why the loop was woken up:
+         * - TimeOut if the activity time out has been reached or if \c timeout
+         *   has been called. In the former case, \c hasTimeout will return true.
+         * - IOReady is some I/O has been received on the watched file descriptors
+         * - Trigger if trigger() has been called
+         *
+         * Calls runner->work with the same reason. By default \c
+         * ExecutionEngine will call all messages, port callbacks, functions
+         * and hooks in IOReady and TimeOut, but only messages and port
+         * callbacks in Trigger
          */
         virtual void work(base::RunnableInterface::WorkReason reason);
 
-        /** Force calling step() even if no data is available on the file
-         * descriptor, and returns true if the signalling was successful
+        /**
+         * Wake up the main thread (in \c loop) and call \c work with Trigger as reason
+         *
+         * @return true if the activity is active, that is if it is started and
+         *   will process the trigger. false otherwise.
          */
         virtual bool trigger();
 
         /**
-         * Always returns false.
+         * Wake up the main thread (in \c loop) and call \c work with TimeOut as reason
+         *
+         * @return true if the activity is active, that is if it is started and
+         *   will process the trigger. false otherwise.
          */
         virtual bool timeout();
     };

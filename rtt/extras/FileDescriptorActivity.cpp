@@ -84,6 +84,7 @@ FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* 
     , m_has_timeout(false)
     , m_break_loop(false)
     , m_trigger(false)
+    , m_user_timeout(false)
     , m_update_sets(false)
 {
     FD_ZERO(&m_fd_set);
@@ -109,6 +110,7 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Runn
     , m_has_timeout(false)
     , m_break_loop(false)
     , m_trigger(false)
+    , m_user_timeout(false)
     , m_update_sets(false)
 {
     FD_ZERO(&m_fd_set);
@@ -125,6 +127,7 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Seco
     , m_has_timeout(false)
     , m_break_loop(false)
     , m_trigger(false)
+    , m_user_timeout(false)
     , m_update_sets(false)
 {
     FD_ZERO(&m_fd_set);
@@ -141,6 +144,7 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Seco
     , m_has_timeout(false)
     , m_break_loop(false)
     , m_trigger(false)
+    , m_user_timeout(false)
     , m_update_sets(false)
 {
     FD_ZERO(&m_fd_set);
@@ -214,8 +218,7 @@ void FileDescriptorActivity::triggerUpdateSets()
     { RTT::os::MutexLock lock(m_command_mutex);
         m_update_sets = true;
     }
-    int unused; (void)unused;
-    unused = write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
+    writeInterruptPipe();
 }
 bool FileDescriptorActivity::isUpdated(int fd) const
 { return FD_ISSET(fd, &m_fd_work); }
@@ -257,6 +260,7 @@ bool FileDescriptorActivity::start()
     // reset flags
     m_break_loop = false;
     m_trigger = false;
+    m_user_timeout = false;
     m_update_sets = false;
 
     if (!Activity::start())
@@ -271,13 +275,12 @@ bool FileDescriptorActivity::start()
 }
 
 bool FileDescriptorActivity::trigger()
-{ 
-    if (isActive() ) {
+{
+    if (isActive()) {
         { RTT::os::MutexLock lock(m_command_mutex);
             m_trigger = true;
         }
-        int unused; (void)unused;
-        unused = write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
+        writeInterruptPipe();
         return true;
     } else
         return false;
@@ -285,7 +288,14 @@ bool FileDescriptorActivity::trigger()
 
 bool FileDescriptorActivity::timeout()
 {
-    return false;
+    if (isActive()) {
+        { RTT::os::MutexLock lock(m_command_mutex);
+            m_user_timeout = true;
+        }
+        writeInterruptPipe();
+        return true;
+    } else
+        return false;
 }
 
 
@@ -294,7 +304,7 @@ struct fd_watch {
     fd_watch(int& fd) : fd(fd) {}
     ~fd_watch()
     {
-        if (fd != -1) 
+        if (fd != -1)
             close(fd);
         fd = -1;
     }
@@ -327,9 +337,9 @@ void FileDescriptorActivity::loop()
         }
         else
         {
-			static const int USECS_PER_SEC = 1000000;
+            static const int USECS_PER_SEC = 1000000;
             timeval timeout = { m_timeout_us / USECS_PER_SEC,
-                                m_timeout_us % USECS_PER_SEC};
+                                m_timeout_us % USECS_PER_SEC };
             ret = select(max_fd + 1, &m_fd_work, NULL, NULL, &timeout);
         }
 
@@ -337,7 +347,8 @@ void FileDescriptorActivity::loop()
         m_has_timeout = false;
         if (ret == -1)
         {
-            log(Error) << "FileDescriptorActivity: error in select(), errno = " << errno << endlog();
+            log(Error) << "FileDescriptorActivity: error in select(), errno = "
+                       << errno << endlog();
             m_has_error = true;
         }
         else if (ret == 0)
@@ -351,32 +362,26 @@ void FileDescriptorActivity::loop()
         {
             // These variables are used in order to loop with select(). See the
             // while() condition below.
-            fd_set watch_pipe;
-            timeval timeout;
-            char dummy;
-            do
-            {
-                int unused; (void)unused;
-                unused = read(pipe, &dummy, 1);
-
-                // Initialize the values for the next select() call
-                FD_ZERO(&watch_pipe);
-                FD_SET(pipe, &watch_pipe);
-                timeout.tv_sec  = 0;
-                timeout.tv_usec = 0;
-            }
-            while(select(pipe + 1, &watch_pipe, NULL, NULL, &timeout) > 0);
+            clearInterruptPipe();
         }
 
-        // We check the flags after the command queue was emptied as we could miss commands otherwise:
+        // We check the flags after the command queue was emptied as we could
+        // miss commands otherwise:
         bool do_trigger = true;
         bool user_trigger = false;
+        bool user_timeout = false;
         { RTT::os::MutexLock lock(m_command_mutex);
-            // This section should be really fast to not block threads calling trigger(), breakLoop() or watch().
+            // This section should be really fast to not block threads calling
+            // trigger(), breakLoop() or watch().
             if (m_trigger) {
                 do_trigger = true;
                 user_trigger = true;
                 m_trigger = false;
+            }
+            if (m_user_timeout) {
+                do_trigger = true;
+                user_timeout = true;
+                m_user_timeout = false;
             }
             if (m_update_sets) {
                 m_update_sets = false;
@@ -396,6 +401,8 @@ void FileDescriptorActivity::loop()
                 step();
                 if (m_has_timeout)
                     work(RunnableInterface::TimeOut);
+                else if ( user_timeout )
+                    work(RunnableInterface::TimeOut);
                 else if ( user_trigger )
                     work(RunnableInterface::Trigger);
                 else
@@ -411,13 +418,36 @@ void FileDescriptorActivity::loop()
     }
 }
 
+void FileDescriptorActivity::clearInterruptPipe() {
+    int pipe = m_interrupt_pipe[0];
+
+    fd_set watch_pipe;
+    timeval timeout;
+    char dummy;
+    do
+    {
+        int unused; (void)unused;
+        unused = read(pipe, &dummy, 1);
+
+        // Initialize the values for the next select() call
+        FD_ZERO(&watch_pipe);
+        FD_SET(m_interrupt_pipe[0], &watch_pipe);
+        timeout.tv_sec  = 0;
+        timeout.tv_usec = 0;
+    }
+    while (select(pipe + 1, &watch_pipe, NULL, NULL, &timeout) > 0);
+}
+void FileDescriptorActivity::writeInterruptPipe() {
+    int unused; (void)unused; // avoid the "return value not used" warning
+    unused = write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
+}
+
 bool FileDescriptorActivity::breakLoop()
 {
     { RTT::os::MutexLock lock(m_command_mutex);
         m_break_loop = true;
     }
-    int unused; (void)unused;
-    unused = write(m_interrupt_pipe[1], &CMD_ANY_COMMAND, 1);
+    writeInterruptPipe();
     return true;
 }
 
