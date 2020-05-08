@@ -248,11 +248,11 @@ namespace RTT { namespace base {
         }
 
         /**
-         * This function may be used to identify, 
+         * This function may be used to identify,
          * if the current element uses a network
          * transport, to send the data to the next
          * Element in the logical chain.
-         * 
+         *
          * @return true if a network transport is used.
          * */
         virtual bool isRemoteElement() const;
@@ -264,7 +264,7 @@ namespace RTT { namespace base {
          * E.g: In the local case output->getLocalURI()
          * In the remote case the URI of the remote
          * channel element.
-         * 
+         *
          * @return URI of the next element.
          * */
         virtual std::string getRemoteURI() const;
@@ -278,7 +278,7 @@ namespace RTT { namespace base {
 
         /**
          * Returns the class name of this
-         * element. This is primary useful 
+         * element. This is primary useful
          * for special case handling in the
          * connection tracking.
          * @return The name of the class of the ChannelElement
@@ -372,6 +372,8 @@ namespace RTT { namespace base {
         bool signalFrom(ChannelElementBase *caller);
 
     protected:
+        bool disconnectSingleInputChannel(ChannelElementBase::shared_ptr const& channel, bool forward);
+
         /**
          * Sets the new input channel element of this element or adds a channel to the inputs list.
          * @param input the previous element in chain.
@@ -384,6 +386,8 @@ namespace RTT { namespace base {
          * @param input the element to be removed
          */
         virtual void removeInput(ChannelElementBase::shared_ptr const& input);
+
+        virtual void removedInputs(Inputs const& inputs) = 0;
     };
 
     /**
@@ -435,6 +439,15 @@ namespace RTT { namespace base {
         virtual bool disconnect(ChannelElementBase::shared_ptr const& channel, bool forward = false);
 
     protected:
+        /**
+         * Disconnects a single channel
+         *
+         * \ref disconnect's channel argument may be null, which is meant to indicate that
+         * all channels must be disconnected. This method handles the non-null case for
+         * clarity.
+         */
+        bool disconnectSingleOutputChannel(ChannelElementBase::shared_ptr const& channel, bool forward);
+
         /**
          * Sets the new output channel element of this element or adds a channel to the outputs list.
          * @param output the next element in chain.

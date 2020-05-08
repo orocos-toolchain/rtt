@@ -76,7 +76,23 @@ namespace RTT
             return this->removeConnection(conn_id.get(), /* disconnect = */ true);
         }
 
-        ConnectionManager::Connections::iterator ConnectionManager::eraseConnection(const Connections::iterator& descriptor, bool disconnect)
+        void ConnectionManager::disconnectConnections(Connections& connections)
+        {
+            for (Connections::iterator it = connections.begin(); it != connections.end(); ++it)
+            {
+                base::ChannelElementBase::shared_ptr channel = it->get<1>();
+
+                // disconnect needs to know if we're from Out->In (forward) or from In->Out
+                bool is_forward = true;
+                if ( dynamic_cast<InputPortInterface*>(mport) )
+                    is_forward = false; // disconnect on input port = backward.
+
+                mport->getEndpoint()->disconnect(channel, is_forward);
+            }
+        }
+
+        ConnectionManager::Connections::iterator ConnectionManager::eraseConnection(
+            const Connections::iterator& descriptor, Connections& erased)
         {
             base::ChannelElementBase::shared_ptr channel = descriptor->get<1>();
 
@@ -85,26 +101,20 @@ namespace RTT
                 RTT::log(Debug) << "Port " << mport->getName() << " disconnected from shared connection " << shared_connection->getName() << RTT::endlog();
                 shared_connection.reset();
             }
-            Connections::iterator next = connections.erase(descriptor); // invalidates descriptor
+            Connections::iterator next = descriptor; // invalidates descriptor
+            ++next;
 
-            if (disconnect) {
-                // disconnect needs to know if we're from Out->In (forward) or from In->Out
-                bool is_forward = true;
-                if ( dynamic_cast<InputPortInterface*>(mport) )
-                    is_forward = false; // disconnect on input port = backward.
-
-                mport->getEndpoint()->disconnect(channel, is_forward);
-            }
-
+            erased.splice(erased.end(), connections, descriptor);
             return next;
         }
 
         void ConnectionManager::disconnect()
         {
-            PortConnectionLock lock(mport);
-            for(Connections::iterator conn_it = connections.begin(); conn_it != connections.end(); ) {
-                conn_it = eraseConnection(conn_it, true);
+            Connections erased;
+            { PortConnectionLock lock(mport);
+                erased.splice(erased.end(), connections);
             }
+            disconnectConnections(erased);
         }
 
         bool ConnectionManager::connected() const
@@ -143,32 +153,44 @@ namespace RTT
 
         bool ConnectionManager::removeConnection(ConnID* conn_id, bool disconnect /* = true */)
         {
-            PortConnectionLock lock(mport);
-            bool found = false;
-            for(Connections::iterator conn_it = connections.begin(); conn_it != connections.end(); ) {
-                if (conn_it->get<0>() && conn_id->isSameID(*conn_it->get<0>())) {
-                    conn_it = eraseConnection(conn_it, disconnect);
-                    found = true;
-                } else {
-                    conn_it++;
+            Connections erased;
+
+            {
+                PortConnectionLock lock(mport);
+                for(Connections::iterator conn_it = connections.begin(); conn_it != connections.end(); ) {
+                    if (conn_it->get<0>() && conn_id->isSameID(*conn_it->get<0>())) {
+                        conn_it = eraseConnection(conn_it, erased);
+                    } else {
+                        conn_it++;
+                    }
                 }
             }
-            return found;
+
+            if (disconnect)
+                disconnectConnections(erased);
+
+            return !erased.empty();
         }
 
         bool ConnectionManager::removeConnection(base::ChannelElementBase* channel, bool disconnect /* = true */)
         {
-            PortConnectionLock lock(mport);
-            bool found = false;
-            for(Connections::iterator conn_it = connections.begin(); conn_it != connections.end(); ) {
-                if (conn_it->get<1>() && channel == conn_it->get<1>()) {
-                    conn_it = eraseConnection(conn_it, disconnect);
-                    found = true;
-                } else {
-                    conn_it++;
+            Connections erased;
+
+            {
+                PortConnectionLock lock(mport);
+                for(Connections::iterator conn_it = connections.begin(); conn_it != connections.end(); ) {
+                    if (conn_it->get<1>() && channel == conn_it->get<1>()) {
+                        conn_it = eraseConnection(conn_it, erased);
+                    } else {
+                        conn_it++;
+                    }
                 }
             }
-            return found;
+
+            if (disconnect)
+                disconnectConnections(erased);
+
+            return !erased.empty();
         }
 
     }

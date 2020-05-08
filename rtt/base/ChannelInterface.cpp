@@ -272,45 +272,59 @@ void MultipleInputsChannelElementBase::clear()
 bool MultipleInputsChannelElementBase::disconnect(ChannelElementBase::shared_ptr const& channel, bool forward)
 {
     if (channel) {
-        bool was_last = false;
-        {
-            // Remove the channel from the inputs list
-            RTT::os::MutexLock lock(inputs_lock);
-            Inputs::iterator found = std::find(inputs.begin(), inputs.end(), channel);
-            if (found == inputs.end()) {
-                return false;
-            }
-            ChannelElementBase::shared_ptr input = *found;
-
-            if (!forward) {
-                if (!input->disconnect(this, forward)) {
-                    return false;
-                }
-            }
-
-            removeInput(input.get()); // invalidates input
-            was_last = inputs.empty();
-        }
-
-        // If the removed input was the last channel and forward is true, disconnect output side, too.
-        if (was_last && forward) {
-            return disconnect(0, true);
-        }
-
-        return true;
-
+        return disconnectSingleInputChannel(channel, forward);
     } else if (!forward) {
-        // Disconnect and remove all inputs
-        RTT::os::MutexLock lock(inputs_lock);
-        for (Inputs::iterator it = inputs.begin(); it != inputs.end(); ) {
-            const ChannelElementBase::shared_ptr &input = *it++;
-            input->disconnect(this, false);
-            removeInput(input.get()); // invalidates input
+        Inputs removedInputs;
+        {
+            RTT::os::MutexLock lock(inputs_lock);
+            removedInputs.splice(removedInputs.end(), inputs);
+            this->removedInputs(removedInputs);
         }
-        assert(inputs.empty());
+
+        for (Inputs::iterator it = removedInputs.begin(); it != removedInputs.end(); ++it) {
+            (*it)->disconnect(this, false);
+        }
     }
 
     return ChannelElementBase::disconnect(channel, forward);
+}
+
+bool MultipleInputsChannelElementBase::disconnectSingleInputChannel(ChannelElementBase::shared_ptr const& channel, bool forward)
+{
+    // Remove the channel from the outputs list
+    bool was_last = false;
+
+    // Must remove first the item from the output list before we attempt the
+    // disconnection, or another thread might try to remove it as well
+    Inputs removedInputs;
+    {
+        RTT::os::MutexLock lock(inputs_lock);
+        Inputs::const_iterator found = std::find(inputs.begin(), inputs.end(), channel);
+        if (found == inputs.end())
+            return false;
+
+        removedInputs.splice(removedInputs.end(), inputs, found);
+        this->removedInputs(removedInputs);
+        was_last = inputs.empty();
+    }
+
+    if (!forward) {
+        if (!channel->disconnect(this, false)) {
+            {
+                // Disconnection failed, re-add to the output list
+                RTT::os::MutexLock lock(inputs_lock);
+                inputs.splice(inputs.end(), removedInputs);
+            }
+            return false;
+        }
+    }
+
+    // If the removed output was the last channel, disconnect input side, too.
+    if (was_last && forward) {
+        return disconnect(0, true);
+    }
+
+    return true;
 }
 
 bool MultipleInputsChannelElementBase::signalFrom(ChannelElementBase *)
@@ -374,57 +388,74 @@ bool MultipleOutputsChannelElementBase::channelReady(ChannelElementBase::shared_
 bool MultipleOutputsChannelElementBase::disconnect(ChannelElementBase::shared_ptr const& channel, bool forward)
 {
     if (channel) {
-        // Remove the channel from the outputs list
-        bool was_last = false;
-        {
-            RTT::os::MutexLock lock(outputs_lock);
-            Outputs::iterator found = std::find(outputs.begin(), outputs.end(), channel);
-            if (found == outputs.end()) {
-                return false;
-            }
-            const Output &output = *found;
-
-            if (forward) {
-                if (!output.channel->disconnect(this, forward)) {
-                    return false;
-                }
-            }
-
-            removeOutput(output.channel.get()); // invalidates output
-            was_last = outputs.empty();
-        }
-
-        // If the removed output was the last channel, disconnect input side, too.
-        if (was_last && !forward) {
-            return disconnect(0, false);
-        }
-
-        return true;
+        return disconnectSingleOutputChannel(channel, forward);
     }
 
     if (forward) {
         // Disconnect and remove all outputs
-        RTT::os::MutexLock lock(outputs_lock);
-        for (Outputs::iterator it = outputs.begin(); it != outputs.end(); ) {
-            const Output &output = *it++;
-            output.channel->disconnect(this, true);
-            removeOutput(output.channel.get()); // invalidates output
+        Outputs outputs;
+        {
+            RTT::os::MutexLock lock(outputs_lock);
+            outputs.splice(outputs.end(), this->outputs);
         }
-        assert(outputs.empty());
+        for (Outputs::iterator it = outputs.begin(); it != outputs.end(); ++it) {
+            it->channel->disconnect(this, true);
+        }
     }
 
     return ChannelElementBase::disconnect(channel, forward);
 }
 
+bool MultipleOutputsChannelElementBase::disconnectSingleOutputChannel(ChannelElementBase::shared_ptr const& channel, bool forward)
+{
+    // Remove the channel from the outputs list
+    bool was_last = false;
+
+    // Must remove first the item from the output list before we attempt the
+    // disconnection, or another thread might try to remove it as well
+    Outputs removedOutput;
+    {
+        RTT::os::MutexLock lock(outputs_lock);
+        Outputs::const_iterator found = std::find(outputs.begin(), outputs.end(), channel);
+        if (found == outputs.end())
+            return false;
+
+        removedOutput.splice(removedOutput.end(), outputs, found);
+        was_last = outputs.empty();
+    }
+
+    if (forward) {
+        if (!channel->disconnect(this, true)) {
+            {
+                // Disconnection failed, re-add to the output list
+                RTT::os::MutexLock lock(outputs_lock);
+                outputs.splice(outputs.end(), removedOutput);
+            }
+            return false;
+        }
+    }
+
+    // If the removed output was the last channel, disconnect input side, too.
+    if (was_last && !forward) {
+        return disconnect(0, false);
+    }
+
+    return true;
+}
+
 void MultipleOutputsChannelElementBase::removeDisconnectedOutputs()
 {
-    RTT::os::MutexLock lock(outputs_lock);
-    for (Outputs::iterator it = outputs.begin(); it != outputs.end(); ) {
-        const Output &output = *it++;
-        if (output.disconnected) {
-            output.channel->disconnect(this, true);
-            removeOutput(output.channel.get()); // invalidates output
+    Outputs disconnectedOutputs;
+    {
+        RTT::os::MutexLock lock(outputs_lock);
+        for (Outputs::iterator it = outputs.begin(); it != outputs.end(); ++it) {
+            if (it->disconnected)
+                disconnectedOutputs.splice(disconnectedOutputs.end(), this->outputs, it);
         }
+    }
+
+    for (Outputs::iterator it = disconnectedOutputs.begin(); it != disconnectedOutputs.end(); ++it) {
+        it->channel->disconnect(this, true);
     }
 }
 

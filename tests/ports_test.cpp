@@ -783,6 +783,7 @@ BOOST_AUTO_TEST_CASE(testInvalidSharedConnection)
     BOOST_CHECK( !wp2.createConnection(rp1) );          // different connection => failure
 }
 
+#ifndef ORO_DISABLE_PORT_DATA_SCRIPTING
 BOOST_AUTO_TEST_CASE( testPortObjects)
 {
     OutputPort<double> wp1("Write");
@@ -826,6 +827,7 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
     BOOST_CHECK( tc->provides()->hasService("Write") == 0 );
     BOOST_CHECK( tc->ports()->getPort("Write") == 0 );
 }
+#endif
 
 #ifdef ORO_SIGNALLING_PORTS
 BOOST_AUTO_TEST_CASE(testPortSignalling)
@@ -1186,6 +1188,11 @@ public:
     InputPort<T> another_input_port;
     PortConnectorThread another_output_connector, another_input_connector;
 
+    OutputPort<T> forward_backward_output_port;
+    InputPort<T> forward_backward_input_port;
+    PortConnectorThread forward_connector;
+    PortConnectorThread backward_connector;
+
 public:
     ConcurrencyPortsTestFixture()
         : writer()
@@ -1195,6 +1202,8 @@ public:
         , another_input_port("another_input_port")
         , another_output_connector(another_output_port, reader.port)
         , another_input_connector(another_input_port, writer.port)
+        , forward_connector(forward_backward_output_port, forward_backward_input_port)
+        , backward_connector(forward_backward_input_port, forward_backward_output_port)
     {}
 
     ~ConcurrencyPortsTestFixture()
@@ -1215,6 +1224,8 @@ public:
         reader.port.disconnect();
         another_output_port.disconnect();
         another_input_port.disconnect();
+        forward_backward_output_port.disconnect();
+        forward_backward_input_port.disconnect();
     }
 
     bool start()
@@ -1225,6 +1236,8 @@ public:
         result = connector.start() && result;
         result = another_output_connector.start() && result;
         result = another_input_connector.start() && result;
+        result = forward_connector.start() && result;
+        result = backward_connector.start() && result;
         return true;
     }
 
@@ -1236,6 +1249,8 @@ public:
         result = connector.stop() && result;
         result = another_output_connector.stop() && result;
         result = another_input_connector.stop() && result;
+        result = forward_connector.stop() && result;
+        result = backward_connector.stop() && result;
         return true;
     }
 };
@@ -1276,6 +1291,18 @@ BOOST_AUTO_TEST_CASE( testConcurrencyPerConnection )
     BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
     BOOST_CHECK_EQUAL( another_input_connector.connect_failure_counter, 0 );
     BOOST_CHECK_EQUAL( another_input_connector.disconnect_failure_counter, 0 );
+    BOOST_TEST_MESSAGE("Number of connects/disconnects to the forward connector:     "
+                       << forward_connector.connect_counter << "/" << backward_connector.disconnect_counter
+                       << " (" << forward_connector.connect_failure_counter << "/" << forward_connector.disconnect_failure_counter << " failures)");
+    BOOST_CHECK_GE( forward_connector.connect_counter, 100 );
+    BOOST_CHECK_EQUAL( forward_connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( forward_connector.disconnect_failure_counter, 0 );
+    BOOST_TEST_MESSAGE("Number of connects/disconnects to the backward connector:     "
+                       << backward_connector.connect_counter << "/" << backward_connector.disconnect_counter
+                       << " (" << backward_connector.connect_failure_counter << "/" << backward_connector.disconnect_failure_counter << " failures)");
+    BOOST_CHECK_GE( backward_connector.connect_counter, 100 );
+    BOOST_CHECK_EQUAL( backward_connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( backward_connector.disconnect_failure_counter, 0 );
 }
 
 BOOST_AUTO_TEST_CASE( testConcurrencyPerInputPort )
@@ -1311,6 +1338,18 @@ BOOST_AUTO_TEST_CASE( testConcurrencyPerInputPort )
     BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
     BOOST_CHECK_EQUAL( another_input_connector.connect_failure_counter, 0 );
     BOOST_CHECK_EQUAL( another_input_connector.disconnect_failure_counter, 0 );
+    BOOST_TEST_MESSAGE("Number of connects/disconnects to the forward connector:     "
+                       << forward_connector.connect_counter << "/" << backward_connector.disconnect_counter
+                       << " (" << forward_connector.connect_failure_counter << "/" << forward_connector.disconnect_failure_counter << " failures)");
+    BOOST_CHECK_GE( forward_connector.connect_counter, 100 );
+    BOOST_CHECK_EQUAL( forward_connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( forward_connector.disconnect_failure_counter, 0 );
+    BOOST_TEST_MESSAGE("Number of connects/disconnects to the backward connector:     "
+                       << backward_connector.connect_counter << "/" << backward_connector.disconnect_counter
+                       << " (" << backward_connector.connect_failure_counter << "/" << backward_connector.disconnect_failure_counter << " failures)");
+    BOOST_CHECK_GE( backward_connector.connect_counter, 100 );
+    BOOST_CHECK_EQUAL( backward_connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( backward_connector.disconnect_failure_counter, 0 );
 }
 
 BOOST_AUTO_TEST_CASE( testConcurrencyPerOutputPort )
@@ -1346,6 +1385,18 @@ BOOST_AUTO_TEST_CASE( testConcurrencyPerOutputPort )
     BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
     BOOST_CHECK_EQUAL( another_input_connector.connect_failure_counter, 0 );
     BOOST_CHECK_EQUAL( another_input_connector.disconnect_failure_counter, 0 );
+    BOOST_TEST_MESSAGE("Number of connects/disconnects to the forward connector:     "
+                       << forward_connector.connect_counter << "/" << backward_connector.disconnect_counter
+                       << " (" << forward_connector.connect_failure_counter << "/" << forward_connector.disconnect_failure_counter << " failures)");
+    BOOST_CHECK_GE( forward_connector.connect_counter, 100 );
+    BOOST_CHECK_EQUAL( forward_connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( forward_connector.disconnect_failure_counter, 0 );
+    BOOST_TEST_MESSAGE("Number of connects/disconnects to the backward connector:     "
+                       << backward_connector.connect_counter << "/" << backward_connector.disconnect_counter
+                       << " (" << backward_connector.connect_failure_counter << "/" << backward_connector.disconnect_failure_counter << " failures)");
+    BOOST_CHECK_GE( backward_connector.connect_counter, 100 );
+    BOOST_CHECK_EQUAL( backward_connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( backward_connector.disconnect_failure_counter, 0 );
 }
 
 BOOST_AUTO_TEST_CASE( testConcurrencySharedConnection )
@@ -1389,6 +1440,18 @@ BOOST_AUTO_TEST_CASE( testConcurrencySharedConnection )
     BOOST_CHECK_GE( another_input_connector.connect_counter, 100 );
     BOOST_CHECK_EQUAL( another_input_connector.connect_failure_counter, 0 );
     BOOST_CHECK_EQUAL( another_input_connector.disconnect_failure_counter, 0 );
+    BOOST_TEST_MESSAGE("Number of connects/disconnects to the forward connector:     "
+                       << forward_connector.connect_counter << "/" << backward_connector.disconnect_counter
+                       << " (" << forward_connector.connect_failure_counter << "/" << forward_connector.disconnect_failure_counter << " failures)");
+    BOOST_CHECK_GE( forward_connector.connect_counter, 100 );
+    BOOST_CHECK_EQUAL( forward_connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( forward_connector.disconnect_failure_counter, 0 );
+    BOOST_TEST_MESSAGE("Number of connects/disconnects to the backward connector:     "
+                       << backward_connector.connect_counter << "/" << backward_connector.disconnect_counter
+                       << " (" << backward_connector.connect_failure_counter << "/" << backward_connector.disconnect_failure_counter << " failures)");
+    BOOST_CHECK_GE( backward_connector.connect_counter, 100 );
+    BOOST_CHECK_EQUAL( backward_connector.connect_failure_counter, 0 );
+    BOOST_CHECK_EQUAL( backward_connector.disconnect_failure_counter, 0 );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
