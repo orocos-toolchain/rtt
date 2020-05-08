@@ -48,7 +48,9 @@
 #include "../types/Operators.hpp"
 #include "DataSourceCondition.hpp"
 #include "../internal/DataSourceCommand.hpp"
+#include "CmdFunction.hpp"
 #include "../internal/GlobalService.hpp"
+#include "CommandDataSource.hpp"
 
 #include "DataSourceTime.hpp"
 #include "../TaskContext.hpp"
@@ -87,7 +89,8 @@ namespace RTT
 
 
   DataCallParser::DataCallParser( ExpressionParser& p, CommonParser& cp, TaskContext* c, ExecutionEngine* caller )
-      : mcaller( caller ? caller : c->engine()), mis_send(false), commonparser(cp), expressionparser( p ),
+      : ret(), mhandle(), mcmdcnd(0), mobject(), mmethod(),
+        mcaller( caller ? caller : c->engine()), mcalltype(DEFAULT_CALLTYPE), commonparser(cp), expressionparser( p ),
         peerparser( c, cp, false ) // accept partial paths
   {
     BOOST_SPIRIT_DEBUG_RULE( datacall );
@@ -112,33 +115,37 @@ namespace RTT
         ( peerpath >> !object >> method[ boost::bind( &DataCallParser::seendataname, this ) ] >> !arguments)[ boost::bind( &DataCallParser::seendatacall, this ) ];
   }
 
-  void DataCallParser::seensend() {
-      mis_send = true;
-  }
-
   void DataCallParser::seenobjectname( iter_t begin, iter_t end )
     {
       std::string name( begin, end );
       mobject = name.substr(0, name.length() - 1);
-    };
+    }
 
   void DataCallParser::seenmethodname( iter_t begin, iter_t end )
     {
       std::string name( begin, end );
-      if ( name == "send") {
-          mis_send = true;
+      if ( name == "send" ) {
+          mcalltype = CALLTYPE_SEND;
+          mmethod = mobject;
+          mobject.clear();
+      } else if (name == "cmd" ) {
+          mcalltype = CALLTYPE_CMD;
+          mmethod = mobject;
+          mobject.clear();
+      } else if (name == "call" ) {
+          mcalltype = CALLTYPE_CALL;
           mmethod = mobject;
           mobject.clear();
       } else {
-          mis_send = false;
+          mcalltype = DEFAULT_CALLTYPE;
           mmethod = name;
       }
 //      cout << "seenmethodname "<< mobject << "." << mmethod<<endl;
-    };
+    }
 
   void DataCallParser::seendataname()
   {
-      // re-init mobject, might have been cleared during parsing of send().
+      // re-init mobject, might have been cleared during parsing of send(), cmd() or call().
       mobject =  peerparser.object();
       TaskContext* peer = peerparser.peer();
       Service::shared_ptr ops  = peerparser.taskObject();
@@ -147,7 +154,7 @@ namespace RTT
       if (true) {
           // it ain't...
           // set the proper object name again in case of a send()
-          if (mis_send && ops)
+          if ( (mcalltype != DEFAULT_CALLTYPE) && ops)
               mobject = ops->getName();
 //          cout << "DCP saw method "<< mmethod <<" of object "<<mobject<<" of peer "<<peer->getName()<<endl;
           // Check sanity of what we parsed:
@@ -185,6 +192,7 @@ namespace RTT
       // we no longer need these two..
       mobject.clear();
       mmethod.clear();
+      mcmdcnd = 0;
 
       // keep hold of the argspar, we're still going to need it after
       // it's done its work..  ( in seendatacall(), that is.. )
@@ -224,19 +232,42 @@ namespace RTT
                         args.insert( args.begin(), sha->getDataSource() );
                         if (meth == "collect")
                             ret = sha->getFactory()->produceCollect(args, new ValueDataSource<bool>(true) );// blocking
-                        else
+                        else // (meth == "collectIfDone")
                             ret = sha->getFactory()->produceCollect(args, new ValueDataSource<bool>(false) );// non-blocking
                         return;
                     }
                 }
                 throw parse_exception_fatal_semantic_error( obj + "."+meth +": "+ obj +" is not a valid SendHandle object.");
             }
-            if (!mis_send) {
+
+            unsigned int arity = ops->getCollectArity(meth);
+            switch(mcalltype) {
+            case DEFAULT_CALLTYPE:
+            case CALLTYPE_CALL:
                 ret = ops->produce( meth, args, mcaller );
                 mhandle.reset();
-            } else {
+                break;
+            case CALLTYPE_SEND:
                 ret = ops->produceSend( meth, args, mcaller );
                 mhandle.reset( new SendHandleAlias( meth, ops->produceHandle(meth), ops->getPart(meth)) );
+                break;
+            case CALLTYPE_CMD:
+                DataSourceBase::shared_ptr sendds = ops->produceSend( meth, args, mcaller );
+                args.clear();
+                args.push_back( sendds ); // store the produceSend DS for collecting:
+                for ( unsigned int i =0; i != arity; ++i) {
+                    args.push_back( ops->getOperation(meth)->getCollectType( i + 1 )->buildValue() ); // this is only to satisfy produceCollect. We ignore the results...
+                }
+
+                DataSource<SendStatus>::shared_ptr collectds
+                        = boost::dynamic_pointer_cast<DataSource<SendStatus> >(
+                              ops->produceCollect( meth, args, new ValueDataSource<bool>(false) )
+                          ); // non-blocking, need extra condition
+                assert(collectds);
+
+                ret = new ActionAliasDataSource<SendStatus>(new CommandDataSource( sendds ), collectds.get() );
+                mcmdcnd = new CmdCollectCondition( collectds ); // Replaces RTT 1.x completion condition.
+                break;
             }
         }
         catch( const wrong_number_of_args_exception& e )
@@ -266,7 +297,7 @@ namespace RTT
     {
       delete argparsers.top();
       argparsers.pop();
-    };
+    }
   }
 
   ConstructorParser::ConstructorParser( ExpressionParser& p, CommonParser& cp)
@@ -288,7 +319,7 @@ namespace RTT
     {
       delete argparsers.top();
       argparsers.pop();
-    };
+    }
   }
 
 
@@ -340,7 +371,8 @@ namespace RTT
     /** @endcond */
 
   ExpressionParser::ExpressionParser( TaskContext* pc, ExecutionEngine* caller, CommonParser& cp )
-      : datacallparser( *this, cp, pc, caller ),
+      : mcmdcnd(0),
+        datacallparser( *this, cp, pc, caller ),
         constrparser(*this, cp),
         commonparser( cp ),
         valueparser( pc, cp ),
@@ -502,7 +534,7 @@ namespace RTT
 //       ( str_p( "s" ) | "ms" | "us" | "ns" )[
 //         bind( &ExpressionParser::seentimeunit, this, _1, _2 ) ] ) | expression[bind(&ExpressionParser::seentimeexpr, this)];
 
-  };
+  }
 
     void ExpressionParser::inverttime()
     {
@@ -542,7 +574,7 @@ namespace RTT
     default:
         std::string arg(begin, end);
         throw parse_exception_semantic_error("Expected time expression 's', 'ms', 'us' or 'ns' after integer value, got "+arg);
-    };
+    }
 
     parsestack.push( new ConstantDataSource<double>( total ) );
 
@@ -568,6 +600,7 @@ namespace RTT
       DataSourceBase::shared_ptr n( datacallparser.getParseResult() );
       parsestack.push( n );
       mhandle = datacallparser.getParseHandle();
+      mcmdcnd = datacallparser.getParseCmdResult();
   }
 
   void ExpressionParser::seenconstructor()
@@ -593,6 +626,12 @@ namespace RTT
   {
     assert( !parsestack.empty() );
     return parsestack.top();
+  }
+
+  ConditionInterface*  ExpressionParser::getCmdResult()
+  {
+    assert( !parsestack.empty() );
+    return mcmdcnd;
   }
 
   boost::shared_ptr<AttributeBase> ExpressionParser::getHandle()
@@ -661,6 +700,15 @@ namespace RTT
 //                cout << "Found !"<<endl;
                 string name = (*it)->getName();
                 context->attributes()->removeAttribute(name);
+                // This aliasing may happen only once for each var SendHandle. Since 'arg1' is not assignable, a next assigning will fail.
+                if ( dynamic_cast<ValueDataSource<SendStatus>*>(mhandle->getDataSource().get() ) ) {
+                    // This goes quite far: we also wrap the SH DataSource in a collect such that evaluating it does not cause a reset()+send(), but merely returns the SendStatus:
+                    context->attributes()->setValue( new SendHandleAlias( name,
+                                                                          mhandle->getFactory()->produceCollect(std::vector<DataSourceBase::shared_ptr>(1,arg1), new ValueDataSource<bool>(false)),
+                                                                          mhandle->getFactory() ) );
+                    parsestack.push( arg1 ); // effectively aliases RHS to lhs. Don't use the SendHandleAlias since it would not do the reset()+send().
+                    return;
+                }
                 AttributeBase* var = mhandle->clone();
                 var->setName( name ); // fill in the final handle name.
                 context->attributes()->setValue( var );
@@ -708,6 +756,7 @@ namespace RTT
 
   void ExpressionParser::dropResult()
   {
+      mcmdcnd = 0;
     parsestack.pop();
   }
 }

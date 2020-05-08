@@ -47,25 +47,28 @@ public:
     ScriptingService::shared_ptr sa;
     int var_i;
     int const_i;
+    SendStatus tss;
 
     void doProgram( const std::string& prog, TaskContext*, bool test=true );
     void finishProgram( TaskContext* , std::string );
     void loopProgram( ProgramInterfacePtr );
 
     ProgramTest()
-        : sa( ScriptingService::Create(tc) )
+        : parser(tc->engine()), sa( ScriptingService::Create(tc) )
     {
         tc->stop();
         BOOST_REQUIRE( tc->setActivity(new SimulationActivity(0.01)) );
         BOOST_REQUIRE( tc->start() );
         tc->provides()->addService( sa );
         tc->provides()->addAttribute("tvar_i", var_i);
+        tc->provides()->addAttribute("tss", tss);
         tc->provides()->addConstant("tconst_i", const_i);
         // ltc has a test object
 
         const_i = -1;
         var_i = -1;
         i = 0;
+        tss = SendNotReady;
         SimulationThread::Instance()->stop();
     }
 
@@ -480,32 +483,73 @@ BOOST_AUTO_TEST_CASE(testProgramCallFoo)
         + "set tvar_i = +2\n"
         + "do test.assert( tvar_i == +2 )\n"
         + "call foo()\n"
+        + "do test.assert( tvar_i == +4 ) \n"
         + "}";
     this->doProgram( prog, tc );
-    Attribute<int> i = tc->provides()->getAttribute("tvar_i");
-    BOOST_REQUIRE_EQUAL( 4, i.get() );
+    BOOST_REQUIRE_EQUAL( 4, var_i );
     this->finishProgram( tc, "x");
 }
 
-BOOST_AUTO_TEST_CASE(testProgramDoFoo)
+BOOST_AUTO_TEST_CASE(testProgramSendFoo)
 {
     // see if modifying an attribute works.
-    string prog = string("export function foo {\n")
-        + "  do test.assert( tvar_i == +2 ) \n"
+    string prog = string("export function foo(int arg) {\n")
+        + "  do test.assert( tvar_i == arg ) \n"
         + "  do test.assert( tvar_i != tconst_i ) \n"
-        + "  set tvar_i = +4\n"
-        + "  do test.assert( tvar_i == +4 ) \n"
+        + "  set tvar_i = tvar_i+2\n"
+        + "  do test.assert( tvar_i == arg + 2 ) \n"
         + "}\n"
         + "program x { \n"
         + "do test.assert( tvar_i == -1 ) \n"
         + "do test.assert( tvar_i == tconst_i ) \n"
-        + "set tvar_i = +2\n"
-        + "do test.assert( tvar_i == +2 )\n"
-        + "do foo()\n"
+        + "set tvar_i = +2\n" // 10
+        + "var SendHandle sh\n"
+        + "sh = foo.send(tvar_i)\n"
+        + "while(sh.collectIfDone() != SendSuccess)\n"
+        + "   yield\n"
+        + "do test.assert( sh.collectIfDone() == SendSuccess )\n"
+        + "do test.assert( tvar_i == +4 )\n"
+
+        // test parallel send
+        + "var SendHandle sh1, sh2\n"
+        + "sh1 = foo.send(tvar_i)\n"
+        + "sh2 = foo.send(tvar_i + 2)\n"
+        + "while(sh2.collectIfDone() != SendSuccess)\n"
+        + "   yield\n"
+        + "do test.assert( tvar_i == +8 )\n"
+        + "do test.assert( sh1.collectIfDone() == SendSuccess )\n"
+        + "do test.assert( sh2.collectIfDone() == SendSuccess )\n"
+        + "do test.assert( tvar_i == +8 )\n"
         + "}";
     this->doProgram( prog, tc );
-    Attribute<int> i = tc->provides()->getAttribute("tvar_i");
-    BOOST_REQUIRE_EQUAL( 4, i.get() );
+    BOOST_REQUIRE_EQUAL( 8, var_i );
+    this->finishProgram( tc, "x");
+}
+
+BOOST_AUTO_TEST_CASE(testProgramCmdFoo)
+{
+    // see if modifying an attribute works.
+    string prog = string("export function foo(int arg) {\n")
+        + "  do test.assert( tvar_i == arg ) \n"
+        + "  do test.assert( tvar_i != tconst_i ) \n"
+        + "  set tvar_i = tvar_i+2\n"
+        + "  do test.assert( tvar_i == arg + 2 ) \n"
+        + "}\n"
+        + "program x { \n"
+        + "do test.assert( tvar_i == -1 ) \n"
+        + "do test.assert( tvar_i == tconst_i ) \n"
+        + "set tvar_i = +2\n" // 10
+        + "while (tvar_i != +6) {\n"
+        + "   tss = foo.cmd(tvar_i)\n"
+        + "   do test.assert( tss == SendSuccess )\n"
+        + "}\n"
+        + "do test.assert( tvar_i == +6 )\n"
+        + "tss = foo.cmd(tvar_i)\n"
+        + "do test.assert( tvar_i == +8 )\n"
+        + "do test.assert( tss == SendSuccess )\n"
+        + "}";
+    this->doProgram( prog, tc );
+    BOOST_REQUIRE_EQUAL( 8, var_i );
     this->finishProgram( tc, "x");
 }
 
@@ -518,22 +562,53 @@ BOOST_AUTO_TEST_CASE(testSend)
         + "test.increaseCmd.send() \n"
         + "yield \n"
         + "test.assertEqual( test.i, 1 )\n"
+        + "yield \n" // make sure that increaseCmd is not evaluated twice!
+        + "test.assertEqual( test.i, 1 )\n"
+
         + "var SendHandle sh\n"
         + "set sh = test.increaseCmd.send()\n"
+        + "test.assertEqual( test.i, 1 )\n" // not yet send
         + "var int r = 0\n"
         //+ "sh.collect(r)\n" // hangs
         + "while (sh.collectIfDone(r) != SendSuccess)\n"
-        + "yield \n"
+        + "    yield \n"
         + "test.assertEqual( r , 2 )\n"
+        + "test.assertEqual( test.i, 2 )\n"
+
         + "set sh = test.increaseCmd.send()\n"
         //+ "sh.collect(tvar_i)\n" // hangs
         + "while (sh.collectIfDone(tvar_i) != SendSuccess)\n"
-        + "yield \n"
+        + "    yield \n"
         + "test.assertEqual( tvar_i, 3 )\n" // i is 3 but r isn't.
         + "}";
     this->doProgram( prog, tc );
     BOOST_REQUIRE_EQUAL( i, 3 );
     BOOST_REQUIRE_EQUAL( var_i, 3 );
+    this->finishProgram( tc, "x");
+}
+
+BOOST_AUTO_TEST_CASE(testCmd)
+{
+    // see if modifying an attribute works.
+    string prog = string("")
+        + "program x { \n"
+        + "test.assertEqual( test.i, 0 )\n"
+        + "var SendStatus ss\n"
+        + "tss = test.increaseCmd.cmd() \n"
+        + "test.assert( tss == SendSuccess )\n"
+        + "test.assertEqual( test.i, 1 )\n"
+        + "ss = test.increaseCmd.cmd()\n"
+        + "test.assert( ss == SendSuccess )\n"
+        + "test.assertEqual( test.i , 2 )\n"
+
+        + "tss = methods.vo0.cmd() \n"
+        + "test.assert( tss == SendSuccess )\n"
+        + "ss = methods.vo0.cmd()\n"
+        + "test.assert( ss == SendSuccess )\n"
+        + "}";
+    this->doProgram( prog, tc );
+    BOOST_REQUIRE( tss == SendSuccess );
+    BOOST_CHECK_EQUAL( i, 2 );
     this->finishProgram( tc, "x");
 }
 
