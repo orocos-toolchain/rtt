@@ -475,6 +475,9 @@ namespace RTT
                     typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
             typedef typename SequenceFactory::atype DataSourceSequence;
             boost::shared_ptr<base::ActionInterface> mact;
+            // We need the arg_cache to store data similar to BindStorage,
+            // such that we can safely access it during execute().
+            typename SequenceFactory::data_store_type arg_cache;
             DataSourceSequence args;
             ExecutionEngine* subscriber;
             /**
@@ -512,8 +515,7 @@ namespace RTT
                 if ( subscriber ) {
                     // asynchronous
                     shared_ptr sg = this->cloneRT();
-                    SequenceFactory::set( seq, sg->args );
-                  
+                    sg->arg_cache = SequenceFactory::store(seq);
                     sg->self = sg;
                     if ( subscriber->process( sg.get() ) ) {
                         // all ok
@@ -530,6 +532,7 @@ namespace RTT
             }
 
             void executeAndDispose() {
+                SequenceFactory::load( this->arg_cache, this->args );
                 mact->execute();
                 dispose();
             }

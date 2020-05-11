@@ -51,6 +51,7 @@
 #include <boost/fusion/mpl.hpp>
 #include <boost/utility/enable_if.hpp>
 
+#include "BindStorage.hpp"
 #include "DataSource.hpp"
 #include "Exceptions.hpp"
 #include "../FactoryExceptions.hpp"
@@ -64,9 +65,6 @@ namespace RTT
     {
         namespace bf = boost::fusion;
         namespace mpl = boost::mpl;
-
-
-        template <class T> struct incomplete;
 
         /**
          * Helper class for extracting the bare pointer from a shared_ptr
@@ -123,7 +121,10 @@ namespace RTT
                 typedef typename ds_type::element_type element_type;
 
                 ds_type a =
-                    boost::dynamic_pointer_cast< element_type >( DataSourceTypeInfo<ds_arg_type>::getTypeInfo()->convert(*front) );
+                    boost::dynamic_pointer_cast< element_type >( *front );
+                if ( ! a ) {
+                    a = boost::dynamic_pointer_cast< element_type >( DataSourceTypeInfo<ds_arg_type>::getTypeInfo()->convert(*front) );
+                }
                 if ( ! a ) {
                     //cout << typeid(DataSource<ds_arg_type>).name() << endl;
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, tname, (*front)->getType() ), ds_type());
@@ -135,8 +136,10 @@ namespace RTT
             template<class ds_arg_type, class ads_type>
             static ads_type assignable(std::vector<base::DataSourceBase::shared_ptr>::const_iterator front, int argnbr, std::string const& tname )
             {
+                typedef typename ads_type::element_type element_type;
+
                 ads_type a =
-                    boost::dynamic_pointer_cast< AssignableDataSource<ds_arg_type> >( *front ); // note: no conversion done, must be same type.
+                    boost::dynamic_pointer_cast< element_type >( *front ); // note: no conversion done, must be same type.
                 if ( ! a ) {
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, tname, (*front)->getType() ), ads_type());
                 }
@@ -195,6 +198,11 @@ namespace RTT
             typedef typename mpl::front<List>::type arg_type;
 
             /**
+             * The argument storage type
+             */
+            typedef AStore<arg_type> arg_store_type;
+
+            /**
              * The data source value type of an assignable data source is non-const, non-reference.
              */
             typedef typename remove_cr<arg_type>::type ds_arg_type;
@@ -223,11 +231,17 @@ namespace RTT
             typedef bf::cons<ads_type, atail_type> atype;
 
             typedef typename tail::data_type arg_tail_type;
+            typedef typename tail::data_store_type arg_store_tail_type;
 
             /**
              * The joint T data type of head and tail.
              */
             typedef bf::cons<arg_type, arg_tail_type> data_type;
+
+            /**
+             * The joint T data storage type of head and tail.
+             */
+            typedef bf::cons<arg_store_type, arg_store_tail_type> data_store_type;
 
             /**
              * Converts a std::vector of DataSourceBase types into a boost::fusion Sequence of DataSources
@@ -279,7 +293,32 @@ namespace RTT
              */
             static void set(const data_type& in, const atype& seq) {
                 AssignHelper<atype, data_type>::set(seq, in);
-                return tail::set( bf::pop_front(in), bf::pop_front(seq) );
+                tail::set( bf::pop_front(in), bf::pop_front(seq) );
+            }
+
+            /**
+             * Sets the values of a sequence of AssignableDataSource<T>
+             * data sources ot the values contained in \a in using set().
+             * @param in The values to write.
+             * @param seq The receiving assignable data sources. Because
+             * the datasources are shared pointers, it's ok to work on the
+             * temporary copies of seq.
+             */
+            static void load(const data_store_type& in, const atype& seq) {
+                AssignHelper<atype, data_store_type>::set(seq, in);
+                tail::load( bf::pop_front(in), bf::pop_front(seq) );
+            }
+
+            /**
+             * Stores the values of a sequence of data_type into
+             * a data_store_type sequence for later retrieval during load.
+             * We must return the resulting sequence by value, since boost fusion
+             * returns temporaries, which we can't take a reference to.
+             * @param in The values to store
+             * @return The receiving AStore sequence.
+             */
+            static data_store_type store(const data_type& in ) {
+                return data_store_type(bf::front(in), tail::store(bf::pop_front(in)));
             }
 
             /**
@@ -289,7 +328,7 @@ namespace RTT
              */
             static void update(const type&seq) {
                 UpdateHelper<arg_type>::update( bf::front(seq) );
-                return tail::update( bf::pop_front(seq) );
+                tail::update( bf::pop_front(seq) );
             }
 
             /**
@@ -347,6 +386,9 @@ namespace RTT
             typedef typename remove_cr<arg_type>::type ds_arg_type;
             typedef bf::cons<arg_type> data_type;
 
+            typedef AStore<arg_type> arg_store_type;
+            typedef bf::cons<arg_store_type > data_store_type;
+
             /**
              * The type of a single element of the vector.
              */
@@ -385,11 +427,18 @@ namespace RTT
 
             static void update(const type&seq) {
                 UpdateHelper<arg_type>::update( bf::front(seq) );
-                return;
             }
 
             static void set(const data_type& in, const atype& seq) {
                 AssignHelper<atype, data_type>::set(seq, in);
+            }
+
+            static void load(const data_store_type& in, const atype& seq) {
+                AssignHelper<atype, data_store_type>::set(seq, in);
+            }
+
+            static data_store_type store(const data_type& in ) {
+                return data_store_type( bf::front(in) );
             }
 
             /**
@@ -421,6 +470,7 @@ namespace RTT
         struct create_sequence_impl<List, 0> // empty mpl list
         {
             typedef bf::vector<> data_type;
+            typedef bf::vector<> data_store_type;
 
             // the result sequence type is a cons of the last argument in the vector.
             typedef bf::vector<> type;
@@ -455,6 +505,13 @@ namespace RTT
                 return;
             }
 
+            static void load(const data_store_type& in, const atype& seq) {
+                return;
+            }
+
+            static data_store_type store(const data_type& in ) {
+                return data_store_type();
+            }
 
             /**
              * Copies a sequence of DataSource<T>::shared_ptr according to the
