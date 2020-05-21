@@ -1,29 +1,25 @@
-<package>
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>rtt</name>
   <version>2.9.0</version>
-  <description >
+  <description>
     Orocos/RTT component framework
   </description>
   <license>GPL v2 with linking exception</license>
-  <maintainer email="orocos-dev@lists.mech.kuleuven.be">Orocos Developers</maintainer>
+  <maintainer email="orocos-dev@orocos.org">Orocos Developers</maintainer>
+  <url>http://www.orocos.org/rtt</url>
 
   <author>RTT Developers</author>
-  <url>http://www.orocos.org/rtt</url>
-  
+
   <buildtool_depend>cmake</buildtool_depend>
-  <buildtool_depend>catkin</buildtool_depend>
-  <run_depend>catkin</run_depend>
+  <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend> <!-- optional -->
+  <buildtool_export_depend>pkg-config</buildtool_export_depend> <!-- for UseOROCOS-RTT-helpers.cmake -->
+  <buildtool_export_depend>xpath-perl</buildtool_export_depend> <!-- optional: to parse manifest.xml in UseOROCOS-RTT-helpers.cmake -->
 
-  <build_depend>xpath-perl</build_depend>
-  <build_depend>boost</build_depend>
-  <build_depend>omniorb</build_depend>
-  <build_depend>pkg-config</build_depend>
+  <depend>boost</depend>
+  <depend>omniorb</depend> <!-- optional -->
 
-  <run_depend>boost</run_depend>
-  <run_depend>omniorb</run_depend>
-  <run_depend>xpath-perl</run_depend>
-  <run_depend>pkg-config</run_depend>
-  
   <export>
     <build_type>cmake</build_type>
   </export>
