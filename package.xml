@@ -13,11 +13,8 @@
   <author>RTT Developers</author>
 
   <buildtool_depend>cmake</buildtool_depend>
-  <buildtool_depend>catkin</buildtool_depend> <!-- optional -->
-  <buildtool_export_depend>catkin</buildtool_export_depend> <!-- optional -->
-  <buildtool_depend>pkg-config</buildtool_depend>
-  <buildtool_export_depend>pkg-config</buildtool_export_depend>
-  <buildtool_depend>xpath-perl</buildtool_depend> <!-- optional: to parse manifest.xml in UseOROCOS-RTT-helpers.cmake -->
+  <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend> <!-- optional -->
+  <buildtool_export_depend>pkg-config</buildtool_export_depend> <!-- for UseOROCOS-RTT-helpers.cmake -->
   <buildtool_export_depend>xpath-perl</buildtool_export_depend> <!-- optional: to parse manifest.xml in UseOROCOS-RTT-helpers.cmake -->
 
   <depend>boost</depend>
