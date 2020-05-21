@@ -1,0 +1,3 @@
+{
+    "hooks": ["etc/orocos/profile.d/00.rtt.sh"]
+}
