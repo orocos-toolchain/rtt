@@ -1,20 +1,18 @@
 <package>
-    <description brief="Orocos/RTT component framework">
-    </description>
-    <license>GPL v2 with linking exception</license>
-		<author>RTT Developers</author>
+  <description brief="Orocos/RTT component framework" />
+  <license>GPL v2 with linking exception</license>
+  <logo>http://www.orocos.org/files/logo-t.png</logo>
+  <url>http://www.orocos.org/rtt</url>
 
-		<url>http://www.orocos.org/rtt</url>
-		<logo>http://www.orocos.org/files/logo-t.png</logo>
-  
-		<rosdep name="boost" />
-		<rosdep name="omniorb" />
-		<rosdep name="xpath-perl" />
-  
-		<export>
-			<!-- The default target is gnulinux when using rospack. This is definately a crippled solution -->
-			<rosbuild cmake_directory="${prefix}/install/lib/cmake/orocos-rtt"/>
-		</export>
-    <tags>stable</tags>
+  <author>RTT Developers</author>
+
+  <rosdep name="boost" />
+  <rosdep name="omniorb" />
+  <rosdep name="xpath-perl" /> <!-- to parse manifest.xml in UseOROCOS-RTT-helpers.cmake -->
+
+  <export>
+    <!-- The default target is gnulinux when using rospack. This is definitely a crippled solution. -->
+    <rosbuild cmake_directory="${prefix}/install/lib/cmake/orocos-rtt"/>
+  </export>
+  <tags>stable</tags>
 </package>
-
