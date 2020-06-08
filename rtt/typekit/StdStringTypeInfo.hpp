@@ -40,6 +40,8 @@
 #include "../types/SequenceTypeInfo.hpp"
 #include "../types/TemplateTypeInfo.hpp"
 
+#include <boost/type_traits/is_same.hpp>
+
 namespace RTT
 {
     namespace types
@@ -48,20 +50,24 @@ namespace RTT
         /**
          * Standard string specialisation that removes decomposition.
          */
-        struct StdStringTypeInfo: public SequenceTypeInfo<std::string, true>
+        template <typename CharT, bool use_ostream = boost::is_same<CharT, char>::value>
+        struct StdBasicStringTypeInfo: public SequenceTypeInfo<std::basic_string<CharT>, use_ostream>
         {
-            StdStringTypeInfo(const std::string& tname = "string") :
-                SequenceTypeInfo<std::string, true> (tname)
+            typedef SequenceTypeInfo<std::basic_string<CharT>, use_ostream> Base;
+            typedef std::basic_string<CharT> string_type;
+
+            StdBasicStringTypeInfo(const std::string& tname = "string") :
+                Base(tname)
             {
             }
 
             base::AttributeBase* buildVariable(std::string name, int size) const
             {
-                std::string t_init(size, ' '); // we can't use the default char(), which is null !
+                string_type t_init(size, std::char_traits<CharT>::to_char_type(' ')); // we can't use the default char(), which is null !
 
                 // returned type is identical to parent, but we set spaces.
-                base::AttributeBase* ret = SequenceTypeInfo<std::string, true>::buildVariable(name, size);
-                Attribute<std::string> tt = ret;
+                base::AttributeBase* ret = this->Base::buildVariable(name, size);
+                Attribute<string_type> tt = ret;
                 tt.set(t_init);
                 return ret;
             }
@@ -77,7 +83,8 @@ namespace RTT
             virtual base::DataSourceBase::shared_ptr decomposeType(base::DataSourceBase::shared_ptr source) const {
                 return source;
             }
-
         };
+
+        typedef StdBasicStringTypeInfo<char> StdStringTypeInfo;
     }
 }
