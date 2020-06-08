@@ -109,6 +109,10 @@ namespace RTT
                 mparent->updated();
             }
 
+            virtual base::DataSourceBase::shared_ptr getParent() {
+                return mparent;
+            }
+
             virtual PartDataSource<T>* clone() const {
                 return new PartDataSource<T>(mref, mparent);
             }
@@ -191,6 +195,10 @@ namespace RTT
 
             void updated() {
                 mparent->updated();
+            }
+
+            virtual base::DataSourceBase::shared_ptr getParent() {
+                return mparent;
             }
 
             virtual PartDataSource* clone() const {

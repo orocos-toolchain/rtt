@@ -130,6 +130,10 @@ namespace RTT
                 if (mparent) mparent->updated();
             }
 
+            virtual base::DataSourceBase::shared_ptr getParent() {
+                return mparent;
+            }
+
             virtual ArrayPartDataSource<T>* clone() const {
                 return new ArrayPartDataSource<T>( *mref, mindex, mparent, mmax);
             }
