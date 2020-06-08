@@ -41,6 +41,8 @@
 
 #include <memory>
 #include <map>
+#include <utility>
+
 #include "Attribute.hpp"
 #include "internal/DataSources.hpp"
 #include "base/DataObjectInterface.hpp"
@@ -129,13 +131,16 @@ namespace RTT
          * attribute always to be in sync
          * with the contents of \a cnst, but it can only be read through the interface.
          * @param name The name of this attribute
-         * @param cnst The variable that will be aliased.
+         * @param cnst The constant value.
          */
         template<class T>
-        bool addConstant( const std::string& name, const T& cnst) {
-            if ( !chkPtr("addConstant", name, &cnst) ) return false;
-            Alias a(name, new internal::ConstReferenceDataSource<T>(cnst));
-            return this->addAttribute( a );
+        bool addConstant( const std::string& name, T t) {
+#if __cplusplus >= 201103L
+            Constant<T> c(name, std::forward<T>(t));
+#else
+            Constant<T> c(name, t);
+#endif
+            return this->addConstant( c );
         }
 
         /**
