@@ -52,68 +52,105 @@ namespace RTT
 {
     namespace types
     {
-        /**
-         * Returns the capacity of an STL container which has the capacity() member function.
-         * @param cont A const ref to an STL container.
-         * @return its capacity.
-         */
-        template<class T>
-        int get_capacity(T const& cont)
-        {
-            return cont.capacity();
-        }
 
         /**
-         * Returns the size of an STL container which has the size() member function.
-         * @param cont A const ref to an STL container.
-         * @return its size.
+         * Templated helper functions to get items, the size or the capacity from a
+         * reference to a sequence type.
          */
         template<class T>
-        int get_size(T const& cont)
+        struct SequenceTraits
         {
-            return cont.size();
-        }
+        public:
+            /**
+             * Returns the capacity of an STL container which has the capacity() member function.
+             * @param cont A const ref to an STL container.
+             * @return its capacity.
+             */
+            static int get_capacity(T const& cont)
+            {
+                return cont.capacity();
+            }
 
-        /**
-         * Returns a reference to one item in an STL container.
-         * @note vector<bool> is not supported, since it's not an STL container.
-         * @param cont The container to access
-         * @param index The item to reference
-         * @return A reference to item \a index
-         */
-        template<class T>
-        typename T::reference get_container_item(T & cont, int index)
-        {
-            if (index >= (int) (cont.size()) || index < 0)
-                return internal::NA<typename T::reference>::na();
-            return cont[index];
-        }
+            /**
+             * Returns the size of an STL container which has the size() member function.
+             * @param cont A const ref to an STL container.
+             * @return its size.
+             */
+            static int get_size(T const& cont)
+            {
+                return cont.size();
+            }
 
-        /**
-         * Returns a copy to one item in an STL container.
-         * @note vector<bool> is not supported, since it's not an STL container.
-         * @param cont The container to access
-         * @param index The item to extract from the sequence
-         * @return A copy of item \a index
-         */
-        template<class T>
-        typename T::value_type get_container_item_copy(const T & cont, int index)
-        {
-            if (index >= (int) (cont.size()) || index < 0)
-                return internal::NA<typename T::value_type>::na();
-            return cont[index];
-        }
+            /**
+             * Returns a reference to one item in an STL container.
+             * @note vector<bool> is not supported, since it's not an STL container.
+             * @param cont The container to access
+             * @param index The item to reference
+             * @return A reference to item \a index
+             */
+            static typename T::reference get_container_item(T & cont, int index)
+            {
+                if (index >= (int) (cont.size()) || index < 0)
+                    return internal::NA<typename T::reference>::na();
+                return cont[index];
+            }
+
+            /**
+             * Returns a copy to one item in an STL container.
+             * @note vector<bool> is not supported, since it's not an STL container.
+             * @param cont The container to access
+             * @param index The item to extract from the sequence
+             * @return A copy of item \a index
+             */
+            static typename T::value_type get_container_item_copy(const T & cont, int index)
+            {
+                if (index >= (int) (cont.size()) || index < 0)
+                    return internal::NA<typename T::value_type>::na();
+                return cont[index];
+            }
+        };
 
         /**
          * Specialisation for vector<bool>, we don't return references to bits aka std::_Bit_reference.
          * vector<bool> is an outlier and should not be used. Use vector<int>
          * or vector<char> instead.
-         * @param cont Is a vector<bool>
-         * @param index The item to read.
-         * @return A copy of the value at position \a index. \b not a reference !
          */
-        bool get_container_item(std::vector<bool> & cont, int index);
-        bool get_container_item_copy(const std::vector<bool> & cont, int index);
+        template<>
+        struct SequenceTraits<std::vector<bool> >
+        {
+        public:
+            /**
+             * @copydoc SequenceTraits<T>::get_capacity()
+             */
+            static int get_capacity(std::vector<bool> const& cont)
+            {
+                return cont.capacity();
+            }
+
+            /**
+             * @copydoc SequenceTraits<T>::get_size()
+             */
+            static int get_size(std::vector<bool> const& cont)
+            {
+                return cont.size();
+            }
+
+            /**
+             * Returns a copy to one item in a vector<bool> container.
+             * @param cont Is a vector<bool>
+             * @param index The item to read.
+             * @return A copy of the value at position \a index. \b not a reference !
+             */
+            static bool get_container_item(std::vector<bool> & cont, int index);
+
+            /**
+             * Returns a copy to one item in a vector<bool> container.
+             * @param cont The container to access
+             * @param index The item to extract from the sequence
+             * @return A copy of item \a index
+             */
+            static bool get_container_item_copy(const std::vector<bool> & cont, int index);
+        };
 
         /**
          * Template for data types that are C++ STL Sequences with operator[], size() and capacity() methods.
@@ -225,12 +262,12 @@ namespace RTT
                 if ( id_name ) {
                     if ( id_name->get() == "size" ) {
                         try {
-                            return internal::newFunctorDataSource(&get_size<T>, internal::GenerateDataSource()(item.get()) );
+                            return internal::newFunctorDataSource(&SequenceTraits<T>::get_size, internal::GenerateDataSource()(item.get()) );
                         } catch(...) {}
                     }
                     if ( id_name->get() == "capacity" ) {
                         try {
-                            return internal::newFunctorDataSource(&get_capacity<T>, internal::GenerateDataSource()(item.get()) );
+                            return internal::newFunctorDataSource(&SequenceTraits<T>::get_capacity, internal::GenerateDataSource()(item.get()) );
                         } catch(...) {}
                     }
                 }
@@ -238,9 +275,9 @@ namespace RTT
                 if ( id_indx ) {
                     try {
                         if ( item->isAssignable() )
-                                return internal::newFunctorDataSource(&get_container_item<T>, internal::GenerateDataSource()(item.get(), id_indx.get() ) );
+                                return internal::newFunctorDataSource(&SequenceTraits<T>::get_container_item, internal::GenerateDataSource()(item.get(), id_indx.get() ) );
                             else
-                                return internal::newFunctorDataSource(&get_container_item_copy<T>, internal::GenerateDataSource()(item.get(), id_indx.get() ) );
+                                return internal::newFunctorDataSource(&SequenceTraits<T>::get_container_item_copy, internal::GenerateDataSource()(item.get(), id_indx.get() ) );
                     } catch(...) {}
                 }
                 if (id_name) {
