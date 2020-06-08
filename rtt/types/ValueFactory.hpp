@@ -98,10 +98,23 @@ namespace RTT
          */
         virtual base::DataSourceBase::shared_ptr buildValue() const = 0;
 
-        /** Build a internal::ReferenceDataSource of this type, pointing to the given
+        /**
+         * Build a internal::ReferenceDataSource of this type, pointing to the given
          * pointer
+         * @param sizehint For variable size instances, use it to hint
+         * the size of the instance.
          */
+        virtual base::DataSourceBase::shared_ptr buildReference(void* ptr, int sizehint) const;
         virtual base::DataSourceBase::shared_ptr buildReference(void* ptr) const = 0;
+
+        /**
+         * Build a internal::PartDataSource of this type, pointing to the given
+         * pointer
+         * @param sizehint For variable size instances, use it to hint
+         * the size of the instance.
+         */
+        virtual base::DataSourceBase::shared_ptr buildPart(void* ptr, int sizehint, base::DataSourceBase::shared_ptr parent) const;
+        virtual base::DataSourceBase::shared_ptr buildPart(void* ptr, base::DataSourceBase::shared_ptr parent) const = 0;
 
         /**
          * Returns a DataSource that first executes an action and returns the result of another data source.

@@ -45,11 +45,20 @@ namespace RTT
     using namespace detail;
     using namespace internal;
 
-    AttributeBase* ValueFactory::buildVariable(std::string name, int ) const {
+    AttributeBase* ValueFactory::buildConstant(std::string name, DataSourceBase::shared_ptr source, int) const {
+        return this->buildConstant(name, source);
+    }
+
+    AttributeBase* ValueFactory::buildVariable(std::string name, int) const {
         return this->buildVariable(name);
     }
 
-    AttributeBase* ValueFactory::buildConstant(std::string name,DataSourceBase::shared_ptr dsb, int ) const {
-        return this->buildConstant(name, dsb );
+    DataSourceBase::shared_ptr ValueFactory::buildReference(void* ptr, int) const {
+        return this->buildReference(ptr);
     }
+
+    DataSourceBase::shared_ptr ValueFactory::buildPart(void* ptr, int, DataSourceBase::shared_ptr parent) const {
+        return this->buildPart(ptr, parent);
+    }
+
 }

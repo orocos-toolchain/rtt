@@ -79,9 +79,19 @@ namespace RTT
         return (find(mtypenames.begin(), mtypenames.end(), name) != mtypenames.end() );
     }
 
-    base::AttributeBase* TypeInfo::buildVariable(std::string name, int hint) const
+    base::AttributeBase* TypeInfo::buildVariable(std::string name, int sizehint) const
     {
-        return mdsf ? mdsf->buildVariable(name, hint) : 0;
+        return mdsf ? mdsf->buildVariable(name, sizehint) : 0;
+    }
+
+    base::DataSourceBase::shared_ptr TypeInfo::buildReference(void* ptr, int sizehint) const
+    {
+        return mdsf ? mdsf->buildReference(ptr, sizehint) : base::DataSourceBase::shared_ptr();
+    }
+
+    base::DataSourceBase::shared_ptr TypeInfo::buildPart(void* ptr, int sizehint, base::DataSourceBase::shared_ptr parent) const
+    {
+        return mdsf ? mdsf->buildPart(ptr, sizehint, parent) : base::DataSourceBase::shared_ptr();
     }
 
     DataSourceBase::shared_ptr TypeInfo::construct(const std::vector<DataSourceBase::shared_ptr>& args) const

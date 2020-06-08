@@ -234,10 +234,25 @@ namespace RTT
 
         /** Build a internal::ReferenceDataSource of this type, pointing to the given
          * pointer
+         * @param sizehint For variable size instances, use it to hint
+         * the size of the instance.
          */
+        base::DataSourceBase::shared_ptr buildReference(void* ptr, int sizehint) const;
         base::DataSourceBase::shared_ptr buildReference(void* ptr) const
         {
             return mdsf ? mdsf->buildReference(ptr) : base::DataSourceBase::shared_ptr();
+        }
+
+        /**
+         * Build a internal::PartDataSource of this type, pointing to the given
+         * pointer
+         * @param sizehint For variable size instances, use it to hint
+         * the size of the instance.
+         */
+        base::DataSourceBase::shared_ptr buildPart(void* ptr, int sizehint, base::DataSourceBase::shared_ptr parent) const;
+        base::DataSourceBase::shared_ptr buildPart(void* ptr, base::DataSourceBase::shared_ptr parent) const
+        {
+            return mdsf ? mdsf->buildPart(ptr, parent) : base::DataSourceBase::shared_ptr();
         }
 
         /**

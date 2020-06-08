@@ -39,10 +39,14 @@
 #ifndef RTT_TEMPLATE_TYPE_FACTORY
 #define RTT_TEMPLATE_TYPE_FACTORY
 
+#include <cassert>
+
 #include "ValueFactory.hpp"
 #include "../Property.hpp"
 #include "../Attribute.hpp"
 #include "../Logger.hpp"
+#include "../internal/DataSources.hpp"
+#include "../internal/PartDataSource.hpp"
 #include "../rtt-config.h"
 
 namespace RTT
@@ -72,7 +76,7 @@ namespace RTT
             {
                 // A variable starts its life as unbounded.
                 //Logger::log() << Logger::Debug << "Building variable '"<<name <<"' of type " << tname <<Logger::endl;
-                return new Attribute<T>( name, new internal::UnboundDataSource<internal::ValueDataSource<T> >() );
+                return new Attribute<DataType>( name, new internal::UnboundDataSource<internal::ValueDataSource<DataType> >() );
             }
 
             base::AttributeBase* buildAttribute( std::string name, base::DataSourceBase::shared_ptr in) const
@@ -127,6 +131,9 @@ namespace RTT
             }
             virtual base::DataSourceBase::shared_ptr buildReference(void* ptr) const {
                 return new internal::ReferenceDataSource<DataType>(*static_cast<DataType*>(ptr));
+            }
+            virtual base::DataSourceBase::shared_ptr buildPart(void* ptr, base::DataSourceBase::shared_ptr parent) const {
+                return new internal::PartDataSource<DataType>(*static_cast<DataType*>(ptr), parent);
             }
 
         };

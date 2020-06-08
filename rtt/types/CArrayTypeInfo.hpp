@@ -40,6 +40,7 @@
 #define ORO_TEMPLATE_CARRAY_INFO_HPP
 
 #include "PrimitiveTypeInfo.hpp"
+#include "TemplateValueFactory.hpp"
 #include "../internal/ArrayPartDataSource.hpp"
 #include <boost/lexical_cast.hpp>
 #include "carray.hpp"
@@ -65,23 +66,26 @@ namespace RTT
             public MemberFactory, public CompositionFactory
         {
         public:
+            typedef T DataType;
+            typedef typename T::value_type ValueType;
+
             CArrayTypeInfo(std::string name) :
                 PrimitiveTypeInfo<T, has_ostream> (name)
             {
             }
 
-        bool installTypeInfoObject(TypeInfo* ti) {
-            // aquire a shared reference to the this object
-            boost::shared_ptr< CArrayTypeInfo<T> > mthis = boost::dynamic_pointer_cast<CArrayTypeInfo<T> >( this->getSharedPtr() );
-            // Allow base to install first
-            PrimitiveTypeInfo<T,has_ostream>::installTypeInfoObject(ti);
-            // Install the factories for primitive types
-            ti->setMemberFactory( mthis );
-            ti->setCompositionFactory( mthis );
+            bool installTypeInfoObject(TypeInfo* ti) {
+                // aquire a shared reference to the this object
+                boost::shared_ptr< CArrayTypeInfo<T> > mthis = boost::dynamic_pointer_cast<CArrayTypeInfo<T> >( this->getSharedPtr() );
+                // Allow base to install first
+                PrimitiveTypeInfo<T,has_ostream>::installTypeInfoObject(ti);
+                // Install the factories for primitive types
+                ti->setMemberFactory( mthis );
+                ti->setCompositionFactory( mthis );
 
-            // Don't delete us, we're memory-managed.
-            return false;
-        }
+                // Don't delete us, we're memory-managed.
+                return false;
+            }
 
             using TemplateValueFactory<T>::buildVariable;
             virtual base::AttributeBase* buildVariable(std::string name,int sizehint) const
@@ -98,6 +102,35 @@ namespace RTT
             /* buildConstant() with sizehint is left out since it is identical to buildConstant() without sizehint.
                We make a shallow copy, so the size is automatically taken from the original expression the constant
                refers to. */
+
+            virtual base::DataSourceBase::shared_ptr buildReference(void* ptr, int sizehint) const {
+                assert(sizehint >= 0);
+                // The returned data source type is supposed to be carray<T>, which already has reference semantics.
+                // Return a ValueDataSource<DataType> holding a new instance of carray<T>.
+                return new internal::ValueDataSource<DataType>(
+                    DataType(static_cast<ValueType*>(ptr), static_cast<std::size_t>(sizehint)));
+            }
+
+            virtual base::DataSourceBase::shared_ptr buildReference(void* ptr) const {
+                // ptr is a reference to an plain C-array, a boost::array, std::array, ...
+                // Without a sizehint, it is impossible to return a DataSource of type carray.
+                return 0;
+            }
+
+            virtual base::DataSourceBase::shared_ptr buildPart(void* ptr, int sizehint, base::DataSourceBase::shared_ptr parent) const {
+                assert(sizehint >= 0);
+                // The returned data source type is supposed to be carray<T>, which already has reference semantics.
+                // Return a PartDataSource<DataType> holding a new instance of carray<T>.
+                return new internal::PartDataSource<DataType>(
+                    DataType(static_cast<ValueType*>(ptr), static_cast<std::size_t>(sizehint)), parent);
+            }
+
+
+            virtual base::DataSourceBase::shared_ptr buildPart(void* ptr, base::DataSourceBase::shared_ptr parent) const {
+                // ptr is a reference to an plain C-array, a boost::array, std::array, ...
+                // Without a sizehint, it is impossible to return a DataSource of type carray.
+                return 0;
+            }
 
             virtual std::vector<std::string> getMemberNames() const {
                 // only discover the parts of this struct:
