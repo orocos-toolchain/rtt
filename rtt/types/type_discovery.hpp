@@ -322,6 +322,20 @@ namespace RTT
                 return *this;
             }
 
+#if __cplusplus >= 201103L
+            /**
+             * Specialisation that converts a std::array into a RTT types carray.
+             * @param t
+             * @return *this
+             */
+            template<class T, std::size_t N>
+            type_discovery &load_a_type(std::array<T,N> &t, boost::mpl::false_)
+            {
+                mparts.push_back(new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent) );
+                return *this;
+            }
+#endif
+
             /**
              * We do not support pointer types.
              * @param t

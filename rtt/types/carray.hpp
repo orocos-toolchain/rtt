@@ -39,6 +39,10 @@
 #ifndef ORO_CARRAY_HPP_
 #define ORO_CARRAY_HPP_
 
+#if __cplusplus >= 201103L
+#include <array>
+#endif
+
 #include <boost/version.hpp>
 #if BOOST_VERSION >= 106400
 // The class name has been changed from boost::serialization::array<T> to array_wrapper<T> in Boost 1.61,
@@ -127,6 +131,21 @@ namespace RTT
                     m_t = 0;
             }
 
+#if __cplusplus >= 201103L
+            /**
+             * We are constructible from std::array<T,N>
+             * Makes a shallow copy in order to keep the reference to
+             * the original data.
+             * @param orig
+             */
+            template<std::size_t N>
+            carray( std::array<T,N> & orig)
+            : m_t( orig.data() ), m_element_count( N ) {
+                if (m_element_count == 0)
+                    m_t = 0;
+            }
+#endif
+
             /**
              * (Re-)initialize this carray to a new address and size.
              */
@@ -199,6 +218,23 @@ namespace RTT
                         m_t[i] = orig[i];
                 return *this;
             }
+
+#if __cplusplus >= 201103L
+            /**
+             * Assignment only copies max(this->count(), orig.size()) elements
+             * from orig to this object. If orig.size() is smaller than this->count()
+             * the contents of the remaining elements is left unmodified. If it's greater,
+             * the excess elements are ignored.
+             * @param orig
+             */
+            template <class OtherT, std::size_t OtherN>
+            const carray<T>& operator=( const std::array<OtherT,OtherN>& orig ) {
+                if (orig.data() != m_t)
+                    for(std::size_t i = 0; i != orig.size() && i != count(); ++i)
+                        m_t[i] = orig[i];
+                return *this;
+            }
+#endif
 
         private:
             value_type* m_t;
