@@ -60,15 +60,16 @@ public:
         BOOST_REQUIRE( tc->setActivity(new SimulationActivity(0.01)) );
         BOOST_REQUIRE( tc->start() );
         tc->provides()->addService( sa );
+
+        const_i = -1;
+        var_i = -1;
+        tss = SendNotReady;
         tc->provides()->addAttribute("tvar_i", var_i);
         tc->provides()->addAttribute("tss", tss);
         tc->provides()->addConstant("tconst_i", const_i);
         // ltc has a test object
 
-        const_i = -1;
-        var_i = -1;
         i = 0;
-        tss = SendNotReady;
         SimulationThread::Instance()->stop();
     }
 

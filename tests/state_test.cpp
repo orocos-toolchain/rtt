@@ -132,13 +132,12 @@ public:
 
         tc->addOperation("log", &StateTest::log, this);
 
-        tc->provides()->addAttribute("tvar_i", var_i);
-        tc->provides()->addAttribute("tss", tss);
-        tc->provides()->addConstant("tconst_i", const_i);
-
         const_i = -1;
         var_i = -1;
         tss = SendNotReady;
+        tc->provides()->addAttribute("tvar_i", var_i);
+        tc->provides()->addAttribute("tss", tss);
+        tc->provides()->addConstant("tconst_i", const_i);
     }
     ~StateTest(){
     }
