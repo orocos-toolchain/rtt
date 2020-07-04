@@ -69,7 +69,8 @@ namespace RTT
     public:
         typedef const std::type_info * TypeId;
 
-        TypeInfo(const std::string& name) : mtypenames(1,name) {}
+        TypeInfo(const std::string& name)
+            : mtypenames(1, name), mtid_name(), mtid() {}
 
         ~TypeInfo();
         /**

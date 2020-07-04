@@ -141,7 +141,7 @@ namespace RTT {
 
     namespace internal {
 
-        TypeInfo* DataSourceTypeInfo<detail::UnknownType>::TypeInfoObject = 0;
+        TypeInfo* DataSourceTypeInfo<UnknownType>::TypeInfoObject = 0;
 
         const std::string& DataSourceTypeInfo<UnknownType>::getType() { return getTypeInfo()->getTypeName(); }
         const std::string& DataSourceTypeInfo<UnknownType>::getTypeName() { return getTypeInfo()->getTypeName(); }
