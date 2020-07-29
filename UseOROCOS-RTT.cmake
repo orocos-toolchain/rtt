@@ -447,10 +447,8 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
       )
     SET( SOURCES ${ORO_EXECUTABLE_DEFAULT_ARGS} )
     if ( ORO_EXECUTABLE_INSTALL )
-      set(AC_INSTALL_DIR ${ORO_EXECUTABLE_INSTALL})
-      set(AC_INSTALL_RT_DIR bin)
+      set(AC_INSTALL_RT_DIR ${ORO_EXECUTABLE_INSTALL})
     else()
-      set(AC_INSTALL_DIR lib)
       set(AC_INSTALL_RT_DIR bin)
     endif()
 
@@ -521,16 +519,11 @@ if(OROCOS-RTT_FOUND AND NOT USE_OROCOS_RTT)
   macro( orocos_configure_executable EXE_TARGET_NAME )
 
     ORO_PARSE_ARGUMENTS(ORO_EXECUTABLE
-      "INSTALL"
+      ""
       ""
       ${ARGN}
       )
     SET( SOURCES ${ORO_EXECUTABLE_DEFAULT_ARGS} )
-    if ( ORO_EXECUTABLE_INSTALL )
-      set(AC_INSTALL_DIR ${ORO_EXECUTABLE_INSTALL})
-    else()
-      set(AC_INSTALL_DIR lib)
-    endif()
 
     if (ORO_USE_ROSBUILD)
       MESSAGE( STATUS "[UseOrocos] Configuring executable ${EXE_TARGET_NAME} in rosbuild source tree." )
