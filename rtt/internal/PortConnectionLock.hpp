@@ -38,7 +38,7 @@
 #ifndef ORO_PORT_CONNECTION_LOCK_HPP
 #define ORO_PORT_CONNECTION_LOCK_HPP
 
-#include "../base/PortInterface.hpp"
+#include "rtt/base/PortInterface.hpp"
 
 namespace RTT
 { namespace internal {

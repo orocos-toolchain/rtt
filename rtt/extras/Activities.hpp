@@ -46,9 +46,9 @@
  * @defgroup CoreLibActivities Activity (thread) classes.
  * Activities execute functions in a thread.
  */
-#include "SlaveActivity.hpp"
-#include "SequentialActivity.hpp"
-#include "PeriodicActivity.hpp"
-#include "../Activity.hpp"
-#include "../base/RunnableInterface.hpp"
+#include "rtt/extras/SlaveActivity.hpp"
+#include "rtt/extras/SequentialActivity.hpp"
+#include "rtt/extras/PeriodicActivity.hpp"
+#include "rtt/Activity.hpp"
+#include "rtt/base/RunnableInterface.hpp"
 

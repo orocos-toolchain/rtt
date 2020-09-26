@@ -37,8 +37,8 @@
 #ifndef COMMONPARSER_HPP
 #define COMMONPARSER_HPP
 
-#include "parser-types.hpp"
-#include "../rtt-config.h"
+#include "rtt/scripting/parser-types.hpp"
+#include "rtt/rtt-config.h"
 
 namespace RTT { namespace scripting
 {

@@ -38,7 +38,7 @@
 #ifndef CALIBRATION_INTERFACE_HPP
 #define CALIBRATION_INTERFACE_HPP
 
-#include "../../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 { namespace dev {

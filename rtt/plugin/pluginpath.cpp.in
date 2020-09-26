@@ -39,10 +39,10 @@
 
 // WARNING: This is an auto-generated file by the build system. Do not modify it. //
 
-#include "plugin/PluginLoader.hpp"
+#include "rtt/plugin/PluginLoader.hpp"
 
 namespace RTT
-{ 
+{
     namespace plugin {
         /** @cond */
         char const* default_plugin_path = "@DEFAULT_PLUGIN_PATH@";

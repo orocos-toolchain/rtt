@@ -36,17 +36,17 @@
  ***************************************************************************/
 
 
-#include "ComponentLoader.hpp"
-#include <rtt/TaskContext.hpp>
-#include <rtt/Logger.hpp>
+#include "rtt/deployment/ComponentLoader.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/Logger.hpp"
 #include <boost/filesystem.hpp>
 #include <boost/version.hpp>
-#include <rtt/os/StartStopManager.hpp>
-#include <rtt/plugin/PluginLoader.hpp>
-#include <rtt/types/TypekitRepository.hpp>
+#include "rtt/os/StartStopManager.hpp"
+#include "rtt/plugin/PluginLoader.hpp"
+#include "rtt/types/TypekitRepository.hpp"
 
 #ifndef _WIN32
-# include <dlfcn.h>
+#include "rtt/os/win32/dlfcn.h"
 #endif
 
 #include <vector>

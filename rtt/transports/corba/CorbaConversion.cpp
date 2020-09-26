@@ -36,9 +36,9 @@
  ***************************************************************************/
 
 
-#include "CorbaConversion.hpp"
-#include "../../PropertyBag.hpp"
-#include "TaskContextProxy.hpp"
+#include "rtt/transports/corba/CorbaConversion.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/transports/corba/TaskContextProxy.hpp"
 
 
 namespace RTT {

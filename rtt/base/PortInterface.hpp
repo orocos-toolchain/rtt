@@ -40,14 +40,14 @@
 #define ORO_EXECUTION_PORT_INTERFACE_HPP
 
 #include <string>
-#include "../internal/rtt-internal-fwd.hpp"
-#include "../ConnPolicy.hpp"
-#include "../internal/ConnectionManager.hpp"
-#include "../internal/ConnID.hpp"
-#include "ChannelElementBase.hpp"
-#include "../types/rtt-types-fwd.hpp"
-#include "../os/Mutex.hpp"
-#include "../rtt-fwd.hpp"
+#include "rtt/internal/rtt-internal-fwd.hpp"
+#include "rtt/ConnPolicy.hpp"
+#include "rtt/internal/ConnectionManager.hpp"
+#include "rtt/internal/ConnID.hpp"
+#include "rtt/base/ChannelElementBase.hpp"
+#include "rtt/types/rtt-types-fwd.hpp"
+#include "rtt/os/Mutex.hpp"
+#include "rtt/rtt-fwd.hpp"
 
 namespace RTT
 { namespace base {

@@ -37,12 +37,12 @@
 
 
 
-#include "TaskCore.hpp"
-#include "../ExecutionEngine.hpp"
-#include "ActivityInterface.hpp"
-#include "Logger.hpp"
-#include "internal/CatchConfig.hpp"
-#include <rtt/os/traces.h>
+#include "rtt/base/TaskCore.hpp"
+#include "rtt/ExecutionEngine.hpp"
+#include "rtt/base/ActivityInterface.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/internal/CatchConfig.hpp"
+#include "rtt/os/traces.h"
 #include <cstring>
 
 namespace RTT {

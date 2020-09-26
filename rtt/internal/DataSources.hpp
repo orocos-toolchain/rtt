@@ -39,10 +39,10 @@
 #ifndef ORO_CORELIB_DATASOURCES_HPP
 #define ORO_CORELIB_DATASOURCES_HPP
 
-#include "mystd.hpp"
-#include "DataSource.hpp"
-#include "DataSourceTypeInfo.hpp"
-#include "Reference.hpp"
+#include "rtt/internal/mystd.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/internal/DataSourceTypeInfo.hpp"
+#include "rtt/internal/Reference.hpp"
 #include <vector>
 
 namespace RTT
@@ -868,7 +868,7 @@ namespace RTT
     }
 }
 
-#include "DataSources.inl"
+#include "rtt/internal/DataSources.inl"
 
 /*
  * Extern template declarations for core data source types

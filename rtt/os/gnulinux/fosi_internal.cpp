@@ -35,10 +35,10 @@
     *                                                                         *
     ***************************************************************************/
 
-#include "../ThreadInterface.hpp"
-#include "fosi.h"
-#include "../fosi_internal_interface.hpp"
-#include "../../Logger.hpp"
+#include "rtt/os/ThreadInterface.hpp"
+#include "rtt/os/fosi.h"
+#include "rtt/os/fosi_internal_interface.hpp"
+#include "rtt/Logger.hpp"
 #include <cassert>
 #include <sys/time.h>
 #include <sys/resource.h>

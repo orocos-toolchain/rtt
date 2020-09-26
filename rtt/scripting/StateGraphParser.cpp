@@ -35,30 +35,30 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "parser-debug.hpp"
-#include "parse_exception.hpp"
-#include "StateGraphParser.hpp"
-#include "CommonParser.hpp"
-#include "ConditionParser.hpp"
-#include "ConditionCompare.hpp"
-#include "ConditionComposite.hpp"
-#include "ConditionCache.hpp"
-#include "ConditionBoolDataSource.hpp"
-#include "ValueChangeParser.hpp"
-#include "ProgramGraphParser.hpp"
-#include "PeerParser.hpp"
-#include "ArgumentsParser.hpp"
-#include "StateMachineBuilder.hpp"
-#include "../TaskContext.hpp"
-#include "StateMachineService.hpp"
+#include "rtt/scripting/parser-debug.hpp"
+#include "rtt/scripting/parse_exception.hpp"
+#include "rtt/scripting/StateGraphParser.hpp"
+#include "rtt/scripting/CommonParser.hpp"
+#include "rtt/scripting/ConditionParser.hpp"
+#include "rtt/scripting/ConditionCompare.hpp"
+#include "rtt/scripting/ConditionComposite.hpp"
+#include "rtt/scripting/ConditionCache.hpp"
+#include "rtt/scripting/ConditionBoolDataSource.hpp"
+#include "rtt/scripting/ValueChangeParser.hpp"
+#include "rtt/scripting/ProgramGraphParser.hpp"
+#include "rtt/scripting/PeerParser.hpp"
+#include "rtt/scripting/ArgumentsParser.hpp"
+#include "rtt/scripting/StateMachineBuilder.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/scripting/StateMachineService.hpp"
 
-#include "CommandComposite.hpp"
-#include "../internal/Exceptions.hpp"
-#include "../base/AttributeBase.hpp"
-#include "ConditionTrue.hpp"
-#include "ConditionInvert.hpp"
-#include "StateDescription.hpp"
-#include "ParsedStateMachine.hpp"
+#include "rtt/scripting/CommandComposite.hpp"
+#include "rtt/internal/Exceptions.hpp"
+#include "rtt/base/AttributeBase.hpp"
+#include "rtt/scripting/ConditionTrue.hpp"
+#include "rtt/scripting/ConditionInvert.hpp"
+#include "rtt/scripting/StateDescription.hpp"
+#include "rtt/scripting/ParsedStateMachine.hpp"
 
 #include <iostream>
 #include <functional>
@@ -68,7 +68,7 @@
 #include <boost/call_traits.hpp>
 #include <iostream>
 #include <memory>
-#include "../internal/mystd.hpp"
+#include "rtt/internal/mystd.hpp"
 
 namespace RTT
 {

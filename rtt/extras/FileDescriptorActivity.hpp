@@ -39,8 +39,8 @@
 #ifndef FILEDESCRIPTOR_ACTIVITY_HPP
 #define FILEDESCRIPTOR_ACTIVITY_HPP
 
-#include "FileDescriptorActivityInterface.hpp"
-#include "../Activity.hpp"
+#include "rtt/extras/FileDescriptorActivityInterface.hpp"
+#include "rtt/Activity.hpp"
 #include <set>
 
 namespace RTT { namespace extras {

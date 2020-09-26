@@ -45,9 +45,9 @@
 #define _ORO_MALLOC_H_
 
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 #ifdef OS_RT_MALLOC
-#include "tlsf/tlsf.h"
+#include "rtt/os/tlsf/tlsf.h"
 #else
 
 #include <cstdlib>

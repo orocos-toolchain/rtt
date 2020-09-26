@@ -39,11 +39,11 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "../base/DataSourceBase.hpp"
-#include "../Service.hpp"
-#include "../Service.hpp"
-#include "DumpObject.hpp"
-#include "rtt-fwd.hpp"
+#include "rtt/base/DataSourceBase.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/scripting/DumpObject.hpp"
+#include "rtt/rtt-fwd.hpp"
 
 
 using namespace std;

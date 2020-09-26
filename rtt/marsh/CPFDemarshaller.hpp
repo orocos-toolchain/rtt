@@ -38,13 +38,13 @@
 #ifndef PI_PROPERTIES_CPFDESERIALIZER
 #define PI_PROPERTIES_CPFDESERIALIZER
 
-#include "rtt-marsh-config.h"
+#include "rtt/marsh/rtt-marsh-config.h"
 
 #ifdef OROPKG_SUPPORT_XERCES_C
 #include <xercesc/util/XMLUniDefs.hpp>
 #include <xercesc/sax/InputSource.hpp>
 
-#include "MarshallInterface.hpp"
+#include "rtt/marsh/MarshallInterface.hpp"
 
 namespace RTT
 { namespace marsh {

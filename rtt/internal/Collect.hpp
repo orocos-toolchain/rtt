@@ -39,8 +39,8 @@
 #ifndef ORO_COLLECT_HPP
 #define ORO_COLLECT_HPP
 
-#include "CollectSignature.hpp"
-#include "../SendStatus.hpp"
+#include "rtt/internal/CollectSignature.hpp"
+#include "rtt/SendStatus.hpp"
 #include <boost/function.hpp>
 #include <boost/type_traits.hpp>
 

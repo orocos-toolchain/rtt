@@ -43,7 +43,7 @@
  *      Author: kaltan
  */
 
-#include "RemoteConnID.hpp"
+#include "rtt/transports/corba/RemoteConnID.hpp"
 
 using namespace RTT::corba;
 

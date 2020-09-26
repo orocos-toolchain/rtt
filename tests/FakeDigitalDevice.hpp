@@ -28,8 +28,8 @@
 #ifndef FAKEDIGITALDEVICE_HPP
 #define FAKEDIGITALDEVICE_HPP
 
-#include <extras/dev/DigitalInInterface.hpp>
-#include <extras/dev/DigitalOutInterface.hpp>
+#include "rtt/extras/dev/DigitalInInterface.hpp"
+#include "rtt/extras/dev/DigitalOutInterface.hpp"
 #include <vector>
 
 namespace RTT

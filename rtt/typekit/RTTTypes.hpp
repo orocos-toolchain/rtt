@@ -44,11 +44,11 @@
 
 #ifndef RTT_PURE_TYPEKIT_TYPES_HPP
 
-#include "../ConnPolicy.hpp"
-#include "../SendStatus.hpp"
-#include "../FlowStatus.hpp"
-#include "../PropertyBag.hpp"
-#include "rtt-typekit-config.h"
+#include "rtt/ConnPolicy.hpp"
+#include "rtt/SendStatus.hpp"
+#include "rtt/FlowStatus.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/typekit/rtt-typekit-config.h"
 
 // Disable extern template warning on MSVC
 #if !defined( __MINGW__ ) && defined( WIN32 )

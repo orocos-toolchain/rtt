@@ -35,7 +35,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rtt-config.h"
+#include "rtt/rtt-config.h"
 
 /**
  * @file RTT.hpp
@@ -49,14 +49,14 @@
  */
 namespace RTT {}
 
-#include "rtt-fwd.hpp"
-#include "TaskContext.hpp"
-#include "Activity.hpp"
-#include "OperationCaller.hpp"
-#include "Operation.hpp"
-#include "Property.hpp"
-#include "Attribute.hpp"
-#include "Port.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/Activity.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/Operation.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/Attribute.hpp"
+#include "rtt/Port.hpp"
 
 #ifndef DOXYGEN
 namespace BFL {

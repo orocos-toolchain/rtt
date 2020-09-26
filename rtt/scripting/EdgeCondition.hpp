@@ -39,9 +39,9 @@
 #define EDGECONDITION_HPP
 
 #include <map>
-#include "rtt-scripting-config.h"
-#include "../base/rtt-base-fwd.hpp"
-#include "rtt-scripting-fwd.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/base/rtt-base-fwd.hpp"
+#include "rtt/scripting/rtt-scripting-fwd.hpp"
 // adjacency_list has some very short template parameter names,
 // which may be defined as macros on some OS's. So undef here.
 #undef DS

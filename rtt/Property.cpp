@@ -38,8 +38,8 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "Property.hpp"
-#include "base/PropertyIntrospection.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/base/PropertyIntrospection.hpp"
 
 namespace RTT {
     using namespace detail;

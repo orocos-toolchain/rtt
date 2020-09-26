@@ -40,7 +40,7 @@
 #ifndef ORO_CORELIB_BUFFER_UNSYNC_HPP
 #define ORO_CORELIB_BUFFER_UNSYNC_HPP
 
-#include "BufferInterface.hpp"
+#include "rtt/base/BufferInterface.hpp"
 #include <deque>
 
 namespace RTT

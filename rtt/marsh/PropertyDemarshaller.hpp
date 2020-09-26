@@ -40,7 +40,7 @@
 #ifndef PROPERTY_DEMARSHALLER
 #define PROPERTY_DEMARSHALLER
 
-#include "MarshallInterface.hpp"
+#include "rtt/marsh/MarshallInterface.hpp"
 #include <string>
 
 namespace RTT

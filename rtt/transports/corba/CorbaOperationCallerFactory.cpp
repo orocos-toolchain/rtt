@@ -36,15 +36,15 @@
  ***************************************************************************/
 
 
-#include "CorbaOperationCallerFactory.hpp"
-#include "AnyDataSource.hpp"
-#include "CorbaLib.hpp"
+#include "rtt/transports/corba/CorbaOperationCallerFactory.hpp"
+#include "rtt/transports/corba/AnyDataSource.hpp"
+#include "rtt/transports/corba/CorbaLib.hpp"
 
-#include "../../types/Types.hpp"
-#include "../../internal/DataSources.hpp"
-#include "../../internal/DataSourceCommand.hpp"
-#include "../../SendStatus.hpp"
-#include "../../Handle.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/internal/DataSources.hpp"
+#include "rtt/internal/DataSourceCommand.hpp"
+#include "rtt/SendStatus.hpp"
+#include "rtt/Handle.hpp"
 
 using namespace std;
 using namespace RTT;

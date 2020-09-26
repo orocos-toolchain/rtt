@@ -39,7 +39,7 @@
 #define ORO_CORELIB_TYPE_BUILDER_HPP
 
 #include <vector>
-#include "../base/DataSourceBase.hpp"
+#include "rtt/base/DataSourceBase.hpp"
 
 namespace RTT
 { namespace types {

@@ -39,8 +39,8 @@
 #ifndef RTT_TIME_SERVICE_HPP
 #define RTT_TIME_SERVICE_HPP
 
-#include "Time.hpp"
-#include "../rtt-config.h"
+#include "rtt/Time.hpp"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 { namespace os {

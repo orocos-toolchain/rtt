@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#include "ValueFactory.hpp"
-#include "rtt-config.h"
+#include "rtt/types/ValueFactory.hpp"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 {

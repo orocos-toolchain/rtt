@@ -42,9 +42,9 @@
 #include <boost/function.hpp>
 #include <boost/function_types/function_type.hpp>
 #include <boost/type_traits.hpp>
-#include "NA.hpp"
-#include "../SendHandle.hpp"
-#include "../rtt-fwd.hpp"
+#include "rtt/internal/NA.hpp"
+#include "rtt/SendHandle.hpp"
+#include "rtt/rtt-fwd.hpp"
 
 namespace RTT
 {

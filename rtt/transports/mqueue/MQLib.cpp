@@ -37,11 +37,11 @@
 
 
 
-#include "MQLib.hpp"
-#include "MQTemplateProtocol.hpp"
-#include "MQSerializationProtocol.hpp"
-#include "../../types/TransportPlugin.hpp"
-#include "../../types/TypekitPlugin.hpp"
+#include "rtt/transports/mqueue/MQLib.hpp"
+#include "rtt/transports/mqueue/MQTemplateProtocol.hpp"
+#include "rtt/transports/mqueue/MQSerializationProtocol.hpp"
+#include "rtt/types/TransportPlugin.hpp"
+#include "rtt/types/TypekitPlugin.hpp"
 #include <boost/serialization/vector.hpp>
 
 using namespace std;

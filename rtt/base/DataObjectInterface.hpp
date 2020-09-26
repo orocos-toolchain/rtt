@@ -38,8 +38,8 @@
 #ifndef CORELIB_DATAOBJECTINTERFACE_HPP
 #define CORELIB_DATAOBJECTINTERFACE_HPP
 
-#include "DataObjectBase.hpp"
-#include "../FlowStatus.hpp"
+#include "rtt/base/DataObjectBase.hpp"
+#include "rtt/FlowStatus.hpp"
 #include <boost/call_traits.hpp>
 #include <boost/shared_ptr.hpp>
 

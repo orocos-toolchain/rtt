@@ -69,14 +69,14 @@
 #ifndef ORO_CORBA_SERVICEREQUESTERI_H_
 #define ORO_CORBA_SERVICEREQUESTERI_H_
 
-#include "corba.h"
+#include "rtt/transports/corba/corba.h"
 #ifdef CORBA_IS_TAO
 #include "ServiceRequesterS.h"
 #else
 #include "ServiceRequesterC.h"
 #endif
 
-#include "../../ServiceRequester.hpp"
+#include "rtt/ServiceRequester.hpp"
 #include <map>
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)

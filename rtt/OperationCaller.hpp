@@ -41,18 +41,18 @@
 
 #include <string>
 #include <boost/function.hpp>
-#include "base/OperationCallerBase.hpp"
+#include "rtt/base/OperationCallerBase.hpp"
 #ifdef ORO_TEST_OPERATION_CALLER
-#include "internal/UnMember.hpp"
-#include "internal/LocalOperationCaller.hpp"
+#include "rtt/internal/UnMember.hpp"
+#include "rtt/internal/LocalOperationCaller.hpp"
 #endif
-#include "internal/InvokerSignature.hpp"
-#include "base/OperationCallerBaseInvoker.hpp"
-#include "Logger.hpp"
-#include "Service.hpp"
+#include "rtt/internal/InvokerSignature.hpp"
+#include "rtt/base/OperationCallerBaseInvoker.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/Service.hpp"
 #ifdef ORO_REMOTING
-#include "OperationInterface.hpp"
-#include "internal/RemoteOperationCaller.hpp"
+#include "rtt/OperationInterface.hpp"
+#include "rtt/internal/RemoteOperationCaller.hpp"
 #endif
 
 namespace RTT

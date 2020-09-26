@@ -38,13 +38,13 @@
 #ifndef ORO_BUFFER_LOCK_FREE_HPP
 #define ORO_BUFFER_LOCK_FREE_HPP
 
-#include "../os/oro_arch.h"
-#include "../os/Atomic.hpp"
-#include "../os/CAS.hpp"
-#include "BufferInterface.hpp"
-#include "../internal/AtomicMWSRQueue.hpp"
-#include "../internal/AtomicMWMRQueue.hpp"
-#include "../internal/TsPool.hpp"
+#include "rtt/os/oro_arch.h"
+#include "rtt/os/Atomic.hpp"
+#include "rtt/os/CAS.hpp"
+#include "rtt/base/BufferInterface.hpp"
+#include "rtt/internal/AtomicMWSRQueue.hpp"
+#include "rtt/internal/AtomicMWMRQueue.hpp"
+#include "rtt/internal/TsPool.hpp"
 #include <vector>
 
 #ifdef ORO_PRAGMA_INTERFACE

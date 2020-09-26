@@ -39,7 +39,7 @@
 #ifndef ORO_RETURN_HPP
 #define ORO_RETURN_HPP
 
-#include "Collect.hpp"
+#include "rtt/internal/Collect.hpp"
 
 namespace RTT
 {

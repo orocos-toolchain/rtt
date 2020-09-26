@@ -43,7 +43,7 @@
  *      Author: kaltan
  */
 
-#include "CorbaConnPolicy.hpp"
+#include "rtt/transports/corba/CorbaConnPolicy.hpp"
 
 RTT::corba::CConnPolicy toCORBA(RTT::ConnPolicy const& policy)
 {

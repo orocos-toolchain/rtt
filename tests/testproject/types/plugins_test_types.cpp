@@ -24,7 +24,7 @@
  *      Author: kaltan
  */
 
-#include <rtt/types/TypekitPlugin.hpp>
+#include "rtt/types/TypekitPlugin.hpp"
 
 class TypesPluginTest : public RTT::types::TypekitPlugin
 {

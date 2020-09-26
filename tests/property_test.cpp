@@ -17,13 +17,13 @@
  ***************************************************************************/
 
 #include <typeinfo>
-#include <marsh/PropertyBagIntrospector.hpp>
-#include <internal/DataSourceTypeInfo.hpp>
-#include <types/PropertyDecomposition.hpp>
-#include <Property.hpp>
-#include <PropertyBag.hpp>
+#include "rtt/marsh/PropertyBagIntrospector.hpp"
+#include "rtt/internal/DataSourceTypeInfo.hpp"
+#include "rtt/types/PropertyDecomposition.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/PropertyBag.hpp"
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
 class PropertyTest
 {

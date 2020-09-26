@@ -43,8 +43,8 @@
 #include <boost/function.hpp>
 #include <boost/type_traits/function_traits.hpp>
 
-#include "../base/ActionInterface.hpp"
-#include "ConditionInterface.hpp"
+#include "rtt/base/ActionInterface.hpp"
+#include "rtt/scripting/ConditionInterface.hpp"
 
 namespace RTT
 {

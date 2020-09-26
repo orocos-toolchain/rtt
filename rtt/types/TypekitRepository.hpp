@@ -41,8 +41,8 @@
 
 #include <string>
 #include <vector>
-#include "../rtt-config.h"
-#include "rtt-types-fwd.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/types/rtt-types-fwd.hpp"
 
 namespace RTT
 { namespace types {

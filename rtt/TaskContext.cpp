@@ -37,9 +37,9 @@
 
 
 
-#include "TaskContext.hpp"
-#include "base/ActionInterface.hpp"
-#include "plugin/PluginLoader.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/base/ActionInterface.hpp"
+#include "rtt/plugin/PluginLoader.hpp"
 
 #include <string>
 #include <algorithm>
@@ -47,17 +47,17 @@
 #include <boost/bind.hpp>
 #include <boost/mem_fn.hpp>
 
-#include "internal/DataSource.hpp"
-#include "internal/mystd.hpp"
-#include "internal/MWSRQueue.hpp"
-#include "OperationCaller.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/internal/mystd.hpp"
+#include "rtt/internal/MWSRQueue.hpp"
+#include "rtt/OperationCaller.hpp"
 
-#include "rtt-config.h"
+#include "rtt/rtt-config.h"
 
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
-#include "extras/SequentialActivity.hpp"
+#include "rtt/extras/SequentialActivity.hpp"
 #elif defined(ORO_ACT_DEFAULT_ACTIVITY)
-#include "Activity.hpp"
+#include "rtt/Activity.hpp"
 #endif
 
 namespace RTT

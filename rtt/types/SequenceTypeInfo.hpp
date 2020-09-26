@@ -39,9 +39,9 @@
 #ifndef ORO_SEQUENCE_TYPE_INFO_HPP
 #define ORO_SEQUENCE_TYPE_INFO_HPP
 
-#include "TemplateTypeInfo.hpp"
-#include "SequenceTypeInfoBase.hpp"
-#include "MemberFactory.hpp"
+#include "rtt/types/TemplateTypeInfo.hpp"
+#include "rtt/types/SequenceTypeInfoBase.hpp"
+#include "rtt/types/MemberFactory.hpp"
 
 namespace RTT
 {

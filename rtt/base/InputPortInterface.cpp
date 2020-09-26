@@ -36,16 +36,16 @@
  ***************************************************************************/
 
 
-#include "PortInterface.hpp"
-#include "InputPortInterface.hpp"
-#include "OutputPortInterface.hpp"
-#include "DataFlowInterface.hpp"
-#include "../internal/ConnInputEndPoint.hpp"
-#include "../internal/ConnFactory.hpp"
-#include "../Logger.hpp"
+#include "rtt/base/PortInterface.hpp"
+#include "rtt/base/InputPortInterface.hpp"
+#include "rtt/base/OutputPortInterface.hpp"
+#include "rtt/DataFlowInterface.hpp"
+#include "rtt/internal/ConnInputEndPoint.hpp"
+#include "rtt/internal/ConnFactory.hpp"
+#include "rtt/Logger.hpp"
 #include <exception>
 #include <stdexcept>
-#include <../os/traces.h>
+#include "rtt/os/traces.h"
 
 using namespace RTT;
 using namespace RTT::detail;

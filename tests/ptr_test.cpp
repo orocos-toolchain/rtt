@@ -17,9 +17,9 @@
  ***************************************************************************/
 
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include "ptr_test.hpp"
+#include "tests/ptr_test.hpp"
 
 using namespace std;
 

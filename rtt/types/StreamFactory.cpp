@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#include "StreamFactory.hpp"
-#include "../rtt-config.h"
+#include "rtt/types/StreamFactory.hpp"
+#include "rtt/rtt-config.h"
 
 using namespace std;
 using namespace RTT;

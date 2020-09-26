@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#include "Attribute.hpp"
-#include "rtt-fwd.hpp"
+#include "rtt/Attribute.hpp"
+#include "rtt/rtt-fwd.hpp"
 
 namespace RTT
 {

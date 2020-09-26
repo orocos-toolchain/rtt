@@ -39,16 +39,16 @@
 #ifndef ORO_CHANNEL_BASE_HPP
 #define ORO_CHANNEL_BASE_HPP
 
-#include "../os/oro_arch.h"
+#include "rtt/os/oro_arch.h"
 #include <utility>
 #include <boost/intrusive_ptr.hpp>
 #include <boost/call_traits.hpp>
 
-#include "../rtt-fwd.hpp"
-#include "rtt-base-fwd.hpp"
-#include "../internal/rtt-internal-fwd.hpp"
-#include "../BufferPolicy.hpp"
-#include "../os/Mutex.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/base/rtt-base-fwd.hpp"
+#include "rtt/internal/rtt-internal-fwd.hpp"
+#include "rtt/BufferPolicy.hpp"
+#include "rtt/os/Mutex.hpp"
 
 #include <list>
 #include <map>

@@ -69,15 +69,15 @@
 #ifndef ORO_CORBA_CONFIGURATIONINTERFACEI_H_
 #define ORO_CORBA_CONFIGURATIONINTERFACEI_H_
 
-#include "corba.h"
+#include "rtt/transports/corba/corba.h"
 #ifdef CORBA_IS_TAO
 #include "ConfigurationInterfaceS.h"
 #else
 #include "ConfigurationInterfaceC.h"
 #endif
 
-#include "../../ConfigurationInterface.hpp"
-#include "../../PropertyBag.hpp"
+#include "rtt/ConfigurationInterface.hpp"
+#include "rtt/PropertyBag.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once

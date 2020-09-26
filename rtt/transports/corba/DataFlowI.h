@@ -38,18 +38,18 @@
 #ifndef DATAFLOWI_H_
 #define DATAFLOWI_H_
 
-#include "corba.h"
+#include "rtt/transports/corba/corba.h"
 #ifdef CORBA_IS_TAO
 #include "DataFlowS.h"
 #else
 #include "DataFlowC.h"
 #endif
-#include "CorbaConversion.hpp"
-#include "../../base/ChannelElement.hpp"
-#include "../../internal/DataSources.hpp"
-#include "CorbaTypeTransporter.hpp"
+#include "rtt/transports/corba/CorbaConversion.hpp"
+#include "rtt/base/ChannelElement.hpp"
+#include "rtt/internal/DataSources.hpp"
+#include "rtt/transports/corba/CorbaTypeTransporter.hpp"
 #include <list>
-#include <rtt/os/Mutex.hpp>
+#include "rtt/os/Mutex.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once

@@ -40,7 +40,7 @@
 #ifndef __GCC_ORO_ARCH__
 #define __GCC_ORO_ARCH__
 
-#include "../../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 /**
  * Structure that contains an int for atomic

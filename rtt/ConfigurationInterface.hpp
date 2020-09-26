@@ -41,11 +41,11 @@
 
 #include <memory>
 #include <map>
-#include "Attribute.hpp"
-#include "internal/DataSources.hpp"
-#include "base/DataObjectInterface.hpp"
-#include "Property.hpp"
-#include "PropertyBag.hpp"
+#include "rtt/Attribute.hpp"
+#include "rtt/internal/DataSources.hpp"
+#include "rtt/base/DataObjectInterface.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/PropertyBag.hpp"
 
 namespace RTT
 {

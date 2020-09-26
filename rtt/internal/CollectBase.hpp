@@ -39,9 +39,9 @@
 #ifndef ORO_COLLECT_BASE_HPP
 #define ORO_COLLECT_BASE_HPP
 
-#include "CollectSignature.hpp"
-#include "../SendStatus.hpp"
-#include "ReturnBase.hpp"
+#include "rtt/internal/CollectSignature.hpp"
+#include "rtt/SendStatus.hpp"
+#include "rtt/internal/ReturnBase.hpp"
 #include <boost/function.hpp>
 
 namespace RTT

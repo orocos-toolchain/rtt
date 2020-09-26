@@ -32,7 +32,7 @@
  
  
 
-#include <os/threads.hpp>
+#include "rtt/os/threads.hpp"
 
 /* See the darwin kernel programming guide e.g
    <http://docs.huihoo.com/darwin/kernel-programming-guide/scheduler/chapter_8_section_2.html#//apple_ref/doc/uid/TP30000905-CH211-BABFGDHA>

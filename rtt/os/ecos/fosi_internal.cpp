@@ -28,9 +28,9 @@
 
 #include <pkgconf/kernel.h>
 #include <pkgconf/os_ecos.h>
-#include "ThreadInterface.hpp"
-#include "fosi.h"
-#include "../fosi_internal_interface.hpp"
+#include "rtt/os/ThreadInterface.hpp"
+#include "rtt/os/fosi.h"
+#include "rtt/os/fosi_internal_interface.hpp"
 #include <cyg/kernel/kapi.h>
 #include <iostream>
 #include <string>

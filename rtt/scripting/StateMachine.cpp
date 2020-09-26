@@ -34,18 +34,18 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "StateMachine.hpp"
-#include "../ExecutionEngine.hpp"
-#include "../internal/DataSource.hpp"
-#include "../Service.hpp"
-#include "CommandFunctors.hpp"
-#include <Logger.hpp>
+#include "rtt/scripting/StateMachine.hpp"
+#include "rtt/ExecutionEngine.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/scripting/CommandFunctors.hpp"
+#include "rtt/Logger.hpp"
 #include <functional>
 
 #include <assert.h>
 #include <boost/bind.hpp>
 #include <boost/tuple/tuple.hpp>
-#include "internal/mystd.hpp"
+#include "rtt/internal/mystd.hpp"
 
 #define TRACE(msg) do {                                                                     \
     if (!mtrace)                                                                            \

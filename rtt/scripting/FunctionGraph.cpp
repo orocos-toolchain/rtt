@@ -36,16 +36,16 @@
  ***************************************************************************/
 
 
-#include "FunctionGraph.hpp"
-#include "GraphCopier.hpp"
-#include "../base/AttributeBase.hpp"
-#include "ProgramService.hpp"
-#include "TaskContext.hpp"
-#include "../Service.hpp"
+#include "rtt/scripting/FunctionGraph.hpp"
+#include "rtt/scripting/GraphCopier.hpp"
+#include "rtt/base/AttributeBase.hpp"
+#include "rtt/scripting/ProgramService.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/Service.hpp"
 
-#include "CommandNOP.hpp"
-#include "ConditionFalse.hpp"
-#include "ConditionTrue.hpp"
+#include "rtt/scripting/CommandNOP.hpp"
+#include "rtt/scripting/ConditionFalse.hpp"
+#include "rtt/scripting/ConditionTrue.hpp"
 #include <boost/graph/copy.hpp>
 #include <utility>
 

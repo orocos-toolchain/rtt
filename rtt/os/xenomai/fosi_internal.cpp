@@ -38,13 +38,13 @@
 
 
 #define OROBLD_OS_INTERNAL
-#include "os/ThreadInterface.hpp"
-#include "fosi.h"
-#include "../fosi_internal_interface.hpp"
+#include "rtt/os/ThreadInterface.hpp"
+#include "rtt/os/fosi.h"
+#include "rtt/os/fosi_internal_interface.hpp"
 #include <cassert>
 #define INTERNAL_QUAL
 
-#include "../../Logger.hpp"
+#include "rtt/Logger.hpp"
 #include <signal.h>
 #include <execinfo.h>
 

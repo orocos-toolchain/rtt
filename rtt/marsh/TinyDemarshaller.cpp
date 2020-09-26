@@ -36,12 +36,12 @@
  ***************************************************************************/
 
 
-#include "TinyDemarshaller.hpp"
+#include "rtt/marsh/TinyDemarshaller.hpp"
 
 
 // Modified tinyxml* to include it in the RTT namespace to avoid clashes
 // with possible other libraries.
-#include "tinyxml.h"
+#include "rtt/marsh/tinyxml.h"
 
 // This is currently not defined:
 #ifdef TIXML_USE_STL
@@ -53,9 +53,9 @@ using namespace std;
 #endif
 
 #include <stack>
-#include <Property.hpp>
-#include <PropertyBag.hpp>
-#include <Logger.hpp>
+#include "rtt/Property.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/Logger.hpp"
 
 namespace RTT
 {

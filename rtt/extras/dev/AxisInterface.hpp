@@ -27,10 +27,10 @@
 #ifndef _AXISINTERFACE_HPP
 #define _AXISINTERFACE_HPP
 
-#include "SensorInterface.hpp"
-#include "DigitalInput.hpp"
-#include "DigitalOutput.hpp"
-#include "../../rtt-config.h"
+#include "rtt/extras/dev/SensorInterface.hpp"
+#include "rtt/extras/dev/DigitalInput.hpp"
+#include "rtt/extras/dev/DigitalOutput.hpp"
+#include "rtt/rtt-config.h"
 #include <string>
 #include <vector>
 

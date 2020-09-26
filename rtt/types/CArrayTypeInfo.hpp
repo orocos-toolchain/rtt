@@ -39,13 +39,13 @@
 #ifndef ORO_TEMPLATE_CARRAY_INFO_HPP
 #define ORO_TEMPLATE_CARRAY_INFO_HPP
 
-#include "PrimitiveTypeInfo.hpp"
-#include "../internal/ArrayPartDataSource.hpp"
+#include "rtt/types/PrimitiveTypeInfo.hpp"
+#include "rtt/internal/ArrayPartDataSource.hpp"
 #include <boost/lexical_cast.hpp>
-#include "carray.hpp"
-#include "../internal/carray.hpp"
-#include "PropertyComposition.hpp"
-#include "PropertyDecomposition.hpp"
+#include "rtt/types/carray.hpp"
+#include "rtt/internal/carray.hpp"
+#include "rtt/types/PropertyComposition.hpp"
+#include "rtt/types/PropertyDecomposition.hpp"
 
 namespace RTT
 {

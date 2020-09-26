@@ -17,20 +17,20 @@
  ***************************************************************************/
 
 
-#include "unit.hpp"
-#include "generictask_test.hpp"
-#include <scripting/FunctionGraph.hpp>
-#include <OperationCaller.hpp>
-#include <Service.hpp>
-#include <internal/RemoteOperationCaller.hpp>
+#include "tests/unit.hpp"
+#include "tests/generictask_test.hpp"
+#include "rtt/scripting/FunctionGraph.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/internal/RemoteOperationCaller.hpp"
 
-#include <extras/SimulationActivity.hpp>
-#include <extras/SimulationThread.hpp>
+#include "rtt/extras/SimulationActivity.hpp"
+#include "rtt/extras/SimulationThread.hpp"
 
 #include <boost/function_types/function_type.hpp>
 
 #include <rtt-config.h>
-#include <Service.hpp>
+#include "rtt/Service.hpp"
 
 using namespace std;
 

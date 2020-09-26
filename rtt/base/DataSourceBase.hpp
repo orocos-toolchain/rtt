@@ -44,10 +44,10 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "../os/Atomic.hpp"
-#include "../rtt-config.h"
-#include "ActionInterface.hpp"
-#include "../rtt-fwd.hpp"
+#include "rtt/os/Atomic.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/base/ActionInterface.hpp"
+#include "rtt/rtt-fwd.hpp"
 
 namespace RTT
 { namespace base {

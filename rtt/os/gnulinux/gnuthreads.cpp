@@ -37,7 +37,7 @@
 
 
 
-#include <os/threads.hpp>
+#include "rtt/os/threads.hpp"
 
 namespace RTT
 { namespace os {

@@ -40,14 +40,14 @@ email                : peter.soetens@fmtc.be
 #define ORO_RTT_CORBA_CONVERSION_HPP
 
 
-#include "CorbaConversion.hpp"
+#include "rtt/transports/corba/CorbaConversion.hpp"
 #include "OrocosTypesC.h"
 #include "TaskContextC.h"
-#include "TaskContextServer.hpp"
-#include "TaskContextProxy.hpp"
-#include "CorbaConnPolicy.hpp"
+#include "rtt/transports/corba/TaskContextServer.hpp"
+#include "rtt/transports/corba/TaskContextProxy.hpp"
+#include "rtt/transports/corba/CorbaConnPolicy.hpp"
 #ifdef OS_RT_MALLOC
-#include <rtt/rt_string.hpp>
+#include "rtt/rt_string.hpp"
 #endif
 
 namespace RTT { 

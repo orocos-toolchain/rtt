@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#include "MemberFactory.hpp"
-#include "../Logger.hpp"
+#include "rtt/types/MemberFactory.hpp"
+#include "rtt/Logger.hpp"
 
 using namespace std;
 using namespace RTT;

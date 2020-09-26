@@ -40,7 +40,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "ListLockFree.hpp"
+#include "rtt/internal/ListLockFree.hpp"
 
 
 namespace RTT {

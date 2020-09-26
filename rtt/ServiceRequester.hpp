@@ -39,10 +39,10 @@
 #ifndef ORO_SERVICEREQUESTER_HPP_
 #define ORO_SERVICEREQUESTER_HPP_
 
-#include "rtt-config.h"
-#include "rtt-fwd.hpp"
-#include "base/OperationCallerBaseInvoker.hpp"
-#include "Service.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/base/OperationCallerBaseInvoker.hpp"
+#include "rtt/Service.hpp"
 #include <map>
 #include <vector>
 #include <string>

@@ -46,8 +46,8 @@
 #ifndef MQSERIALIZATIONPROTOCOL_HPP_
 #define MQSERIALIZATIONPROTOCOL_HPP_
 
-#include "MQTemplateProtocolBase.hpp"
-#include "binary_data_archive.hpp"
+#include "rtt/transports/mqueue/MQTemplateProtocolBase.hpp"
+#include "rtt/transports/mqueue/binary_data_archive.hpp"
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
 #include <iostream>

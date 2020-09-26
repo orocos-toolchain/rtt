@@ -38,7 +38,7 @@
 #ifndef NAMESERVERREGISTRATION_HPP
 #define NAMESERVERREGISTRATION_HPP
 
-#include "NameServer.hpp"
+#include "rtt/extras/dev/NameServer.hpp"
 #include <boost/call_traits.hpp>
 namespace RTT
 { namespace dev {

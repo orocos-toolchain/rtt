@@ -38,8 +38,8 @@
 #ifndef STATE_DESCRIPTION_HPP
 #define STATE_DESCRIPTION_HPP
 
-#include "StateInterface.hpp"
-#include "ProgramInterface.hpp"
+#include "rtt/scripting/StateInterface.hpp"
+#include "rtt/scripting/ProgramInterface.hpp"
 
 namespace RTT
 { namespace scripting {

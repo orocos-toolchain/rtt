@@ -37,23 +37,23 @@
 
 
 
-#include "ScriptingService.hpp"
-#include "../Logger.hpp"
-#include "../TaskContext.hpp"
+#include "rtt/scripting/ScriptingService.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/TaskContext.hpp"
 #include <algorithm>
 #include <functional>
 #include <fstream>
 #include <iterator>
-#include "scripting/rtt-scripting-config.h"
-#include "ProgramExceptions.hpp"
-#include "StatementProcessor.hpp"
-#include "../Service.hpp"
-#include "Parser.hpp"
-#include "parse_exception.hpp"
-#include "../OperationCaller.hpp"
-#include "../internal/mystd.hpp"
-#include "../plugin/ServicePlugin.hpp"
-#include "../internal/GlobalEngine.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/scripting/ProgramExceptions.hpp"
+#include "rtt/scripting/StatementProcessor.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/scripting/Parser.hpp"
+#include "rtt/scripting/parse_exception.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/internal/mystd.hpp"
+#include "rtt/plugin/ServicePlugin.hpp"
+#include "rtt/internal/GlobalEngine.hpp"
 
 ORO_SERVICE_NAMED_PLUGIN( RTT::scripting::ScriptingService, "scripting" )
 

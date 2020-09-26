@@ -40,7 +40,7 @@
 #define OROCOS_SIGNAL_SIGNAL4_HEADER
 
 #define OROCOS_SIGNATURE_TEMPLATE_HEADER "signal_template.hpp"
-#include "signature4.hpp"
+#include "rtt/internal/signature4.hpp"
 #undef OROCOS_SIGNATURE_TEMPLATE_HEADER
 
 #endif // OROCOS_SIGNAL_SIGNAL4_HEADER

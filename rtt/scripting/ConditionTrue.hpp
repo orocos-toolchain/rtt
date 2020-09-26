@@ -39,8 +39,8 @@
 #ifndef CONDITIONTRUE_HPP
 #define CONDITIONTRUE_HPP
 
-#include "rtt-scripting-config.h"
-#include "ConditionInterface.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/scripting/ConditionInterface.hpp"
 
 namespace RTT
 { namespace scripting {

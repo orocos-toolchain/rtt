@@ -39,8 +39,8 @@
 #ifndef IRQ_ACTIVITY_HPP
 #define IRQ_ACTIVITY_HPP
 
-#include "../Activity.hpp"
-#include "../rtt-config.h"
+#include "rtt/Activity.hpp"
+#include "rtt/rtt-config.h"
 
 #ifdef OROPKG_OS_XENOMAI
 #include <native/intr.h>

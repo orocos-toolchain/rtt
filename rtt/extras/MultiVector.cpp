@@ -38,7 +38,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "MultiVector.hpp"
+#include "rtt/extras/MultiVector.hpp"
 
 #ifdef __GNUC__
 namespace RTT {

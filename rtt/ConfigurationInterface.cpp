@@ -37,8 +37,8 @@
 
 
 
-#include "ConfigurationInterface.hpp"
-#include "internal/mystd.hpp"
+#include "rtt/ConfigurationInterface.hpp"
+#include "rtt/internal/mystd.hpp"
 #include <functional>
 #include <boost/bind.hpp>
 

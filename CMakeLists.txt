@@ -123,6 +123,7 @@ INCLUDE(config/rtt_macros.cmake)
 ###########################################################
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 ADD_SUBDIRECTORY(rtt)
 ADD_SUBDIRECTORY(doc)
 ADD_SUBDIRECTORY(tests)
@@ -154,7 +155,7 @@ set(IMPORTED_TARGET_PREFIX "imported_") # Prefix used in other projects to disti
 # Main package configuration file + target specific file
 CONFIGURE_FILE(orocos-rtt-config.cmake.in
                orocos-rtt-config-${OROCOS_TARGET}.cmake @ONLY)
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/orocos-rtt-config.cmake 
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/orocos-rtt-config.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-config-${OROCOS_TARGET}.cmake
         DESTINATION "${CONFIG_FILE_PATH}")
 

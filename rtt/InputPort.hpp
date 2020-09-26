@@ -39,13 +39,13 @@
 #ifndef ORO_INPUT_PORT_HPP
 #define ORO_INPUT_PORT_HPP
 
-#include "base/InputPortInterface.hpp"
-#include "internal/Channels.hpp"
-#include "internal/InputPortSource.hpp"
-#include "Service.hpp"
-#include "OperationCaller.hpp"
+#include "rtt/base/InputPortInterface.hpp"
+#include "rtt/internal/Channels.hpp"
+#include "rtt/internal/InputPortSource.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/OperationCaller.hpp"
 
-#include "OutputPort.hpp"
+#include "rtt/OutputPort.hpp"
 
 namespace RTT
 {

@@ -61,7 +61,7 @@ distribution.
 */
 
 #include <ctype.h>
-#include "tinyxml.h"
+#include "rtt/marsh/tinyxml.h"
 
 #ifdef TIXML_USE_STL
 #include <sstream>

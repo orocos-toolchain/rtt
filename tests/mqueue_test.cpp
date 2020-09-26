@@ -16,23 +16,23 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
 #include <iostream>
 
-#include <Service.hpp>
-#include <transports/mqueue/MQLib.hpp>
-#include <transports/mqueue/MQChannelElement.hpp>
-#include <transports/mqueue/MQTemplateProtocol.hpp>
-#include <os/fosi.h>
+#include "rtt/Service.hpp"
+#include "rtt/transports/mqueue/MQLib.hpp"
+#include "rtt/transports/mqueue/MQChannelElement.hpp"
+#include "rtt/transports/mqueue/MQTemplateProtocol.hpp"
+#include "rtt/os/fosi.h"
 
 using namespace std;
 using namespace RTT;
 using namespace RTT::detail;
 
-#include <InputPort.hpp>
-#include <OutputPort.hpp>
-#include <TaskContext.hpp>
+#include "rtt/InputPort.hpp"
+#include "rtt/OutputPort.hpp"
+#include "rtt/TaskContext.hpp"
 #include <string>
 
 using namespace RTT;

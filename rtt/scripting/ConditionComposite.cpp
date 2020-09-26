@@ -34,7 +34,7 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "ConditionComposite.hpp"
+#include "rtt/scripting/ConditionComposite.hpp"
 
 namespace RTT {
     using namespace scripting;

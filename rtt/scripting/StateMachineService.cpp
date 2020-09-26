@@ -37,12 +37,12 @@
 
 
 
-#include "StateMachineService.hpp"
+#include "rtt/scripting/StateMachineService.hpp"
 
-#include "../Attribute.hpp"
-#include "../FactoryExceptions.hpp"
-#include "../TaskContext.hpp"
-#include "../OperationCaller.hpp"
+#include "rtt/Attribute.hpp"
+#include "rtt/FactoryExceptions.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/OperationCaller.hpp"
 
 namespace RTT
 {

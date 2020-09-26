@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "ConditionInterface.hpp"
+#include "rtt/scripting/ConditionInterface.hpp"
 
 namespace RTT {
     using namespace base;

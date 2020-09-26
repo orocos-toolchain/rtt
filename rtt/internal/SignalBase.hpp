@@ -42,7 +42,7 @@
 #include <boost/intrusive_ptr.hpp>
 #include <boost/function.hpp>
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 #if defined(OROBLD_OS_NO_ASM)
 #define ORO_SIGNAL_USE_RT_LIST
@@ -50,16 +50,16 @@
 #define ORO_SIGNAL_USE_LIST_LOCK_FREE
 #endif
 
-#include "../os/Atomic.hpp"
+#include "rtt/os/Atomic.hpp"
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
-#include "ListLockFree.hpp"
+#include "rtt/internal/ListLockFree.hpp"
 #include <boost/shared_ptr.hpp>
 #else
 #ifdef ORO_SIGNAL_USE_RT_LIST
-#include "../os/Mutex.hpp"
-#include "../os/rt_list.hpp"
+#include "rtt/os/Mutex.hpp"
+#include "rtt/os/rt_list.hpp"
 #else
-#include "../os/Mutex.hpp"
+#include "rtt/os/Mutex.hpp"
 #include <list>
 #endif
 #endif

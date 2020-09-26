@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "oro_atomic.h"
+#include "rtt/os/oro_powerpc/oro_atomic.h"
 
 #ifdef _cplusplus
 extern "C"

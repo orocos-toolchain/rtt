@@ -40,16 +40,16 @@
 // bool needs a special treatment, since the GCC compiler already
 // instantiates it when it sees a line like DataSource<SendStatus>::shared_ptr...
 // So we need to put it before the ports/Operations code which contains lots of these.
-#include "../internal/DataSource.hpp"
-#include "../SendStatus.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/SendStatus.hpp"
   namespace RTT { namespace internal { 
       template class RTT_EXPORT DataSource< RTT::SendStatus >;
     }}
 
-#include "../InputPort.hpp"
-#include "../OutputPort.hpp"
-#include "../Attribute.hpp"
-#include "../Property.hpp"
+#include "rtt/InputPort.hpp"
+#include "rtt/OutputPort.hpp"
+#include "rtt/Attribute.hpp"
+#include "rtt/Property.hpp"
 
 
 

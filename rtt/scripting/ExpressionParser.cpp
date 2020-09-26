@@ -35,32 +35,32 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "parser-debug.hpp"
-#include "parse_exception.hpp"
+#include "rtt/scripting/parser-debug.hpp"
+#include "rtt/scripting/parse_exception.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "ExpressionParser.hpp"
+#include "rtt/scripting/ExpressionParser.hpp"
 //#include "DumpObject.hpp"
 
-#include "ArgumentsParser.hpp"
-#include "../types/Operators.hpp"
-#include "DataSourceCondition.hpp"
-#include "../internal/DataSourceCommand.hpp"
-#include "../internal/GlobalService.hpp"
+#include "rtt/scripting/ArgumentsParser.hpp"
+#include "rtt/types/Operators.hpp"
+#include "rtt/scripting/DataSourceCondition.hpp"
+#include "rtt/internal/DataSourceCommand.hpp"
+#include "rtt/internal/GlobalService.hpp"
 
-#include "DataSourceTime.hpp"
-#include "../TaskContext.hpp"
-#include "PeerParser.hpp"
-#include "../types/Types.hpp"
-#include "SendHandleAlias.hpp"
+#include "rtt/scripting/DataSourceTime.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/scripting/PeerParser.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/scripting/SendHandleAlias.hpp"
 
 #include <boost/lambda/lambda.hpp>
 
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
-#include "rtt-scripting-config.h"
+#include "rtt/scripting/rtt-scripting-config.h"
 #include <iostream>
 
 namespace RTT

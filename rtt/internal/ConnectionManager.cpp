@@ -43,14 +43,14 @@
  *      Author: kaltan
  */
 
-#include "ConnectionManager.hpp"
-#include "PortConnectionLock.hpp"
+#include "rtt/internal/ConnectionManager.hpp"
+#include "rtt/internal/PortConnectionLock.hpp"
 #include <boost/bind.hpp>
 #include <boost/scoped_ptr.hpp>
-#include "../base/PortInterface.hpp"
-#include "../os/MutexLock.hpp"
-#include "../base/InputPortInterface.hpp"
-#include "../Logger.hpp"
+#include "rtt/base/PortInterface.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/base/InputPortInterface.hpp"
+#include "rtt/Logger.hpp"
 #include <cassert>
 
 namespace RTT

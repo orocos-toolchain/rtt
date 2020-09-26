@@ -20,10 +20,10 @@
 #ifndef TASKSTEST_H
 #define TASKSTEST_H
 
-#include <RTT.hpp>
-#include <extras/PeriodicActivity.hpp>
-#include <extras/SimulationActivity.hpp>
-#include <Activity.hpp>
+#include "rtt/RTT.hpp"
+#include "rtt/extras/PeriodicActivity.hpp"
+#include "rtt/extras/SimulationActivity.hpp"
+#include "rtt/Activity.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;

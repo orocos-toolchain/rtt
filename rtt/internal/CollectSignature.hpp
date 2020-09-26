@@ -50,7 +50,7 @@
 #include <boost/mpl/logical.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits.hpp>
-#include "../SendStatus.hpp"
+#include "rtt/SendStatus.hpp"
 
 namespace RTT
 {

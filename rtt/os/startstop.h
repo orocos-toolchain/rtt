@@ -42,7 +42,7 @@
  * Prototype definitions of common os init/exit calls.
  */
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 #include <exception>
 
 /**

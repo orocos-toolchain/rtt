@@ -1,6 +1,6 @@
-#include <rtt/types/Types.hpp>
-#include "types/StructTypeInfo.hpp"
-#include "../../datasource_fixture.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/types/StructTypeInfo.hpp"
+#include "tests/datasource_fixture.hpp"
 
 void loadStructTypes()
 {

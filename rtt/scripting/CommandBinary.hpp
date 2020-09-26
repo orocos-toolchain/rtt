@@ -39,8 +39,8 @@
 #ifndef ORO_COMMANDBINARY_HPP
 #define ORO_COMMANDBINARY_HPP
 
-#include "../base/ActionInterface.hpp"
-#include "../internal/DataSource.hpp"
+#include "rtt/base/ActionInterface.hpp"
+#include "rtt/internal/DataSource.hpp"
 
 namespace RTT
 { namespace scripting {

@@ -39,10 +39,10 @@
 #ifndef OS_CONDITION_HPP
 #define OS_CONDITION_HPP
 
-#include "fosi.h"
-#include "../rtt-config.h"
-#include "Time.hpp"
-#include "Mutex.hpp"
+#include "rtt/os/fosi.h"
+#include "rtt/rtt-config.h"
+#include "rtt/Time.hpp"
+#include "rtt/os/Mutex.hpp"
 #ifdef ORO_OS_USE_BOOST_THREAD
 // BOOST_DATE_TIME_POSIX_TIME_STD_CONFIG is defined in rtt-config.h
 #include <boost/thread/condition.hpp>

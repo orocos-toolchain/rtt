@@ -39,14 +39,14 @@
 #ifndef RTT_SCRIPTING_PARSER_HPP
 #define RTT_SCRIPTING_PARSER_HPP
 
-#include "parser-types.hpp"
+#include "rtt/scripting/parser-types.hpp"
 
 #include <map>
 #include <string>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
-#include "../internal/DataSource.hpp"
-#include "../Service.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/Service.hpp"
 
 namespace RTT
 {

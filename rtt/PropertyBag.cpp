@@ -38,13 +38,13 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "PropertyBag.hpp"
-#include "Property.hpp"
-#include "types/PropertyDecomposition.hpp"
-#include "types/Types.hpp"
-#include "Logger.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/types/PropertyDecomposition.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/Logger.hpp"
 #include <algorithm>
-#include "rtt-fwd.hpp"
+#include "rtt/rtt-fwd.hpp"
 
 #include <boost/scoped_ptr.hpp>
 

@@ -41,9 +41,9 @@
 
 #include <string>
 #include <typeinfo>
-#include "../types/carray.hpp"
-#include "../rtt-config.h"
-#include "../types/rtt-types-fwd.hpp"
+#include "rtt/types/carray.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/types/rtt-types-fwd.hpp"
 
 namespace RTT
 {
@@ -235,4 +235,4 @@ namespace RTT
 
 #endif
 
-#include "DataSourceTypeInfo.inl"
+#include "rtt/internal/DataSourceTypeInfo.inl"

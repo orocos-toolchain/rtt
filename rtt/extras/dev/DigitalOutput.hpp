@@ -38,7 +38,7 @@
 #define DIGITAL_OUTPUT_HPP
 
 
-#include "DigitalOutInterface.hpp"
+#include "rtt/extras/dev/DigitalOutInterface.hpp"
 
 namespace RTT
 { namespace dev {

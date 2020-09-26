@@ -41,10 +41,10 @@
 
 #include <ostream>
 #include <istream>
-#include "../base/DataSourceBase.hpp"
+#include "rtt/base/DataSourceBase.hpp"
 #include <boost/shared_ptr.hpp>
 #include <string>
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 {

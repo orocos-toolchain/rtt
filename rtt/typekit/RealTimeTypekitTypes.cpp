@@ -36,15 +36,15 @@
  ***************************************************************************/
 
 
-#include "rtt-typekit-config.h"
+#include "rtt/typekit/rtt-typekit-config.h"
 // This include must be as soon as possible in order to avoid a gcc
 // compiler warning about visibility.
-#include "Types.inc"
+#include "rtt/typekit/Types.inc"
 
-#include "RealTimeTypekit.hpp"
-#include "StdTypeInfo.hpp"
-#include "BoolTypeInfo.hpp"
-#include "../types/TypeInfoName.hpp"
+#include "rtt/typekit/RealTimeTypekit.hpp"
+#include "rtt/typekit/StdTypeInfo.hpp"
+#include "rtt/typekit/BoolTypeInfo.hpp"
+#include "rtt/types/TypeInfoName.hpp"
 
 
 namespace RTT

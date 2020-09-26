@@ -40,12 +40,12 @@
 #ifndef ORO_PEERPARSER_HPP
 #define ORO_PEERPARSER_HPP
 
-#include "parser-types.hpp"
-#include "CommonParser.hpp"
+#include "rtt/scripting/parser-types.hpp"
+#include "rtt/scripting/CommonParser.hpp"
 #include <queue>
 #include <string>
-#include "rtt-scripting-config.h"
-#include "../rtt-fwd.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/rtt-fwd.hpp"
 
 namespace RTT
 {

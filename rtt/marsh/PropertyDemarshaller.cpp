@@ -37,15 +37,15 @@
 
 
 
-#include "PropertyDemarshaller.hpp"
-#include "rtt-marsh-config.h"
+#include "rtt/marsh/PropertyDemarshaller.hpp"
+#include "rtt/marsh/rtt-marsh-config.h"
 
 #ifdef ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE
 #include ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE
 #endif
 
-#include <Property.hpp>
-#include <Logger.hpp>
+#include "rtt/Property.hpp"
+#include "rtt/Logger.hpp"
 
 namespace RTT
 {

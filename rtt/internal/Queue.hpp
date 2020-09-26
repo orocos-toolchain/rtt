@@ -38,7 +38,7 @@
 #ifndef ORO_QUEUE_HPP
 #define ORO_QUEUE_HPP
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 /**
  * @file Queue.hpp
@@ -47,9 +47,9 @@
  * parameters.
  */
 #if defined(OROBLD_OS_NO_ASM)
-#include "LockedQueue.hpp"
+#include "rtt/internal/LockedQueue.hpp"
 #else
-#include "AtomicQueue.hpp"
+#include "rtt/internal/AtomicQueue.hpp"
 #endif
 
 namespace RTT

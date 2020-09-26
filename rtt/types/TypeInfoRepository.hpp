@@ -43,8 +43,8 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
-#include "TypeInfo.hpp"
-#include "TypeInfoGenerator.hpp"
+#include "rtt/types/TypeInfo.hpp"
+#include "rtt/types/TypeInfoGenerator.hpp"
 
 namespace RTT
 { namespace types {

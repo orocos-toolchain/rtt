@@ -39,7 +39,7 @@
 #ifndef RTT__COMPOSITION_FACTORY_HPP
 #define RTT__COMPOSITION_FACTORY_HPP
 
-#include "../base/DataSourceBase.hpp"
+#include "rtt/base/DataSourceBase.hpp"
 
 namespace RTT {
     namespace types {

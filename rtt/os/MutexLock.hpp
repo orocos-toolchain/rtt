@@ -38,9 +38,9 @@
 #ifndef OS_MUTEXLOCK_HPP
 #define OS_MUTEXLOCK_HPP
 
-#include "fosi.h"
+#include "rtt/os/fosi.h"
 
-#include "Mutex.hpp"
+#include "rtt/os/Mutex.hpp"
 
 namespace RTT
 { namespace os {

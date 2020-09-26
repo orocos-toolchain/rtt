@@ -37,13 +37,13 @@
  
  
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 #include <exception>
 #include <boost/throw_exception.hpp>
 
 #ifdef OROPKG_CORELIB_LOGGER
-#include <Logger.hpp>
+#include "rtt/Logger.hpp"
 #endif
 
 #ifdef OROBLD_OS_NOEXCEPTIONS

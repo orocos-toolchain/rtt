@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "SendHandleAlias.hpp"
+#include "rtt/scripting/SendHandleAlias.hpp"
 
 namespace RTT
 {

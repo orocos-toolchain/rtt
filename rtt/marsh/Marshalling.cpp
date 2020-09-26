@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "Marshalling.hpp"
+#include "rtt/marsh/Marshalling.hpp"
 
 namespace RTT
 {

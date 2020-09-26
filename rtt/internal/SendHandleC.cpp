@@ -36,12 +36,12 @@
  ***************************************************************************/
 
 
-#include "SendHandleC.hpp"
-#include "../FactoryExceptions.hpp"
-#include "DataSourceCommand.hpp"
-#include "../Service.hpp"
-#include "../Logger.hpp"
-#include "Exceptions.hpp"
+#include "rtt/internal/SendHandleC.hpp"
+#include "rtt/FactoryExceptions.hpp"
+#include "rtt/internal/DataSourceCommand.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/internal/Exceptions.hpp"
 #include <vector>
 
 namespace RTT

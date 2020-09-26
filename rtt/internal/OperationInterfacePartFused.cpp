@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "OperationInterfacePartFused.hpp"
+#include "rtt/internal/OperationInterfacePartFused.hpp"
 
 using namespace std;
 using namespace RTT;

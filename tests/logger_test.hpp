@@ -20,7 +20,7 @@
 #ifndef LOGGERTEST_H
 #define LOGGERTEST_H
 
-#include <Logger.hpp>
+#include "rtt/Logger.hpp"
 
 using namespace RTT;
 

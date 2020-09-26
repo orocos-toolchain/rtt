@@ -43,7 +43,7 @@
  *      Author: kaltan
  */
 
-#include "../../internal/ConnID.hpp"
+#include "rtt/internal/ConnID.hpp"
 #include "DataFlowC.h"
 #include <string>
 

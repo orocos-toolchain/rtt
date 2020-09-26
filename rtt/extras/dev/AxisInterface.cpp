@@ -29,4 +29,4 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "AxisInterface.hpp"
+#include "rtt/extras/dev/AxisInterface.hpp"

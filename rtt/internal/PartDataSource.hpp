@@ -39,8 +39,8 @@
 #ifndef ORO_PARTDATASOURCE_HPP_
 #define ORO_PARTDATASOURCE_HPP_
 
-#include "DataSource.hpp"
-#include "../types/carray.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/types/carray.hpp"
 
 namespace RTT
 {

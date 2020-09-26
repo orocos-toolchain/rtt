@@ -35,20 +35,20 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "Operators.hpp"
-#include "OperatorTypes.hpp"
+#include "rtt/types/Operators.hpp"
+#include "rtt/types/OperatorTypes.hpp"
 #include <functional>
 
 // Cappellini Consonni Extension
-#include "../extras/MultiVector.hpp"
+#include "rtt/extras/MultiVector.hpp"
 
-#include "../Logger.hpp"
+#include "rtt/Logger.hpp"
 #include <boost/type_traits.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "../internal/mystd.hpp"
+#include "rtt/internal/mystd.hpp"
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 {

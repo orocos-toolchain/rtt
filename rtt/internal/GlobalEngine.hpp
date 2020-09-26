@@ -39,7 +39,7 @@
 #ifndef ORO_GLOBALENGINE_HPP_
 #define ORO_GLOBALENGINE_HPP_
 
-#include "../ExecutionEngine.hpp"
+#include "rtt/ExecutionEngine.hpp"
 #include <boost/shared_ptr.hpp>
 
 namespace RTT

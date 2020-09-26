@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:19 CET 2008  fosi.h 
+  tag: FMTC  Tue Mar 11 21:49:19 CET 2008  fosi.h
 
                         fosi.h -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,31 +34,31 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
-#include "../rtt-config.h"
+
+
+#include "rtt/rtt-config.h"
 
 #ifdef OROPKG_OS_GNULINUX
- #include "gnulinux/fosi.h"
+ #include "rtt/os/gnulinux/fosi.h"
 #endif
 
 #ifdef OROPKG_OS_LXRT
- #include "lxrt/fosi.h"
+ #include "rtt/os/lxrt/fosi.h"
 #endif
 
 
 #ifdef OROPKG_OS_XENOMAI
- #include "xenomai/fosi.h"
+ #include "rtt/os/xenomai/fosi.h"
 #endif
 
 #ifdef OROPKG_OS_ECOS
- #include "ecos/fosi.h"
+ #include "rtt/os/ecos/fosi.h"
 #endif
 
 #ifdef OROPKG_OS_MACOSX
-  #include "macosx/fosi.h"
+ #include "rtt/os/macosx/fosi.h"
 #endif
 
 #ifdef OROPKG_OS_WIN32
-  #include "win32/fosi.h"
+ #include "rtt/os/win32/fosi.h"
 #endif

@@ -39,7 +39,7 @@
 #ifndef SENSORINTERFACE_HPP
 #define SENSORINTERFACE_HPP
 
-#include "CalibrationInterface.hpp"
+#include "rtt/extras/dev/CalibrationInterface.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface

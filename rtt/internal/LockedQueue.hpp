@@ -40,8 +40,8 @@
 #define ORO_LOCKED_QUEUE_HPP
 
 #include <deque>
-#include "../os/Mutex.hpp"
-#include "../os/MutexLock.hpp"
+#include "rtt/os/Mutex.hpp"
+#include "rtt/os/MutexLock.hpp"
 
 namespace RTT
 { namespace internal {

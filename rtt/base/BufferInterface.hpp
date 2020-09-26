@@ -38,8 +38,8 @@
 #ifndef ORO_CORELIB_BUFFERINTERFACE_HPP
 #define ORO_CORELIB_BUFFERINTERFACE_HPP
 
-#include "BufferBase.hpp"
-#include "../FlowStatus.hpp"
+#include "rtt/base/BufferBase.hpp"
+#include "rtt/FlowStatus.hpp"
 #include <boost/shared_ptr.hpp>
 #include <boost/call_traits.hpp>
 #include <vector>

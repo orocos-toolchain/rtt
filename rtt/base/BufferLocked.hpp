@@ -42,9 +42,9 @@
 #ifndef ORO_CORELIB_BUFFER_LOCKED_HPP
 #define ORO_CORELIB_BUFFER_LOCKED_HPP
 
-#include "../os/Mutex.hpp"
-#include "../os/MutexLock.hpp"
-#include "BufferInterface.hpp"
+#include "rtt/os/Mutex.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/base/BufferInterface.hpp"
 #include <deque>
 
 namespace RTT

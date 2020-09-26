@@ -39,7 +39,7 @@
 #ifndef _TLSF_TARGET_H_
 #define _TLSF_TARGET_H_
 
-#include "../fosi.h"
+#include "rtt/os/fosi.h"
 
 #define TLSF_MLOCK_T            rt_mutex_t
 #define TLSF_CREATE_LOCK(l)     rtos_mutex_init (l)

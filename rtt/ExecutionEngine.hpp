@@ -39,19 +39,19 @@
 #ifndef ORO_EXECUTION_ENGINE_HPP
 #define ORO_EXECUTION_ENGINE_HPP
 
-#include "os/Mutex.hpp"
-#include "os/MutexLock.hpp"
-#include "os/Condition.hpp"
-#include "base/RunnableInterface.hpp"
-#include "base/ActivityInterface.hpp"
-#include "base/DisposableInterface.hpp"
-#include "base/ExecutableInterface.hpp"
-#include "internal/List.hpp"
+#include "rtt/os/Mutex.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/os/Condition.hpp"
+#include "rtt/base/RunnableInterface.hpp"
+#include "rtt/base/ActivityInterface.hpp"
+#include "rtt/base/DisposableInterface.hpp"
+#include "rtt/base/ExecutableInterface.hpp"
+#include "rtt/internal/List.hpp"
 #include <vector>
 #include <boost/function.hpp>
 
-#include "rtt-config.h"
-#include "internal/rtt-internal-fwd.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/internal/rtt-internal-fwd.hpp"
 
 namespace RTT
 {

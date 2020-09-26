@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#include "OperationCallerInterface.hpp"
-#include "../internal/GlobalEngine.hpp"
+#include "rtt/base/OperationCallerInterface.hpp"
+#include "rtt/internal/GlobalEngine.hpp"
 
 using namespace RTT;
 using namespace base;

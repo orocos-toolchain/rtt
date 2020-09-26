@@ -1,7 +1,7 @@
-#include <os/main.h>
-#include <Logger.hpp>
-#include <transports/corba/TaskContextServer.hpp>
-#include <transports/corba/TaskContextProxy.hpp>
+#include "rtt/os/main.h"
+#include "rtt/Logger.hpp"
+#include "rtt/transports/corba/TaskContextServer.hpp"
+#include "rtt/transports/corba/TaskContextProxy.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;

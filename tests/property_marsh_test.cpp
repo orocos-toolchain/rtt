@@ -18,13 +18,13 @@
 
 
 
-#include <marsh/PropertyMarshaller.hpp>
-#include <marsh/PropertyDemarshaller.hpp>
-#include <Property.hpp>
-#include <PropertyBag.hpp>
-#include <types/PropertyComposition.hpp>
+#include "rtt/marsh/PropertyMarshaller.hpp"
+#include "rtt/marsh/PropertyDemarshaller.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/types/PropertyComposition.hpp"
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
 class PropertyMarshTest
 {

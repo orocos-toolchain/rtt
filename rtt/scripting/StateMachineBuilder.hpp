@@ -37,7 +37,7 @@
 
 #include <map>
 #include <string>
-#include "ParsedStateMachine.hpp"
+#include "rtt/scripting/ParsedStateMachine.hpp"
 
 namespace RTT {
 

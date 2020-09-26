@@ -17,17 +17,17 @@
  ***************************************************************************/
 
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include "taskthread_test.hpp"
+#include "tests/taskthread_test.hpp"
 
 #include <iostream>
 
-#include <extras/Activities.hpp>
-#include <extras/TimerThread.hpp>
-#include <extras/SimulationThread.hpp>
-#include <os/MainThread.hpp>
-#include <Logger.hpp>
+#include "rtt/extras/Activities.hpp"
+#include "rtt/extras/TimerThread.hpp"
+#include "rtt/extras/SimulationThread.hpp"
+#include "rtt/os/MainThread.hpp"
+#include "rtt/Logger.hpp"
 #include <rtt-config.h>
 
 using namespace std;

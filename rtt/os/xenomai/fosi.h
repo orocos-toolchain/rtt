@@ -49,7 +49,7 @@
 extern "C" {
 #endif
 
-#include "../../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 	//Xenomai headers
 	//#include <linux/types.h>
@@ -70,7 +70,7 @@ extern "C" {
 #include <time.h>
 #include <limits.h>
 #include <float.h>
-#include "../oro_limits.h"
+#include "rtt/os/oro_limits.h"
 
 #include <xeno_config.h> // version number
 #include <native/task.h>

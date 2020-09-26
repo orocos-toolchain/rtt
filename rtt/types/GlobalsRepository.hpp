@@ -39,7 +39,7 @@
 #ifndef ORO_GLOBALS_REPOSITORY_HPP
 #define ORO_GLOBALS_REPOSITORY_HPP
 
-#include "../ConfigurationInterface.hpp"
+#include "rtt/ConfigurationInterface.hpp"
 
 namespace RTT {
     namespace types {

@@ -16,15 +16,15 @@
  ***************************************************************************/
 
 
-#include "taskthread_test.hpp"
+#include "tests/taskthread_test.hpp"
 
 #include <iostream>
 #include <errno.h>
 
-#include <TaskContext.hpp>
-#include <extras/FileDescriptorActivity.hpp>
-#include <os/MainThread.hpp>
-#include <Logger.hpp>
+#include "rtt/TaskContext.hpp"
+#include "rtt/extras/FileDescriptorActivity.hpp"
+#include "rtt/os/MainThread.hpp"
+#include "rtt/Logger.hpp"
 #include <rtt-config.h>
 
 using namespace std;

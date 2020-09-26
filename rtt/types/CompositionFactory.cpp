@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "TemplateCompositionFactory.hpp"
+#include "rtt/types/TemplateCompositionFactory.hpp"
 
 using namespace RTT;
 using namespace RTT::types;

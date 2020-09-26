@@ -39,9 +39,9 @@
 #ifndef ORO_MEMBER_FACTORY_HPP
 #define ORO_MEMBER_FACTORY_HPP
 
-#include "../base/DataSourceBase.hpp"
-#include "../rtt-config.h"
-#include "../internal/Reference.hpp"
+#include "rtt/base/DataSourceBase.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/internal/Reference.hpp"
 #include <vector>
 #include <string>
 

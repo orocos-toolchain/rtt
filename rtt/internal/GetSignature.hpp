@@ -39,7 +39,7 @@
 #ifndef ORO_GETSIGNATURE_HPP
 #define ORO_GETSIGNATURE_HPP
 
-#include "UnMember.hpp"
+#include "rtt/internal/UnMember.hpp"
 
 namespace RTT
 {

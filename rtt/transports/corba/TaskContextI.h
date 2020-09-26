@@ -69,7 +69,7 @@
 #ifndef ORO_CORBA_TASKCONTEXTI_H_
 #define ORO_CORBA_TASKCONTEXTI_H_
 
-#include "corba.h"
+#include "rtt/transports/corba/corba.h"
 #ifdef CORBA_IS_TAO
 #include "TaskContextS.h"
 #else
@@ -79,7 +79,7 @@
 #include "ServiceC.h"
 #include "ServiceRequesterC.h"
 #include "DataFlowC.h"
-#include "../../TaskContext.hpp"
+#include "rtt/TaskContext.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once

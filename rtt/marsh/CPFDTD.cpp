@@ -37,7 +37,7 @@
 
 
 
-#include "CPFDTD.hpp"
+#include "rtt/marsh/CPFDTD.hpp"
 
 namespace RTT {
     namespace marsh

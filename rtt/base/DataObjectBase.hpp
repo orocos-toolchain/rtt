@@ -29,7 +29,7 @@
 #ifndef CORELIB_DATAOBJECTBASE_HPP
 #define CORELIB_DATAOBJECTBASE_HPP
 
-#include "../rtt-fwd.hpp"
+#include "rtt/rtt-fwd.hpp"
 
 namespace RTT
 { namespace base {

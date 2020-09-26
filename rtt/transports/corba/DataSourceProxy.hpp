@@ -39,12 +39,12 @@
 #ifndef ORO_CORBA_DATASOURCE_PROXY_HPP
 #define ORO_CORBA_DATASOURCE_PROXY_HPP
 
-#include "../../internal/DataSource.hpp"
-#include "../../Logger.hpp"
-#include "../../base/ActionInterface.hpp"
-#include "CorbaConversion.hpp"
-#include "CorbaTypeTransporter.hpp"
-#include "CorbaLib.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/base/ActionInterface.hpp"
+#include "rtt/transports/corba/CorbaConversion.hpp"
+#include "rtt/transports/corba/CorbaTypeTransporter.hpp"
+#include "rtt/transports/corba/CorbaLib.hpp"
 #include <cassert>
 
 namespace RTT

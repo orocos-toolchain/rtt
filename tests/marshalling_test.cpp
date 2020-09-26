@@ -16,13 +16,13 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include "operations_fixture.hpp"
-#include <marsh/Marshalling.hpp>
-#include <marsh/MarshallingService.hpp>
-#include "plugin/PluginLoader.hpp"
-#include "datasource_fixture.hpp"
+#include "tests/operations_fixture.hpp"
+#include "rtt/marsh/Marshalling.hpp"
+#include "rtt/marsh/MarshallingService.hpp"
+#include "rtt/plugin/PluginLoader.hpp"
+#include "tests/datasource_fixture.hpp"
 
 using namespace std;
 using namespace boost;

@@ -39,11 +39,11 @@
 #ifndef RTT_CORBA_REMOTE_PORTS_HPP
 #define RTT_CORBA_REMOTE_PORTS_HPP
 
-#include "../../base/PortInterface.hpp"
-#include "../../base/ChannelElement.hpp"
-#include "../../InputPort.hpp"
-#include "../../OutputPort.hpp"
-#include "DataFlowI.h"
+#include "rtt/base/PortInterface.hpp"
+#include "rtt/base/ChannelElement.hpp"
+#include "rtt/InputPort.hpp"
+#include "rtt/OutputPort.hpp"
+#include "rtt/transports/corba/DataFlowI.h"
 #include <cassert>
 
 namespace RTT {

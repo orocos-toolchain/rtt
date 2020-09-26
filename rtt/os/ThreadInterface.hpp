@@ -39,10 +39,10 @@
 #ifndef OS_THREAD_INTERFACE_HPP
 #define OS_THREAD_INTERFACE_HPP
 
-#include "fosi.h"
-#include "threads.hpp"
-#include "Time.hpp"
-#include "../rtt-config.h"
+#include "rtt/os/fosi.h"
+#include "rtt/os/threads.hpp"
+#include "rtt/Time.hpp"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 {

@@ -16,18 +16,18 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "unit.hpp"
-#include <InputPort.hpp>
-#include <OutputPort.hpp>
+#include "tests/unit.hpp"
+#include "rtt/InputPort.hpp"
+#include "rtt/OutputPort.hpp"
 
-#include <TaskContext.hpp>
-#include <extras/SlaveActivity.hpp>
-#include <extras/SequentialActivity.hpp>
-#include <extras/SimulationActivity.hpp>
-#include <extras/SimulationThread.hpp>
+#include "rtt/TaskContext.hpp"
+#include "rtt/extras/SlaveActivity.hpp"
+#include "rtt/extras/SequentialActivity.hpp"
+#include "rtt/extras/SimulationActivity.hpp"
+#include "rtt/extras/SimulationThread.hpp"
 
 #include <boost/function_types/function_type.hpp>
-#include <OperationCaller.hpp>
+#include "rtt/OperationCaller.hpp"
 
 #include <rtt-config.h>
 

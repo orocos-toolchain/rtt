@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#include "ActivityInterface.hpp"
-#include "RunnableInterface.hpp"
+#include "rtt/base/ActivityInterface.hpp"
+#include "rtt/base/RunnableInterface.hpp"
 
 using namespace RTT;
 using namespace RTT::base;

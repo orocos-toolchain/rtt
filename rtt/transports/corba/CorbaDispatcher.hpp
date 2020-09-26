@@ -39,15 +39,15 @@
 #ifndef ORO_CORBA_DISPATCHER_HPP
 #define ORO_CORBA_DISPATCHER_HPP
 
-#include "../../os/MutexLock.hpp"
-#include "../../Activity.hpp"
-#include "../../base/ChannelElementBase.hpp"
-#include "../../Logger.hpp"
-#include "../../internal/List.hpp"
-#include "../../types/GlobalsRepository.hpp"
-#include "DataFlowI.h"
-#include "../../DataFlowInterface.hpp"
-#include "../../TaskContext.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/Activity.hpp"
+#include "rtt/base/ChannelElementBase.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/internal/List.hpp"
+#include "rtt/types/GlobalsRepository.hpp"
+#include "rtt/transports/corba/DataFlowI.h"
+#include "rtt/DataFlowInterface.hpp"
+#include "rtt/TaskContext.hpp"
 
 namespace RTT {
     namespace corba {

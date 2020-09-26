@@ -39,7 +39,7 @@
 #ifndef ORO_ATTRIBUTE_BASE_HPP
 #define ORO_ATTRIBUTE_BASE_HPP
 
-#include "DataSourceBase.hpp"
+#include "rtt/base/DataSourceBase.hpp"
 
 namespace RTT
 { namespace base {

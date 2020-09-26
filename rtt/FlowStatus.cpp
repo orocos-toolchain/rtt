@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "FlowStatus.hpp"
+#include "rtt/FlowStatus.hpp"
 #include <string>
 
 using namespace std;

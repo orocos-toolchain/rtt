@@ -26,7 +26,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "BufferPolicy.hpp"
+#include "rtt/BufferPolicy.hpp"
 #include <iostream>
 
 namespace RTT {

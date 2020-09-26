@@ -29,7 +29,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "HomingInterface.hpp"
+#include "rtt/extras/dev/HomingInterface.hpp"
 
 namespace RTT {
     using namespace dev;

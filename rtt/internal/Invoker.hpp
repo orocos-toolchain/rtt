@@ -42,8 +42,8 @@
 #include <boost/function.hpp>
 #include <boost/function_types/function_type.hpp>
 #include <boost/type_traits.hpp>
-#include "InvokerBase.hpp"
-#include "Return.hpp"
+#include "rtt/internal/InvokerBase.hpp"
+#include "rtt/internal/Return.hpp"
 
 namespace RTT
 {

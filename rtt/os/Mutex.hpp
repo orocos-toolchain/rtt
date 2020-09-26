@@ -39,12 +39,12 @@
 #ifndef OS_MUTEX_HPP
 #define OS_MUTEX_HPP
 
-#include "fosi.h"
-#include "../rtt-config.h"
-#include "rtt-os-fwd.hpp"
-#include "CAS.hpp"
-#include "Semaphore.hpp"
-#include "Time.hpp"
+#include "rtt/os/fosi.h"
+#include "rtt/rtt-config.h"
+#include "rtt/os/rtt-os-fwd.hpp"
+#include "rtt/os/CAS.hpp"
+#include "rtt/os/Semaphore.hpp"
+#include "rtt/Time.hpp"
 
 #include <cassert>
 

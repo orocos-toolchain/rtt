@@ -36,9 +36,9 @@
  ***************************************************************************/
 
 
-#include "../internal/Channels.hpp"
-#include "../os/Atomic.hpp"
-#include "../os/MutexLock.hpp"
+#include "rtt/internal/Channels.hpp"
+#include "rtt/os/Atomic.hpp"
+#include "rtt/os/MutexLock.hpp"
 #include <boost/lexical_cast.hpp>
 
 using namespace RTT;

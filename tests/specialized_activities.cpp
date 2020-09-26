@@ -6,14 +6,14 @@
   #define write _write
 #endif
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include "specialized_activities.hpp"
-#include <extras/FileDescriptorActivity.hpp>
+#include "tests/specialized_activities.hpp"
+#include "rtt/extras/FileDescriptorActivity.hpp"
 #include <iostream>
 #include <memory>
 
-#include <rtt-detail-fwd.hpp>
+#include "rtt/rtt-detail-fwd.hpp"
 using namespace RTT::detail;
 
 using namespace std;

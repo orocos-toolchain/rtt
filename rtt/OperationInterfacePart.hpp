@@ -42,9 +42,9 @@
 #include <string>
 #include <vector>
 
-#include "base/DataSourceBase.hpp"
-#include "internal/DataSource.hpp"
-#include "ArgumentDescription.hpp"
+#include "rtt/base/DataSourceBase.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/ArgumentDescription.hpp"
 
 
 namespace RTT

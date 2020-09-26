@@ -36,12 +36,12 @@
  ***************************************************************************/
 
 
-#include "OperationInterface.hpp"
-#include "FactoryExceptions.hpp"
+#include "rtt/OperationInterface.hpp"
+#include "rtt/FactoryExceptions.hpp"
 #include <algorithm>
-#include "internal/mystd.hpp"
-#include "internal/Exceptions.hpp"
-#include "Handle.hpp"
+#include "rtt/internal/mystd.hpp"
+#include "rtt/internal/Exceptions.hpp"
+#include "rtt/Handle.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;

@@ -84,11 +84,11 @@
 
 #include <vector>
 #include <string>
-#include "../base/DataSourceBase.hpp"
-#include "../internal/PartDataSource.hpp"
-#include "../internal/DataSources.hpp"
-#include "../internal/Reference.hpp"
-#include "carray.hpp"
+#include "rtt/base/DataSourceBase.hpp"
+#include "rtt/internal/PartDataSource.hpp"
+#include "rtt/internal/DataSources.hpp"
+#include "rtt/internal/Reference.hpp"
+#include "rtt/types/carray.hpp"
 
 namespace RTT
 {

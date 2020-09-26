@@ -39,15 +39,15 @@
 #ifndef ORO_CORBA_TEMPATE_PROTOCOL_HPP
 #define ORO_CORBA_TEMPATE_PROTOCOL_HPP
 
-#include "CorbaTypeTransporter.hpp"
-#include "RemoteChannelElement.hpp"
-#include "../../types/Types.hpp"
-#include "../../InputPort.hpp"
-#include "../../OutputPort.hpp"
+#include "rtt/transports/corba/CorbaTypeTransporter.hpp"
+#include "rtt/transports/corba/RemoteChannelElement.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/InputPort.hpp"
+#include "rtt/OutputPort.hpp"
 #include "ServiceC.h"
-#include "DataFlowI.h"
-#include "../../internal/ConnID.hpp"
-#include "DataSourceProxy.hpp"
+#include "rtt/transports/corba/DataFlowI.h"
+#include "rtt/internal/ConnID.hpp"
+#include "rtt/transports/corba/DataSourceProxy.hpp"
 
 namespace RTT
 { namespace corba

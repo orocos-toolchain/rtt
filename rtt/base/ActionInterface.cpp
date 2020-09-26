@@ -39,8 +39,8 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "ActionInterface.hpp"
-#include "rtt-fwd.hpp"
+#include "rtt/base/ActionInterface.hpp"
+#include "rtt/rtt-fwd.hpp"
 
 namespace RTT {
     using namespace detail;

@@ -41,10 +41,10 @@
 
 #include <boost/function.hpp>
 #include <string>
-#include "../base/OperationCallerBase.hpp"
-#include "OperationCallerC.hpp"
-#include "DataSourceStorage.hpp"
-#include "Invoker.hpp"
+#include "rtt/base/OperationCallerBase.hpp"
+#include "rtt/internal/OperationCallerC.hpp"
+#include "rtt/internal/DataSourceStorage.hpp"
+#include "rtt/internal/Invoker.hpp"
 
 #include <boost/fusion/include/vector_tie.hpp>
 #include <boost/fusion/include/filter_if.hpp>

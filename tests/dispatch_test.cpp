@@ -16,17 +16,17 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include "dispatch_test.hpp"
+#include "tests/dispatch_test.hpp"
 
 #include <iostream>
 #include <sstream>
-#include <scripting/FunctionGraph.hpp>
-#include <extras/SimulationThread.hpp>
-#include <OperationCaller.hpp>
-#include <OperationCaller.hpp>
-#include <Service.hpp>
+#include "rtt/scripting/FunctionGraph.hpp"
+#include "rtt/extras/SimulationThread.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/Service.hpp"
 
 using namespace std;
 

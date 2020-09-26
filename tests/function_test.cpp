@@ -17,15 +17,15 @@
  ***************************************************************************/
 
 
-#include "unit.hpp"
-#include "operations_fixture.hpp"
+#include "tests/unit.hpp"
+#include "tests/operations_fixture.hpp"
 
 
-#include <scripting/Parser.hpp>
-#include <scripting/FunctionGraph.hpp>
-#include <scripting/ScriptingService.hpp>
-#include <Service.hpp>
-#include <OperationCaller.hpp>
+#include "rtt/scripting/Parser.hpp"
+#include "rtt/scripting/FunctionGraph.hpp"
+#include "rtt/scripting/ScriptingService.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/OperationCaller.hpp"
 
 class FunctionsFixture : public OperationsFixture
 {

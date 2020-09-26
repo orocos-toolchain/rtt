@@ -38,12 +38,12 @@ template <typename T, PortTypes> struct Adaptor;
          (RTT_VERSION_MINOR > minor) || (RTT_VERSION_MINOR == minor && \
          (RTT_VERSION_PATCH >= patch))))
 
-    #include "TaskContext.hpp"
+    #include "rtt/TaskContext.hpp"
     #include "DataPort.hpp"
     #include "BufferPort.hpp"
-    #include "ConnPolicy.hpp"
-    #include "Activity.hpp"
-    #include "SlaveActivity.hpp"
+    #include "rtt/ConnPolicy.hpp"
+    #include "rtt/Activity.hpp"
+    #include "rtt/extras/SlaveActivity.hpp"
 
     using RTT::TaskContext;
     using RTT::OS::HighestPriority;
@@ -278,11 +278,11 @@ template <typename T, PortTypes> struct Adaptor;
     };
 
 #else
-    #include <rtt/TaskContext.hpp>
-    #include <rtt/InputPort.hpp>
-    #include <rtt/OutputPort.hpp>
-    #include <rtt/extras/SlaveActivity.hpp>
-    #include <rtt/Activity.hpp>
+    #include "rtt/TaskContext.hpp"
+    #include "rtt/InputPort.hpp"
+    #include "rtt/OutputPort.hpp"
+    #include "rtt/extras/SlaveActivity.hpp"
+    #include "rtt/Activity.hpp"
 
     using RTT::TaskContext;
     using RTT::FlowStatus;

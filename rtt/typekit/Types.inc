@@ -36,19 +36,19 @@
  ***************************************************************************/
 
 
-#include "../internal/DataSource.hpp"
-#include "../internal/DataSources.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/internal/DataSources.hpp"
 
-#include "../InputPort.hpp"
-#include "../OutputPort.hpp"
-#include "../Attribute.hpp"
-#include "../Property.hpp"
+#include "rtt/InputPort.hpp"
+#include "rtt/OutputPort.hpp"
+#include "rtt/Attribute.hpp"
+#include "rtt/Property.hpp"
 
   namespace RTT {
-    template class RTT_EXPORT OutputPort< bool >; 
-    template class RTT_EXPORT InputPort< bool >; 
-    template class RTT_EXPORT Property< bool >; 
-    template class RTT_EXPORT Attribute< bool >; 
+    template class RTT_EXPORT OutputPort< bool >;
+    template class RTT_EXPORT InputPort< bool >;
+    template class RTT_EXPORT Property< bool >;
+    template class RTT_EXPORT Attribute< bool >;
 
     template class RTT_EXPORT OutputPort< std::string >;
     template class RTT_EXPORT InputPort< std::string >;
@@ -78,7 +78,7 @@ RTT_EXPORT_TEMPLATE_TYPE(unsigned long long)
 RTT_EXPORT_TEMPLATE_TYPE(float)
 RTT_EXPORT_TEMPLATE_TYPE(char)
 
-#include <rtt/rt_string.hpp>
+#include "rtt/rt_string.hpp"
 
 RTT_EXPORT_TEMPLATE_TYPE(RTT::rt_string)
 

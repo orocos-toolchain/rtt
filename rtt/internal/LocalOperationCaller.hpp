@@ -43,16 +43,16 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include <string>
-#include "Invoker.hpp"
-#include "../base/OperationCallerBase.hpp"
-#include "../base/OperationBase.hpp"
-#include "BindStorage.hpp"
-#include "../SendStatus.hpp"
-#include "../SendHandle.hpp"
-#include "../ExecutionEngine.hpp"
-#include "OperationCallerBinder.hpp"
+#include "rtt/internal/Invoker.hpp"
+#include "rtt/base/OperationCallerBase.hpp"
+#include "rtt/base/OperationBase.hpp"
+#include "rtt/internal/BindStorage.hpp"
+#include "rtt/SendStatus.hpp"
+#include "rtt/SendHandle.hpp"
+#include "rtt/ExecutionEngine.hpp"
+#include "rtt/internal/OperationCallerBinder.hpp"
 #include <boost/fusion/include/vector_tie.hpp>
-#include "../os/oro_allocator.hpp"
+#include "rtt/os/oro_allocator.hpp"
 
 #include <iostream>
 // For doing I/O

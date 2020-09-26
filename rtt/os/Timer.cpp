@@ -36,11 +36,11 @@
  ***************************************************************************/
 
 
-#include "Timer.hpp"
-#include "MutexLock.hpp"
-#include "../Activity.hpp"
-#include "../Logger.hpp"
-#include "../os/fosi.h"
+#include "rtt/os/Timer.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/Activity.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/os/fosi.h"
 #include <limits>
 
 namespace RTT {

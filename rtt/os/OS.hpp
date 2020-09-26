@@ -40,10 +40,10 @@
  *  This file includes commonly used headers from the Orocos OS package. 
  */
 
-#include "Thread.hpp"
-#include "Mutex.hpp"
-#include "MutexLock.hpp"
-#include "Semaphore.hpp"
+#include "rtt/os/Thread.hpp"
+#include "rtt/os/Mutex.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/os/Semaphore.hpp"
 
 namespace RTT
 { 

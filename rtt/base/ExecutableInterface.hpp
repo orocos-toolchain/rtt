@@ -39,8 +39,8 @@
 #ifndef EXECUTABLE_INTERFACE_HPP
 #define EXECUTABLE_INTERFACE_HPP
 
-#include "../rtt-fwd.hpp"
-#include "../rtt-config.h"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/rtt-config.h"
 
 #include <cassert>
 

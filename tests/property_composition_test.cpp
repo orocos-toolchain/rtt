@@ -1,11 +1,11 @@
 #include <typeinfo>
-#include <internal/DataSourceTypeInfo.hpp>
-#include <types/PropertyComposition.hpp>
-#include <Property.hpp>
-#include <PropertyBag.hpp>
-#include <Logger.hpp>
+#include "rtt/internal/DataSourceTypeInfo.hpp"
+#include "rtt/types/PropertyComposition.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/Logger.hpp"
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
 class PropertyCompositionTest
 {

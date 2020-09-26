@@ -37,13 +37,13 @@
 
 
 
-#include "StatementProcessor.hpp"
-#include "Parser.hpp"
-#include "parse_exception.hpp"
+#include "rtt/scripting/StatementProcessor.hpp"
+#include "rtt/scripting/Parser.hpp"
+#include "rtt/scripting/parse_exception.hpp"
 
-#include "../TaskContext.hpp"
-#include "../types/TypeStream.hpp"
-#include "../Logger.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/types/TypeStream.hpp"
+#include "rtt/Logger.hpp"
 
 #include <vector>
 #include <boost/tuple/tuple.hpp>

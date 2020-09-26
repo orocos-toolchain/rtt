@@ -38,11 +38,11 @@
 #ifndef PROPERTYBAGINTROSPECTOR_HPP
 #define PROPERTYBAGINTROSPECTOR_HPP
 
-#include "../marsh/rtt-marsh-config.h"
-#include "../PropertyBag.hpp"
-#include "../Property.hpp"
-#include "../base/PropertyIntrospection.hpp"
-#include "../types/PropertyDecomposition.hpp"
+#include "rtt/marsh/rtt-marsh-config.h"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/base/PropertyIntrospection.hpp"
+#include "rtt/types/PropertyDecomposition.hpp"
 #include <stack>
 
 namespace RTT

@@ -51,10 +51,10 @@
 #include <boost/fusion/mpl.hpp>
 #include <boost/utility/enable_if.hpp>
 
-#include "DataSource.hpp"
-#include "Exceptions.hpp"
-#include "../FactoryExceptions.hpp"
-#include "mystd.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/internal/Exceptions.hpp"
+#include "rtt/FactoryExceptions.hpp"
+#include "rtt/internal/mystd.hpp"
 
 #include <iostream>
 

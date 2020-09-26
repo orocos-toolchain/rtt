@@ -39,9 +39,9 @@
 #ifndef ORO_DUMP_OBJECT_HPP
 #define ORO_DUMP_OBJECT_HPP
 
-#include "rtt-scripting-config.h"
-#include "../rtt-fwd.hpp"
-#include "../Service.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/Service.hpp"
 
 namespace RTT { namespace scripting {
 

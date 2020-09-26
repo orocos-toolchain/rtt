@@ -37,14 +37,14 @@
 
 
 
-#include "SimulationThread.hpp"
-#include "../os/TimeService.hpp"
-#include "SimulationActivity.hpp"
-#include "../Logger.hpp"
-#include "../os/threads.hpp"
-#include "../os/MainThread.hpp"
+#include "rtt/extras/SimulationThread.hpp"
+#include "rtt/os/TimeService.hpp"
+#include "rtt/extras/SimulationActivity.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/os/threads.hpp"
+#include "rtt/os/MainThread.hpp"
 
-#include "../os/StartStopManager.hpp"
+#include "rtt/os/StartStopManager.hpp"
 namespace RTT {
     using namespace extras;
     namespace

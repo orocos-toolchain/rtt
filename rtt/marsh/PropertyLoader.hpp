@@ -40,8 +40,8 @@
 #define ORO_PROPERTY_LOADER_HPP
 
 #include <string>
-#include "../marsh/rtt-marsh-config.h"
-#include "../rtt-fwd.hpp"
+#include "rtt/marsh/rtt-marsh-config.h"
+#include "rtt/rtt-fwd.hpp"
 
 namespace RTT
 { namespace marsh {

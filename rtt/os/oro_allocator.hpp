@@ -43,8 +43,8 @@
 #include <utility>
 #include <map>
 
-#include "MutexLock.hpp"
-#include "oro_malloc.h"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/os/oro_malloc.h"
 
 namespace RTT { namespace os {
     /**

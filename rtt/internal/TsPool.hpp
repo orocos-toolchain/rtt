@@ -46,7 +46,7 @@
 #ifndef RTT_TSPOOL_HPP_
 #define RTT_TSPOOL_HPP_
 
-#include "../os/CAS.hpp"
+#include "rtt/os/CAS.hpp"
 #include <assert.h>
 
 namespace RTT

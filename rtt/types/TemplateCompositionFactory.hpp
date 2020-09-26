@@ -39,9 +39,9 @@
 #ifndef RTT_TEMPLATE_COMPOSITION_FACTORY_HPP
 #define RTT_TEMPLATE_COMPOSITION_FACTORY_HPP
 
-#include "CompositionFactory.hpp"
-#include "../Property.hpp"
-#include "../PropertyBag.hpp"
+#include "rtt/types/CompositionFactory.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/PropertyBag.hpp"
 
 namespace RTT {
     namespace types {

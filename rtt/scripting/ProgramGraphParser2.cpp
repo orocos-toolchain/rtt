@@ -35,9 +35,9 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "parser-debug.hpp"
-#include "parse_exception.hpp"
-#include "ProgramGraphParser.hpp"
+#include "rtt/scripting/parser-debug.hpp"
+#include "rtt/scripting/parse_exception.hpp"
+#include "rtt/scripting/ProgramGraphParser.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lambda/lambda.hpp>

@@ -38,8 +38,8 @@
 #ifndef PROGRAMGRAPH_HPP
 #define PROGRAMGRAPH_HPP
 
-#include "FunctionGraph.hpp"
-#include "../base/DataSourceBase.hpp"
+#include "rtt/scripting/FunctionGraph.hpp"
+#include "rtt/base/DataSourceBase.hpp"
 
 #include <utility>                   // for std::pair
 #include <stack>

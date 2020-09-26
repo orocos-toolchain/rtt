@@ -38,15 +38,15 @@
 #ifndef VALUECHANGEPARSER_HPP
 #define VALUECHANGEPARSER_HPP
 
-#include "parser-types.hpp"
+#include "rtt/scripting/parser-types.hpp"
 
-#include "../Attribute.hpp"
-#include "CommonParser.hpp"
-#include "ExpressionParser.hpp"
-#include "PeerParser.hpp"
-#include "PropertyParser.hpp"
-#include "../types/Types.hpp"
-#include "../Service.hpp"
+#include "rtt/Attribute.hpp"
+#include "rtt/scripting/CommonParser.hpp"
+#include "rtt/scripting/ExpressionParser.hpp"
+#include "rtt/scripting/PeerParser.hpp"
+#include "rtt/scripting/PropertyParser.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/Service.hpp"
 
 namespace RTT { namespace scripting
 {

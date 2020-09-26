@@ -36,14 +36,14 @@
  ***************************************************************************/
 
 
-#include "rtt-typekit-config.h"
+#include "rtt/typekit/rtt-typekit-config.h"
 
-#include "RealTimeTypekit.hpp"
+#include "rtt/typekit/RealTimeTypekit.hpp"
 #ifndef RTT_NO_STD_TYPES
-#include "StdStringTypeInfo.hpp"
+#include "rtt/typekit/StdStringTypeInfo.hpp"
 #endif
 #ifdef OS_RT_MALLOC
-#include "RTStringTypeInfo.hpp"
+#include "rtt/typekit/RTStringTypeInfo.hpp"
 #endif
 
 namespace RTT

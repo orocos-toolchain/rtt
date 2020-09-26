@@ -34,7 +34,7 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "ConditionBool.hpp"
+#include "rtt/scripting/ConditionBool.hpp"
 
 namespace RTT {
     using namespace scripting;

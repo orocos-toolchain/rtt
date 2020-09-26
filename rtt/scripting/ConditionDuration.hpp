@@ -39,9 +39,9 @@
 #ifndef CONDITIONDURATION_HPP
 #define CONDITIONDURATION_HPP
 
-#include "rtt-scripting-config.h"
-#include "ConditionInterface.hpp"
-#include "../os/TimeService.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/scripting/ConditionInterface.hpp"
+#include "rtt/os/TimeService.hpp"
 
 namespace RTT
 { namespace scripting {

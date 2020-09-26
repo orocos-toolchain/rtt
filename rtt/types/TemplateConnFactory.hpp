@@ -40,11 +40,11 @@
 #define ORO_TEMPLATE_CONN_FACTORY_HPP
 
 #include <string>
-#include "../internal/ConnFactory.hpp"
+#include "rtt/internal/ConnFactory.hpp"
 
-#include "../InputPort.hpp"
-#include "../OutputPort.hpp"
-#include "../Logger.hpp"
+#include "rtt/InputPort.hpp"
+#include "rtt/OutputPort.hpp"
+#include "rtt/Logger.hpp"
 
 namespace RTT
 { namespace types {

@@ -39,8 +39,8 @@
 #ifndef ORO_OUTPUT_PORT_INTERFACE_HPP
 #define ORO_OUTPUT_PORT_INTERFACE_HPP
 
-#include "PortInterface.hpp"
-#include "DataSourceBase.hpp"
+#include "rtt/base/PortInterface.hpp"
+#include "rtt/base/DataSourceBase.hpp"
 
 namespace RTT
 { namespace base {

@@ -39,10 +39,10 @@
 #ifndef ORO_SCRIPTING_HPP_
 #define ORO_SCRIPTING_HPP_
 
-#include "../ServiceRequester.hpp"
-#include "ProgramInterface.hpp"
-#include "StateMachine.hpp"
-#include "../OperationCaller.hpp"
+#include "rtt/ServiceRequester.hpp"
+#include "rtt/scripting/ProgramInterface.hpp"
+#include "rtt/scripting/StateMachine.hpp"
+#include "rtt/OperationCaller.hpp"
 #include <string>
 
 namespace RTT

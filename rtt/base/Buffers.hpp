@@ -48,9 +48,9 @@
  * such as Buffers and DataObjects.
  */
 
-#include "Buffer.hpp"
-#include "BufferLocked.hpp"
-#include "BufferLockFree.hpp"
-#include "DataObject.hpp"
-#include "DataObjectLockFree.hpp"
-#include "DataObjectLocked.hpp"
+#include "rtt/base/Buffer.hpp"
+#include "rtt/base/BufferLocked.hpp"
+#include "rtt/base/BufferLockFree.hpp"
+#include "rtt/base/DataObject.hpp"
+#include "rtt/base/DataObjectLockFree.hpp"
+#include "rtt/base/DataObjectLocked.hpp"

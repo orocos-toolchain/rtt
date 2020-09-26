@@ -36,9 +36,9 @@
  ***************************************************************************/
 
 
-#include "../rt_string.hpp"
-#include "../types/SequenceTypeInfo.hpp"
-#include "../types/TemplateTypeInfo.hpp"
+#include "rtt/rt_string.hpp"
+#include "rtt/types/SequenceTypeInfo.hpp"
+#include "rtt/types/TemplateTypeInfo.hpp"
 
 namespace RTT
 {

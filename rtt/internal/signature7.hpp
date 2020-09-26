@@ -44,7 +44,7 @@
 #define OROCOS_SIGNATURE_ARG_TYPES typedef T1 arg1_type;typedef T2 arg2_type;typedef T3 arg3_type;typedef T4 arg4_type;typedef T5 arg5_type;typedef T6 arg6_type;typedef T7 arg7_type;
 #define OROCOS_SIGNATURE_TYPEDEFS typedef typename function_type::arg1_type arg1_type;typedef typename function_type::arg2_type arg2_type;typedef typename function_type::arg3_type arg3_type;typedef typename function_type::arg4_type arg4_type;typedef typename function_type::arg5_type arg5_type;typedef typename function_type::arg6_type arg6_type;typedef typename function_type::arg7_type arg7_type;
 
-#include "signature_template.hpp"
+#include "rtt/internal/signature_template.hpp"
 
 #undef OROCOS_SIGNATURE_TYPEDEFS
 #undef OROCOS_SIGNATURE_ARG_TYPES

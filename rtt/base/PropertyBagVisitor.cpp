@@ -36,12 +36,12 @@
  ***************************************************************************/
 
 
-#include "PropertyBagVisitor.hpp"
-#include "../types/PropertyDecomposition.hpp"
-#include "../types/Types.hpp"
-#include "../Property.hpp"
-#include "../PropertyBag.hpp"
-#include "../Logger.hpp"
+#include "rtt/base/PropertyBagVisitor.hpp"
+#include "rtt/types/PropertyDecomposition.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/Logger.hpp"
 
 namespace RTT {
     using namespace detail;

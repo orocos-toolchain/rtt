@@ -39,7 +39,7 @@
 #ifndef RTT_INTERNAL_REFERENCE_HPP
 #define RTT_INTERNAL_REFERENCE_HPP
 
-#include "../base/DataSourceBase.hpp"
+#include "rtt/base/DataSourceBase.hpp"
 
 namespace RTT 
 {

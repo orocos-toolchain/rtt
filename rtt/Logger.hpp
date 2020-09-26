@@ -39,7 +39,7 @@
 #ifndef ORO_CORELIB_lOGGER_HPP
 #define ORO_CORELIB_lOGGER_HPP
 
-#include "rtt-config.h"
+#include "rtt/rtt-config.h"
 #ifndef OROBLD_DISABLE_LOGGING
 #include <ostream>
 #include <sstream>
@@ -51,9 +51,9 @@
 #include <iostream>            // for std::cerr
 #endif
 
-#include "os/TimeService.hpp"
-#include "os/Mutex.hpp"
-#include "os/MutexLock.hpp"
+#include "rtt/os/TimeService.hpp"
+#include "rtt/os/Mutex.hpp"
+#include "rtt/os/MutexLock.hpp"
 
 namespace RTT
 {
@@ -381,6 +381,6 @@ namespace RTT
     static inline Logger::LogFunction flushlog() {return Logger::flush; }
 }
 
-#include "Logger.inl"
+#include "rtt/Logger.inl"
 
 #endif

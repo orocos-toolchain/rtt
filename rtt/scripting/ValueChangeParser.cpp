@@ -35,22 +35,22 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "parser-debug.hpp"
-#include "parse_exception.hpp"
-#include "ValueChangeParser.hpp"
+#include "rtt/scripting/parser-debug.hpp"
+#include "rtt/scripting/parse_exception.hpp"
+#include "rtt/scripting/ValueChangeParser.hpp"
 
-#include "../Service.hpp"
-#include "../types/Types.hpp"
-#include "../Attribute.hpp"
-#include "../TaskContext.hpp"
-#include "../types/GlobalsRepository.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/Attribute.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/types/GlobalsRepository.hpp"
 //#include "DumpObject.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/construct.hpp>
 
-#include <Logger.hpp>
+#include "rtt/Logger.hpp"
 
 #include <sstream>
 #include <iostream>

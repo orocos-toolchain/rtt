@@ -38,12 +38,12 @@
 #ifndef FUNCTION_GRAPH_HPP
 #define FUNCTION_GRAPH_HPP
 
-#include "VertexNode.hpp"
-#include "EdgeCondition.hpp"
-#include "CommandNOP.hpp"
-#include "rtt-scripting-config.h"
-#include "../base/AttributeBase.hpp"
-#include "ProgramInterface.hpp"
+#include "rtt/scripting/VertexNode.hpp"
+#include "rtt/scripting/EdgeCondition.hpp"
+#include "rtt/scripting/CommandNOP.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/base/AttributeBase.hpp"
+#include "rtt/scripting/ProgramInterface.hpp"
 
 namespace RTT
 { namespace scripting {

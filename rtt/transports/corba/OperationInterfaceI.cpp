@@ -66,16 +66,16 @@
 // TAO_IDL - Generated from
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1196
 
-#include "CorbaLib.hpp"
-#include "CorbaTypeTransporter.hpp"
-#include "OperationInterfaceI.h"
-#include "AnyDataSource.hpp"
-#include "../../rtt-detail-fwd.hpp"
-#include "../../internal/OperationCallerC.hpp"
-#include "../../internal/SendHandleC.hpp"
-#include "../../Logger.hpp"
-#include "../../internal/GlobalEngine.hpp"
-#include "../../plugin/PluginLoader.hpp"
+#include "rtt/transports/corba/CorbaLib.hpp"
+#include "rtt/transports/corba/CorbaTypeTransporter.hpp"
+#include "rtt/transports/corba/OperationInterfaceI.h"
+#include "rtt/transports/corba/AnyDataSource.hpp"
+#include "rtt/rtt-detail-fwd.hpp"
+#include "rtt/internal/OperationCallerC.hpp"
+#include "rtt/internal/SendHandleC.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/internal/GlobalEngine.hpp"
+#include "rtt/plugin/PluginLoader.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;

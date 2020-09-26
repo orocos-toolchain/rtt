@@ -35,22 +35,22 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "parser-debug.hpp"
-#include "parse_exception.hpp"
+#include "rtt/scripting/parser-debug.hpp"
+#include "rtt/scripting/parse_exception.hpp"
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "ConditionParser.hpp"
+#include "rtt/scripting/ConditionParser.hpp"
 
-#include "ConditionDuration.hpp"
-#include "ConditionTrue.hpp"
-#include "ConditionFalse.hpp"
-#include "ConditionBoolDataSource.hpp"
-#include "ConditionComposite.hpp"
+#include "rtt/scripting/ConditionDuration.hpp"
+#include "rtt/scripting/ConditionTrue.hpp"
+#include "rtt/scripting/ConditionFalse.hpp"
+#include "rtt/scripting/ConditionBoolDataSource.hpp"
+#include "rtt/scripting/ConditionComposite.hpp"
 
 #include <boost/bind.hpp>
 
-#include "TryCommand.hpp"
+#include "rtt/scripting/TryCommand.hpp"
 
 namespace RTT
 {

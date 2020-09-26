@@ -39,7 +39,7 @@
 #ifndef RTT_CORBA_POAUTILITY_H_
 #define RTT_CORBA_POAUTILITY_H_
 
-#include "corba.h"
+#include "rtt/transports/corba/corba.h"
 #ifdef CORBA_IS_TAO
 #include <tao/PortableServer/PortableServer.h>
 #endif

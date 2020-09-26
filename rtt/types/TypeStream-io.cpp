@@ -35,7 +35,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "../types/TypeStream-io.hpp"
+#include "rtt/types/TypeStream-io.hpp"
 
 namespace RTT {
     namespace types {

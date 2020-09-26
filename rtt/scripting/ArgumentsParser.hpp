@@ -38,11 +38,11 @@
 #ifndef ARGUMENTSPARSER_HPP
 #define ARGUMENTSPARSER_HPP
 
-#include "parser-types.hpp"
+#include "rtt/scripting/parser-types.hpp"
 
-#include "../PropertyBag.hpp"
-#include "CommonParser.hpp"
-#include "../TaskContext.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/scripting/CommonParser.hpp"
+#include "rtt/TaskContext.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface

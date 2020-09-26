@@ -39,9 +39,9 @@
 #ifndef ORO_CHANNEL_BUFFER_ELEMENT_HPP
 #define ORO_CHANNEL_BUFFER_ELEMENT_HPP
 
-#include "../base/ChannelElement.hpp"
-#include "../base/BufferInterface.hpp"
-#include "../ConnPolicy.hpp"
+#include "rtt/base/ChannelElement.hpp"
+#include "rtt/base/BufferInterface.hpp"
+#include "rtt/ConnPolicy.hpp"
 
 namespace RTT { namespace internal {
 

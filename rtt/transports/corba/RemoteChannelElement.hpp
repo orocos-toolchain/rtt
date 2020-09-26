@@ -39,11 +39,11 @@
 #ifndef CORBA_REMOTE_CHANNEL_ELEMENT_H
 #define CORBA_REMOTE_CHANNEL_ELEMENT_H
 
-#include "DataFlowI.h"
-#include "CorbaTypeTransporter.hpp"
-#include "CorbaDispatcher.hpp"
-#include "CorbaConnPolicy.hpp"
-#include "ApplicationServer.hpp"
+#include "rtt/transports/corba/DataFlowI.h"
+#include "rtt/transports/corba/CorbaTypeTransporter.hpp"
+#include "rtt/transports/corba/CorbaDispatcher.hpp"
+#include "rtt/transports/corba/CorbaConnPolicy.hpp"
+#include "rtt/transports/corba/ApplicationServer.hpp"
 
 namespace RTT {
 

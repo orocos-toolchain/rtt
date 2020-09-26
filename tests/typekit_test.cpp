@@ -24,14 +24,14 @@
  *      Author: kaltan
  */
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include <types/TemplateTypeInfo.hpp>
-#include <types/TemplateConstructor.hpp>
-#include <types/Operators.hpp>
-#include <types/OperatorTypes.hpp>
+#include "rtt/types/TemplateTypeInfo.hpp"
+#include "rtt/types/TemplateConstructor.hpp"
+#include "rtt/types/Operators.hpp"
+#include "rtt/types/OperatorTypes.hpp"
 
-#include <types/SequenceTypeInfo.hpp>
+#include "rtt/types/SequenceTypeInfo.hpp"
 
 struct TypekitFixture
 {

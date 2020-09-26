@@ -40,8 +40,8 @@
 #define ORO_METHODBASEINVOKER_HPP_
 
 #include <string>
-#include "DisposableInterface.hpp"
-#include "../rtt-fwd.hpp"
+#include "rtt/base/DisposableInterface.hpp"
+#include "rtt/rtt-fwd.hpp"
 
 namespace RTT
 {

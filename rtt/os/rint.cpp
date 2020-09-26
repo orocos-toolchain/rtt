@@ -43,7 +43,7 @@
 *	Author: David Yu					*
 *										*
 ****************************************/
-#include "os/rint.h"
+#include "rtt/os/rint.h"
 #include <cmath>
 
 #ifdef _MSC_VER

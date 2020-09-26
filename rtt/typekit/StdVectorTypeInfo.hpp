@@ -37,10 +37,10 @@
 
 
 #include <vector>
-#include "../types/TypeStream.hpp"
-#include "../types/SequenceTypeInfo.hpp"
-#include "../types/VectorComposition.hpp"
-#include "../types/TemplateTypeInfo.hpp"
+#include "rtt/types/TypeStream.hpp"
+#include "rtt/types/SequenceTypeInfo.hpp"
+#include "rtt/types/VectorComposition.hpp"
+#include "rtt/types/TemplateTypeInfo.hpp"
 
 namespace RTT
 {

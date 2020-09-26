@@ -17,11 +17,11 @@
  ***************************************************************************/
 
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include <internal/ListLocked.hpp>
+#include "rtt/internal/ListLocked.hpp"
 #include <boost/bind/protect.hpp>
-#include <rtt-detail-fwd.hpp>
+#include "rtt/rtt-detail-fwd.hpp"
 using namespace RTT::detail;
 
 using namespace std;

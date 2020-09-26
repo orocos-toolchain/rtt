@@ -36,11 +36,11 @@
  ***************************************************************************/
 
 
-#include "PropertyComposition.hpp"
-#include "PropertyDecomposition.hpp"
-#include "../Logger.hpp"
-#include "../Property.hpp"
-#include "types/Types.hpp"
+#include "rtt/types/PropertyComposition.hpp"
+#include "rtt/types/PropertyDecomposition.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/types/Types.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;

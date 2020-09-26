@@ -54,9 +54,9 @@
 #include <stack>
 #include <map>
 #include <string>
-#include "../Property.hpp"
-#include "StreamProcessor.hpp"
-#include "MarshallInterface.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/marsh/StreamProcessor.hpp"
+#include "rtt/marsh/MarshallInterface.hpp"
 #include <istream>
 
 namespace RTT

@@ -55,9 +55,9 @@
  * configuration, data communication or execution of functionality.
  */
 
-#include "../TaskContext.hpp"
-#include "../Operation.hpp"
-#include "../OperationCaller.hpp"
-#include "../Property.hpp"
-#include "../Attribute.hpp"
-#include "../Port.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/Operation.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/Attribute.hpp"
+#include "rtt/Port.hpp"

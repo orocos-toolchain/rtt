@@ -28,8 +28,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "FileDescriptorSimulationActivity.hpp"
-#include "os/MainThread.hpp"
+#include "rtt/extras/FileDescriptorSimulationActivity.hpp"
+#include "rtt/os/MainThread.hpp"
 
 using namespace RTT;
 using namespace extras;

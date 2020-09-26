@@ -40,15 +40,15 @@
 #ifndef ORO_CORBAMETHODFACTORY_HPP
 #define ORO_CORBAMETHODFACTORY_HPP
 
-#include "corba.h"
+#include "rtt/transports/corba/corba.h"
 #ifdef CORBA_IS_TAO
 #include <tao/PortableServer/PortableServer.h>
 #endif
-#include "../../OperationInterface.hpp"
-#include "../../FactoryExceptions.hpp"
+#include "rtt/OperationInterface.hpp"
+#include "rtt/FactoryExceptions.hpp"
 #include "ServiceC.h"
-#include "CorbaConversion.hpp"
-#include "CorbaTypeTransporter.hpp"
+#include "rtt/transports/corba/CorbaConversion.hpp"
+#include "rtt/transports/corba/CorbaTypeTransporter.hpp"
 
 namespace RTT
 {namespace corba

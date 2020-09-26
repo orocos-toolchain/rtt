@@ -38,9 +38,9 @@
 #ifndef CONDITIONBOOLDATASOURCE_HPP
 #define CONDITIONBOOLDATASOURCE_HPP
 
-#include "rtt-scripting-config.h"
-#include "ConditionInterface.hpp"
-#include "../internal/DataSource.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/scripting/ConditionInterface.hpp"
+#include "rtt/internal/DataSource.hpp"
 
 
 namespace RTT

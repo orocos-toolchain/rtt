@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#include "GlobalEngine.hpp"
-#include "../Activity.hpp"
+#include "rtt/internal/GlobalEngine.hpp"
+#include "rtt/Activity.hpp"
 
 namespace RTT
 {

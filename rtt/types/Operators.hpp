@@ -40,7 +40,7 @@
 
 #include <string>
 #include <vector>
-#include "../internal/DataSource.hpp"
+#include "rtt/internal/DataSource.hpp"
 #include <boost/shared_ptr.hpp>
 
 namespace RTT { namespace types

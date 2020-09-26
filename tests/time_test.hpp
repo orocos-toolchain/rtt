@@ -21,9 +21,9 @@
 #ifndef TIMETEST_H
 #define TIMETEST_H
 
-#include <Time.hpp>
-#include <os/TimeService.hpp>
-#include <os/Timer.hpp>
+#include "rtt/Time.hpp"
+#include "rtt/os/TimeService.hpp"
+#include "rtt/os/Timer.hpp"
 #include <string>
 #include <rtt-config.h>
 

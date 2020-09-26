@@ -44,12 +44,12 @@
 #include <string>
 #include <istream>
 #include <vector>
-#include "parse_exception.hpp"
-#include "../internal/DataSource.hpp"
-#include "ProgramInterface.hpp"
-#include "ParsedStateMachine.hpp"
-#include "rtt-scripting-config.h"
-#include "rtt-scripting-fwd.hpp"
+#include "rtt/scripting/parse_exception.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/scripting/ProgramInterface.hpp"
+#include "rtt/scripting/ParsedStateMachine.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/scripting/rtt-scripting-fwd.hpp"
 
 namespace RTT
 { namespace scripting {

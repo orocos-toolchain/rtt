@@ -35,10 +35,10 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#include "fosi.h"
+#include "rtt/os/fosi.h"
 
-#include "rtconversions.hpp"
-#include "rtstreambufs.hpp"
+#include "rtt/os/rtconversions.hpp"
+#include "rtt/os/rtstreambufs.hpp"
 
 #ifndef RTSTREAMS_HPP
 #define RTSTREAMS_HPP

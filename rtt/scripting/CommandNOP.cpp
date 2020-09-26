@@ -34,7 +34,7 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "CommandNOP.hpp"
+#include "rtt/scripting/CommandNOP.hpp"
 
 namespace RTT {
     using namespace scripting;

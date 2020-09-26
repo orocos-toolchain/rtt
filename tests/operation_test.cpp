@@ -17,13 +17,13 @@
  ***************************************************************************/
 
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include <rtt-fwd.hpp>
-#include <rtt/Operation.hpp>
-#include <rtt/Service.hpp>
-#include <rtt/OperationCaller.hpp>
-#include <rtt/TaskContext.hpp>
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/Operation.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/TaskContext.hpp"
 
 using namespace std;
 using namespace RTT::detail;

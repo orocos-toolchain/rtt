@@ -38,10 +38,10 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "PropertyBase.hpp"
-#include "internal/DataSources.hpp"
-#include "PropertyBag.hpp"
-#include "../types/PropertyDecomposition.hpp"
+#include "rtt/base/PropertyBase.hpp"
+#include "rtt/internal/DataSources.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/types/PropertyDecomposition.hpp"
 
 namespace RTT {
     using namespace detail;

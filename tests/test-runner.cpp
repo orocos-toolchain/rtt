@@ -19,16 +19,16 @@
 // need access to all TLSF functions embedded in RTT
 // this call must occur before ALL RTT include's!!
 #define ORO_MEMORY_POOL
-#include <rtt/os/tlsf/tlsf.h>
+#include "rtt/os/tlsf/tlsf.h"
 
-#include <os/main.h>
-#include <Logger.hpp>
+#include "rtt/os/main.h"
+#include "rtt/Logger.hpp"
 #include <iostream>
 #include <cstdlib>
 
-#include <os/StartStopManager.hpp>
+#include "rtt/os/StartStopManager.hpp"
 
-#include "test-runner.hpp"
+#include "tests/test-runner.hpp"
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>

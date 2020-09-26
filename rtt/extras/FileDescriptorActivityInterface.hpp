@@ -31,7 +31,7 @@
 #ifndef FILEDESCRIPTOR_ACTIVITY_INTERFACE_HPP
 #define FILEDESCRIPTOR_ACTIVITY_INTERFACE_HPP
 
-#include "../Activity.hpp"
+#include "rtt/Activity.hpp"
 #include <set>
 
 namespace RTT { namespace extras {

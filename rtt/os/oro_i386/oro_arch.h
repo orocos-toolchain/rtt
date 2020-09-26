@@ -37,7 +37,7 @@
 
 
 
-#include "../../rtt-config.h"
+#include "rtt/rtt-config.h"
 #ifndef __ORO_ARCH_I386__
 #define __ORO_ARCH_I386__
 

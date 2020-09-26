@@ -39,7 +39,7 @@
 #ifndef OS_COMMON_ORO_ATOMIC_HPP
 #define OS_COMMON_ORO_ATOMIC_HPP
 
-#include "oro_arch.h"
+#include "rtt/os/oro_arch.h"
 
 namespace RTT
 { namespace os {

@@ -39,13 +39,13 @@
 #ifndef ORO_CALL_FUNCTION_HPP
 #define ORO_CALL_FUNCTION_HPP
 
-#include "../base/ActionInterface.hpp"
-#include "../base/DisposableInterface.hpp"
-#include "../internal/DataSources.hpp"
-#include "ProgramInterface.hpp"
-#include "../internal/DataSource.hpp"
-#include "../ExecutionEngine.hpp"
-#include "../Logger.hpp"
+#include "rtt/base/ActionInterface.hpp"
+#include "rtt/base/DisposableInterface.hpp"
+#include "rtt/internal/DataSources.hpp"
+#include "rtt/scripting/ProgramInterface.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/ExecutionEngine.hpp"
+#include "rtt/Logger.hpp"
 #include <boost/shared_ptr.hpp>
 #include <boost/bind.hpp>
 

@@ -42,18 +42,18 @@
 
 #include <iostream>
 #include <sched.h>
-#include "os/ThreadInterface.hpp"
-#include "fosi.h"
-#include "../fosi_internal_interface.hpp"
+#include "rtt/os/ThreadInterface.hpp"
+#include "rtt/os/fosi.h"
+#include "rtt/os/fosi_internal_interface.hpp"
 #include <sys/mman.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include "../../rtt-config.h"
+#include "rtt/rtt-config.h"
 #define INTERNAL_QUAL
 
 #include <string.h>
 
-#include "../../Logger.hpp"
+#include "rtt/Logger.hpp"
 
 namespace RTT
 {

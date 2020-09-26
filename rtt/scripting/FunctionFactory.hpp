@@ -39,10 +39,10 @@
 #ifndef FUNCTIONFACTORY_HPP
 #define FUNCTIONFACTORY_HPP
 
-#include "../ArgumentDescription.hpp"
-#include "../OperationInterface.hpp"
-#include "../Property.hpp"
-#include "ProgramInterface.hpp"
+#include "rtt/ArgumentDescription.hpp"
+#include "rtt/OperationInterface.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/scripting/ProgramInterface.hpp"
 
 #include <map>
 #include <string>

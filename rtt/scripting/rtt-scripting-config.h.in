@@ -40,7 +40,7 @@
 #ifndef RTT_SCRIPTING_CONFIG_H
 #define RTT_SCRIPTING_CONFIG_H
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 //
 // See: <http://gcc.gnu.org/wiki/Visibility>
@@ -70,11 +70,11 @@
 #  if defined(RTT_SCRIPTING_DLL_EXPORT)
 #   define RTT_SCRIPTING_API    __declspec(dllexport)
 #   define RTT_SCRIPTING_EXPORT __declspec(dllexport)
-#   define RTT_SCRIPTING_HIDE   
+#   define RTT_SCRIPTING_HIDE
 #  else
 #   define RTT_SCRIPTING_API    __declspec(dllimport)
 #   define RTT_SCRIPTING_EXPORT __declspec(dllexport)
-#   define RTT_SCRIPTING_HIDE 
+#   define RTT_SCRIPTING_HIDE
 #  endif
 # else
 #  define RTT_SCRIPTING_API

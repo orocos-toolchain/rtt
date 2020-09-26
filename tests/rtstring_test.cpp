@@ -7,22 +7,22 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
 #include <rtt-config.h>
-#include <extras/SimulationThread.hpp>
-#include <extras/SimulationActivity.hpp>
-#include <scripting/StateMachine.hpp>
-#include <scripting/ParsedStateMachine.hpp>
-#include <scripting/DumpObject.hpp>
-#include <scripting/Parser.hpp>
+#include "rtt/extras/SimulationThread.hpp"
+#include "rtt/extras/SimulationActivity.hpp"
+#include "rtt/scripting/StateMachine.hpp"
+#include "rtt/scripting/ParsedStateMachine.hpp"
+#include "rtt/scripting/DumpObject.hpp"
+#include "rtt/scripting/Parser.hpp"
 
-#include <Service.hpp>
-#include <TaskContext.hpp>
-#include <OperationCaller.hpp>
-#include <Port.hpp>
-#include <scripting/ScriptingService.hpp>
-#include "operations_fixture.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/Port.hpp"
+#include "rtt/scripting/ScriptingService.hpp"
+#include "tests/operations_fixture.hpp"
 
 #include <string>
 #include <iostream>

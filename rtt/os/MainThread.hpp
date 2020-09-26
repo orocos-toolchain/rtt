@@ -40,7 +40,7 @@
 #ifndef RTT_OS_MAIN_THREAD_HPP
 #define RTT_OS_MAIN_THREAD_HPP
 
-#include "ThreadInterface.hpp"
+#include "rtt/os/ThreadInterface.hpp"
 #include <boost/shared_ptr.hpp>
 
 namespace RTT

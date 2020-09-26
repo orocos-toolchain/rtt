@@ -40,23 +40,23 @@
 #define ORO_CONN_FACTORY_HPP
 
 #include <string>
-#include "Channels.hpp"
-#include "ConnInputEndPoint.hpp"
-#include "ConnOutputEndPoint.hpp"
-#include "PortConnectionLock.hpp"
-#include "SharedConnection.hpp"
-#include "../base/PortInterface.hpp"
-#include "../base/InputPortInterface.hpp"
-#include "../base/OutputPortInterface.hpp"
-#include "../DataFlowInterface.hpp"
+#include "rtt/internal/Channels.hpp"
+#include "rtt/internal/ConnInputEndPoint.hpp"
+#include "rtt/internal/ConnOutputEndPoint.hpp"
+#include "rtt/internal/PortConnectionLock.hpp"
+#include "rtt/internal/SharedConnection.hpp"
+#include "rtt/base/PortInterface.hpp"
+#include "rtt/base/InputPortInterface.hpp"
+#include "rtt/base/OutputPortInterface.hpp"
+#include "rtt/DataFlowInterface.hpp"
 
-#include "../base/DataObject.hpp"
-#include "../base/DataObjectUnSync.hpp"
-#include "../base/Buffer.hpp"
-#include "../base/BufferUnSync.hpp"
-#include "../Logger.hpp"
+#include "rtt/base/DataObject.hpp"
+#include "rtt/base/DataObjectUnSync.hpp"
+#include "rtt/base/Buffer.hpp"
+#include "rtt/base/BufferUnSync.hpp"
+#include "rtt/Logger.hpp"
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 { namespace internal {

@@ -35,8 +35,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rtt-scripting-config.h"
-#include "../base/ActionInterface.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/base/ActionInterface.hpp"
 
 #include <string>
 

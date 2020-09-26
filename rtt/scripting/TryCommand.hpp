@@ -39,11 +39,11 @@
 #ifndef ORO_TRY_COMMAND_HPP
 #define ORO_TRY_COMMAND_HPP
 
-#include "rtt-scripting-config.h"
-#include "../base/ActionInterface.hpp"
-#include "ConditionInterface.hpp"
-#include "../Logger.hpp"
-#include "../internal/DataSource.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/base/ActionInterface.hpp"
+#include "rtt/scripting/ConditionInterface.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/internal/DataSource.hpp"
 
 namespace RTT
 { namespace scripting {

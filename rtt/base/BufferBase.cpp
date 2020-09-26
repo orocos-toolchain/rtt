@@ -37,8 +37,8 @@
 
 
 
-#include "BufferBase.hpp"
-#include "../ConnPolicy.hpp"
+#include "rtt/base/BufferBase.hpp"
+#include "rtt/ConnPolicy.hpp"
 
 using namespace RTT;
 using namespace RTT::base;

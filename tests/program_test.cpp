@@ -17,22 +17,22 @@
  ***************************************************************************/
 
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
 #include <iostream>
 #include <sstream>
 #include <string>
 
-#include <scripting/Parser.hpp>
-#include <scripting/FunctionGraph.hpp>
-#include <scripting/ScriptingService.hpp>
-#include <extras/SimulationThread.hpp>
-#include <extras/SimulationActivity.hpp>
-#include <Service.hpp>
+#include "rtt/scripting/Parser.hpp"
+#include "rtt/scripting/FunctionGraph.hpp"
+#include "rtt/scripting/ScriptingService.hpp"
+#include "rtt/extras/SimulationThread.hpp"
+#include "rtt/extras/SimulationActivity.hpp"
+#include "rtt/Service.hpp"
 
-#include <TaskContext.hpp>
-#include <OperationCaller.hpp>
-#include "operations_fixture.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "tests/operations_fixture.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;

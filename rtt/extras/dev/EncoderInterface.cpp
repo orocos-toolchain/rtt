@@ -38,7 +38,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "EncoderInterface.hpp"
+#include "rtt/extras/dev/EncoderInterface.hpp"
 
 namespace RTT {
     using namespace dev;

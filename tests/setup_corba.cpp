@@ -19,7 +19,7 @@
 
 #include <cstdlib>
 #include <rtt-config.h>
-#include <os/fosi.h>
+#include "rtt/os/fosi.h"
 
 int main(int argc, char** argv)
 {

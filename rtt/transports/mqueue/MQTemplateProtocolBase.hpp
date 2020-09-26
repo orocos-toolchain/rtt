@@ -39,9 +39,9 @@
 #ifndef ORO_MQ_TEMPATE_PROTOCOL_BASE_HPP
 #define ORO_MQ_TEMPATE_PROTOCOL_BASE_HPP
 
-#include "MQLib.hpp"
-#include "../../types/TypeMarshaller.hpp"
-#include "MQChannelElement.hpp"
+#include "rtt/transports/mqueue/MQLib.hpp"
+#include "rtt/types/TypeMarshaller.hpp"
+#include "rtt/transports/mqueue/MQChannelElement.hpp"
 
 #include <boost/type_traits/has_virtual_destructor.hpp>
 #include <boost/static_assert.hpp>

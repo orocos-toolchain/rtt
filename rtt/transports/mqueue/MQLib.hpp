@@ -40,7 +40,7 @@
 
 #include "rtt-mqueue-config.h"
 #include <string>
-#include <rtt/types/TransportPlugin.hpp>
+#include "rtt/types/TransportPlugin.hpp"
 
 namespace RTT {
     namespace mqueue {

@@ -43,14 +43,14 @@
  *      Author: kaltan
  */
 
-#include "PluginLoader.hpp"
-#include "../TaskContext.hpp"
-#include "../Logger.hpp"
+#include "rtt/plugin/PluginLoader.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/Logger.hpp"
 #include <boost/filesystem.hpp>
 #include <boost/version.hpp>
-#include "../os/StartStopManager.hpp"
-#include "../os/MutexLock.hpp"
-#include "../internal/GlobalService.hpp"
+#include "rtt/os/StartStopManager.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/internal/GlobalService.hpp"
 
 #include <cstdlib>
 #include <dlfcn.h>

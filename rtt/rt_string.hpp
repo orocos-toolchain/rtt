@@ -39,8 +39,8 @@
 #ifndef _RTT_RT_STRING_HPP
 #define _RTT_RT_STRING_HPP 1
 
-#include "os/oro_allocator.hpp"
-#include "rtt-config.h"
+#include "rtt/os/oro_allocator.hpp"
+#include "rtt/rtt-config.h"
 #include <string>
 #include <sstream>
 

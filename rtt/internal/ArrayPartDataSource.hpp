@@ -39,8 +39,8 @@
 #ifndef ORO_ARRAYPARTDATASOURCE_HPP_
 #define ORO_ARRAYPARTDATASOURCE_HPP_
 
-#include "DataSource.hpp"
-#include "NA.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/internal/NA.hpp"
 
 namespace RTT
 {

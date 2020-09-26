@@ -37,21 +37,21 @@
 
 
 
-#include "rtt-typekit-config.h"
-#include "Types2.inc"
-#include "RealTimeTypekit.hpp"
-#include "../types/Types.hpp"
-#include "../types/TypeInfoName.hpp"
-#include "../types/TemplateTypeInfo.hpp"
-#include "../types/SequenceTypeInfo.hpp"
-#include "StdTypeInfo.hpp"
-#include "../types/StructTypeInfo.hpp"
+#include "rtt/typekit/rtt-typekit-config.h"
+#include "rtt/typekit/Types2.inc"
+#include "rtt/typekit/RealTimeTypekit.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/types/TypeInfoName.hpp"
+#include "rtt/types/TemplateTypeInfo.hpp"
+#include "rtt/types/SequenceTypeInfo.hpp"
+#include "rtt/typekit/StdTypeInfo.hpp"
+#include "rtt/types/StructTypeInfo.hpp"
 
-#include "../rtt-fwd.hpp"
-#include "../FlowStatus.hpp"
-#include "../ConnPolicy.hpp"
-#include "ConnPolicyType.hpp"
-#include "TaskContext.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/FlowStatus.hpp"
+#include "rtt/ConnPolicy.hpp"
+#include "rtt/typekit/ConnPolicyType.hpp"
+#include "rtt/TaskContext.hpp"
 
 namespace RTT
 {

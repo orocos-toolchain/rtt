@@ -38,11 +38,11 @@
 #ifndef VALUEPARSER_HPP
 #define VALUEPARSER_HPP
 
-#include "parser-types.hpp"
-#include "CommonParser.hpp"
-#include "PeerParser.hpp"
-#include "PropertyParser.hpp"
-#include "../ConfigurationInterface.hpp"
+#include "rtt/scripting/parser-types.hpp"
+#include "rtt/scripting/CommonParser.hpp"
+#include "rtt/scripting/PeerParser.hpp"
+#include "rtt/scripting/PropertyParser.hpp"
+#include "rtt/ConfigurationInterface.hpp"
 
 #include <memory>
 #include <map>

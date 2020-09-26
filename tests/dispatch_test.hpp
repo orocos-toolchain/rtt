@@ -20,11 +20,11 @@
 #ifndef DISPATCHTEST_H
 #define DISPATCHTEST_H
 
-#include <scripting/Parser.hpp>
+#include "rtt/scripting/Parser.hpp"
 #include <internal/CommandProcessor.hpp>
-#include <TaskContext.hpp>
+#include "rtt/TaskContext.hpp"
 #include <string>
-#include <extras/SimulationActivity.hpp>
+#include "rtt/extras/SimulationActivity.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;

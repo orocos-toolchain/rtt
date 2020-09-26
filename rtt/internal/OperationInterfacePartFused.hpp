@@ -63,13 +63,13 @@
 #include <vector>
 #include <string>
 
-#include "DataSource.hpp"
-#include "CreateSequence.hpp"
-#include "FusedFunctorDataSource.hpp"
-#include "../OperationInterfacePart.hpp"
-#include "../FactoryExceptions.hpp"
-#include "../Operation.hpp"
-#include "../base/OperationCallerBase.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/internal/CreateSequence.hpp"
+#include "rtt/internal/FusedFunctorDataSource.hpp"
+#include "rtt/OperationInterfacePart.hpp"
+#include "rtt/FactoryExceptions.hpp"
+#include "rtt/Operation.hpp"
+#include "rtt/base/OperationCallerBase.hpp"
 
 /**
  * @file OperationInterfacePart.hpp This file contains the code

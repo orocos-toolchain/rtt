@@ -38,4 +38,4 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "SensorInterface.hpp"
+#include "rtt/extras/dev/SensorInterface.hpp"

@@ -39,8 +39,8 @@
 #ifndef ORO_CONN_INPUT_ENDPOINT_HPP
 #define ORO_CONN_INPUT_ENDPOINT_HPP
 
-#include "Channels.hpp"
-#include "PortConnectionLock.hpp"
+#include "rtt/internal/Channels.hpp"
+#include "rtt/internal/PortConnectionLock.hpp"
 
 namespace RTT
 { namespace internal {

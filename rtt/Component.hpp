@@ -50,8 +50,8 @@
 #include <string>
 #include <map>
 #include <vector>
-#include "rtt-fwd.hpp"
-#include "rtt-config.h"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 {
@@ -126,7 +126,7 @@ namespace RTT
  * You can only use this macro \b once in a .cpp file for the whole shared library \b and
  * you may \b not link with another component library when using this macro. Use
  * ORO_CREATE_COMPONENT_LIBRARY if you are in that situation.
- * 
+ *
  * It adds a function 'createComponent', which will return a new instance of
  * the library's component type and a function 'getComponentType', which returns
  * the type (namespace::class) name of the component.
@@ -153,7 +153,7 @@ extern "C" { \
 
 /**
  * Use this macro to create a component library which contains all components listed with
- * ORO_LIST_COMPONENT_TYPE. 
+ * ORO_LIST_COMPONENT_TYPE.
  *
  * It will add to your library an extern "C" function 'createComponentType' which can create a component of
  * each class added with ORO_LIST_COMPONENT_TYPE.

@@ -17,18 +17,18 @@
  ***************************************************************************/
 
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include <rtt-fwd.hpp>
+#include "rtt/rtt-fwd.hpp"
 
-#include <rtt/TaskContext.hpp>
-#include <rtt/Operation.hpp>
-#include <rtt/OperationCaller.hpp>
-#include <rtt/extras/SlaveActivity.hpp>
+#include "rtt/TaskContext.hpp"
+#include "rtt/Operation.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/extras/SlaveActivity.hpp"
 
-#include <rtt/os/Mutex.hpp>
-#include <rtt/os/Condition.hpp>
-#include <rtt/os/fosi.h>
+#include "rtt/os/Mutex.hpp"
+#include "rtt/os/Condition.hpp"
+#include "rtt/os/fosi.h"
 
 using namespace std;
 using namespace RTT::detail;

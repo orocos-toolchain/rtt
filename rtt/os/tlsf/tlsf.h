@@ -22,7 +22,7 @@
 /* We avoid name clashes with other projects and
  * only make the required function available
  */
-#include "../fosi.h"
+#include "rtt/os/fosi.h"
 #define tlsf_malloc oro_rt_malloc
 #define tlsf_free oro_rt_free
 #define tlsf_realloc oro_rt_realloc

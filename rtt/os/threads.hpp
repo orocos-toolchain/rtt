@@ -39,8 +39,8 @@
 #ifndef OS_THREADS_HPP
 #define OS_THREADS_HPP
 
-#include "Atomic.hpp"
-#include "../rtt-config.h"
+#include "rtt/os/Atomic.hpp"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 { namespace os {

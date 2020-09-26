@@ -39,8 +39,8 @@
 
 #include <string>
 #include <vector>
-#include "rtt-scripting-config.h"
-#include "../base/DataSourceBase.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/base/DataSourceBase.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface

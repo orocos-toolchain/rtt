@@ -21,7 +21,7 @@
 #define GENERIC_TASK_H
 
 
-#include <TaskContext.hpp>
+#include "rtt/TaskContext.hpp"
 #include <string>
 
 using namespace RTT;

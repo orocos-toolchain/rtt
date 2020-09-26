@@ -40,14 +40,14 @@
 #define ORO_INPUT_PORT_INTERFACE_HPP
 
 #include <string>
-#include "PortInterface.hpp"
-#include "ChannelElement.hpp"
-#include "../internal/rtt-internal-fwd.hpp"
-#include "../internal/ConnectionManager.hpp"
+#include "rtt/base/PortInterface.hpp"
+#include "rtt/base/ChannelElement.hpp"
+#include "rtt/internal/rtt-internal-fwd.hpp"
+#include "rtt/internal/ConnectionManager.hpp"
 #ifdef ORO_SIGNALLING_PORTS
-#include "../internal/Signal.hpp"
+#include "rtt/internal/Signal.hpp"
 #endif
-#include "../base/DataSourceBase.hpp"
+#include "rtt/base/DataSourceBase.hpp"
 
 namespace RTT
 { namespace base {

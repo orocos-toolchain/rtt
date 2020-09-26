@@ -57,7 +57,7 @@
 #error "You _must_ define OROCOS_TARGET to an installed target (for example: -DOROCOS_TARGET=gnulinux )"
 #endif
 
-#include "os/targets/rtt-target.h"
+#include "rtt/os/targets/rtt-target.h"
 
 // Detect the CPU we are compiling for
 #if defined( __GNUC__ )
@@ -123,12 +123,12 @@
 #  elif defined(RTT_DLL_EXPORT)
 #   define RTT_API    __declspec(dllexport)
 #   define RTT_EXPORT __declspec(dllexport)
-#   define RTT_HIDE   
+#   define RTT_HIDE
 #   define RTT_EXT_IMPL extern
 #  else
 #   define RTT_API	 __declspec(dllimport)
 #   define RTT_EXPORT __declspec(dllexport)
-#   define RTT_HIDE 
+#   define RTT_HIDE
 #   define RTT_EXT_IMPL extern
 #  endif
 # else

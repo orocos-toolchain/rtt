@@ -40,7 +40,7 @@
 #define ORO_OS_RT_LIST_HPP
 
 #include <list>
-#include "oro_allocator.hpp"
+#include "rtt/os/oro_allocator.hpp"
 
 namespace RTT { namespace os {
 

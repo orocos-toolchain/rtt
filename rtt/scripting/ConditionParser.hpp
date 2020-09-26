@@ -38,10 +38,10 @@
 #ifndef CONDITIONPARSER_HPP
 #define CONDITIONPARSER_HPP
 
-#include "parser-types.hpp"
-#include "CommonParser.hpp"
-#include "ExpressionParser.hpp"
-#include "../internal/DataSource.hpp"
+#include "rtt/scripting/parser-types.hpp"
+#include "rtt/scripting/CommonParser.hpp"
+#include "rtt/scripting/ExpressionParser.hpp"
+#include "rtt/internal/DataSource.hpp"
 
 #include <memory>
 #include <stack>

@@ -36,9 +36,9 @@
  ***************************************************************************/
 #include <boost/bind.hpp>
 
-#include "parse_exception.hpp"
-#include "parser-debug.hpp"
-#include "CommonParser.hpp"
+#include "rtt/scripting/parse_exception.hpp"
+#include "rtt/scripting/parser-debug.hpp"
+#include "rtt/scripting/CommonParser.hpp"
 
 namespace RTT {
     using boost::bind;

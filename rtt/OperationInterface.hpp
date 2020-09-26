@@ -43,12 +43,12 @@
 #include <vector>
 #include <map>
 
-#include "rtt-config.h"
-#include "base/DataSourceBase.hpp"
-#include "internal/DataSource.hpp"
-#include "ArgumentDescription.hpp"
-#include "FactoryExceptions.hpp"
-#include "OperationInterfacePart.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/base/DataSourceBase.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/ArgumentDescription.hpp"
+#include "rtt/FactoryExceptions.hpp"
+#include "rtt/OperationInterfacePart.hpp"
 
 
 namespace RTT

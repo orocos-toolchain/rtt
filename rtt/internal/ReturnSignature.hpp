@@ -40,8 +40,8 @@
 #define ORO_RETURN_SIGNATURE_HPP
 
 #include <boost/type_traits.hpp>
-#include "NA.hpp"
-#include "../rtt-fwd.hpp"
+#include "rtt/internal/NA.hpp"
+#include "rtt/rtt-fwd.hpp"
 
 namespace RTT
 {

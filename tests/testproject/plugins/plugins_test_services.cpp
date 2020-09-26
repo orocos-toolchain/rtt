@@ -17,8 +17,8 @@
  ***************************************************************************/
 
 
-#include <rtt/Service.hpp>
-#include <rtt/plugin/ServicePlugin.hpp>
+#include "rtt/Service.hpp"
+#include "rtt/plugin/ServicePlugin.hpp"
 
 using namespace RTT;
 

@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#include "AnyDataSource.hpp"
-#include "CorbaLib.hpp"
+#include "rtt/transports/corba/AnyDataSource.hpp"
+#include "rtt/transports/corba/CorbaLib.hpp"
 
 namespace RTT {
     using namespace detail;

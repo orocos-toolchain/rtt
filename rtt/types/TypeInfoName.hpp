@@ -39,11 +39,11 @@
 #ifndef ORO_TYPEINFO_NAME_HPP
 #define ORO_TYPEINFO_NAME_HPP
 
-#include "Types.hpp"
-#include "TypeInfoGenerator.hpp"
-#include "../internal/DataSourceTypeInfo.hpp"
-#include "../Logger.hpp"
-#include "../rtt-config.h"
+#include "rtt/types/Types.hpp"
+#include "rtt/types/TypeInfoGenerator.hpp"
+#include "rtt/internal/DataSourceTypeInfo.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 { namespace types {

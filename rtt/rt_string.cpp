@@ -35,7 +35,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rt_string.hpp"
+#include "rtt/rt_string.hpp"
 
 namespace std
 {

@@ -35,14 +35,14 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "parser-debug.hpp"
-#include "parse_exception.hpp"
-#include "ValueParser.hpp"
-#include "../Attribute.hpp"
+#include "rtt/scripting/parser-debug.hpp"
+#include "rtt/scripting/parse_exception.hpp"
+#include "rtt/scripting/ValueParser.hpp"
+#include "rtt/Attribute.hpp"
 
-#include "../TaskContext.hpp"
-#include "../Service.hpp"
-#include "../types/GlobalsRepository.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/types/GlobalsRepository.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>

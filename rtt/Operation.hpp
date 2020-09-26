@@ -42,12 +42,12 @@
 #include <vector>
 #include <string>
 #include <boost/fusion/include/vector.hpp>
-#include "base/OperationBase.hpp"
-#include "internal/LocalOperationCaller.hpp"
+#include "rtt/base/OperationBase.hpp"
+#include "rtt/internal/LocalOperationCaller.hpp"
 #ifdef ORO_SIGNALLING_OPERATIONS
-#include "internal/Signal.hpp"
+#include "rtt/internal/Signal.hpp"
 #endif
-#include "internal/OperationCallerBinder.hpp"
+#include "rtt/internal/OperationCallerBinder.hpp"
 
 namespace RTT
 {

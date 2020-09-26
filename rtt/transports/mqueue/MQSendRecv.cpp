@@ -47,14 +47,14 @@
 #include <errno.h>
 #include <boost/algorithm/string.hpp>
 
-#include "MQSendRecv.hpp"
-#include "../../types/TypeTransporter.hpp"
-#include "../../types/TypeMarshaller.hpp"
-#include "../../Logger.hpp"
-#include "Dispatcher.hpp"
-#include "../../base/PortInterface.hpp"
-#include "../../DataFlowInterface.hpp"
-#include "../../TaskContext.hpp"
+#include "rtt/transports/mqueue/MQSendRecv.hpp"
+#include "rtt/types/TypeTransporter.hpp"
+#include "rtt/types/TypeMarshaller.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/transports/mqueue/Dispatcher.hpp"
+#include "rtt/base/PortInterface.hpp"
+#include "rtt/DataFlowInterface.hpp"
+#include "rtt/TaskContext.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;

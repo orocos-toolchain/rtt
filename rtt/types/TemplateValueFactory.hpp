@@ -39,11 +39,11 @@
 #ifndef RTT_TEMPLATE_TYPE_FACTORY
 #define RTT_TEMPLATE_TYPE_FACTORY
 
-#include "ValueFactory.hpp"
-#include "../Property.hpp"
-#include "../Attribute.hpp"
-#include "../Logger.hpp"
-#include "../rtt-config.h"
+#include "rtt/types/ValueFactory.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/Attribute.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 {

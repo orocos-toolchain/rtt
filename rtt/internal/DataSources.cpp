@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "DataSources.hpp"
+#include "rtt/internal/DataSources.hpp"
 
 namespace RTT {
     namespace internal { 

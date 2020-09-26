@@ -39,8 +39,8 @@
 #ifndef ORO_PROPERTYCOMPOSITION_HPP_
 #define ORO_PROPERTYCOMPOSITION_HPP_
 
-#include "../base/PropertyBase.hpp"
-#include "../PropertyBag.hpp"
+#include "rtt/base/PropertyBase.hpp"
+#include "rtt/PropertyBag.hpp"
 
 namespace RTT {
     namespace types {

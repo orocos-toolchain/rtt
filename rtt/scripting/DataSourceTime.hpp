@@ -36,9 +36,9 @@
  ***************************************************************************/
 
 
-#include "../os/TimeService.hpp"
-#include "../internal/DataSource.hpp"
-#include "rtt-scripting-config.h"
+#include "rtt/os/TimeService.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
 
 namespace RTT
 { namespace scripting {

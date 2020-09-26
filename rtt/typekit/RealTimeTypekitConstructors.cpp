@@ -37,17 +37,17 @@
 
 
 
-#include "rtt-typekit-config.h"
-#include "RealTimeTypekit.hpp"
-#include "../types/Types.hpp"
-#include "../FlowStatus.hpp"
-#include "../internal/DataSources.hpp"
-#include "../typekit/Types.hpp"
-#include "../rtt-fwd.hpp"
-#include "../internal/mystd.hpp"
-#include "../types/TemplateConstructor.hpp"
+#include "rtt/typekit/rtt-typekit-config.h"
+#include "rtt/typekit/RealTimeTypekit.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/FlowStatus.hpp"
+#include "rtt/internal/DataSources.hpp"
+#include "rtt/typekit/Types.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/internal/mystd.hpp"
+#include "rtt/types/TemplateConstructor.hpp"
 #ifdef OS_RT_MALLOC
-#include "../rt_string.hpp"
+#include "rtt/rt_string.hpp"
 #endif
 
 namespace RTT

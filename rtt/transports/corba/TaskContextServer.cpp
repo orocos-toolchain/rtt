@@ -37,9 +37,9 @@
 
 
 
-#include "TaskContextServer.hpp"
-#include "TaskContextProxy.hpp"
-#include "corba.h"
+#include "rtt/transports/corba/TaskContextServer.hpp"
+#include "rtt/transports/corba/TaskContextProxy.hpp"
+#include "rtt/transports/corba/corba.h"
 #ifdef CORBA_IS_TAO
 #include "TaskContextS.h"
 #include <orbsvcs/CosNamingC.h>
@@ -52,15 +52,15 @@
 #include <omniORB4/Naming.hh>
 #endif
 #include "TaskContextC.h"
-#include "TaskContextI.h"
-#include "DataFlowI.h"
-#include "POAUtility.h"
+#include "rtt/transports/corba/TaskContextI.h"
+#include "rtt/transports/corba/DataFlowI.h"
+#include "rtt/transports/corba/POAUtility.h"
 #include <iostream>
 #include <fstream>
 
-#include "../../os/threads.hpp"
-#include "../../Activity.hpp"
-#include "../../types/GlobalsRepository.hpp"
+#include "rtt/os/threads.hpp"
+#include "rtt/Activity.hpp"
+#include "rtt/types/GlobalsRepository.hpp"
 
 namespace RTT
 {namespace corba

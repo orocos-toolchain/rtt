@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#include "ApplicationServer.hpp"
-#include "../../Logger.hpp"
+#include "rtt/transports/corba/ApplicationServer.hpp"
+#include "rtt/Logger.hpp"
 
 #if defined( CORBA_IS_TAO ) && defined( CORBA_TAO_HAS_MESSAGING )
 #include <tao/TimeBaseC.h>

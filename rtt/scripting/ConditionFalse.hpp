@@ -39,7 +39,7 @@
 #ifndef CONDITIONFALSE_HPP
 #define CONDITIONFALSE_HPP
 
-#include "ConditionInterface.hpp"
+#include "rtt/scripting/ConditionInterface.hpp"
 
 namespace RTT
 { namespace scripting {

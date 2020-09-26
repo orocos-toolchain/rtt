@@ -48,5 +48,5 @@
  * class.
  */
 
-#include "InputPort.hpp"
-#include "OutputPort.hpp"
+#include "rtt/InputPort.hpp"
+#include "rtt/OutputPort.hpp"

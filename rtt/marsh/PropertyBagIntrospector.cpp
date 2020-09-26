@@ -35,8 +35,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "PropertyBagIntrospector.hpp"
-#include "../types/Types.hpp"
+#include "rtt/marsh/PropertyBagIntrospector.hpp"
+#include "rtt/types/Types.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;

@@ -38,9 +38,9 @@
 #ifndef VERTEXNODE_HPP
 #define VERTEXNODE_HPP
 
-#include "rtt-scripting-config.h"
+#include "rtt/scripting/rtt-scripting-config.h"
 #include <map>
-#include "../base/ActionInterface.hpp"
+#include "rtt/base/ActionInterface.hpp"
 
 // adjacency_list has some very short template parameter names,
 // which may be defined as macros on some OS's. So undef here.

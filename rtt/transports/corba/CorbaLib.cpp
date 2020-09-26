@@ -36,22 +36,22 @@
  ***************************************************************************/
 
 
-#include "corba.h"
+#include "rtt/transports/corba/corba.h"
 #ifdef CORBA_IS_TAO
-#include "corba.h"
+#include "rtt/transports/corba/corba.h"
 #include <tao/PortableServer/PortableServer.h>
 #else
 #include <omniORB4/CORBA.h>
 #include <omniORB4/poa.h>
 #endif
 
-#include "TransportPlugin.hpp"
-#include "CorbaTemplateProtocol.hpp"
-#include "RTTCorbaConversion.hpp"
-#include "../../types/TransportPlugin.hpp"
-#include "../../types/TypekitPlugin.hpp"
+#include "rtt/transports/corba/TransportPlugin.hpp"
+#include "rtt/transports/corba/CorbaTemplateProtocol.hpp"
+#include "rtt/transports/corba/RTTCorbaConversion.hpp"
+#include "rtt/types/TransportPlugin.hpp"
+#include "rtt/types/TypekitPlugin.hpp"
 #ifdef OS_RT_MALLOC
-#include "../../rt_string.hpp"
+#include "rtt/rt_string.hpp"
 #endif
 
 using namespace std;

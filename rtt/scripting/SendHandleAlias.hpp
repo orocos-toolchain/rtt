@@ -39,9 +39,9 @@
 #ifndef ORO_SENDHANDLEALIAS_HPP_
 #define ORO_SENDHANDLEALIAS_HPP_
 
-#include "../base/AttributeBase.hpp"
-#include "../OperationInterface.hpp"
-#include "../rtt-fwd.hpp"
+#include "rtt/base/AttributeBase.hpp"
+#include "rtt/OperationInterface.hpp"
+#include "rtt/rtt-fwd.hpp"
 
 
 namespace RTT {

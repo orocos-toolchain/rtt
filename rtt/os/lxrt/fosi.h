@@ -64,13 +64,13 @@
 #include <assert.h>
 #include <limits.h>
 #include <float.h>
-#include "../oro_limits.h"
+#include "rtt/os/oro_limits.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "../../rtt-config.h"
+#include "rtt/rtt-config.h"
 #if !defined(OROBLD_OS_AGNOSTIC) || defined(OROBLD_OS_LXRT_INTERNAL) // define the latter to include nevertheless the RTAI header files
 
 	// force inlining if internal and internal to avoid an extra indirection.

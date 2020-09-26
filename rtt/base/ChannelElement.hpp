@@ -41,10 +41,10 @@
 
 #include <boost/intrusive_ptr.hpp>
 #include <boost/call_traits.hpp>
-#include "ChannelElementBase.hpp"
-#include "../ConnPolicy.hpp"
-#include "../FlowStatus.hpp"
-#include "../os/MutexLock.hpp"
+#include "rtt/base/ChannelElementBase.hpp"
+#include "rtt/ConnPolicy.hpp"
+#include "rtt/FlowStatus.hpp"
+#include "rtt/os/MutexLock.hpp"
 
 #include <boost/bind.hpp>
 

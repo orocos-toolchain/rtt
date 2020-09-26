@@ -69,15 +69,15 @@
 #ifndef ORO_CORBA_OPERATIONREPOSITORYI_H_
 #define ORO_CORBA_OPERATIONREPOSITORYI_H_
 
-#include "corba.h"
+#include "rtt/transports/corba/corba.h"
 #ifdef CORBA_IS_TAO
 #include "OperationInterfaceS.h"
 #else
 #include "OperationInterfaceC.h"
 #endif
-#include "../../OperationInterface.hpp"
-#include "../../internal/SendHandleC.hpp"
-#include "../../internal/OperationInterfacePartFused.hpp"
+#include "rtt/OperationInterface.hpp"
+#include "rtt/internal/SendHandleC.hpp"
+#include "rtt/internal/OperationInterfacePartFused.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once

@@ -35,22 +35,22 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "parser-debug.hpp"
-#include "parser-types.hpp"
-#include "parse_exception.hpp"
-#include "Parser.hpp"
-#include "ProgramGraphParser.hpp"
-#include "StateGraphParser.hpp"
-#include "ConditionParser.hpp"
-#include "ExpressionParser.hpp"
-#include "ValueChangeParser.hpp"
-#include "ProgramService.hpp"
-#include "StateMachineService.hpp"
-#include "../internal/DataSourceCommand.hpp"
-#include "ConditionInterface.hpp"
-#include "CommandComposite.hpp"
-#include "../internal/GlobalEngine.hpp"
-#include "ScriptParser.hpp"
+#include "rtt/scripting/parser-debug.hpp"
+#include "rtt/scripting/parser-types.hpp"
+#include "rtt/scripting/parse_exception.hpp"
+#include "rtt/scripting/Parser.hpp"
+#include "rtt/scripting/ProgramGraphParser.hpp"
+#include "rtt/scripting/StateGraphParser.hpp"
+#include "rtt/scripting/ConditionParser.hpp"
+#include "rtt/scripting/ExpressionParser.hpp"
+#include "rtt/scripting/ValueChangeParser.hpp"
+#include "rtt/scripting/ProgramService.hpp"
+#include "rtt/scripting/StateMachineService.hpp"
+#include "rtt/internal/DataSourceCommand.hpp"
+#include "rtt/scripting/ConditionInterface.hpp"
+#include "rtt/scripting/CommandComposite.hpp"
+#include "rtt/internal/GlobalEngine.hpp"
+#include "rtt/scripting/ScriptParser.hpp"
 
 #include <iostream>
 #include <fstream>

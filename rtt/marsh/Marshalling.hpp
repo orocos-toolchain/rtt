@@ -40,10 +40,10 @@
 #define ORO_MARSHALLING_HPP_
 
 #include <string>
-#include "../marsh/rtt-marsh-config.h"
-#include "../rtt-fwd.hpp"
-#include "../ServiceRequester.hpp"
-#include "../OperationCaller.hpp"
+#include "rtt/marsh/rtt-marsh-config.h"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/ServiceRequester.hpp"
+#include "rtt/OperationCaller.hpp"
 
 namespace RTT
 {

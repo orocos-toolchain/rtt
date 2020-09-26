@@ -35,9 +35,9 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "Types.hpp"
+#include "rtt/types/Types.hpp"
 
-#include "rtt-config.h"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 {

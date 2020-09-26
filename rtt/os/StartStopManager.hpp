@@ -39,12 +39,12 @@
 #ifndef STARTSTOPMANAGER_HPP
 #define STARTSTOPMANAGER_HPP
 
-#include "../Time.hpp"
+#include "rtt/Time.hpp"
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <vector>
 #include <algorithm>
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 { namespace os {

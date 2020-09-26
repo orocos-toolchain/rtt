@@ -38,7 +38,7 @@
 #ifndef CORELIB_DATAOBJECT_HPP
 #define CORELIB_DATAOBJECT_HPP
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 /**
  * @file DataObject.hpp
@@ -47,10 +47,10 @@
  * parameters.
  */
 #if defined(OROBLD_OS_NO_ASM)
-#include "DataObjectLocked.hpp"
+#include "rtt/base/DataObjectLocked.hpp"
 #else
-#include "DataObjectLocked.hpp"
-#include "DataObjectLockFree.hpp"
+#include "rtt/base/DataObjectLocked.hpp"
+#include "rtt/base/DataObjectLockFree.hpp"
 #endif
 
 namespace RTT

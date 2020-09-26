@@ -39,11 +39,11 @@
 #define ORO_THREAD_HPP
 
 // Our own package config headers.
-#include "../rtt-config.h"
-#include "fosi.h"
+#include "rtt/rtt-config.h"
+#include "rtt/os/fosi.h"
 
-#include "ThreadInterface.hpp"
-#include "Mutex.hpp"
+#include "rtt/os/ThreadInterface.hpp"
+#include "rtt/os/Mutex.hpp"
 
 #include <string>
 

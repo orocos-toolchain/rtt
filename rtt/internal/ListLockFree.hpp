@@ -40,10 +40,10 @@
 #define ORO_LIST_LOCK_FREE_HPP
 
 #include <vector>
-#include "../os/oro_arch.h"
-#include "../os/CAS.hpp"
+#include "rtt/os/oro_arch.h"
+#include "rtt/os/CAS.hpp"
 #include <boost/intrusive_ptr.hpp>
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface

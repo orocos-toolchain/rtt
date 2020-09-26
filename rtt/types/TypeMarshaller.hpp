@@ -46,7 +46,7 @@
 #ifndef TYPEMARSHALLER_HPP_
 #define TYPEMARSHALLER_HPP_
 
-#include "TypeTransporter.hpp"
+#include "rtt/types/TypeTransporter.hpp"
 
 namespace RTT
 {

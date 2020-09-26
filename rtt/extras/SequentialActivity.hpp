@@ -39,9 +39,9 @@
 #ifndef ORO_SEQUENTIAL_ACTIVITY_HPP
 #define ORO_SEQUENTIAL_ACTIVITY_HPP
 
-#include "../base/ActivityInterface.hpp"
-#include "../base/RunnableInterface.hpp"
-#include "../os/Mutex.hpp"
+#include "rtt/base/ActivityInterface.hpp"
+#include "rtt/base/RunnableInterface.hpp"
+#include "rtt/os/Mutex.hpp"
 
 namespace RTT
 { namespace extras {

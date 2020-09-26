@@ -1,8 +1,8 @@
-#include "types/Types.hpp"
-#include "types/CArrayTypeInfo.hpp"
-#include "types/BoostArrayTypeInfo.hpp"
-#include "../../datasource_fixture.hpp"
-#include <rtt/types/SequenceTypeInfo.hpp>
+#include "rtt/types/Types.hpp"
+#include "rtt/types/CArrayTypeInfo.hpp"
+#include "rtt/types/BoostArrayTypeInfo.hpp"
+#include "tests/datasource_fixture.hpp"
+#include "rtt/types/SequenceTypeInfo.hpp"
 
 void loadArrayTypes()
 {

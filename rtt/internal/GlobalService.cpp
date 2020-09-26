@@ -36,10 +36,10 @@
  ***************************************************************************/
 
 
-#include "GlobalService.hpp"
-#include "../plugin/PluginLoader.hpp"
+#include "rtt/internal/GlobalService.hpp"
+#include "rtt/plugin/PluginLoader.hpp"
 
-#include "../os/StartStopManager.hpp"
+#include "rtt/os/StartStopManager.hpp"
 
 namespace RTT
 {

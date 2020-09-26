@@ -38,13 +38,13 @@
 #ifndef ORO_PROPERTY_HPP
 #define ORO_PROPERTY_HPP
 
-#include "rtt-config.h"
-#include "base/PropertyBase.hpp"
-#include "PropertyBag.hpp"
-#include "internal/DataSources.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/base/PropertyBase.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/internal/DataSources.hpp"
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/call_traits.hpp>
-#include "Logger.hpp"
+#include "rtt/Logger.hpp"
 
 #include <string>
 #include <ostream>
@@ -479,7 +479,7 @@ namespace RTT
     }
 }
 
-#include "base/PropertyIntrospection.hpp"
+#include "rtt/base/PropertyIntrospection.hpp"
 
 namespace RTT
 {

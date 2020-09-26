@@ -40,12 +40,12 @@
 #define ORO_TASK_CONTEXT_HPP
 
 
-#include "rtt-config.h"
-#include "Service.hpp"
-#include "ServiceRequester.hpp"
-#include "DataFlowInterface.hpp"
-#include "ExecutionEngine.hpp"
-#include "base/TaskCore.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/Service.hpp"
+#include "rtt/ServiceRequester.hpp"
+#include "rtt/DataFlowInterface.hpp"
+#include "rtt/ExecutionEngine.hpp"
+#include "rtt/base/TaskCore.hpp"
 #include <boost/make_shared.hpp>
 
 #include <string>

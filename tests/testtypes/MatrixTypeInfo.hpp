@@ -39,10 +39,10 @@
 #ifndef ORO_MATRIX_TYPE_INFO_HPP
 #define ORO_MATRIX_TYPE_INFO_HPP
 
-#include "types/TemplateTypeInfo.hpp"
-#include "types/MemberFactory.hpp"
-#include "types/type_discovery.hpp"
-#include "internal/DataSourceGenerator.hpp"
+#include "rtt/types/TemplateTypeInfo.hpp"
+#include "rtt/types/MemberFactory.hpp"
+#include "rtt/types/type_discovery.hpp"
+#include "rtt/internal/DataSourceGenerator.hpp"
 #include <boost/lexical_cast.hpp>
 
 namespace RTT

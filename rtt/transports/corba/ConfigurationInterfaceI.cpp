@@ -66,14 +66,14 @@
 // TAO_IDL - Generated from
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1196
 
-#include "ConfigurationInterfaceI.h"
+#include "rtt/transports/corba/ConfigurationInterfaceI.h"
 #include "ConfigurationInterfaceC.h"
-#include "CorbaLib.hpp"
-#include "CorbaTypeTransporter.hpp"
+#include "rtt/transports/corba/CorbaLib.hpp"
+#include "rtt/transports/corba/CorbaTypeTransporter.hpp"
 #include <vector>
-#include "../../PropertyBag.hpp"
-#include "../../Property.hpp"
-#include "../../rtt-detail-fwd.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/rtt-detail-fwd.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;
