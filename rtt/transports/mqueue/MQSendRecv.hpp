@@ -40,8 +40,8 @@
 #define ORO_MQSENDER_HPP_
 
 #include <mqueue.h>
-#include "../../rtt-fwd.hpp"
-#include "../../base/DataSourceBase.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/base/DataSourceBase.hpp"
 
 namespace RTT
 {

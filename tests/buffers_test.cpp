@@ -16,24 +16,24 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
 #include <iostream>
 #include <boost/scoped_ptr.hpp>
 
-#include <internal/AtomicQueue.hpp>
-#include <internal/AtomicMWSRQueue.hpp>
+#include "rtt/internal/AtomicQueue.hpp"
+#include "rtt/internal/AtomicMWSRQueue.hpp"
 
-#include <Activity.hpp>
+#include "rtt/Activity.hpp"
 
-#include <RTT.hpp>
-#include <base/Buffer.hpp>
-#include <internal/ListLockFree.hpp>
-#include <base/DataObject.hpp>
-#include <internal/TsPool.hpp>
+#include "rtt/RTT.hpp"
+#include "rtt/base/Buffer.hpp"
+#include "rtt/internal/ListLockFree.hpp"
+#include "rtt/base/DataObject.hpp"
+#include "rtt/internal/TsPool.hpp"
 //#include <internal/SortedList.hpp>
 
-#include <os/Thread.hpp>
+#include "rtt/os/Thread.hpp"
 #include <rtt-config.h>
 
 #include <boost/foreach.hpp>

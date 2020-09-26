@@ -39,8 +39,8 @@
 #ifndef ORO_CORELIB_OPERATOP_TYPES_HPP
 #define ORO_CORELIB_OPERATOP_TYPES_HPP
 
-#include "Operators.hpp"
-#include "../internal/DataSources.hpp"
+#include "rtt/types/Operators.hpp"
+#include "rtt/internal/DataSources.hpp"
 #include <boost/shared_ptr.hpp>
 
 namespace RTT

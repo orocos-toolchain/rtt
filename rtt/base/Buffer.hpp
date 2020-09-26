@@ -40,7 +40,7 @@
 #ifndef ORO_BUFFER_HPP
 #define ORO_BUFFER_HPP
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 /**
  * @file Buffer.hpp
@@ -49,10 +49,10 @@
  * parameters.
  */
 #if defined(OROBLD_OS_NO_ASM)
-#include "BufferLocked.hpp"
+#include "rtt/base/BufferLocked.hpp"
 #else
-#include "BufferLocked.hpp"
-#include "BufferLockFree.hpp"
+#include "rtt/base/BufferLocked.hpp"
+#include "rtt/base/BufferLockFree.hpp"
 #endif
 
 namespace RTT

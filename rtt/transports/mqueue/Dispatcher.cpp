@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "Dispatcher.hpp"
+#include "rtt/transports/mqueue/Dispatcher.hpp"
 
 namespace RTT {
     namespace mqueue {

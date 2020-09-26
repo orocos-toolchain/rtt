@@ -17,22 +17,22 @@
  ***************************************************************************/
 
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
 #include <boost/array.hpp>
 
-#include <rtt-fwd.hpp>
+#include "rtt/rtt-fwd.hpp"
 
-#include <internal/DataSources.hpp>
-#include <internal/PartDataSource.hpp>
-#include <internal/ArrayPartDataSource.hpp>
+#include "rtt/internal/DataSources.hpp"
+#include "rtt/internal/PartDataSource.hpp"
+#include "rtt/internal/ArrayPartDataSource.hpp"
 //#include <internal/OffsetPartDataSource.hpp>
-#include <internal/carray.hpp>
+#include "rtt/internal/carray.hpp"
 
 #include <boost/serialization/array.hpp>
 
-#include <os/fosi.h>
-#include "datasource_fixture.hpp"
+#include "rtt/os/fosi.h"
+#include "tests/datasource_fixture.hpp"
 
 class DataSourceTest
 {

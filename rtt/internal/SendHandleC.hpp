@@ -41,10 +41,10 @@
 
 #include <string>
 #include <boost/make_shared.hpp>
-#include "DataSources.hpp"
-#include "../Attribute.hpp"
-#include "../rtt-fwd.hpp"
-#include "../SendStatus.hpp"
+#include "rtt/internal/DataSources.hpp"
+#include "rtt/Attribute.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/SendStatus.hpp"
 
 namespace RTT
 { namespace internal {

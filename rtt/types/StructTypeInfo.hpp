@@ -39,10 +39,10 @@
 #ifndef ORO_STRUCT_TYPE_INFO_HPP
 #define ORO_STRUCT_TYPE_INFO_HPP
 
-#include "TemplateTypeInfo.hpp"
-#include "PropertyDecomposition.hpp"
-#include "type_discovery.hpp"
-#include "MemberFactory.hpp"
+#include "rtt/types/TemplateTypeInfo.hpp"
+#include "rtt/types/PropertyDecomposition.hpp"
+#include "rtt/types/type_discovery.hpp"
+#include "rtt/types/MemberFactory.hpp"
 
 namespace RTT
 {

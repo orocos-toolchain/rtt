@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#include "../types/Types.hpp"
-#include "StdTypeInfo.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/typekit/StdTypeInfo.hpp"
 #include <ostream>
 #include <istream>
 

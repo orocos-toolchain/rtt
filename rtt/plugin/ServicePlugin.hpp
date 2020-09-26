@@ -39,10 +39,10 @@
 #ifndef ORO_SERVICEPLUGIN_HPP_
 #define ORO_SERVICEPLUGIN_HPP_
 
-#include "Plugin.hpp"
+#include "rtt/plugin/Plugin.hpp"
 #include <string>
-#include "../TaskContext.hpp"
-#include "../internal/GlobalService.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/internal/GlobalService.hpp"
 
 namespace RTT {
     namespace plugin {

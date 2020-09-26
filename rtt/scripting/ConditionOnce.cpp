@@ -37,7 +37,7 @@
 
 
 
-#include "ConditionOnce.hpp"
+#include "rtt/scripting/ConditionOnce.hpp"
 
 namespace RTT {
     using namespace scripting;

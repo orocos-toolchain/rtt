@@ -39,9 +39,9 @@
 #ifndef ORO_CHANNEL_DATA_ELEMENT_HPP
 #define ORO_CHANNEL_DATA_ELEMENT_HPP
 
-#include "../base/ChannelElement.hpp"
-#include "../base/DataObjectInterface.hpp"
-#include "../ConnPolicy.hpp"
+#include "rtt/base/ChannelElement.hpp"
+#include "rtt/base/DataObjectInterface.hpp"
+#include "rtt/ConnPolicy.hpp"
 
 namespace RTT { namespace internal {
 

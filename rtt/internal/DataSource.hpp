@@ -41,13 +41,13 @@
 #include <map>
 #include <string>
 #include <exception>
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 #include <boost/call_traits.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/add_reference.hpp>
 #include <boost/type_traits/add_const.hpp>
 
-#include "../base/DataSourceBase.hpp"
+#include "rtt/base/DataSourceBase.hpp"
 
 namespace RTT
 { namespace internal {
@@ -234,7 +234,7 @@ namespace RTT
 
 // workaround inclusion dependencies.
 #ifndef ORO_CORELIB_DATASOURCES_HPP
-#include "DataSource.inl"
+#include "rtt/internal/DataSource.inl"
 #endif
 
 /*

@@ -42,19 +42,19 @@
 #ifndef _REENTRANT
 #define _REENTRANT
 #endif
-#include "corba.h"
+#include "rtt/transports/corba/corba.h"
 #ifdef CORBA_IS_TAO
-#include "corba.h"
+#include "rtt/transports/corba/corba.h"
 #else
 #include <omniORB4/CORBA.h>
 #endif
 
 #include <exception>
-#include "../../TaskContext.hpp"
+#include "rtt/TaskContext.hpp"
 #include <string>
 #include <map>
 #include "TaskContextC.h"
-#include "ApplicationServer.hpp"
+#include "rtt/transports/corba/ApplicationServer.hpp"
 #include <list>
 
 namespace RTT

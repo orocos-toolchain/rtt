@@ -69,17 +69,17 @@
 #ifndef ORO_CORBA_SERVICEI_H_
 #define ORO_CORBA_SERVICEI_H_
 
-#include "corba.h"
+#include "rtt/transports/corba/corba.h"
 #ifdef CORBA_IS_TAO
 #include "ServiceS.h"
 #else
 #include "ServiceC.h"
 #endif
 
-#include "../../Service.hpp"
-#include "ConfigurationInterfaceI.h"
-#include "OperationInterfaceI.h"
-#include "DataFlowI.h"
+#include "rtt/Service.hpp"
+#include "rtt/transports/corba/ConfigurationInterfaceI.h"
+#include "rtt/transports/corba/OperationInterfaceI.h"
+#include "rtt/transports/corba/DataFlowI.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once

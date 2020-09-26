@@ -42,7 +42,7 @@
 #include <vector>
 #include <ostream>
 #include <istream>
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 { namespace types {

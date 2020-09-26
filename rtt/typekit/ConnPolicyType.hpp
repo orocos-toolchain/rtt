@@ -40,7 +40,7 @@
 #define ORO_CONNPOLICYTYPE_HPP_
 
 #include <boost/serialization/serialization.hpp>
-#include "../ConnPolicy.hpp"
+#include "rtt/ConnPolicy.hpp"
 
 namespace boost {
     namespace serialization {

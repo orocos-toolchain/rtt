@@ -20,12 +20,12 @@
 #ifndef CORBA_TEST_H
 #define CORBA_TEST_H
 
-#include <transports/corba/corba.h>
-#include <rtt/InputPort.hpp>
-#include <rtt/OutputPort.hpp>
-#include <rtt/TaskContext.hpp>
-#include <transports/corba/TaskContextServer.hpp>
-#include <transports/corba/TaskContextProxy.hpp>
+#include "rtt/transports/corba/corba.h"
+#include "rtt/InputPort.hpp"
+#include "rtt/OutputPort.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/transports/corba/TaskContextServer.hpp"
+#include "rtt/transports/corba/TaskContextProxy.hpp"
 #include <string>
 
 using namespace RTT;

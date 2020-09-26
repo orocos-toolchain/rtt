@@ -40,7 +40,7 @@
 #define ORO_CORBA_ANYDATASOURCE_HPP
 
 
-#include "corba.h"
+#include "rtt/transports/corba/corba.h"
 #ifdef CORBA_IS_TAO
 #include <tao/Version.h>
 #if TAO_MAJOR_VERSION == 1 && TAO_MINOR_VERSION <= 4
@@ -50,7 +50,7 @@
 #endif
 #endif
 
-#include "../../internal/DataSource.hpp"
+#include "rtt/internal/DataSource.hpp"
 
 namespace RTT
 {

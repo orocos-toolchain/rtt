@@ -42,9 +42,9 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "base/InputPortInterface.hpp"
-#include "base/OutputPortInterface.hpp"
-#include "rtt-fwd.hpp"
+#include "rtt/base/InputPortInterface.hpp"
+#include "rtt/base/OutputPortInterface.hpp"
+#include "rtt/rtt-fwd.hpp"
 #include <boost/function.hpp>
 
 namespace RTT

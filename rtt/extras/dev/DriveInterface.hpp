@@ -40,8 +40,8 @@
 #ifndef DEVICE_DRIVERS_DRIVE_INTERFACE_HPP
 #define DEVICE_DRIVERS_DRIVE_INTERFACE_HPP
 
-#include "../../rtt-config.h"
-#include "../../internal/Signal.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/internal/Signal.hpp"
 
 namespace RTT
 { namespace dev {

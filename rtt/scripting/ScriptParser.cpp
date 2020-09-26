@@ -36,15 +36,15 @@
  ***************************************************************************/
 
 
-#include "parser-debug.hpp"
-#include "parse_exception.hpp"
-#include "ScriptParser.hpp"
-#include "CommonParser.hpp"
-#include "StateGraphParser.hpp"
-#include "ProgramGraphParser.hpp"
-#include "../TaskContext.hpp"
-#include "../internal/Exceptions.hpp"
-#include "ScriptingService.hpp"
+#include "rtt/scripting/parser-debug.hpp"
+#include "rtt/scripting/parse_exception.hpp"
+#include "rtt/scripting/ScriptParser.hpp"
+#include "rtt/scripting/CommonParser.hpp"
+#include "rtt/scripting/StateGraphParser.hpp"
+#include "rtt/scripting/ProgramGraphParser.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/internal/Exceptions.hpp"
+#include "rtt/scripting/ScriptingService.hpp"
 
 #include <iostream>
 #include <functional>
@@ -54,9 +54,9 @@
 #include <boost/call_traits.hpp>
 #include <iostream>
 #include <memory>
-#include "../internal/mystd.hpp"
-#include "../internal/GlobalEngine.hpp"
-#include "ParsedStateMachine.hpp"
+#include "rtt/internal/mystd.hpp"
+#include "rtt/internal/GlobalEngine.hpp"
+#include "rtt/scripting/ParsedStateMachine.hpp"
 
 namespace RTT
 {

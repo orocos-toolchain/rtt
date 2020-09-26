@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "Scripting.hpp"
+#include "rtt/scripting/Scripting.hpp"
 
 namespace RTT
 {

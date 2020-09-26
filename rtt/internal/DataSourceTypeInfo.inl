@@ -39,8 +39,8 @@
 #ifndef DATASOURCE_TYPE_INFO_INL
 #define DATASOURCE_TYPE_INFO_INL
 
-#include "../types/TypeInfo.hpp"
-#include "../types/TypeInfoRepository.hpp"
+#include "rtt/types/TypeInfo.hpp"
+#include "rtt/types/TypeInfoRepository.hpp"
 
 namespace RTT
 {

@@ -1,12 +1,12 @@
 
-#include <TaskContext.hpp>
-#include <InputPort.hpp>
-#include <OutputPort.hpp>
-#include <Service.hpp>
-#include <ServiceRequester.hpp>
+#include "rtt/TaskContext.hpp"
+#include "rtt/InputPort.hpp"
+#include "rtt/OutputPort.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/ServiceRequester.hpp"
 
-#include "unit.hpp"
-#include "operations_fixture.hpp"
+#include "tests/unit.hpp"
+#include "tests/operations_fixture.hpp"
 
 struct ServicePortFixture {};
 

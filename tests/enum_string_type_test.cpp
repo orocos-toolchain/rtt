@@ -17,16 +17,16 @@
  ***************************************************************************/
 
 
-#include "unit.hpp"
-#include <rtt-fwd.hpp>
-#include <internal/DataSources.hpp>
-#include <os/fosi.h>
+#include "tests/unit.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/internal/DataSources.hpp"
+#include "rtt/os/fosi.h"
 
-#include "datasource_fixture.hpp"
-#include "marsh/PropertyBagIntrospector.hpp"
-#include "types/EnumTypeInfo.hpp"
-#include "marsh/PropertyLoader.hpp"
-#include "TaskContext.hpp"
+#include "tests/datasource_fixture.hpp"
+#include "rtt/marsh/PropertyBagIntrospector.hpp"
+#include "rtt/types/EnumTypeInfo.hpp"
+#include "rtt/marsh/PropertyLoader.hpp"
+#include "rtt/TaskContext.hpp"
 
 typedef enum
 {

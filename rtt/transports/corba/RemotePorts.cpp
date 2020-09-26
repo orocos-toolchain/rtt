@@ -36,16 +36,16 @@
  ***************************************************************************/
 
 
-#include "RemotePorts.hpp"
-#include "CorbaTypeTransporter.hpp"
-#include "DataFlowI.h"
-#include "../../DataFlowInterface.hpp"
+#include "rtt/transports/corba/RemotePorts.hpp"
+#include "rtt/transports/corba/CorbaTypeTransporter.hpp"
+#include "rtt/transports/corba/DataFlowI.h"
+#include "rtt/DataFlowInterface.hpp"
 #include <cassert>
-#include "CorbaConnPolicy.hpp"
-#include "CorbaLib.hpp"
-#include "RemoteConnID.hpp"
-#include "../../internal/ConnID.hpp"
-#include "../../rtt-detail-fwd.hpp"
+#include "rtt/transports/corba/CorbaConnPolicy.hpp"
+#include "rtt/transports/corba/CorbaLib.hpp"
+#include "rtt/transports/corba/RemoteConnID.hpp"
+#include "rtt/internal/ConnID.hpp"
+#include "rtt/rtt-detail-fwd.hpp"
 
 using namespace std;
 using namespace RTT::detail;

@@ -16,15 +16,15 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include "operations_fixture.hpp"
-#include <scripting/Scripting.hpp>
-#include <scripting/ScriptingService.hpp>
-#include <extras/SequentialActivity.hpp>
-#include <plugin/PluginLoader.hpp>
-#include <scripting/Parser.hpp>
-#include <internal/GlobalService.hpp>
+#include "tests/operations_fixture.hpp"
+#include "rtt/scripting/Scripting.hpp"
+#include "rtt/scripting/ScriptingService.hpp"
+#include "rtt/extras/SequentialActivity.hpp"
+#include "rtt/plugin/PluginLoader.hpp"
+#include "rtt/scripting/Parser.hpp"
+#include "rtt/internal/GlobalService.hpp"
 
 
 using namespace std;

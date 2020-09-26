@@ -16,25 +16,25 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
 #include <iostream>
-#include <scripting/FunctionGraph.hpp>
-#include <OperationCaller.hpp>
-#include <extras/SimulationActivity.hpp>
-#include <extras/SimulationThread.hpp>
-#include <Service.hpp>
-#include <TaskContext.hpp>
-#include <scripting/ScriptingService.hpp>
-#include <scripting/Parser.hpp>
-#include <Service.hpp>
-#include <types/GlobalsRepository.hpp>
-#include <types/Types.hpp>
-#include <types/StructTypeInfo.hpp>
-#include <types/SequenceTypeInfo.hpp>
+#include "rtt/scripting/FunctionGraph.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/extras/SimulationActivity.hpp"
+#include "rtt/extras/SimulationThread.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/scripting/ScriptingService.hpp"
+#include "rtt/scripting/Parser.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/types/GlobalsRepository.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/types/StructTypeInfo.hpp"
+#include "rtt/types/SequenceTypeInfo.hpp"
 
-#include "datasource_fixture.hpp"
-#include "operations_fixture.hpp"
+#include "tests/datasource_fixture.hpp"
+#include "tests/operations_fixture.hpp"
 
 using namespace std;
 using namespace RTT;

@@ -39,8 +39,8 @@
 #ifndef CONDITION_CACHE_HPP
 #define CONDITION_CACHE_HPP
 
-#include "ConditionInterface.hpp"
-#include "../internal/DataSources.hpp"
+#include "rtt/scripting/ConditionInterface.hpp"
+#include "rtt/internal/DataSources.hpp"
 
 namespace RTT
 { namespace scripting {

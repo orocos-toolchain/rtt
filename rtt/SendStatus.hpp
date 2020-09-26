@@ -40,7 +40,7 @@
 #ifndef SENDSTATUS_HPP_
 #define SENDSTATUS_HPP_
 
-#include "rtt-config.h"
+#include "rtt/rtt-config.h"
 
 #include <ostream>
 #include <istream>

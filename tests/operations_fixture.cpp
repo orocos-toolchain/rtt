@@ -20,12 +20,12 @@
 #define BOOST_FUSION_INVOKE_MAX_ARITY 8
 #define BOOST_FUSION_UNFUSED_MAX_ARITY 7
 
-#include "operations_fixture.hpp"
+#include "tests/operations_fixture.hpp"
 #include <iostream>
-#include <TaskContext.hpp>
-#include <OperationCaller.hpp>
-#include <Operation.hpp>
-#include <Service.hpp>
+#include "rtt/TaskContext.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/Operation.hpp"
+#include "rtt/Service.hpp"
 
 using namespace std;
 using namespace boost;

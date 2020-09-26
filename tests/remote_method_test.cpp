@@ -21,14 +21,14 @@
 #define ORO_TEST_OPERATION_CALLER
 
 #include <iostream>
-#include <TaskContext.hpp>
-#include <OperationCaller.hpp>
-#include <Operation.hpp>
-#include <internal/RemoteOperationCaller.hpp>
-#include <Service.hpp>
+#include "rtt/TaskContext.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/Operation.hpp"
+#include "rtt/internal/RemoteOperationCaller.hpp"
+#include "rtt/Service.hpp"
 
-#include "unit.hpp"
-#include "operations_fixture.hpp"
+#include "tests/unit.hpp"
+#include "tests/operations_fixture.hpp"
 
 #define wait_for_equal( a, b, times ) do { \
     bool wait_for_helper; \

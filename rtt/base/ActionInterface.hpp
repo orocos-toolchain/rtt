@@ -40,8 +40,8 @@
 
 #include <map>
 #include <boost/shared_ptr.hpp>
-#include "../rtt-config.h"
-#include "rtt-base-fwd.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/base/rtt-base-fwd.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface

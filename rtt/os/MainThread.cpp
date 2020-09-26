@@ -38,8 +38,8 @@
 
 
 // this file must be included always first.
-#include "os/fosi_internal_interface.hpp"
-#include "os/MainThread.hpp"
+#include "rtt/os/fosi_internal_interface.hpp"
+#include "rtt/os/MainThread.hpp"
 
 namespace RTT
 { namespace os {

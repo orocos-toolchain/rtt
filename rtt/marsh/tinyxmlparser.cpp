@@ -60,7 +60,7 @@ must not be misrepresented as being the original software.
 distribution.
 */
 
-#include "tinyxml.h"
+#include "rtt/marsh/tinyxml.h"
 #include <ctype.h>
 #include <stddef.h>
 

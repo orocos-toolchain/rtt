@@ -47,20 +47,20 @@
 #define CONNECTIONMANAGER_HPP_
 
 
-#include "ConnID.hpp"
-#include "List.hpp"
-#include "SharedConnection.hpp"
-#include "../ConnPolicy.hpp"
-#include "../os/Mutex.hpp"
-#include "../base/rtt-base-fwd.hpp"
-#include "../base/ChannelElementBase.hpp"
+#include "rtt/internal/ConnID.hpp"
+#include "rtt/internal/List.hpp"
+#include "rtt/internal/SharedConnection.hpp"
+#include "rtt/ConnPolicy.hpp"
+#include "rtt/os/Mutex.hpp"
+#include "rtt/base/rtt-base-fwd.hpp"
+#include "rtt/base/ChannelElementBase.hpp"
 #include <boost/tuple/tuple.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <rtt/os/Mutex.hpp>
-#include <rtt/os/MutexLock.hpp>
+#include "rtt/os/Mutex.hpp"
+#include "rtt/os/MutexLock.hpp"
 #include <list>
 
 

@@ -35,5 +35,5 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <internal/CatchConfig.hpp>
+#include "rtt/internal/CatchConfig.hpp"
 int RTT::internal::m_catch_exception=-1;

@@ -16,16 +16,16 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include "corba_mqueue_test.hpp"
+#include "tests/corba_mqueue_test.hpp"
 
 #include <iostream>
 
-#include <transports/corba/DataFlowI.h>
-#include <rtt/transports/corba/RemotePorts.hpp>
-#include <rtt/transports/mqueue/MQLib.hpp>
-#include <rtt/transports/corba/CorbaConnPolicy.hpp>
+#include "rtt/transports/corba/DataFlowI.h"
+#include "rtt/transports/corba/RemotePorts.hpp"
+#include "rtt/transports/mqueue/MQLib.hpp"
+#include "rtt/transports/corba/CorbaConnPolicy.hpp"
 
 using namespace std;
 using corba::TaskContextProxy;

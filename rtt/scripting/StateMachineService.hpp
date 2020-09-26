@@ -40,8 +40,8 @@
 #ifndef STATEMACHINE_SERVICE_HPP
 #define STATEMACHINE_SERVICE_HPP
 
-#include "../Service.hpp"
-#include "ParsedStateMachine.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/scripting/ParsedStateMachine.hpp"
 
 namespace RTT
 { namespace scripting {

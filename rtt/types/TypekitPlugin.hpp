@@ -36,7 +36,7 @@
 
 #include <string>
 #include <vector>
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 { namespace types {
@@ -108,7 +108,7 @@ namespace RTT
 
 }}
 
-#include "TypekitRepository.hpp"
+#include "rtt/types/TypekitRepository.hpp"
 
 // Disable foo() has C-linkage specified, but returns UDT 'bar' which is incompatible with C
 #ifdef _MSC_VER

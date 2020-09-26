@@ -40,8 +40,8 @@
 #define ORO_EXECUTION_STATEMENT_PROCESSOR_HPP
 
 #include <string>
-#include "rtt-scripting-config.h"
-#include "../rtt-fwd.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/rtt-fwd.hpp"
 
 namespace RTT
 { namespace scripting {

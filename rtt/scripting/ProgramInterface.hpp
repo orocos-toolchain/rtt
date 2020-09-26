@@ -41,12 +41,12 @@
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
-#include "../base/DataSourceBase.hpp"
-#include "../base/AttributeBase.hpp"
-#include "../base/ExecutableInterface.hpp"
-#include "rtt-scripting-config.h"
-#include "../rtt-fwd.hpp"
-#include "rtt-scripting-fwd.hpp"
+#include "rtt/base/DataSourceBase.hpp"
+#include "rtt/base/AttributeBase.hpp"
+#include "rtt/base/ExecutableInterface.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/scripting/rtt-scripting-fwd.hpp"
 
 namespace RTT
 { namespace scripting {

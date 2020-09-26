@@ -34,12 +34,12 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "DataSource.hpp"
-#include "../types/TypeInfoName.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/types/TypeInfoName.hpp"
 
-#include "rtt-config.h"
-#include "../types/Types.hpp"
-#include "../types/TypeTransporter.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/types/Types.hpp"
+#include "rtt/types/TypeTransporter.hpp"
 
 namespace RTT {
     namespace base {

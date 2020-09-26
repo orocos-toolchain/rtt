@@ -40,16 +40,16 @@
 
 #include <vector>
 #include <string>
-#include "../base/DataSourceBase.hpp"
-#include "../base/ChannelElementBase.hpp"
-#include "../internal/SharedConnection.hpp"
+#include "rtt/base/DataSourceBase.hpp"
+#include "rtt/base/ChannelElementBase.hpp"
+#include "rtt/internal/SharedConnection.hpp"
 
 #ifndef NO_TYPE_INFO_FACTORY_FUNCTIONS
-#include "MemberFactory.hpp"
-#include "ValueFactory.hpp"
-#include "CompositionFactory.hpp"
+#include "rtt/types/MemberFactory.hpp"
+#include "rtt/types/ValueFactory.hpp"
+#include "rtt/types/CompositionFactory.hpp"
 #ifndef NO_TYPE_INFO_STREAMS
-#include "StreamFactory.hpp"
+#include "rtt/types/StreamFactory.hpp"
 #endif
 #endif
 

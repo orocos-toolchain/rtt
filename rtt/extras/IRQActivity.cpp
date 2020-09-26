@@ -36,10 +36,10 @@
  ***************************************************************************/
 
 
-#include "IRQActivity.hpp"
-#include "../ExecutionEngine.hpp"
-#include "../base/TaskCore.hpp"
-#include "../Logger.hpp"
+#include "rtt/extras/IRQActivity.hpp"
+#include "rtt/ExecutionEngine.hpp"
+#include "rtt/base/TaskCore.hpp"
+#include "rtt/Logger.hpp"
 
 #include <iostream>
 

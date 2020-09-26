@@ -37,12 +37,12 @@
 
 
 
-#include "PeerParser.hpp"
-#include "parser-debug.hpp"
-#include "parse_exception.hpp"
-#include "../TaskContext.hpp"
-#include "parser-types.hpp"
-#include "../internal/GlobalService.hpp"
+#include "rtt/scripting/PeerParser.hpp"
+#include "rtt/scripting/parser-debug.hpp"
+#include "rtt/scripting/parse_exception.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/scripting/parser-types.hpp"
+#include "rtt/internal/GlobalService.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/iterator/iterator_traits.hpp>

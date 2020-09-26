@@ -18,17 +18,17 @@
 
 
 #include <iostream>
-#include <TaskContext.hpp>
-#include <OperationCaller.hpp>
-#include <Operation.hpp>
+#include "rtt/TaskContext.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/Operation.hpp"
 #ifdef ORO_REMOTING
-#include <internal/RemoteOperationCaller.hpp>
+#include "rtt/internal/RemoteOperationCaller.hpp"
 #endif
-#include <Service.hpp>
-#include <internal/DataSourceGenerator.hpp>
+#include "rtt/Service.hpp"
+#include "rtt/internal/DataSourceGenerator.hpp"
 
-#include "unit.hpp"
-#include "operations_fixture.hpp"
+#include "tests/unit.hpp"
+#include "tests/operations_fixture.hpp"
 
 /**
  * This test suite tests the functors (FusedMCall, FusedMCollect, FusedMSend,...)

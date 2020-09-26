@@ -20,24 +20,24 @@
 // need access to all TLSF functions embedded in RTT
 // this call must occur before ALL RTT include's!!
 #define ORO_MEMORY_POOL
-#include <rtt/os/tlsf/tlsf.h>
+#include "rtt/os/tlsf/tlsf.h"
 
 #include <iostream>
-#include <rtt/OperationCaller.hpp>
-#include <rtt/Service.hpp>
-#include <transports/corba/DataFlowI.h>
-#include <rtt/transports/corba/RemotePorts.hpp>
+#include "rtt/OperationCaller.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/transports/corba/DataFlowI.h"
+#include "rtt/transports/corba/RemotePorts.hpp"
 #include <transports/corba/ServiceC.h>
-#include <transports/corba/corba.h>
-#include <rtt/InputPort.hpp>
-#include <rtt/OutputPort.hpp>
-#include <rtt/TaskContext.hpp>
-#include <rtt/plugin/PluginLoader.hpp>
-#include <transports/corba/TaskContextServer.hpp>
-#include <transports/corba/TaskContextProxy.hpp>
+#include "rtt/transports/corba/corba.h"
+#include "rtt/InputPort.hpp"
+#include "rtt/OutputPort.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/plugin/PluginLoader.hpp"
+#include "rtt/transports/corba/TaskContextServer.hpp"
+#include "rtt/transports/corba/TaskContextProxy.hpp"
 #include <string>
-#include <os/main.h>
-#include "operations_fixture.hpp"
+#include "rtt/os/main.h"
+#include "tests/operations_fixture.hpp"
 #include <fstream>
 
 using namespace RTT;

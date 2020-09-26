@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "SendStatus.hpp"
+#include "rtt/SendStatus.hpp"
 
 #include <string>
 

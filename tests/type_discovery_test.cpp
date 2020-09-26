@@ -17,21 +17,21 @@
  ***************************************************************************/
 
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
 #include <boost/serialization/vector.hpp>
 #include <boost/array.hpp>
 
-#include <rtt-fwd.hpp>
-#include <internal/DataSources.hpp>
-#include <types/type_discovery.hpp>
-#include <os/fosi.h>
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/internal/DataSources.hpp"
+#include "rtt/types/type_discovery.hpp"
+#include "rtt/os/fosi.h"
 
-#include "datasource_fixture.hpp"
-#include "types/StructTypeInfo.hpp"
-#include "types/CArrayTypeInfo.hpp"
-#include "types/SequenceTypeInfo.hpp"
-#include "types/BoostArrayTypeInfo.hpp"
+#include "tests/datasource_fixture.hpp"
+#include "rtt/types/StructTypeInfo.hpp"
+#include "rtt/types/CArrayTypeInfo.hpp"
+#include "rtt/types/SequenceTypeInfo.hpp"
+#include "rtt/types/BoostArrayTypeInfo.hpp"
 
 using namespace boost::archive;
 using namespace boost::serialization;

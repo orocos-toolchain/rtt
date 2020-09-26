@@ -17,18 +17,18 @@
  ***************************************************************************/
 
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include "tasks_test.hpp"
+#include "tests/tasks_test.hpp"
 
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <vector>
 
-#include <extras/PeriodicActivity.hpp>
-#include <os/TimeService.hpp>
-#include <Logger.hpp>
+#include "rtt/extras/PeriodicActivity.hpp"
+#include "rtt/os/TimeService.hpp"
+#include "rtt/Logger.hpp"
 
 #include <boost/scoped_ptr.hpp>
 

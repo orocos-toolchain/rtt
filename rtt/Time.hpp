@@ -38,7 +38,7 @@
 #ifndef ORO_CORELIB_TIME_HPP
 #define ORO_CORELIB_TIME_HPP
 
-#include "os/Time.hpp"
+#include "rtt/os/Time.hpp"
 
 /**
  * @defgroup CoreLibTime Time measurement classes.

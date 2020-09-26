@@ -38,10 +38,10 @@
 #ifndef ORO_ACTIVITY_INTERFACE_HPP
 #define ORO_ACTIVITY_INTERFACE_HPP
 
-#include "../Time.hpp"
-#include "../os/ThreadInterface.hpp"
+#include "rtt/Time.hpp"
+#include "rtt/os/ThreadInterface.hpp"
 #include <boost/shared_ptr.hpp>
-#include "rtt-base-fwd.hpp"
+#include "rtt/base/rtt-base-fwd.hpp"
 
 namespace RTT
 { namespace base {

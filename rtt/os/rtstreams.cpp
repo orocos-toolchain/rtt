@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "os/rtstreams.hpp"
-#include "os/fosi.h"
+#include "rtt/os/rtstreams.hpp"
+#include "rtt/os/fosi.h"
 #include <cstring>
 
 namespace RTT

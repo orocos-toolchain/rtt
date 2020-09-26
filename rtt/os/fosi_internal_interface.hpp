@@ -47,8 +47,8 @@
 #ifndef OS_FOSI_INTERNAL_INTERFACE_HPP
 #define OS_FOSI_INTERNAL_INTERFACE_HPP
 
-#include "ThreadInterface.hpp"
-#include "fosi.h"
+#include "rtt/os/ThreadInterface.hpp"
+#include "rtt/os/fosi.h"
 
 namespace RTT {
     namespace os {

@@ -39,9 +39,9 @@
 #ifndef ORO_PRIMITIVE_SEQUENCE_TYPE_INFO_HPP
 #define ORO_PRIMITIVE_SEQUENCE_TYPE_INFO_HPP
 
-#include "PrimitiveTypeInfo.hpp"
-#include "SequenceTypeInfoBase.hpp"
-#include "MemberFactory.hpp"
+#include "rtt/types/PrimitiveTypeInfo.hpp"
+#include "rtt/types/SequenceTypeInfoBase.hpp"
+#include "rtt/types/MemberFactory.hpp"
 
 namespace RTT
 {

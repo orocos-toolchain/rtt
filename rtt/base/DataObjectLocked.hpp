@@ -39,8 +39,8 @@
 #define CORELIB_DATAOBJECT_LOCKED_HPP
 
 
-#include "../os/MutexLock.hpp"
-#include "DataObjectInterface.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/base/DataObjectInterface.hpp"
 
 namespace RTT
 { namespace base {

@@ -46,9 +46,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
-#include "../os/Thread.hpp"
-#include "../os/Mutex.hpp"
-#include "rtt-extras-fwd.hpp"
+#include "rtt/os/Thread.hpp"
+#include "rtt/os/Mutex.hpp"
+#include "rtt/extras/rtt-extras-fwd.hpp"
 
 namespace RTT
 { namespace extras {

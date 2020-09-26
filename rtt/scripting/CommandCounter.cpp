@@ -34,7 +34,7 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "CommandCounter.hpp"
+#include "rtt/scripting/CommandCounter.hpp"
 
 namespace RTT {
     using namespace scripting;

@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "../../ConnPolicy.hpp"
+#include "rtt/ConnPolicy.hpp"
 #include "rtt-corba-config.h"
 #include "DataFlowC.h"
 #include "rtt-corba-config.h"

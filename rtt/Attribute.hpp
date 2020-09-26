@@ -39,9 +39,9 @@
 #ifndef ORO_CORELIB_ATTRIBUTE_HPP
 #define ORO_CORELIB_ATTRIBUTE_HPP
 
-#include "internal/DataSource.hpp"
-#include "internal/DataSources.hpp"
-#include "base/AttributeBase.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/internal/DataSources.hpp"
+#include "rtt/base/AttributeBase.hpp"
 
 namespace RTT
 {

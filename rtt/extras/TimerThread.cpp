@@ -35,16 +35,16 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "TimerThread.hpp"
-#include "PeriodicActivity.hpp"
+#include "rtt/extras/TimerThread.hpp"
+#include "rtt/extras/PeriodicActivity.hpp"
 
-#include "rtt-config.h"
+#include "rtt/rtt-config.h"
 
-#include "../Time.hpp"
-#include "../Logger.hpp"
+#include "rtt/Time.hpp"
+#include "rtt/Logger.hpp"
 #include <algorithm>
-#include "../os/MutexLock.hpp"
-#include "../os/MainThread.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/os/MainThread.hpp"
 
 namespace RTT {
     using namespace extras;

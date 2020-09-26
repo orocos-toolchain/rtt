@@ -20,13 +20,13 @@
 
 #define ORO_TEST_OPERATION_CALLER
 
-#include <TaskContext.hpp>
-#include <OperationCaller.hpp>
-#include <Operation.hpp>
-#include <Service.hpp>
+#include "rtt/TaskContext.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/Operation.hpp"
+#include "rtt/Service.hpp"
 
-#include "unit.hpp"
-#include "operations_fixture.hpp"
+#include "tests/unit.hpp"
+#include "tests/operations_fixture.hpp"
 
 /**
  * This test suite tests the RTT::OperationCaller object's LocalOperationCaller implementation.

@@ -38,8 +38,8 @@
 #ifndef CONDITIONCOMPARE_HPP
 #define CONDITIONCOMPARE_HPP
 
-#include "ConditionInterface.hpp"
-#include "../internal/DataSource.hpp"
+#include "rtt/scripting/ConditionInterface.hpp"
+#include "rtt/internal/DataSource.hpp"
 
 namespace RTT
 { namespace scripting {

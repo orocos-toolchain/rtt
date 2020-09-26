@@ -36,15 +36,15 @@
  ***************************************************************************/
 
 
-#include "TypeInfoRepository.hpp"
+#include "rtt/types/TypeInfoRepository.hpp"
 
-#include "rtt-config.h"
+#include "rtt/rtt-config.h"
 
-#include "../Logger.hpp"
-#include "TypeTransporter.hpp"
-#include "TransportPlugin.hpp"
-#include "../internal/mystd.hpp"
-#include "../internal/DataSourceTypeInfo.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/types/TypeTransporter.hpp"
+#include "rtt/types/TransportPlugin.hpp"
+#include "rtt/internal/mystd.hpp"
+#include "rtt/internal/DataSourceTypeInfo.hpp"
 #include <boost/algorithm/string.hpp>
 
 namespace RTT
@@ -72,12 +72,12 @@ namespace RTT
     void TypeInfoRepository::Release() {
         typerepos.reset();
     }
-    
+
     void TypeInfoRepository::setAutoLoader(const boost::function<bool (const std::string &)> &loader)
     {
         loadTypeKitForName = loader;
     }
-    
+
     TypeInfo* TypeInfoRepository::typeInternal( const std::string& name ) const
     {
         MutexLock lock(type_lock);
@@ -113,13 +113,13 @@ namespace RTT
     TypeInfo* TypeInfoRepository::type( const std::string& name ) const
     {
         TypeInfo *ret = typeInternal(name);
-        
+
         if(!ret && loadTypeKitForName)
         {
             if(loadTypeKitForName(name))
                 ret = typeInternal(name);
         }
-            
+
         return ret;
     }
 

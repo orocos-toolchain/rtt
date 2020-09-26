@@ -39,12 +39,12 @@
 #ifndef ORO_OPERATIONBASE_HPP_
 #define ORO_OPERATIONBASE_HPP_
 
-#include "../rtt-config.h"
-#include "../rtt-fwd.hpp"
-#include "rtt-base-fwd.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/base/rtt-base-fwd.hpp"
 #include <string>
 #include <vector>
-#include "DisposableInterface.hpp"
+#include "rtt/base/DisposableInterface.hpp"
 
 namespace RTT
 {

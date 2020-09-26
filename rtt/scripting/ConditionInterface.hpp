@@ -40,8 +40,8 @@
 #define CONDITIONINTERFACE_HPP
 
 #include <map>
-#include "rtt-scripting-config.h"
-#include "../base/rtt-base-fwd.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/base/rtt-base-fwd.hpp"
 
 namespace RTT
 { namespace scripting {

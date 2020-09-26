@@ -40,11 +40,11 @@
 #define ORO_EXECUTION_METHODC_HPP
 
 #include <string>
-#include "DataSources.hpp"
-#include "../Attribute.hpp"
-#include "../rtt-fwd.hpp"
-#include "../SendStatus.hpp"
-#include "SendHandleC.hpp"
+#include "rtt/internal/DataSources.hpp"
+#include "rtt/Attribute.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/SendStatus.hpp"
+#include "rtt/internal/SendHandleC.hpp"
 
 namespace RTT
 { namespace internal {

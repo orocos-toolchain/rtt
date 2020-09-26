@@ -39,8 +39,8 @@
 #ifndef ORO_CORELIB_ATOMIC_MWSR_QUEUE_HPP
 #define ORO_CORELIB_ATOMIC_MWSR_QUEUE_HPP
 
-#include "AtomicQueue.hpp"
-#include "../os/CAS.hpp"
+#include "rtt/internal/AtomicQueue.hpp"
+#include "rtt/os/CAS.hpp"
 #include <utility>
 
 namespace RTT

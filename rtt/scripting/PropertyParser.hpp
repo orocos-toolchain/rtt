@@ -40,9 +40,9 @@
 #ifndef ORO_PROPERTYPARSER_HPP
 #define ORO_PROPERTYPARSER_HPP
 
-#include "parser-types.hpp"
-#include "../rtt-fwd.hpp"
-#include "CommonParser.hpp"
+#include "rtt/scripting/parser-types.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/scripting/CommonParser.hpp"
 #include <string>
 
 namespace RTT

@@ -39,9 +39,9 @@
 #ifndef ORO_TYPE_TRANSPORTER_HPP
 #define ORO_TYPE_TRANSPORTER_HPP
 
-#include "../base/DataSourceBase.hpp"
-#include "../base/BufferBase.hpp"
-#include "../base/ChannelElementBase.hpp"
+#include "rtt/base/DataSourceBase.hpp"
+#include "rtt/base/BufferBase.hpp"
+#include "rtt/base/ChannelElementBase.hpp"
 
 namespace RTT
 {

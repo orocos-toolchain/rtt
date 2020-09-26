@@ -39,8 +39,8 @@
 #ifndef ORO_CORELIB_DATASOURCES_INL
 #define ORO_CORELIB_DATASOURCES_INL
 
-#include "DataSources.hpp"
-#include "DataSource.inl"
+#include "rtt/internal/DataSources.hpp"
+#include "rtt/internal/DataSource.inl"
 
 namespace RTT
 { namespace internal {

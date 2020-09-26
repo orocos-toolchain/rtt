@@ -41,10 +41,10 @@
 #include <ostream>
 #include <fstream>
 #include <string>
-#include "MarshallInterface.hpp"
-#include "../Property.hpp"
-#include "../base/PropertyIntrospection.hpp"
-#include "StreamProcessor.hpp"
+#include "rtt/marsh/MarshallInterface.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/base/PropertyIntrospection.hpp"
+#include "rtt/marsh/StreamProcessor.hpp"
 
 namespace RTT
 { namespace marsh {

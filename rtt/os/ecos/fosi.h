@@ -50,12 +50,12 @@ extern "C"
 #include <stdio.h>
 #include <cyg/kernel/kapi.h>
   // #include <errno.h>
-#include "os_ecos.h"
+#include "rtt/os/ecos/os_ecos.h"
 #include <pkgconf/kernel.h>
 #include <cyg/infra/diag.h> // for diag_printf
 
   // Own implementation of recursive mutexes
-#include "ecos_rec_mutex.h"
+#include "rtt/os/ecos/ecos_rec_mutex.h"
 
 #define SCHED_ECOS_FIFO 0 /** eCos Scheduler */
 #define ORO_SCHED_RT    0

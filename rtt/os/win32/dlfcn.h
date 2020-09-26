@@ -20,7 +20,7 @@
 #ifndef DLFCN_H
 #define DLFCN_H
 
-#include "../../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 /* POSIX says these are implementation-defined.
  * To simplify use with Windows API, we treat them the same way.

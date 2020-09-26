@@ -37,7 +37,7 @@
  ***************************************************************************/
 
 
-#include "../../rtt-config.h"
+#include "rtt/rtt-config.h"
 #ifndef __ARCH_MSVC_ORO_ATOMIC__
 #define __ARCH_MSVC_ORO_ATOMIC__
 

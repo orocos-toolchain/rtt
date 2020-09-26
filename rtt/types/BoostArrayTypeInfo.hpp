@@ -39,15 +39,15 @@
 #ifndef ORO_TEMPLATE_BOOSTARRAY_INFO_HPP
 #define ORO_TEMPLATE_BOOSTARRAY_INFO_HPP
 
-#include "PrimitiveTypeInfo.hpp"
-#include "../internal/ArrayPartDataSource.hpp"
-#include "type_discovery.hpp"
+#include "rtt/types/PrimitiveTypeInfo.hpp"
+#include "rtt/internal/ArrayPartDataSource.hpp"
+#include "rtt/types/type_discovery.hpp"
 #include <boost/lexical_cast.hpp>
 #include <boost/array.hpp>
-#include "PropertyComposition.hpp"
-#include "PropertyDecomposition.hpp"
-#include "CompositionFactory.hpp"
-#include "MemberFactory.hpp"
+#include "rtt/types/PropertyComposition.hpp"
+#include "rtt/types/PropertyDecomposition.hpp"
+#include "rtt/types/CompositionFactory.hpp"
+#include "rtt/types/MemberFactory.hpp"
 
 namespace RTT
 {

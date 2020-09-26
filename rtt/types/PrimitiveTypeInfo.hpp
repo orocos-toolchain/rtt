@@ -39,15 +39,15 @@
 #ifndef ORO_PRIMITIVE_TYPEINFO_HPP
 #define ORO_PRIMITIVE_TYPEINFO_HPP
 
-#include "Types.hpp"
-#include "../Property.hpp"
-#include "../Attribute.hpp"
-#include "../Logger.hpp"
-#include "TypeStreamSelector.hpp"
-#include "TypeInfoGenerator.hpp"
-#include "StreamFactory.hpp"
-#include "TemplateValueFactory.hpp"
-#include "../rtt-config.h"
+#include "rtt/types/Types.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/Attribute.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/types/TypeStreamSelector.hpp"
+#include "rtt/types/TypeInfoGenerator.hpp"
+#include "rtt/types/StreamFactory.hpp"
+#include "rtt/types/TemplateValueFactory.hpp"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 {

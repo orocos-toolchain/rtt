@@ -38,22 +38,22 @@
 #ifndef EXECUTION_PROGRAM_PARSER_HPP
 #define EXECUTION_PROGRAM_PARSER_HPP
 
-#include "parser-types.hpp"
+#include "rtt/scripting/parser-types.hpp"
 
-#include "CommonParser.hpp"
-#include "PeerParser.hpp"
-#include "ConditionParser.hpp"
-#include "ExpressionParser.hpp"
-#include "../TaskContext.hpp"
-#include "FunctionGraphBuilder.hpp"
-#include "ValueChangeParser.hpp"
+#include "rtt/scripting/CommonParser.hpp"
+#include "rtt/scripting/PeerParser.hpp"
+#include "rtt/scripting/ConditionParser.hpp"
+#include "rtt/scripting/ExpressionParser.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/scripting/FunctionGraphBuilder.hpp"
+#include "rtt/scripting/ValueChangeParser.hpp"
 
 #include <map>
 #include <vector>
 #include <string>
 
 
-#include "ProgramService.hpp"
+#include "rtt/scripting/ProgramService.hpp"
 //namespace RTT {
 //    class ProgramService;
 //}

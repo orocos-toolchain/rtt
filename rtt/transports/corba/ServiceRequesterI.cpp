@@ -66,9 +66,9 @@
 // TAO_IDL - Generated from
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1196
 
-#include "ServiceRequesterI.h"
-#include "CorbaOperationCallerFactory.hpp"
-#include "TaskContext.hpp"
+#include "rtt/transports/corba/ServiceRequesterI.h"
+#include "rtt/transports/corba/CorbaOperationCallerFactory.hpp"
+#include "rtt/TaskContext.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;

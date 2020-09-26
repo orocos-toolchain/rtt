@@ -16,18 +16,18 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include <internal/Signal.hpp>
-#include <extras/SlaveActivity.hpp>
+#include "rtt/internal/Signal.hpp"
+#include "rtt/extras/SlaveActivity.hpp"
 #include <string>
-#include <rtt-detail-fwd.hpp>
-#include <Logger.hpp>
-#include <base/RunnableInterface.hpp>
-#include <extras/SimulationActivity.hpp>
-#include <extras/SimulationThread.hpp>
-#include <Activity.hpp>
-#include <os/Atomic.hpp>
+#include "rtt/rtt-detail-fwd.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/base/RunnableInterface.hpp"
+#include "rtt/extras/SimulationActivity.hpp"
+#include "rtt/extras/SimulationThread.hpp"
+#include "rtt/Activity.hpp"
+#include "rtt/os/Atomic.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/scoped_ptr.hpp>

@@ -46,8 +46,8 @@
 #include <stack>
 #include <vector>
 #include <algorithm>
-#include "../os/Mutex.hpp"
-#include "../os/MutexLock.hpp"
+#include "rtt/os/Mutex.hpp"
+#include "rtt/os/MutexLock.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface

@@ -39,8 +39,8 @@
 #ifndef ORO_EXECUTION_CHANNELS_HPP
 #define ORO_EXECUTION_CHANNELS_HPP
 
-#include "ChannelDataElement.hpp"
-#include "ChannelBufferElement.hpp"
+#include "rtt/internal/ChannelDataElement.hpp"
+#include "rtt/internal/ChannelBufferElement.hpp"
 
 #endif
 

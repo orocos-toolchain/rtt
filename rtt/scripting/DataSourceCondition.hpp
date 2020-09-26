@@ -38,9 +38,9 @@
 #ifndef DATASOURCECONDITION_HPP
 #define DATASOURCECONDITION_HPP
 
-#include "rtt-scripting-config.h"
-#include "../internal/DataSource.hpp"
-#include "ConditionInterface.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/scripting/ConditionInterface.hpp"
 
 namespace RTT
 { namespace scripting {

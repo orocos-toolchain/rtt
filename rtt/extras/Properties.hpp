@@ -51,7 +51,7 @@
  *
  */
 
-#include "../Property.hpp"
-#include "../PropertyBag.hpp"
-#include "../base/PropertyIntrospection.hpp"
-#include "../marsh/MarshallInterface.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/base/PropertyIntrospection.hpp"
+#include "rtt/marsh/MarshallInterface.hpp"

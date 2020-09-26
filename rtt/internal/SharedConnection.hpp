@@ -38,9 +38,9 @@
 #ifndef ORO_SHARED_CONNECTION_HPP
 #define ORO_SHARED_CONNECTION_HPP
 
-#include "ConnID.hpp"
-#include "../base/ChannelElement.hpp"
-#include "../ConnPolicy.hpp"
+#include "rtt/internal/ConnID.hpp"
+#include "rtt/base/ChannelElement.hpp"
+#include "rtt/ConnPolicy.hpp"
 
 #include <map>
 

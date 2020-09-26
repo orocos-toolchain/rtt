@@ -45,9 +45,9 @@
 #endif
 
 #include <string>
-#include "../rtt-fwd.hpp"
-#include "ProgramInterface.hpp"
-#include "../base/DataSourceBase.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/scripting/ProgramInterface.hpp"
+#include "rtt/base/DataSourceBase.hpp"
 
 namespace RTT
 { namespace scripting {

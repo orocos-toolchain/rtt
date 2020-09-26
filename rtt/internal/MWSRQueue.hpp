@@ -39,7 +39,7 @@
 #ifndef ORO_MWSR_QUEUE_HPP
 #define ORO_MWSR_QUEUE_HPP
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 /**
  * @file MQSRQueue.hpp
@@ -48,9 +48,9 @@
  * parameters.
  */
 #if defined(OROBLD_OS_NO_ASM)
-#include "LockedQueue.hpp"
+#include "rtt/internal/LockedQueue.hpp"
 #else
-#include "AtomicMWSRQueue.hpp"
+#include "rtt/internal/AtomicMWSRQueue.hpp"
 #endif
 
 namespace RTT

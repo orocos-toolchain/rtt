@@ -39,13 +39,13 @@
 #ifndef ORO_SEQUENCE_TYPE_INFO_BASE_HPP
 #define ORO_SEQUENCE_TYPE_INFO_BASE_HPP
 
-#include "SequenceConstructor.hpp"
-#include "TemplateConstructor.hpp"
-#include "PropertyComposition.hpp"
-#include "VectorTemplateComposition.hpp"
-#include "PropertyDecomposition.hpp"
-#include "../internal/FusedFunctorDataSource.hpp"
-#include "../internal/DataSourceGenerator.hpp"
+#include "rtt/types/SequenceConstructor.hpp"
+#include "rtt/types/TemplateConstructor.hpp"
+#include "rtt/types/PropertyComposition.hpp"
+#include "rtt/types/VectorTemplateComposition.hpp"
+#include "rtt/types/PropertyDecomposition.hpp"
+#include "rtt/internal/FusedFunctorDataSource.hpp"
+#include "rtt/internal/DataSourceGenerator.hpp"
 #include <boost/lexical_cast.hpp>
 
 namespace RTT

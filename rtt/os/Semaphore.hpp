@@ -41,9 +41,9 @@
 #ifndef RTT_OS_SEMAPHORE_HPP
 #define RTT_OS_SEMAPHORE_HPP
 
-#include "fosi.h"
-#include "../rtt-config.h"
-#include "../Time.hpp"
+#include "rtt/os/fosi.h"
+#include "rtt/rtt-config.h"
+#include "rtt/Time.hpp"
 
 namespace RTT
 { namespace os {

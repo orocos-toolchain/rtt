@@ -38,7 +38,7 @@
 #ifndef DIGITALINPUT_HPP
 #define DIGITALINPUT_HPP
 
-#include "DigitalInInterface.hpp"
+#include "rtt/extras/dev/DigitalInInterface.hpp"
 
 namespace RTT
 { namespace dev {

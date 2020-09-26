@@ -25,7 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <rtt/os/fosi.h>
+#include "rtt/os/fosi.h"
 #include <unistd.h>
 #include <stdarg.h>
 

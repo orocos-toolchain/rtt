@@ -43,9 +43,9 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
-#include "../rtt-fwd.hpp"
-#include "../rtt-config.h"
-#include "../os/Mutex.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/os/Mutex.hpp"
 
 namespace RTT {
     namespace plugin {

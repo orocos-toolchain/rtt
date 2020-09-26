@@ -16,22 +16,22 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include "corba_mqueue_test.hpp"
+#include "tests/corba_mqueue_test.hpp"
 
 #include <iostream>
 
-#include <transports/corba/DataFlowI.h>
-#include <rtt/transports/corba/RemotePorts.hpp>
-#include <rtt/transports/mqueue/MQLib.hpp>
-#include <rtt/transports/corba/CorbaConnPolicy.hpp>
-#include <transports/corba/corba.h>
-#include <rtt/InputPort.hpp>
-#include <rtt/OutputPort.hpp>
-#include <rtt/TaskContext.hpp>
-#include <transports/corba/TaskContextServer.hpp>
-#include <transports/corba/TaskContextProxy.hpp>
+#include "rtt/transports/corba/DataFlowI.h"
+#include "rtt/transports/corba/RemotePorts.hpp"
+#include "rtt/transports/mqueue/MQLib.hpp"
+#include "rtt/transports/corba/CorbaConnPolicy.hpp"
+#include "rtt/transports/corba/corba.h"
+#include "rtt/InputPort.hpp"
+#include "rtt/OutputPort.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/transports/corba/TaskContextServer.hpp"
+#include "rtt/transports/corba/TaskContextProxy.hpp"
 #include <string>
 #include <cstdlib>
 

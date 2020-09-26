@@ -38,13 +38,13 @@
 #ifndef EXPRESSIONPARSER_HPP
 #define EXPRESSIONPARSER_HPP
 
-#include "parser-types.hpp"
-#include "CommonParser.hpp"
-#include "PeerParser.hpp"
-#include "ValueParser.hpp"
-#include "../internal/DataSource.hpp"
-#include "../types/Operators.hpp"
-#include "../Time.hpp"
+#include "rtt/scripting/parser-types.hpp"
+#include "rtt/scripting/CommonParser.hpp"
+#include "rtt/scripting/PeerParser.hpp"
+#include "rtt/scripting/ValueParser.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/types/Operators.hpp"
+#include "rtt/Time.hpp"
 
 #include <stack>
 

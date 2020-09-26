@@ -39,7 +39,7 @@
 #define ORO_CORBA_CONTROLTASK_FACTORY_HPP
 
 
-#include "../../TaskContext.hpp"
+#include "rtt/TaskContext.hpp"
 
 namespace RTT
 {namespace corba

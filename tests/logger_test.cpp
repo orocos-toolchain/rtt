@@ -18,13 +18,13 @@
 
 
 
-#include "unit.hpp"
-#include "logger_test.hpp"
+#include "tests/unit.hpp"
+#include "tests/logger_test.hpp"
 
 #include <iostream>
 #include <boost/scoped_ptr.hpp>
-#include <Activity.hpp>
-#include <base/RunnableInterface.hpp>
+#include "rtt/Activity.hpp"
+#include "rtt/base/RunnableInterface.hpp"
 
 using namespace boost;
 using namespace std;

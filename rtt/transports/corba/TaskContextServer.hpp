@@ -42,15 +42,15 @@
 #ifndef _REENTRANT
 #define _REENTRANT
 #endif
-#include "corba.h"
+#include "rtt/transports/corba/corba.h"
 #ifdef CORBA_IS_TAO
 #include "TaskContextS.h"
 #else
 #include "TaskContextC.h"
 #endif
-#include "../../TaskContext.hpp"
-#include "ApplicationServer.hpp"
-#include "../../base/ActivityInterface.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/transports/corba/ApplicationServer.hpp"
+#include "rtt/base/ActivityInterface.hpp"
 
 class RTT_corba_CTaskContext_i;
 namespace RTT

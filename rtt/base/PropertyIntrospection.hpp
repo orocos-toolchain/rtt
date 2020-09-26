@@ -39,8 +39,8 @@
 #define PI_PROPERTYINTROSPECTION_HPP
 
 #include <string>
-#include "../rtt-config.h"
-#include "PropertyBagVisitor.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/base/PropertyBagVisitor.hpp"
 
 namespace RTT
 { namespace base {
@@ -142,4 +142,4 @@ namespace RTT
 }}
 #endif
 
-#include "PropertyIntrospection.inl"
+#include "rtt/base/PropertyIntrospection.inl"

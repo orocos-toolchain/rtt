@@ -40,7 +40,7 @@
 #ifndef RTT_MARSH_CONFIG_H
 #define RTT_MARSH_CONFIG_H
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 //
 // See: <http://gcc.gnu.org/wiki/Visibility>
@@ -70,11 +70,11 @@
 #  if defined(RTT_MARSH_DLL_EXPORT)
 #   define RTT_MARSH_API    __declspec(dllexport)
 #   define RTT_MARSH_EXPORT __declspec(dllexport)
-#   define RTT_MARSH_HIDE   
+#   define RTT_MARSH_HIDE
 #  else
 #   define RTT_MARSH_API    __declspec(dllimport)
 #   define RTT_MARSH_EXPORT __declspec(dllexport)
-#   define RTT_MARSH_HIDE 
+#   define RTT_MARSH_HIDE
 #  endif
 # else
 #  define RTT_MARSH_API

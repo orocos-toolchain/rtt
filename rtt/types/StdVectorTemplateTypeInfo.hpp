@@ -34,14 +34,14 @@
 #ifndef STD_VECTOR_TEMPLATE_TYPE_INFO_HPP
 #define STD_VECTOR_TEMPLATE_TYPE_INFO_HPP
 
-#include "../Property.hpp"
-#include "../PropertyBag.hpp"
-#include "SequenceTypeInfo.hpp"
-#include "Types.hpp"
-#include "../Logger.hpp"
-#include "../internal/DataSources.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/types/SequenceTypeInfo.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/internal/DataSources.hpp"
 #include <vector>
-#include "VectorTemplateComposition.hpp"
+#include "rtt/types/VectorTemplateComposition.hpp"
 
 namespace RTT
 { 

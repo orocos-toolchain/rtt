@@ -39,8 +39,8 @@
 #ifndef ORO_REALTIME_TYPEKIT_HPP
 #define ORO_REALTIME_TYPEKIT_HPP
 
-#include "rtt-typekit-config.h"
-#include "../types/TypekitPlugin.hpp"
+#include "rtt/typekit/rtt-typekit-config.h"
+#include "rtt/types/TypekitPlugin.hpp"
 
 namespace RTT
 { namespace types {

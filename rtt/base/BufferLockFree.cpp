@@ -40,7 +40,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "BufferLockFree.hpp"
+#include "rtt/base/BufferLockFree.hpp"
 
 namespace RTT {
     namespace base {

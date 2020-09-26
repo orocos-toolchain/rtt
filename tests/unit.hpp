@@ -20,10 +20,10 @@
 
 #include <rtt-config.h>
 #include <iostream>
-#include <Logger.hpp>
-#include <extras/SimulationActivity.hpp>
-#include <extras/SimulationThread.hpp>
-#include <RTT.hpp>
+#include "rtt/Logger.hpp"
+#include "rtt/extras/SimulationActivity.hpp"
+#include "rtt/extras/SimulationThread.hpp"
+#include "rtt/RTT.hpp"
 
 #define BOOST_TEST_DYN_LINK
 #ifdef ORO_UNIT_TEST_SUITE_HACK
@@ -31,7 +31,7 @@
 // We use this in the build farm to get more precise
 // feedback for where the UT failed. To be removed
 // when upstream supports this too.
-#include "unit_test_suite.hpp"
+#include "tests/unit_test_suite.hpp"
 #else
 #include <boost/test/unit_test_suite.hpp>
 #endif

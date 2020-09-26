@@ -43,7 +43,7 @@ email                : peter.soetens@fmtc.be
 #include <vector>
 #include <map>
 
-#include "corba.h"
+#include "rtt/transports/corba/corba.h"
 #ifdef CORBA_IS_TAO
 #include <tao/Version.h>
 #if TAO_MAJOR_VERSION == 1 && TAO_MINOR_VERSION <= 4
@@ -53,13 +53,13 @@ email                : peter.soetens@fmtc.be
 #endif
 #include <tao/CORBA_String.h>
 #else
-#include "corba.h"
+#include "rtt/transports/corba/corba.h"
 #include <omniORB4/stringtypes.h>
 #endif
 
 #include "OrocosTypesC.h"
-#include "../../Logger.hpp"
-#include "../../internal/DataSourceTypeInfo.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/internal/DataSourceTypeInfo.hpp"
 
 
 namespace RTT { 

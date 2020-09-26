@@ -43,15 +43,15 @@
 
 #include <boost/type_traits/function_traits.hpp>
 #include <boost/function.hpp>
-#include "../Handle.hpp"
-#include "signal0.hpp"
-#include "signal1.hpp"
-#include "signal2.hpp"
-#include "signal3.hpp"
-#include "signal4.hpp"
-#include "signal5.hpp"
-#include "signal6.hpp"
-#include "signal7.hpp"
+#include "rtt/Handle.hpp"
+#include "rtt/internal/signal0.hpp"
+#include "rtt/internal/signal1.hpp"
+#include "rtt/internal/signal2.hpp"
+#include "rtt/internal/signal3.hpp"
+#include "rtt/internal/signal4.hpp"
+#include "rtt/internal/signal5.hpp"
+#include "rtt/internal/signal6.hpp"
+#include "rtt/internal/signal7.hpp"
 
 namespace RTT {
     namespace internal {

@@ -18,14 +18,14 @@
 
 
 
-#include <TaskContext.hpp>
-#include <OperationCaller.hpp>
-#include <Operation.hpp>
-#include <Service.hpp>
-#include <ServiceRequester.hpp>
+#include "rtt/TaskContext.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/Operation.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/ServiceRequester.hpp"
 
-#include "unit.hpp"
-#include "operations_fixture.hpp"
+#include "tests/unit.hpp"
+#include "tests/operations_fixture.hpp"
 
 // Registers the suite into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  ServiceTestSuite,  OperationsFixture )

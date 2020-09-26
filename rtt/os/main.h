@@ -43,8 +43,8 @@
  *
  */
 
-#include "startstop.h"
-#include "../Logger.hpp"
+#include "rtt/os/startstop.h"
+#include "rtt/Logger.hpp"
 
 /**
  * Forward declare this wrapper around the user code.

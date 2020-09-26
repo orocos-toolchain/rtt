@@ -38,7 +38,7 @@
 #ifndef _HOMING_INTERFACE_HPP
 #define _HOMING_INTERFACE_HPP
 
-#include "../../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 { namespace dev {

@@ -18,26 +18,26 @@
 
 
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include <transports/corba/corba.h>
-#include <rtt/InputPort.hpp>
-#include <rtt/OutputPort.hpp>
-#include <rtt/OperationCaller.hpp>
-#include <rtt/TaskContext.hpp>
-#include <transports/corba/TaskContextServer.hpp>
-#include <transports/corba/TaskContextProxy.hpp>
-#include <rtt/Service.hpp>
-#include <rtt/transports/corba/DataFlowI.h>
-#include <rtt/transports/corba/RemotePorts.hpp>
+#include "rtt/transports/corba/corba.h"
+#include "rtt/InputPort.hpp"
+#include "rtt/OutputPort.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/transports/corba/TaskContextServer.hpp"
+#include "rtt/transports/corba/TaskContextProxy.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/transports/corba/DataFlowI.h"
+#include "rtt/transports/corba/RemotePorts.hpp"
 #include <transports/corba/ServiceC.h>
-#include <transports/corba/CorbaLib.hpp>
-#include <transports/corba/CorbaConnPolicy.hpp>
-#include <transports/corba/RTTCorbaConversion.hpp>
+#include "rtt/transports/corba/CorbaLib.hpp"
+#include "rtt/transports/corba/CorbaConnPolicy.hpp"
+#include "rtt/transports/corba/RTTCorbaConversion.hpp"
 
 #include <boost/scoped_ptr.hpp>
 
-#include "operations_fixture.hpp"
+#include "tests/operations_fixture.hpp"
 
 #include <memory>
 

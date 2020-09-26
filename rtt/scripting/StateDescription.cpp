@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "StateDescription.hpp"
+#include "rtt/scripting/StateDescription.hpp"
 
 namespace RTT {
     using namespace detail;

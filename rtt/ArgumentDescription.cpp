@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "ArgumentDescription.hpp"
+#include "rtt/ArgumentDescription.hpp"
 
 using namespace RTT;
 

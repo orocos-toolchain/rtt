@@ -35,15 +35,15 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "ParsedStateMachine.hpp"
-#include "../internal/DataSource.hpp"
-#include "../ExecutionEngine.hpp"
-#include "StateDescription.hpp"
+#include "rtt/scripting/ParsedStateMachine.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/ExecutionEngine.hpp"
+#include "rtt/scripting/StateDescription.hpp"
 
-#include "../Service.hpp"
-#include "StateMachineService.hpp"
-#include "../TaskContext.hpp"
-#include "../internal/mystd.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/scripting/StateMachineService.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/internal/mystd.hpp"
 
 #include <cassert>
 

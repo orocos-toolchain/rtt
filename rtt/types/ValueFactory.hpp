@@ -39,10 +39,10 @@
 #ifndef RTT_VALUE_TYPE_FACTORY
 #define RTT_VALUE_TYPE_FACTORY
 
-#include "../base/DataSourceBase.hpp"
-#include "../base/AttributeBase.hpp"
-#include "../base/PropertyBase.hpp"
-#include "../rtt-config.h"
+#include "rtt/base/DataSourceBase.hpp"
+#include "rtt/base/AttributeBase.hpp"
+#include "rtt/base/PropertyBase.hpp"
+#include "rtt/rtt-config.h"
 #include <vector>
 #include <string>
 

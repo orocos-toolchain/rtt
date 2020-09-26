@@ -40,8 +40,8 @@
 #ifndef SIMULATIONTHREAD_HPP
 #define SIMULATIONTHREAD_HPP
 
-#include "TimerThread.hpp"
-#include "../os/rtt-os-fwd.hpp"
+#include "rtt/extras/TimerThread.hpp"
+#include "rtt/os/rtt-os-fwd.hpp"
 
 
 namespace RTT

@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "fosi.h"
+#include "rtt/os/fosi.h"
 //linux specific
 //#include <unistd.h>
 #include <stdarg.h>

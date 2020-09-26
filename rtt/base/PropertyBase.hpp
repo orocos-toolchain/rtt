@@ -39,8 +39,8 @@
 #define PI_PROPERTYBASE
 
 #include <string>
-#include "ActionInterface.hpp"
-#include "DataSourceBase.hpp"
+#include "rtt/base/ActionInterface.hpp"
+#include "rtt/base/DataSourceBase.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface

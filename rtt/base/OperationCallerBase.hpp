@@ -39,9 +39,9 @@
 #ifndef ORO_OPERATION_CALLER_BASE_HPP
 #define ORO_OPERATION_CALLER_BASE_HPP
 
-#include "../rtt-fwd.hpp"
-#include "../internal/Invoker.hpp"
-#include "OperationCallerInterface.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/internal/Invoker.hpp"
+#include "rtt/base/OperationCallerInterface.hpp"
 #include <boost/shared_ptr.hpp>
 
 namespace RTT

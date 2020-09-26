@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "CorbaDispatcher.hpp"
+#include "rtt/transports/corba/CorbaDispatcher.hpp"
 
 namespace RTT {
     using namespace corba;

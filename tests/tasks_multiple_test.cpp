@@ -16,11 +16,11 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include "tasks_multiple_test.hpp"
-#include <os/threads.hpp>
-#include <Logger.hpp>
+#include "tests/tasks_multiple_test.hpp"
+#include "rtt/os/threads.hpp"
+#include "rtt/Logger.hpp"
 
 #include <iostream>
 using namespace std;

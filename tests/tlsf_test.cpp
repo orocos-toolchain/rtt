@@ -18,8 +18,8 @@
 
 #define ORO_MEMORY_POOL
 
-#include "unit.hpp"
-#include <rtt/os/tlsf/tlsf.h>
+#include "tests/unit.hpp"
+#include "rtt/os/tlsf/tlsf.h"
 #include <signal.h>
 
 void signal_handler(int sig_num){

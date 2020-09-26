@@ -43,7 +43,7 @@
  *      Author: kaltan
  */
 
-#include "ConnID.hpp"
+#include "rtt/internal/ConnID.hpp"
 
 using namespace RTT::internal;
 

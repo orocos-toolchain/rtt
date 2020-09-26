@@ -38,8 +38,8 @@
 #ifndef PI_PROPERTY_BAG_VISITOR_HPP
 #define PI_PROPERTY_BAG_VISITOR_HPP
 
-#include "../rtt-config.h"
-#include "../rtt-fwd.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/rtt-fwd.hpp"
 
 namespace RTT
 { namespace base {

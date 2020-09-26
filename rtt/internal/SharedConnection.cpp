@@ -35,9 +35,9 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "SharedConnection.hpp"
-#include "../os/MutexLock.hpp"
-#include "../Logger.hpp"
+#include "rtt/internal/SharedConnection.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/Logger.hpp"
 
 #if defined(ORO_HAVE_BOOST_UUID)
     #include <boost/uuid/random_generator.hpp>

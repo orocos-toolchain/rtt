@@ -37,7 +37,7 @@
 
 
 
-#include "ConditionDuration.hpp"
+#include "rtt/scripting/ConditionDuration.hpp"
 
 namespace RTT {
     using namespace os;

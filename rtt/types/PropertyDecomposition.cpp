@@ -43,15 +43,15 @@
  *      Author: kaltan
  */
 
-#include "PropertyDecomposition.hpp"
-#include "../internal/DataSource.hpp"
+#include "rtt/types/PropertyDecomposition.hpp"
+#include "rtt/internal/DataSource.hpp"
 #include <vector>
 #include <string>
 #include <memory>
 #include <boost/lexical_cast.hpp>
-#include "../Logger.hpp"
-#include "TypeInfo.hpp"
-#include "../Property.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/types/TypeInfo.hpp"
+#include "rtt/Property.hpp"
 
 
 using namespace std;

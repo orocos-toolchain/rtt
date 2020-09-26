@@ -36,10 +36,10 @@
  ***************************************************************************/
 
 
-#include "../rtt-config.h"
-#include "Types.hpp"
-#include "TemplateTypeInfo.hpp"
-#include "TemplateConstructor.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/types/Types.hpp"
+#include "rtt/types/TemplateTypeInfo.hpp"
+#include "rtt/types/TemplateConstructor.hpp"
 
 namespace RTT
 {

@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#include "os_ecos.h"
-#include <rtt/os/threads.hpp>
+#include "rtt/os/ecos/os_ecos.h"
+#include "rtt/os/threads.hpp"
 
 namespace RTT
 { namespace os {

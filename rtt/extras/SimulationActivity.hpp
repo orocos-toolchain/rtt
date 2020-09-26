@@ -39,7 +39,7 @@
 #ifndef TASKSIMULATION_HPP
 #define TASKSIMULATION_HPP
 
-#include "PeriodicActivity.hpp"
+#include "rtt/extras/PeriodicActivity.hpp"
 
 namespace RTT
 { namespace extras {

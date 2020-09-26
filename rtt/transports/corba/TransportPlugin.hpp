@@ -39,7 +39,7 @@
 #ifndef RTT_TRANSPORT_CORBA_PLUGIN
 #define RTT_TRANSPORT_CORBA_PLUGIN
 
-#include <rtt/types/TransportPlugin.hpp>
+#include "rtt/types/TransportPlugin.hpp"
 
 namespace RTT
 {

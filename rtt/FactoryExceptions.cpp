@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "FactoryExceptions.hpp"
+#include "rtt/FactoryExceptions.hpp"
 #include <sstream>
 
 namespace RTT {

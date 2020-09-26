@@ -35,27 +35,27 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "parser-debug.hpp"
-#include "parse_exception.hpp"
-#include "ProgramGraphParser.hpp"
-#include "ArgumentsParser.hpp"
+#include "rtt/scripting/parser-debug.hpp"
+#include "rtt/scripting/parse_exception.hpp"
+#include "rtt/scripting/ProgramGraphParser.hpp"
+#include "rtt/scripting/ArgumentsParser.hpp"
 
-#include "CommandNOP.hpp"
-#include "CommandDataSource.hpp"
-#include "ConditionTrue.hpp"
-#include "../Logger.hpp"
-#include "DataSourceCondition.hpp"
+#include "rtt/scripting/CommandNOP.hpp"
+#include "rtt/scripting/CommandDataSource.hpp"
+#include "rtt/scripting/ConditionTrue.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/scripting/DataSourceCondition.hpp"
 
-#include "ConditionComposite.hpp"
-#include "ConditionFalse.hpp"
-#include "ConditionOnce.hpp"
-#include "CommandComposite.hpp"
-#include "CommandBinary.hpp"
+#include "rtt/scripting/ConditionComposite.hpp"
+#include "rtt/scripting/ConditionFalse.hpp"
+#include "rtt/scripting/ConditionOnce.hpp"
+#include "rtt/scripting/CommandComposite.hpp"
+#include "rtt/scripting/CommandBinary.hpp"
 
-#include "TryCommand.hpp"
-#include "FunctionFactory.hpp"
-#include "../TaskContext.hpp"
-#include "../internal/GlobalService.hpp"
+#include "rtt/scripting/TryCommand.hpp"
+#include "rtt/scripting/FunctionFactory.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/internal/GlobalService.hpp"
 
 #include <iostream>
 #include <boost/bind.hpp>

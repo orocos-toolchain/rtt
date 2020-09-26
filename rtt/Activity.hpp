@@ -39,12 +39,12 @@
 #ifndef ORO_ACTIVITY_HPP
 #define ORO_ACTIVITY_HPP
 
-#include "Time.hpp"
-#include "base/RunnableInterface.hpp"
-#include "base/ActivityInterface.hpp"
-#include "os/Thread.hpp"
-#include "os/Mutex.hpp"
-#include "os/Condition.hpp"
+#include "rtt/Time.hpp"
+#include "rtt/base/RunnableInterface.hpp"
+#include "rtt/base/ActivityInterface.hpp"
+#include "rtt/os/Thread.hpp"
+#include "rtt/os/Mutex.hpp"
+#include "rtt/os/Condition.hpp"
 
 namespace RTT
 {

@@ -37,8 +37,8 @@
 
 
 
-#include "rtt-typekit-config.h"
-#include "RealTimeTypekit.hpp"
+#include "rtt/typekit/rtt-typekit-config.h"
+#include "rtt/typekit/RealTimeTypekit.hpp"
 
 namespace RTT
 {

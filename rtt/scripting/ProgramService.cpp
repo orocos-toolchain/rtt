@@ -37,12 +37,12 @@
 
 
 
-#include "ProgramService.hpp"
+#include "rtt/scripting/ProgramService.hpp"
 
-#include "../OperationCaller.hpp"
-#include "../FactoryExceptions.hpp"
-#include "../ExecutionEngine.hpp"
-#include "../internal/DataSources.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/FactoryExceptions.hpp"
+#include "rtt/ExecutionEngine.hpp"
+#include "rtt/internal/DataSources.hpp"
 
 namespace RTT
 {

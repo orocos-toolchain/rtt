@@ -37,7 +37,7 @@
 
 
 
-#include "TypeConstructor.hpp"
+#include "rtt/types/TypeConstructor.hpp"
 
 namespace RTT
 {

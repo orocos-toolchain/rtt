@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#include "TaskContextFactory.hpp"
-#include "TaskContextProxy.hpp"
+#include "rtt/transports/corba/TaskContextFactory.hpp"
+#include "rtt/transports/corba/TaskContextProxy.hpp"
 
 bool RTT::corba::TaskContextFactory::InitOrb(int argc, char* argv[], Seconds orb_timeout)
 {

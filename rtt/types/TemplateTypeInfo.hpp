@@ -38,17 +38,17 @@
 #ifndef ORO_TEMPLATE_TYPEINFO_HPP
 #define ORO_TEMPLATE_TYPEINFO_HPP
 
-#include "Types.hpp"
-#include "../Property.hpp"
-#include "../Attribute.hpp"
-#include "../Logger.hpp"
-#include "../InputPort.hpp"
-#include "../OutputPort.hpp"
-#include "PrimitiveTypeInfo.hpp"
-#include "TemplateConnFactory.hpp"
-#include "TemplateCompositionFactory.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/Attribute.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/InputPort.hpp"
+#include "rtt/OutputPort.hpp"
+#include "rtt/types/PrimitiveTypeInfo.hpp"
+#include "rtt/types/TemplateConnFactory.hpp"
+#include "rtt/types/TemplateCompositionFactory.hpp"
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 {

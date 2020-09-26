@@ -42,11 +42,11 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "rtt-scripting-config.h"
-#include "ProgramInterface.hpp"
-#include "StateMachine.hpp"
-#include "../Service.hpp"
-#include "ProgramExceptions.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/scripting/ProgramInterface.hpp"
+#include "rtt/scripting/StateMachine.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/scripting/ProgramExceptions.hpp"
 
 namespace RTT
 { namespace scripting {

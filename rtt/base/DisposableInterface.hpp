@@ -40,7 +40,7 @@
 #define ORO_DISPOSABLEINTERFACE_HPP
 
 #include <boost/shared_ptr.hpp>
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 {

@@ -42,10 +42,10 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "../Property.hpp"
-#include "../base/PropertyIntrospection.hpp"
-#include "MarshallInterface.hpp"
-#include "StreamProcessor.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/base/PropertyIntrospection.hpp"
+#include "rtt/marsh/MarshallInterface.hpp"
+#include "rtt/marsh/StreamProcessor.hpp"
 
 
 namespace RTT

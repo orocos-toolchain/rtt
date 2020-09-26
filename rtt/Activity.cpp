@@ -40,13 +40,13 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "Time.hpp"
-#include "Activity.hpp"
-#include "os/MutexLock.hpp"
-#include "os/traces.h"
-#include "Logger.hpp"
-#include "rtt-fwd.hpp"
-#include "os/fosi_internal_interface.hpp"
+#include "rtt/Time.hpp"
+#include "rtt/Activity.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/os/traces.h"
+#include "rtt/Logger.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/os/fosi_internal_interface.hpp"
 
 #include <cmath>
 

@@ -36,10 +36,10 @@
  ***************************************************************************/
 
 
-#include "Service.hpp"
-#include "TaskContext.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/TaskContext.hpp"
 #include <algorithm>
-#include "internal/mystd.hpp"
+#include "rtt/internal/mystd.hpp"
 #include <algorithm>
 
 namespace RTT {

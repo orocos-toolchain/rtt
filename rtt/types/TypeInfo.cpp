@@ -36,16 +36,16 @@
  ***************************************************************************/
 
 
-#include "TypeInfo.hpp"
-#include "TypeConstructor.hpp"
-#include "../internal/DataSourceTypeInfo.hpp"
-#include "../internal/ConnFactory.hpp"
-#include "TypeTransporter.hpp"
+#include "rtt/types/TypeInfo.hpp"
+#include "rtt/types/TypeConstructor.hpp"
+#include "rtt/internal/DataSourceTypeInfo.hpp"
+#include "rtt/internal/ConnFactory.hpp"
+#include "rtt/types/TypeTransporter.hpp"
 
-#include "rtt-config.h"
+#include "rtt/rtt-config.h"
 
-#include "../Logger.hpp"
-#include "../base/AttributeBase.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/base/AttributeBase.hpp"
 
 namespace RTT
 {
@@ -196,12 +196,12 @@ namespace RTT
 
     base::InputPortInterface* TypeInfo::inputPort(std::string const& name) const
     {
-        return mconnf ? mconnf->inputPort(name) : 0; 
+        return mconnf ? mconnf->inputPort(name) : 0;
     }
 
     base::OutputPortInterface* TypeInfo::outputPort(std::string const& name) const
     {
-        return mconnf ? mconnf->outputPort(name) : 0; 
+        return mconnf ? mconnf->outputPort(name) : 0;
     }
 
     base::ChannelElementBase::shared_ptr TypeInfo::buildDataStorage(ConnPolicy const& policy) const

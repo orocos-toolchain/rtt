@@ -39,17 +39,17 @@
 #ifndef ORO_SERVICE_PROVIDER_HPP
 #define ORO_SERVICE_PROVIDER_HPP
 
-#include "rtt-config.h"
-#include "OperationInterface.hpp"
-#include "DataFlowInterface.hpp"
-#include "internal/OperationInterfacePartFused.hpp"
-#include "internal/LocalOperationCaller.hpp"
-#include "internal/OperationCallerC.hpp"
-#include "internal/UnMember.hpp"
-#include "internal/GetSignature.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/OperationInterface.hpp"
+#include "rtt/DataFlowInterface.hpp"
+#include "rtt/internal/OperationInterfacePartFused.hpp"
+#include "rtt/internal/LocalOperationCaller.hpp"
+#include "rtt/internal/OperationCallerC.hpp"
+#include "rtt/internal/UnMember.hpp"
+#include "rtt/internal/GetSignature.hpp"
 
-#include "ConfigurationInterface.hpp"
-#include "Operation.hpp"
+#include "rtt/ConfigurationInterface.hpp"
+#include "rtt/Operation.hpp"
 #include <boost/shared_ptr.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/function_traits.hpp>
@@ -187,7 +187,7 @@ namespace RTT
         /**
          * Return the execution engine of this service owner.
          * \see getOwner
-         */        
+         */
         ExecutionEngine* getOwnerExecutionEngine() const;
 
         /**

@@ -39,8 +39,8 @@
 #ifndef DATAOBJECTDATASOURCE_HPP_
 #define DATAOBJECTDATASOURCE_HPP_
 
-#include "DataSource.hpp"
-#include "../base/DataObjectInterface.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/base/DataObjectInterface.hpp"
 
 namespace RTT
 {

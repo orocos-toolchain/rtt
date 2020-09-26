@@ -36,10 +36,10 @@
  ***************************************************************************/
 
 
-#include "TypekitRepository.hpp"
-#include "TypekitPlugin.hpp"
-#include "TransportPlugin.hpp"
-#include "../Logger.hpp"
+#include "rtt/types/TypekitRepository.hpp"
+#include "rtt/types/TypekitPlugin.hpp"
+#include "rtt/types/TransportPlugin.hpp"
+#include "rtt/Logger.hpp"
 #include <algorithm>
 
 namespace RTT {

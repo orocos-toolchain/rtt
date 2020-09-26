@@ -39,8 +39,8 @@
 #ifndef CONDITIONEXPIRE_HPP
 #define CONDITIONEXPIRE_HPP
 
-#include "ConditionInterface.hpp"
-#include "../os/TimeService.hpp"
+#include "rtt/scripting/ConditionInterface.hpp"
+#include "rtt/os/TimeService.hpp"
 
 namespace RTT
 { namespace scripting {

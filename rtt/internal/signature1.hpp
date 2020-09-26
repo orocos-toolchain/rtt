@@ -44,7 +44,7 @@
 #define OROCOS_SIGNATURE_ARG_TYPES typedef T1 arg1_type;
 #define OROCOS_SIGNATURE_TYPEDEFS typedef typename function_type::arg1_type arg1_type;
 
-#include "signature_template.hpp"
+#include "rtt/internal/signature_template.hpp"
 
 #undef OROCOS_SIGNATURE_TYPEDEFS
 #undef OROCOS_SIGNATURE_ARG_TYPES

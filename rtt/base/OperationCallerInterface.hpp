@@ -39,9 +39,9 @@
 #ifndef ORO_OPERATION_CALLER_INTERFACE_HPP
 #define ORO_OPERATION_CALLER_INTERFACE_HPP
 
-#include "../rtt-fwd.hpp"
-#include "DisposableInterface.hpp"
-#include "OperationBase.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/base/DisposableInterface.hpp"
+#include "rtt/base/OperationBase.hpp"
 
 namespace RTT
 {

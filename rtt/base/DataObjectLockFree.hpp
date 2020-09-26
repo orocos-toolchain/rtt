@@ -39,11 +39,11 @@
 #define CORELIB_DATAOBJECT_LOCK_FREE_HPP
 
 
-#include "../os/oro_arch.h"
-#include "DataObjectInterface.hpp"
-#include "../Logger.hpp"
-#include "../types/Types.hpp"
-#include "../internal/DataSourceTypeInfo.hpp"
+#include "rtt/os/oro_arch.h"
+#include "rtt/base/DataObjectInterface.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/internal/DataSourceTypeInfo.hpp"
 
 namespace RTT
 { namespace base {

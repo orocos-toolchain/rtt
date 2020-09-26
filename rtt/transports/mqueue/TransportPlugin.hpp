@@ -39,7 +39,7 @@
 #ifndef RTT_TRANSPORT_MQUEUE_PLUGIN
 #define RTT_TRANSPORT_MQUEUE_PLUGIN
 
-#include <rtt/types/TransportPlugin.hpp>
+#include "rtt/types/TransportPlugin.hpp"
 
 namespace RTT
 {

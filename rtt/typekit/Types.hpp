@@ -46,9 +46,9 @@
 #ifndef RTT_TYPEKIT_TYPES
 //#define RTT_TYPEKIT_TYPES
 
-#include "rtt-typekit-config.h"
-#include "RTTTypes.hpp"
-#include <rtt/rt_string.hpp>
+#include "rtt/typekit/rtt-typekit-config.h"
+#include "rtt/typekit/RTTTypes.hpp"
+#include "rtt/rt_string.hpp"
 #include <string>
 #include <vector>
 

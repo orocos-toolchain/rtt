@@ -35,24 +35,24 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "fosi_internal_interface.hpp"
-#include "Thread.hpp"
-#include "../Time.hpp"
-#include "threads.hpp"
-#include "../Logger.hpp"
-#include "MutexLock.hpp"
-#include "MainThread.hpp"
+#include "rtt/os/fosi_internal_interface.hpp"
+#include "rtt/os/Thread.hpp"
+#include "rtt/Time.hpp"
+#include "rtt/os/threads.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/os/MainThread.hpp"
 
-#include "../rtt-config.h"
-#include "../internal/CatchConfig.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/internal/CatchConfig.hpp"
 
 #ifdef OROPKG_OS_THREAD_SCOPE
-# include "../extras/dev/DigitalOutInterface.hpp"
+#include "rtt/extras/dev/DigitalOutInterface.hpp"
 #define SCOPE_INIT(name) 
 #define SCOPE_ON   if ( task->d ) task->d->switchOn( bit );
 #define SCOPE_OFF  if ( task->d ) task->d->switchOff( bit );
 #elif defined(HAVE_LTTNG_UST) && defined(OROPKG_OS_GNULINUX)
-#include "gnulinux/traces/lttng_ust.h"
+#include "rtt/os/gnulinux/traces/lttng_ust.h"
 #define SCOPE_INIT(name) tracepoint(orocos_rtt, thread_init , name);
 #define SCOPE_ON         tracepoint(orocos_rtt, thread_scope, 1);
 #define SCOPE_OFF        tracepoint(orocos_rtt, thread_scope, 0);

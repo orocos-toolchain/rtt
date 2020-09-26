@@ -63,8 +63,8 @@
 #include <assert.h>
 #endif
 
-#include "../oro_limits.h"
-#include "../../rtt-config.h"
+#include "rtt/os/oro_limits.h"
+#include "rtt/rtt-config.h"
 
     // Time Related
 #ifdef _MSC_VER
@@ -80,7 +80,7 @@ extern "C"
 {
 #endif
 
-#include "dlfcn.h"
+#include "rtt/os/win32/dlfcn.h"
 
     RTT_API unsigned int sleep(unsigned int seconds);
 	

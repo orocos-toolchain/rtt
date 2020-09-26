@@ -40,9 +40,9 @@
 #define ORO_TASK_CORE_HPP
 
 #include <string>
-#include "../rtt-fwd.hpp"
-#include "../rtt-config.h"
-#include "../Time.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/Time.hpp"
 
 namespace RTT
 { namespace base {

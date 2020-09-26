@@ -39,10 +39,10 @@
 #ifndef CONDITION_DS_DURATION_HPP
 #define CONDITION_DS_DURATION_HPP
 
-#include "rtt-scripting-config.h"
-#include "ConditionInterface.hpp"
-#include "../os/TimeService.hpp"
-#include "../internal/DataSource.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/scripting/ConditionInterface.hpp"
+#include "rtt/os/TimeService.hpp"
+#include "rtt/internal/DataSource.hpp"
 
 namespace RTT
 { namespace scripting {

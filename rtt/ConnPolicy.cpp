@@ -43,9 +43,9 @@
  *      Author: kaltan
  */
 
-#include "ConnPolicy.hpp"
-#include "Property.hpp"
-#include "PropertyBag.hpp"
+#include "rtt/ConnPolicy.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/PropertyBag.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <iostream>

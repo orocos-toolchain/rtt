@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#include "CPFMarshaller.hpp"
-#include "../rtt-config.h"
+#include "rtt/marsh/CPFMarshaller.hpp"
+#include "rtt/rtt-config.h"
 
 #include <iostream>
 using namespace std;

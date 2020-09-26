@@ -17,9 +17,9 @@
  ***************************************************************************/
 
 
-#include "unit.hpp"
-#include "marsh/PropertyLoader.hpp"
-#include "TaskContext.hpp"
+#include "tests/unit.hpp"
+#include "rtt/marsh/PropertyLoader.hpp"
+#include "rtt/TaskContext.hpp"
 
 struct LoaderTest {
     LoaderTest() : tc("tc"), pl(&tc),

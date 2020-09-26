@@ -38,10 +38,10 @@
 #ifndef PI_PROPERTYINTROSPECTION_INL
 #define PI_PROPERTYINTROSPECTION_INL
 
-#include "PropertyIntrospection.hpp"
-#include "../Property.hpp"
-#include "../PropertyBag.hpp"
-#include "../Logger.hpp"
+#include "rtt/base/PropertyIntrospection.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/Logger.hpp"
 
 namespace RTT
 { namespace base {

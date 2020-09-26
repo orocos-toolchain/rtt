@@ -36,12 +36,12 @@
  ***************************************************************************/
 
 
-#include "SignalBase.hpp"
+#include "rtt/internal/SignalBase.hpp"
 #include <boost/bind.hpp>
 
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
 #else
-#include "../os/MutexLock.hpp"
+#include "rtt/os/MutexLock.hpp"
 #endif
 
 namespace RTT {

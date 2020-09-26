@@ -43,8 +43,8 @@
  *      Author: kaltan
  */
 
-#include "CorbaTypeTransporter.hpp"
-#include "DataFlowI.h"
+#include "rtt/transports/corba/CorbaTypeTransporter.hpp"
+#include "rtt/transports/corba/DataFlowI.h"
 
 using namespace RTT;
 using namespace RTT::corba;

@@ -40,7 +40,7 @@
 #define PROPERTY_MARSHALLER_HPP
 
 #include <string>
-#include "MarshallInterface.hpp"
+#include "rtt/marsh/MarshallInterface.hpp"
 
 namespace RTT
 { namespace marsh {

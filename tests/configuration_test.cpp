@@ -1,7 +1,7 @@
-#include "unit.hpp"
-#include <Attribute.hpp>
-#include <Property.hpp>
-#include <TaskContext.hpp>
+#include "tests/unit.hpp"
+#include "rtt/Attribute.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/TaskContext.hpp"
 
 /**
  * Fixture.

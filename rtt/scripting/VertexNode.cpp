@@ -34,10 +34,10 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "VertexNode.hpp"
-#include "CommandNOP.hpp"
-#include "../base/ActionInterface.hpp"
-#include "../internal/DataSource.hpp"
+#include "rtt/scripting/VertexNode.hpp"
+#include "rtt/scripting/CommandNOP.hpp"
+#include "rtt/base/ActionInterface.hpp"
+#include "rtt/internal/DataSource.hpp"
 
 namespace RTT {
     using namespace detail;

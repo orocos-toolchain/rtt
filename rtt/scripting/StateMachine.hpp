@@ -39,14 +39,14 @@
 #ifndef HIERARCHICAL_STATE_MACHINE_HPP
 #define HIERARCHICAL_STATE_MACHINE_HPP
 
-#include "rtt-scripting-config.h"
-#include "StateInterface.hpp"
-#include "ConditionInterface.hpp"
-#include "../base/ActionInterface.hpp"
-#include "../base/ExecutableInterface.hpp"
-#include "../base/DataSourceBase.hpp"
-#include "../Handle.hpp"
-#include "../os/Mutex.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/scripting/StateInterface.hpp"
+#include "rtt/scripting/ConditionInterface.hpp"
+#include "rtt/base/ActionInterface.hpp"
+#include "rtt/base/ExecutableInterface.hpp"
+#include "rtt/base/DataSourceBase.hpp"
+#include "rtt/Handle.hpp"
+#include "rtt/os/Mutex.hpp"
 
 #include <map>
 #include <vector>

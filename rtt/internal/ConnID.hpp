@@ -46,7 +46,7 @@
 #ifndef ORO_CONNID_HPP_
 #define ORO_CONNID_HPP_
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 {

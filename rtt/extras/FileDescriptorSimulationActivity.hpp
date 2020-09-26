@@ -31,9 +31,9 @@
 #ifndef FILEDESCRIPTORSIMULATION_ACTIVITY_HPP
 #define FILEDESCRIPTORSIMULATION_ACTIVITY_HPP
 
-#include "../base/ActivityInterface.hpp"
-#include "../base/RunnableInterface.hpp"
-#include "../extras/FileDescriptorActivityInterface.hpp"
+#include "rtt/base/ActivityInterface.hpp"
+#include "rtt/base/RunnableInterface.hpp"
+#include "rtt/extras/FileDescriptorActivityInterface.hpp"
 
 namespace RTT { namespace extras {
 

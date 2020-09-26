@@ -44,11 +44,11 @@
 #include <boost/bind.hpp>
 #include <boost/fusion/include/vector.hpp>
 #include <boost/fusion/include/filter_if.hpp>
-#include "NA.hpp"
-#include "../Logger.hpp"
+#include "rtt/internal/NA.hpp"
+#include "rtt/Logger.hpp"
 
 #ifdef ORO_SIGNALLING_OPERATIONS
-#include "Signal.hpp"
+#include "rtt/internal/Signal.hpp"
 #endif
 
 namespace RTT

@@ -36,9 +36,9 @@
  ***************************************************************************/
 
 
-#include "DataSourceCommand.hpp"
+#include "rtt/internal/DataSourceCommand.hpp"
 
-#include "../base/ActionInterface.hpp"
+#include "rtt/base/ActionInterface.hpp"
 
 namespace RTT {
     using namespace detail;

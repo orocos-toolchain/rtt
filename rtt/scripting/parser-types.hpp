@@ -37,7 +37,7 @@
 #ifndef PARSER_TYPES_HPP
 #define PARSER_TYPES_HPP
 
-#include "rtt-scripting-config.h"
+#include "rtt/scripting/rtt-scripting-config.h"
 
 #include <boost/version.hpp>
 
@@ -49,8 +49,8 @@ namespace boost_spirit = boost::spirit::classic;
 #include <boost/spirit.hpp>
 namespace boost_spirit = boost::spirit;
 #endif
-#include "../base/ActionInterface.hpp"
-#include "rtt-scripting-fwd.hpp"
+#include "rtt/base/ActionInterface.hpp"
+#include "rtt/scripting/rtt-scripting-fwd.hpp"
 
 #undef interface	// To avoid name clash with namespace interface and Windows SDK objbase.h included through boost/spirit
 
@@ -131,8 +131,8 @@ namespace RTT
 
   // here are the typedef's for the scanner, and the rule types..
   //typedef __typeof__ ( SKIP_PARSER ) skip_parser_t;
-	
-	//register SKIP_PARSER with typeof system 
+
+	//register SKIP_PARSER with typeof system
 	//struct X {};
 	//BOOST_TYPEOF_REGISTER_TYPE(X);
 	//TODO:

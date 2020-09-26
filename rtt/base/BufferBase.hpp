@@ -39,8 +39,8 @@
 #define ORO_CORELIB_BUFFERBASE_HPP
 
 #include <boost/shared_ptr.hpp>
-#include "../rtt-config.h"
-#include "../rtt-fwd.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/rtt-fwd.hpp"
 
 namespace RTT
 { namespace base {

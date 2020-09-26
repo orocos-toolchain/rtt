@@ -38,11 +38,11 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "../Time.hpp"
-#include "PeriodicActivity.hpp"
-#include "../os/MutexLock.hpp"
-#include "../Logger.hpp"
-#include "TimerThread.hpp"
+#include "rtt/Time.hpp"
+#include "rtt/extras/PeriodicActivity.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/extras/TimerThread.hpp"
 #include <cmath>
 
 namespace RTT {

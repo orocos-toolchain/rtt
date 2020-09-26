@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#include "SimulationActivity.hpp"
-#include "SimulationThread.hpp"
+#include "rtt/extras/SimulationActivity.hpp"
+#include "rtt/extras/SimulationThread.hpp"
 
 namespace RTT {
     using namespace base;

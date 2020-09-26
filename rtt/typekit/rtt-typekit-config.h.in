@@ -39,7 +39,7 @@
 #ifndef RTT_TYPEKIT_CONFIG_H
 #define RTT_TYPEKIT_CONFIG_H
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 //
 // See: <http://gcc.gnu.org/wiki/Visibility>
@@ -70,12 +70,12 @@
 #  if defined(RTT_TYPEKIT_DLL_EXPORT)
 #   define RTT_TYPEKIT_API    __declspec(dllexport)
 #   define RTT_TYPEKIT_EXPORT __declspec(dllexport)
-#   define RTT_TYPEKIT_HIDE   
+#   define RTT_TYPEKIT_HIDE
 #   define RTT_TYPEKIT_EXT_TMPL extern
 #  else
 #   define RTT_TYPEKIT_API	 __declspec(dllimport)
 #   define RTT_TYPEKIT_EXPORT __declspec(dllexport)
-#   define RTT_TYPEKIT_HIDE 
+#   define RTT_TYPEKIT_HIDE
 #   define RTT_TYPEKIT_EXT_TMPL extern
 #  endif
 # else

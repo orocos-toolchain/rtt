@@ -36,11 +36,11 @@
  ***************************************************************************/
 
 
-#include "PortInterface.hpp"
-#include "../Service.hpp"
-#include "../OperationCaller.hpp"
-#include "../internal/ConnFactory.hpp"
-#include "../TaskContext.hpp"
+#include "rtt/base/PortInterface.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/internal/ConnFactory.hpp"
+#include "rtt/TaskContext.hpp"
 #include <cstring>
 
 using namespace RTT;

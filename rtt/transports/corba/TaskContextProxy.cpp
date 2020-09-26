@@ -35,16 +35,16 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "TaskContextProxy.hpp"
-#include "TaskContextServer.hpp"
+#include "rtt/transports/corba/TaskContextProxy.hpp"
+#include "rtt/transports/corba/TaskContextServer.hpp"
 #include "TaskContextC.h"
-#include "CorbaOperationCallerFactory.hpp"
-#include "CorbaLib.hpp"
-#include "OperationCallerProxy.hpp"
+#include "rtt/transports/corba/CorbaOperationCallerFactory.hpp"
+#include "rtt/transports/corba/CorbaLib.hpp"
+#include "rtt/transports/corba/OperationCallerProxy.hpp"
 
-#include "../../types/Types.hpp"
-#include "../../extras/SequentialActivity.hpp"
-#include "corba.h"
+#include "rtt/types/Types.hpp"
+#include "rtt/extras/SequentialActivity.hpp"
+#include "rtt/transports/corba/corba.h"
 #ifdef CORBA_IS_TAO
 #include "tao/TimeBaseC.h"
 #include "tao/Messaging/Messaging.h"
@@ -58,7 +58,7 @@
 #include <fstream>
 #include <string>
 
-#include "RemotePorts.hpp"
+#include "rtt/transports/corba/RemotePorts.hpp"
 
 using namespace std;
 using namespace RTT::detail;

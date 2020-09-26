@@ -39,7 +39,7 @@
 #define RTSTREAMBUFS_HPP
 
 #include <string>
-#include "fosi.h"
+#include "rtt/os/fosi.h"
 
 namespace RTT
 {namespace os

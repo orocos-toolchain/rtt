@@ -21,11 +21,11 @@
 #ifndef TASKSTHREADTEST_H
 #define TASKSTHREADTEST_H
 
-#include <extras/PeriodicActivity.hpp>
-#include <extras/SimulationActivity.hpp>
-#include <extras/SlaveActivity.hpp>
-#include <Activity.hpp>
-#include <rtt-detail-fwd.hpp>
+#include "rtt/extras/PeriodicActivity.hpp"
+#include "rtt/extras/SimulationActivity.hpp"
+#include "rtt/extras/SlaveActivity.hpp"
+#include "rtt/Activity.hpp"
+#include "rtt/rtt-detail-fwd.hpp"
 using namespace RTT::detail;
 
 using namespace RTT;

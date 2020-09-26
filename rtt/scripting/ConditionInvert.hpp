@@ -40,7 +40,7 @@
 #ifndef CONDITIONINVERT_HPP
 #define CONDITIONINVERT_HPP
 
-#include "ConditionInterface.hpp"
+#include "rtt/scripting/ConditionInterface.hpp"
 
 namespace RTT
 { namespace scripting {

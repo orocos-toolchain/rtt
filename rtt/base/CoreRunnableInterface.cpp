@@ -37,8 +37,8 @@
 
 
 
-#include "RunnableInterface.hpp"
-#include "../Logger.hpp"
+#include "rtt/base/RunnableInterface.hpp"
+#include "rtt/Logger.hpp"
 #include <cassert>
 
 namespace RTT {

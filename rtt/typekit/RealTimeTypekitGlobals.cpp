@@ -36,16 +36,16 @@
  ***************************************************************************/
 
 
-#include "rtt-typekit-config.h"
-#include "RealTimeTypekit.hpp"
-#include "../types/Types.hpp"
-#include "../types/GlobalsRepository.hpp"
-#include "../FlowStatus.hpp"
-#include "../SendStatus.hpp"
-#include "../ConnPolicy.hpp"
-#include "../BufferPolicy.hpp"
-#include "../typekit/Types.hpp"
-#include "../os/fosi.h"
+#include "rtt/typekit/rtt-typekit-config.h"
+#include "rtt/typekit/RealTimeTypekit.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/types/GlobalsRepository.hpp"
+#include "rtt/FlowStatus.hpp"
+#include "rtt/SendStatus.hpp"
+#include "rtt/ConnPolicy.hpp"
+#include "rtt/BufferPolicy.hpp"
+#include "rtt/typekit/Types.hpp"
+#include "rtt/os/fosi.h"
 
 namespace RTT
 {

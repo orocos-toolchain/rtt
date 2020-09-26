@@ -1,6 +1,6 @@
-#include <rtt/types/Types.hpp>
-#include "types/SequenceTypeInfo.hpp"
-#include "../../datasource_fixture.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/types/SequenceTypeInfo.hpp"
+#include "tests/datasource_fixture.hpp"
 
 void loadSequenceTypes()
 {

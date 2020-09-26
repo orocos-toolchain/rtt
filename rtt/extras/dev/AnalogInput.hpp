@@ -38,7 +38,7 @@
 #ifndef ANALOGINPUT_HPP
 #define ANALOGINPUT_HPP
 
-#include "AnalogInInterface.hpp"
+#include "rtt/extras/dev/AnalogInInterface.hpp"
 
 namespace RTT
 { namespace dev {

@@ -18,13 +18,13 @@
 
 
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
 #include <boost/filesystem.hpp>
-#include "TaskContext.hpp"
-#include "plugin/Plugin.hpp"
-#include "plugin/PluginLoader.hpp"
-#include "internal/GlobalService.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/plugin/Plugin.hpp"
+#include "rtt/plugin/PluginLoader.hpp"
+#include "rtt/internal/GlobalService.hpp"
 
 /* For internal use only - check if extension contains a version. */
 RTT_API bool isExtensionVersion(const std::string& ext);

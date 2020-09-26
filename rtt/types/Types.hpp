@@ -38,9 +38,9 @@
 #ifndef ORO_CORELIB_TYPES_HPP
 #define ORO_CORELIB_TYPES_HPP
 
-#include "TypeInfo.hpp"
-#include "TypeConstructor.hpp"
-#include "TypeInfoRepository.hpp"
+#include "rtt/types/TypeInfo.hpp"
+#include "rtt/types/TypeConstructor.hpp"
+#include "rtt/types/TypeInfoRepository.hpp"
 
 /**
  * \file Types.hpp We need some information on types if we want to make

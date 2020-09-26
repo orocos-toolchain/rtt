@@ -42,7 +42,7 @@
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
-#include <rtt/Component.hpp>
+#include "rtt/Component.hpp"
 
 namespace RTT {
         /**

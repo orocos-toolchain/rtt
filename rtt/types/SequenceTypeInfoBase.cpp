@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "SequenceTypeInfoBase.hpp"
+#include "rtt/types/SequenceTypeInfoBase.hpp"
 
 namespace RTT
 {

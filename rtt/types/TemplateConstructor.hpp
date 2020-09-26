@@ -39,15 +39,15 @@
 #ifndef ORO_TEMPLATE_CONSTRUCTOR_HPP
 #define ORO_TEMPLATE_CONSTRUCTOR_HPP
 
-#include "Types.hpp"
-#include "../internal/FusedFunctorDataSource.hpp"
-#include "../internal/CreateSequence.hpp"
-#include "../Logger.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/internal/FusedFunctorDataSource.hpp"
+#include "rtt/internal/CreateSequence.hpp"
+#include "rtt/Logger.hpp"
 
 #include <boost/type_traits/function_traits.hpp>
 #include <boost/function.hpp>
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 {

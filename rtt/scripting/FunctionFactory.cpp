@@ -36,26 +36,26 @@
  ***************************************************************************/
 
 
-#include "FunctionFactory.hpp"
+#include "rtt/scripting/FunctionFactory.hpp"
 
-#include "../ExecutionEngine.hpp"
-#include "../internal/GlobalEngine.hpp"
-#include "CommandComposite.hpp"
-#include "CommandBinary.hpp"
-#include "CallFunction.hpp"
-#include "ConditionComposite.hpp"
-#include "TryCommand.hpp"
+#include "rtt/ExecutionEngine.hpp"
+#include "rtt/internal/GlobalEngine.hpp"
+#include "rtt/scripting/CommandComposite.hpp"
+#include "rtt/scripting/CommandBinary.hpp"
+#include "rtt/scripting/CallFunction.hpp"
+#include "rtt/scripting/ConditionComposite.hpp"
+#include "rtt/scripting/TryCommand.hpp"
 #include <sstream>
 #include <map>
 #include <string>
-#include "../internal/mystd.hpp"
-#include <PropertyBag.hpp>
-#include <Property.hpp>
-#include "../Attribute.hpp"
-#include "parse_exception.hpp"
-#include "../internal/DataSourceCommand.hpp"
-#include "../FactoryExceptions.hpp"
-#include "../../Handle.hpp"
+#include "rtt/internal/mystd.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/Attribute.hpp"
+#include "rtt/scripting/parse_exception.hpp"
+#include "rtt/internal/DataSourceCommand.hpp"
+#include "rtt/FactoryExceptions.hpp"
+#include "rtt/Handle.hpp"
 
 
 namespace RTT {

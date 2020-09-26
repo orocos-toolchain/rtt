@@ -37,15 +37,15 @@
 
 
 
-#include "MarshallingService.hpp"
-#include "../TaskContext.hpp"
-#include "../plugin/ServicePlugin.hpp"
+#include "rtt/marsh/MarshallingService.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/plugin/ServicePlugin.hpp"
 
-#include "rtt-config.h"
+#include "rtt/rtt-config.h"
 #if !defined(ORO_EMBEDDED)
-#include "../OperationCaller.hpp"
+#include "rtt/OperationCaller.hpp"
 #endif
-#include "PropertyLoader.hpp"
+#include "rtt/marsh/PropertyLoader.hpp"
 
 //ORO_SERVICE_PLUGIN( RTT::marsh::MarshallingService )
 ORO_SERVICE_NAMED_PLUGIN(RTT::marsh::MarshallingService, "marshalling")

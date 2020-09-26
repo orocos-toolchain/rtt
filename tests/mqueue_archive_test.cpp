@@ -16,7 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
 #include <boost/version.hpp>
 #include <boost/iostreams/stream.hpp>
@@ -32,9 +32,9 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 
-#include <rtt-fwd.hpp>
-#include <transports/mqueue/binary_data_archive.hpp>
-#include <os/fosi.h>
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/transports/mqueue/binary_data_archive.hpp"
+#include "rtt/os/fosi.h"
 
 using namespace std;
 using namespace boost::archive;

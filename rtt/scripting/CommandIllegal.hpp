@@ -38,8 +38,8 @@
 #ifndef COMMANDILLEGAL_HPP
 #define COMMANDILLEGAL_HPP
 
-#include "rtt-scripting-config.h"
-#include "../base/ActionInterface.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/base/ActionInterface.hpp"
 #include <string>
 
 namespace RTT

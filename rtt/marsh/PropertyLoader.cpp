@@ -37,16 +37,16 @@
 
 
 
-#include "PropertyLoader.hpp"
-#include "rtt-config.h"
+#include "rtt/marsh/PropertyLoader.hpp"
+#include "rtt/rtt-config.h"
 #ifdef OROPKG_CORELIB_PROPERTIES_MARSHALLING
 #include ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE
 #include ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE
 #endif
-#include "../Logger.hpp"
-#include "../TaskContext.hpp"
-#include "PropertyBagIntrospector.hpp"
-#include "../types/PropertyComposition.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/marsh/PropertyBagIntrospector.hpp"
+#include "rtt/types/PropertyComposition.hpp"
 #include <fstream>
 
 using namespace std;

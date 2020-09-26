@@ -27,8 +27,8 @@
  ***************************************************************************/
 
 
-#include "DataObjectBase.hpp"
-#include "../ConnPolicy.hpp"
+#include "rtt/base/DataObjectBase.hpp"
+#include "rtt/ConnPolicy.hpp"
 
 using namespace RTT;
 using namespace RTT::base;

@@ -39,11 +39,11 @@
 #ifndef CORELIB_DATASOURCE_INL
 #define CORELIB_DATASOURCE_INL
 
-#include "AssignCommand.hpp"
-#include "DataSourceTypeInfo.hpp"
-#include "../types/TypeTransporter.hpp"
+#include "rtt/internal/AssignCommand.hpp"
+#include "rtt/internal/DataSourceTypeInfo.hpp"
+#include "rtt/types/TypeTransporter.hpp"
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 namespace RTT
 { namespace internal {

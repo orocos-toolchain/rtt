@@ -36,10 +36,10 @@
  ***************************************************************************/
 
 
-#include "DataFlowInterface.hpp"
-#include "Logger.hpp"
-#include "Service.hpp"
-#include "TaskContext.hpp"
+#include "rtt/DataFlowInterface.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/TaskContext.hpp"
 
 namespace RTT
 {

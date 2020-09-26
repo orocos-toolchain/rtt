@@ -40,9 +40,9 @@
 #ifndef PROGRAM_SERVICE_HPP
 #define PROGRAM_SERVICE_HPP
 
-#include "../Service.hpp"
-#include "FunctionGraph.hpp"
-#include "../internal/DataSources.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/scripting/FunctionGraph.hpp"
+#include "rtt/internal/DataSources.hpp"
 
 namespace RTT
 { namespace scripting {

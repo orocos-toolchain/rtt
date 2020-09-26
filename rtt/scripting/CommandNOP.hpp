@@ -38,8 +38,8 @@
 #ifndef COMMANDNOP_HPP
 #define COMMANDNOP_HPP
 
-#include "rtt-scripting-config.h"
-#include "../base/ActionInterface.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/base/ActionInterface.hpp"
 
 namespace RTT
 { namespace scripting {

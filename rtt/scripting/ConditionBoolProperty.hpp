@@ -38,9 +38,9 @@
 #ifndef CONDITIONBOOLPROPERTY_HPP
 #define CONDITIONBOOLPROPERTY_HPP
 
-#include "rtt-scripting-config.h"
-#include "ConditionInterface.hpp"
-#include "../Property.hpp"
+#include "rtt/scripting/rtt-scripting-config.h"
+#include "rtt/scripting/ConditionInterface.hpp"
+#include "rtt/Property.hpp"
 
 
 

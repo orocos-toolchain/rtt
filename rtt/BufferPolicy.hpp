@@ -30,7 +30,7 @@
 #ifndef ORO_BUFFER_POLICY_HPP
 #define ORO_BUFFER_POLICY_HPP
 
-#include "rtt-config.h"
+#include "rtt/rtt-config.h"
 #include <iosfwd>
 
 namespace RTT {

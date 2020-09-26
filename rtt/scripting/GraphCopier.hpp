@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "FunctionGraph.hpp"
+#include "rtt/scripting/FunctionGraph.hpp"
 
     namespace {
 

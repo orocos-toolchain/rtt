@@ -39,8 +39,8 @@
 #ifndef CORBA_TYPE_TRANSPORTER_H
 #define CORBA_TYPE_TRANSPORTER_H
 
-#include "corba.h"
-#include "../../types/TypeTransporter.hpp"
+#include "rtt/transports/corba/corba.h"
+#include "rtt/types/TypeTransporter.hpp"
 #include "ServiceC.h"
 
 namespace RTT {

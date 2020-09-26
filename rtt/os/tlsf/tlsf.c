@@ -57,7 +57,7 @@
 #ifdef	__APPLE__
 #define _DARWIN_C_SOURCE
 #else
-#include "../fosi.h"
+#include "rtt/os/fosi.h"
 #endif
 
 #include <string.h>
@@ -78,7 +78,7 @@
 
 
 #if TLSF_USE_LOCKS
-#include "target.h"
+#include "rtt/os/tlsf/target.h"
 #else
 #define TLSF_CREATE_LOCK(_unused_)   do{}while(0)
 #define TLSF_DESTROY_LOCK(_unused_)  do{}while(0)
@@ -116,7 +116,7 @@
 #endif
 
 #define ORO_MEMORY_POOL
-#include "tlsf.h"
+#include "rtt/os/tlsf/tlsf.h"
 
 #if !defined(__GNUC__)
 #ifndef __inline__

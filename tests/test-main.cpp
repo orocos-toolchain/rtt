@@ -17,8 +17,8 @@
  ***************************************************************************/
 
 
-#include <os/main.h>
-#include <Logger.hpp>
+#include "rtt/os/main.h"
+#include "rtt/Logger.hpp"
 
 int ORO_main(int argc, char** argv)
 {

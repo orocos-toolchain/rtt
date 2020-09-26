@@ -39,8 +39,8 @@
 #ifndef SEQUENCECONSTRUCTOR_HPP_
 #define SEQUENCECONSTRUCTOR_HPP_
 
-#include "TypeConstructor.hpp"
-#include "../internal/DataSources.hpp"
+#include "rtt/types/TypeConstructor.hpp"
+#include "rtt/internal/DataSources.hpp"
 #include <vector>
 
 namespace RTT

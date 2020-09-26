@@ -39,12 +39,12 @@
 #ifndef ORO_RTT_FWD_HPP
 #define ORO_RTT_FWD_HPP
 
-#include "rtt-detail-fwd.hpp"
-#include "os/rtt-os-fwd.hpp"
-#include "base/rtt-base-fwd.hpp"
-#include "internal/rtt-internal-fwd.hpp"
-#include "plugin/rtt-plugin-fwd.hpp"
-#include "types/rtt-types-fwd.hpp"
+#include "rtt/rtt-detail-fwd.hpp"
+#include "rtt/os/rtt-os-fwd.hpp"
+#include "rtt/base/rtt-base-fwd.hpp"
+#include "rtt/internal/rtt-internal-fwd.hpp"
+#include "rtt/plugin/rtt-plugin-fwd.hpp"
+#include "rtt/types/rtt-types-fwd.hpp"
 #include <boost/shared_ptr.hpp>
 
 

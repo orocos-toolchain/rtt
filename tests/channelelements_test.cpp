@@ -7,10 +7,10 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 #include <signal.h>
 
-#include <base/ChannelElement.hpp>
+#include "rtt/base/ChannelElement.hpp"
 
 using namespace std;
 using namespace RTT;

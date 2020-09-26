@@ -37,12 +37,12 @@
 
 // to retrieve RTAI version, if any.
 //#define OROBLD_OS_LXRT_INTERNAL
-#include "os/StartStopManager.hpp"
-#include "os/MutexLock.hpp"
-#include "os/Mutex.hpp"
-#include "os/TimeService.hpp"
+#include "rtt/os/StartStopManager.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/os/Mutex.hpp"
+#include "rtt/os/TimeService.hpp"
 
-#include "Logger.hpp"
+#include "rtt/Logger.hpp"
 #include <iomanip>
 
 #ifdef OROSEM_PRINTF_LOGGING
@@ -57,13 +57,13 @@
 #   endif
 #  endif
 #  ifdef OROSEM_REMOTE_LOGGING
-#   include "base/BufferLockFree.hpp"
+#include "rtt/base/BufferLockFree.hpp"
 #  endif
 #endif
 
 #include <stdlib.h>
-#include "rtt-config.h"
-#include "rtt-fwd.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/rtt-fwd.hpp"
 
 namespace RTT
 {

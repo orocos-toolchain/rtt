@@ -34,11 +34,11 @@
 #ifndef VECTOR_TEMPLATE_COMPOSITION_HPP
 #define VECTOR_TEMPLATE_COMPOSITION_HPP
 
-#include "../Property.hpp"
-#include "../PropertyBag.hpp"
-#include "Types.hpp"
-#include "../Logger.hpp"
-#include "../internal/DataSources.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/internal/DataSources.hpp"
 #include <vector>
 
 namespace RTT

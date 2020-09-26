@@ -36,11 +36,11 @@
  ***************************************************************************/
 
 
-#include "../Port.hpp"
-#include "ConnFactory.hpp"
-#include "../base/InputPortInterface.hpp"
-#include "../DataFlowInterface.hpp"
-#include "../types/TypeMarshaller.hpp"
+#include "rtt/Port.hpp"
+#include "rtt/internal/ConnFactory.hpp"
+#include "rtt/base/InputPortInterface.hpp"
+#include "rtt/DataFlowInterface.hpp"
+#include "rtt/types/TypeMarshaller.hpp"
 
 using namespace std;
 using namespace RTT;

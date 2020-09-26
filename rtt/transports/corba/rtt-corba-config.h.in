@@ -40,7 +40,7 @@
 #ifndef RTT_CORBA_CONFIG_H
 #define RTT_CORBA_CONFIG_H
 
-#include "../../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 #define RTT_CORBA_IMPLEMENTATION @CORBA_IMPLEMENTATION@
 
@@ -88,11 +88,11 @@
 #  if defined(RTT_CORBA_DLL_EXPORT)
 #   define RTT_CORBA_API    __declspec(dllexport)
 #   define RTT_CORBA_EXPORT __declspec(dllexport)
-#   define RTT_CORBA_HIDE   
+#   define RTT_CORBA_HIDE
 #  else
 #   define RTT_CORBA_API	 __declspec(dllimport)
 #   define RTT_CORBA_EXPORT __declspec(dllexport)
-#   define RTT_CORBA_HIDE 
+#   define RTT_CORBA_HIDE
 #  endif
 # else
 #  define RTT_CORBA_API

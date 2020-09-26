@@ -36,9 +36,9 @@
  ***************************************************************************/
  
  
-#include "os/ThreadInterface.hpp"
-#include "os/threads.hpp"
-#include "os/fosi_internal_interface.hpp"
+#include "rtt/os/ThreadInterface.hpp"
+#include "rtt/os/threads.hpp"
+#include "rtt/os/fosi_internal_interface.hpp"
 
 using namespace RTT::os;
 

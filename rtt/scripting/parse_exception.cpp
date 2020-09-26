@@ -38,7 +38,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "parse_exception.hpp"
+#include "rtt/scripting/parse_exception.hpp"
 
 #include <sstream>
 

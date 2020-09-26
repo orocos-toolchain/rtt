@@ -40,7 +40,7 @@
 #ifndef ORO_GLOBALSERVICE_HPP_
 #define ORO_GLOBALSERVICE_HPP_
 
-#include "../Service.hpp"
+#include "rtt/Service.hpp"
 #include <boost/shared_ptr.hpp>
 
 namespace RTT

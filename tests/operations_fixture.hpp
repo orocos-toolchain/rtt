@@ -19,8 +19,8 @@
 
 
 #include <iostream>
-#include <TaskContext.hpp>
-#include "unit.hpp"
+#include "rtt/TaskContext.hpp"
+#include "tests/unit.hpp"
 
 using namespace std;
 using namespace boost;

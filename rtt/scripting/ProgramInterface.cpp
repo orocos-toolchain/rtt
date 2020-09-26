@@ -37,8 +37,8 @@
 
 
 
-#include "ProgramInterface.hpp"
-#include <Logger.hpp>
+#include "rtt/scripting/ProgramInterface.hpp"
+#include "rtt/Logger.hpp"
 
 namespace RTT {
     using namespace detail;

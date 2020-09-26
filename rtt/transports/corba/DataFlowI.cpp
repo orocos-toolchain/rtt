@@ -35,25 +35,25 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "DataFlowI.h"
-#include "corba.h"
+#include "rtt/transports/corba/DataFlowI.h"
+#include "rtt/transports/corba/corba.h"
 #ifdef CORBA_IS_TAO
 #include "DataFlowS.h"
 #else
 #include "DataFlowC.h"
 #endif
-#include "../../base/PortInterface.hpp"
-#include "../../Logger.hpp"
-#include "TaskContextProxy.hpp"
-#include "CorbaTypeTransporter.hpp"
-#include "../../InputPort.hpp"
-#include "../../OutputPort.hpp"
-#include "CorbaConnPolicy.hpp"
-#include "CorbaLib.hpp"
+#include "rtt/base/PortInterface.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/transports/corba/TaskContextProxy.hpp"
+#include "rtt/transports/corba/CorbaTypeTransporter.hpp"
+#include "rtt/InputPort.hpp"
+#include "rtt/OutputPort.hpp"
+#include "rtt/transports/corba/CorbaConnPolicy.hpp"
+#include "rtt/transports/corba/CorbaLib.hpp"
 
-#include "RemotePorts.hpp"
-#include "RemoteConnID.hpp"
-#include <rtt/os/MutexLock.hpp>
+#include "rtt/transports/corba/RemotePorts.hpp"
+#include "rtt/transports/corba/RemoteConnID.hpp"
+#include "rtt/os/MutexLock.hpp"
 
 #include <iostream>
 

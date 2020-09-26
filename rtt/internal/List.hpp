@@ -40,7 +40,7 @@
 #ifndef ORO_LIST_HPP_
 #define ORO_LIST_HPP_
 
-#include "../rtt-config.h"
+#include "rtt/rtt-config.h"
 
 /**
  * @file List.hpp
@@ -49,9 +49,9 @@
  * parameters.
  */
 #if defined(OROBLD_OS_NO_ASM)
-#include "ListLocked.hpp"
+#include "rtt/internal/ListLocked.hpp"
 #else
-#include "ListLockFree.hpp"
+#include "rtt/internal/ListLockFree.hpp"
 #endif
 
 namespace RTT

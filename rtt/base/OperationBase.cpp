@@ -43,8 +43,8 @@
  *      Author: kaltan
  */
 
-#include "OperationBase.hpp"
-#include "Operation.hpp"
+#include "rtt/base/OperationBase.hpp"
+#include "rtt/Operation.hpp"
 
 namespace RTT
 {

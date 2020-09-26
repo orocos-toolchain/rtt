@@ -38,7 +38,7 @@
 #ifndef ANALOGOUTPUT_HPP
 #define ANALOGOUTPUT_HPP
 
-#include "AnalogOutInterface.hpp"
+#include "rtt/extras/dev/AnalogOutInterface.hpp"
 
 namespace RTT
 { namespace dev {

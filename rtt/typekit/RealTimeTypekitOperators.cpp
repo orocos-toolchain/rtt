@@ -37,21 +37,21 @@
 
 
 
-#include "rtt-typekit-config.h"
-#include "RealTimeTypekit.hpp"
-#include "../types/Types.hpp"
-#include "../types/Operators.hpp"
-#include "../types/OperatorTypes.hpp"
-#include "../internal/mystd.hpp"
-#include "../rtt-fwd.hpp"
-#include "../FlowStatus.hpp"
-#include "../SendStatus.hpp"
-#include "../ConnPolicy.hpp"
-#include "../typekit/Types.hpp"
+#include "rtt/typekit/rtt-typekit-config.h"
+#include "rtt/typekit/RealTimeTypekit.hpp"
+#include "rtt/types/Types.hpp"
+#include "rtt/types/Operators.hpp"
+#include "rtt/types/OperatorTypes.hpp"
+#include "rtt/internal/mystd.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/FlowStatus.hpp"
+#include "rtt/SendStatus.hpp"
+#include "rtt/ConnPolicy.hpp"
+#include "rtt/typekit/Types.hpp"
 #include <ostream>
 #include <sstream>
 #ifdef OS_RT_MALLOC
-#include "../rt_string.hpp"
+#include "rtt/rt_string.hpp"
 #endif
 
 namespace RTT

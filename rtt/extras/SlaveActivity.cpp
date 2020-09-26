@@ -36,12 +36,12 @@
  ***************************************************************************/
 
 
-#include "SlaveActivity.hpp"
+#include "rtt/extras/SlaveActivity.hpp"
 
-#include "../base/DisposableInterface.hpp"
-#include "../os/MainThread.hpp"
-#include "ExecutionEngine.hpp"
-#include "Logger.hpp"
+#include "rtt/base/DisposableInterface.hpp"
+#include "rtt/os/MainThread.hpp"
+#include "rtt/ExecutionEngine.hpp"
+#include "rtt/Logger.hpp"
 
 namespace RTT {
     using namespace extras;

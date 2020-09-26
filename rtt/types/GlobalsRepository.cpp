@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "GlobalsRepository.hpp"
+#include "rtt/types/GlobalsRepository.hpp"
 
 using namespace RTT::types;
 

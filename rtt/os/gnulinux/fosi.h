@@ -65,7 +65,7 @@ extern "C"
 #include <limits.h>
 #include <float.h>
 #include <assert.h>
-#include "../oro_limits.h"
+#include "rtt/os/oro_limits.h"
 
     // Time Related
 #include <sys/time.h>

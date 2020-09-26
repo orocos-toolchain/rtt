@@ -36,9 +36,9 @@
  ***************************************************************************/
 
 
-#include "SequentialActivity.hpp"
-#include "../os/MainThread.hpp"
-#include "../os/MutexLock.hpp"
+#include "rtt/extras/SequentialActivity.hpp"
+#include "rtt/os/MainThread.hpp"
+#include "rtt/os/MutexLock.hpp"
 
 namespace RTT {
     using namespace extras;

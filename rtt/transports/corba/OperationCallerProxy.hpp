@@ -38,8 +38,8 @@
 
 #include "ServiceRequesterC.h"
 #include <string>
-#include "../../base/OperationCallerBaseInvoker.hpp"
-#include "CorbaOperationCallerFactory.hpp"
+#include "rtt/base/OperationCallerBaseInvoker.hpp"
+#include "rtt/transports/corba/CorbaOperationCallerFactory.hpp"
 
 namespace RTT
 {

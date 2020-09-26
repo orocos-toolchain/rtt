@@ -39,9 +39,9 @@
 #ifndef ORO_STD_TYPE_INFO_HPP
 #define ORO_STD_TYPE_INFO_HPP
 
-#include "../rtt-config.h"
-#include "../types/Types.hpp"
-#include "../types/TemplateTypeInfo.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/types/Types.hpp"
+#include "rtt/types/TemplateTypeInfo.hpp"
 
 namespace RTT
 {

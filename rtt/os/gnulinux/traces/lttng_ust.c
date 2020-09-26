@@ -1,3 +1,3 @@
 
 #define TRACEPOINT_CREATE_PROBES
-#include "lttng_ust.h"
+#include "rtt/os/gnulinux/traces/lttng_ust.h"

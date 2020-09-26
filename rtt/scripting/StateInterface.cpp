@@ -43,7 +43,7 @@
  *      Author: kaltan
  */
 
-#include "StateInterface.hpp"
+#include "rtt/scripting/StateInterface.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;

@@ -66,14 +66,14 @@
 // TAO_IDL - Generated from
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1196
 
-#include "TaskContextI.h"
-#include "TaskContextServer.hpp"
-#include "TaskContextProxy.hpp"
-#include "ServiceI.h"
-#include "ServiceRequesterI.h"
-#include "DataFlowI.h"
-#include "../../OperationCaller.hpp"
-#include "../../rtt-detail-fwd.hpp"
+#include "rtt/transports/corba/TaskContextI.h"
+#include "rtt/transports/corba/TaskContextServer.hpp"
+#include "rtt/transports/corba/TaskContextProxy.hpp"
+#include "rtt/transports/corba/ServiceI.h"
+#include "rtt/transports/corba/ServiceRequesterI.h"
+#include "rtt/transports/corba/DataFlowI.h"
+#include "rtt/OperationCaller.hpp"
+#include "rtt/rtt-detail-fwd.hpp"
 
 
 using namespace RTT;

@@ -28,7 +28,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "PulseTrainGeneratorInterface.hpp"
+#include "rtt/extras/dev/PulseTrainGeneratorInterface.hpp"
 
 namespace RTT {
     using namespace dev;

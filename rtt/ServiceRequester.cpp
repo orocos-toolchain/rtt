@@ -36,11 +36,11 @@
  ***************************************************************************/
 
 
-#include "ServiceRequester.hpp"
-#include "Service.hpp"
-#include "internal/mystd.hpp"
-#include "Logger.hpp"
-#include "TaskContext.hpp"
+#include "rtt/ServiceRequester.hpp"
+#include "rtt/Service.hpp"
+#include "rtt/internal/mystd.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/TaskContext.hpp"
 #include <boost/bind.hpp>
 
 #include <utility>

@@ -35,7 +35,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "os/rtconversions.hpp"
+#include "rtt/os/rtconversions.hpp"
 
 #include <string>
 #include <cstdio>

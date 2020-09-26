@@ -16,19 +16,19 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
 #include <iostream>
 
-#include <TaskContext.hpp>
-#include <extras/SlaveActivity.hpp>
-#include <extras/SequentialActivity.hpp>
-#include <extras/SimulationActivity.hpp>
-#include <extras/SimulationThread.hpp>
-#include <os/fosi.h>
+#include "rtt/TaskContext.hpp"
+#include "rtt/extras/SlaveActivity.hpp"
+#include "rtt/extras/SequentialActivity.hpp"
+#include "rtt/extras/SimulationActivity.hpp"
+#include "rtt/extras/SimulationThread.hpp"
+#include "rtt/os/fosi.h"
 
 #include <boost/function_types/function_type.hpp>
-#include <OperationCaller.hpp>
+#include "rtt/OperationCaller.hpp"
 
 using namespace std;
 using namespace RTT;

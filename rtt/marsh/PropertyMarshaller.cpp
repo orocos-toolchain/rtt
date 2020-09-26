@@ -36,14 +36,14 @@
  ***************************************************************************/
 
 
-#include "PropertyMarshaller.hpp"
-#include "rtt-config.h"
+#include "rtt/marsh/PropertyMarshaller.hpp"
+#include "rtt/rtt-config.h"
 
 #ifdef ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE
 #include ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE
 #endif
 
-#include <Logger.hpp>
+#include "rtt/Logger.hpp"
 #include <fstream>
 
 namespace RTT {

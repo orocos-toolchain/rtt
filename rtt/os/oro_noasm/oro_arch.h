@@ -45,8 +45,8 @@
  * resource counting etc. We emulate it using mutexes.
  */
 
-#include "../../rtt-config.h"
-#include "../fosi.h"
+#include "rtt/rtt-config.h"
+#include "rtt/os/fosi.h"
 
 #ifndef __GNUC__
 #define __inline__

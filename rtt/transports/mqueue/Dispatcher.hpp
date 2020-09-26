@@ -37,10 +37,10 @@
 
 
 
-#include "../../os/MutexLock.hpp"
-#include "../../Activity.hpp"
-#include "../../base/ChannelElementBase.hpp"
-#include "../../Logger.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/Activity.hpp"
+#include "rtt/base/ChannelElementBase.hpp"
+#include "rtt/Logger.hpp"
 #include <map>
 #include <sys/select.h>
 #include <mqueue.h>

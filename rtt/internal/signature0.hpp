@@ -44,7 +44,7 @@
 #define OROCOS_SIGNATURE_ARG_TYPES
 #define OROCOS_SIGNATURE_TYPEDEFS
 
-#include "signature_template.hpp"
+#include "rtt/internal/signature_template.hpp"
 
 #undef OROCOS_SIGNATURE_TYPEDEFS
 #undef OROCOS_SIGNATURE_ARG_TYPES

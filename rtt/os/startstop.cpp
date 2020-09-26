@@ -42,22 +42,22 @@
  * The target calls these functions at startup time.
  */
 
-#include "../rtt-config.h"
-#include <os/startstop.h>
-#include "os/MainThread.hpp"
-#include "os/StartStopManager.hpp"
-#include "../internal/GlobalEngine.hpp"
-#include "../types/GlobalsRepository.hpp"
-#include "../types/TypekitRepository.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/os/startstop.h"
+#include "rtt/os/MainThread.hpp"
+#include "rtt/os/StartStopManager.hpp"
+#include "rtt/internal/GlobalEngine.hpp"
+#include "rtt/types/GlobalsRepository.hpp"
+#include "rtt/types/TypekitRepository.hpp"
 
 #ifdef OROPKG_OS_THREAD_SCOPE
 # include <boost/scoped_ptr.hpp>
-# include "../extras/dev/DigitalOutInterface.hpp"
+#include "rtt/extras/dev/DigitalOutInterface.hpp"
   using namespace RTT;
 #elif defined(HAVE_LTTNG_UST) && defined(OROPKG_OS_GNULINUX)
 #define TRACEPOINT_DEFINE
 #define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
-#include "gnulinux/traces/lttng_ust.h"
+#include "rtt/os/gnulinux/traces/lttng_ust.h"
 #endif
 
 #ifdef OS_HAVE_IOSTREAM
@@ -67,8 +67,8 @@ using namespace std;
 #include <cstdio>
 #endif
 
-#include "../Logger.hpp"
-#include "TimeService.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/os/TimeService.hpp"
 
 using namespace RTT;
 using namespace RTT::os;

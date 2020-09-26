@@ -40,10 +40,10 @@
 #ifndef MULTIVECTOR_COMPOSITION_HPP
 #define MULTIVECTOR_COMPOSITION_HPP
 
-#include "MultiVector.hpp"
-#include "../Property.hpp"
-#include "../PropertyBag.hpp"
-#include "../Logger.hpp"
+#include "rtt/extras/MultiVector.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/Logger.hpp"
 
 namespace RTT
 { namespace extras {

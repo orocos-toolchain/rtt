@@ -41,9 +41,9 @@
 #define ORO_MARSHALLING_ACCESS_HPP
 
 #include <string>
-#include "../marsh/rtt-marsh-config.h"
-#include "../rtt-fwd.hpp"
-#include "../Service.hpp"
+#include "rtt/marsh/rtt-marsh-config.h"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/Service.hpp"
 
 namespace RTT
 { namespace marsh {

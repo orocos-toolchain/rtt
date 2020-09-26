@@ -39,12 +39,12 @@
 #ifndef ORO_CORELIB_SEND_HANDLE_HPP
 #define ORO_CORELIB_SEND_HANDLE_HPP
 
-#include "rtt-config.h"
-#include "Logger.hpp"
-#include "internal/CollectSignature.hpp"
-#include "internal/CollectBase.hpp"
-#include "internal/ReturnSignature.hpp"
-#include "internal/ReturnBase.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/Logger.hpp"
+#include "rtt/internal/CollectSignature.hpp"
+#include "rtt/internal/CollectBase.hpp"
+#include "rtt/internal/ReturnSignature.hpp"
+#include "rtt/internal/ReturnBase.hpp"
 #include <boost/type_traits.hpp>
 
 namespace RTT

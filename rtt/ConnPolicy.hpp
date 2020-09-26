@@ -41,9 +41,9 @@
 
 #include <string>
 #include <iosfwd>
-#include "rtt-fwd.hpp"
-#include "rtt-config.h"
-#include "BufferPolicy.hpp"
+#include "rtt/rtt-fwd.hpp"
+#include "rtt/rtt-config.h"
+#include "rtt/BufferPolicy.hpp"
 
 namespace RTT {
 

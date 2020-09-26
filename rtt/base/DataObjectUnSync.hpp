@@ -41,7 +41,7 @@
 #define CORELIB_DATAOBJECT_UNSYNC_HPP
 
 
-#include "DataObjectInterface.hpp"
+#include "rtt/base/DataObjectInterface.hpp"
 
 namespace RTT
 { namespace base {

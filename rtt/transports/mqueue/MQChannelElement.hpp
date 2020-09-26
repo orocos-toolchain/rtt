@@ -39,11 +39,11 @@
 #ifndef MQ_CHANNEL_ELEMENT_H
 #define MQ_CHANNEL_ELEMENT_H
 
-#include "MQSendRecv.hpp"
-#include "../../Logger.hpp"
-#include "../../base/ChannelElement.hpp"
-#include "../../internal/DataSource.hpp"
-#include "../../internal/DataSources.hpp"
+#include "rtt/transports/mqueue/MQSendRecv.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/base/ChannelElement.hpp"
+#include "rtt/internal/DataSource.hpp"
+#include "rtt/internal/DataSources.hpp"
 #include <stdexcept>
 
 namespace RTT

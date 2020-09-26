@@ -44,8 +44,8 @@
 #include <boost/mem_fn.hpp>
 #include <boost/function_types/function_type.hpp>
 #include <boost/function_types/function_arity.hpp>
-#include "DataSources.hpp"
-#include "BindStorage.hpp"
+#include "rtt/internal/DataSources.hpp"
+#include "rtt/internal/BindStorage.hpp"
 
 namespace RTT
 {

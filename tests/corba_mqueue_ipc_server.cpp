@@ -20,13 +20,13 @@
 // need access to all TLSF functions embedded in RTT
 // this call must occur before ALL RTT include's!!
 #define ORO_MEMORY_POOL
-#include <rtt/os/tlsf/tlsf.h>
+#include "rtt/os/tlsf/tlsf.h"
 
-#include <transports/corba/TaskContextServer.hpp>
-#include <transports/corba/TaskContextProxy.hpp>
-#include <rtt/Port.hpp>
-#include <rtt/plugin/PluginLoader.hpp>
-#include <os/main.h>
+#include "rtt/transports/corba/TaskContextServer.hpp"
+#include "rtt/transports/corba/TaskContextProxy.hpp"
+#include "rtt/Port.hpp"
+#include "rtt/plugin/PluginLoader.hpp"
+#include "rtt/os/main.h"
 #include <fstream>
 
 using namespace std;

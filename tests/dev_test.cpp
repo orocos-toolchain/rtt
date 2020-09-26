@@ -16,15 +16,15 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "unit.hpp"
+#include "tests/unit.hpp"
 
-#include "dev_test.hpp"
-#include "FakeAnalogDevice.hpp"
-#include "FakeDigitalDevice.hpp"
-#include <extras/dev/AnalogInput.hpp>
-#include <extras/dev/AnalogOutput.hpp>
-#include <extras/dev/DigitalInput.hpp>
-#include <extras/dev/DigitalOutput.hpp>
+#include "tests/dev_test.hpp"
+#include "tests/FakeAnalogDevice.hpp"
+#include "tests/FakeDigitalDevice.hpp"
+#include "rtt/extras/dev/AnalogInput.hpp"
+#include "rtt/extras/dev/AnalogOutput.hpp"
+#include "rtt/extras/dev/DigitalInput.hpp"
+#include "rtt/extras/dev/DigitalOutput.hpp"
 
 
 #include <iostream>

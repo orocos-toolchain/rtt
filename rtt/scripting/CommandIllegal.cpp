@@ -34,7 +34,7 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "CommandIllegal.hpp"
+#include "rtt/scripting/CommandIllegal.hpp"
 
 #include <iostream>
 namespace RTT {

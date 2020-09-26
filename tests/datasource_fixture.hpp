@@ -21,9 +21,9 @@
 #define ORO_DATASOURCE_FIXTURE_HPP_
 
 #include <rtt-config.h>
-#include "unit.hpp"
+#include "tests/unit.hpp"
 #include <iostream>
-#include <RTT.hpp>
+#include "rtt/RTT.hpp"
 #include <boost/array.hpp>
 #include <boost/serialization/vector.hpp>
 
