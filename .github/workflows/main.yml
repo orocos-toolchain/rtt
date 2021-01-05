@@ -1,0 +1,13 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  tue-ci:
+    name: TUe CI - ${{ github.event_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: TUe CI
+        uses: tue-robotics/tue-env/ci/main@master
+        with:
+          package: ${{ github.event.repository.name }}
