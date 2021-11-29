@@ -85,9 +85,10 @@ namespace RTT
         // make these private
         parse_exception& operator=( const parse_exception& );
     protected:
-        parse_exception() {};
+        parse_exception() {}
+        parse_exception( const parse_exception& ) {}
     public:
-        virtual ~parse_exception() {};
+        virtual ~parse_exception() {}
         virtual const std::string what() const = 0;
         virtual parse_exception* copy() const = 0;
     };
@@ -105,7 +106,8 @@ namespace RTT
             // make these private
             semantic_parse_exception& operator=( const semantic_parse_exception& );
         protected:
-            semantic_parse_exception() {};
+            semantic_parse_exception() {}
+            semantic_parse_exception( const semantic_parse_exception& other ) : parse_exception(other) {}
         };
 
         /**
@@ -119,7 +121,8 @@ namespace RTT
             // make these private
             fatal_syntactic_parse_exception& operator=( const fatal_syntactic_parse_exception& );
         protected:
-            fatal_syntactic_parse_exception() {};
+            fatal_syntactic_parse_exception() {}
+            fatal_syntactic_parse_exception( const fatal_syntactic_parse_exception& other ) : parse_exception(other) {}
         };
 
         /**
@@ -134,7 +137,8 @@ namespace RTT
             // make these private
             fatal_semantic_parse_exception& operator=( const fatal_syntactic_parse_exception& );
         protected:
-            fatal_semantic_parse_exception() {};
+            fatal_semantic_parse_exception() {}
+            fatal_semantic_parse_exception( const fatal_syntactic_parse_exception& other ) : parse_exception(other) {}
         };
 
         /**
@@ -148,7 +152,8 @@ namespace RTT
             // make these private
             syntactic_parse_exception& operator=( const syntactic_parse_exception& );
         protected:
-            syntactic_parse_exception() {};
+            syntactic_parse_exception() {}
+            syntactic_parse_exception( const syntactic_parse_exception& other ) : parse_exception(other) {}
         };
 
 
@@ -160,8 +165,7 @@ namespace RTT
         public:
             parse_exception_illegal_identifier( const std::string& ident )
                 : mident( ident )
-            {
-            };
+            {}
 
             const std::string what() const
             {
@@ -190,8 +194,7 @@ namespace RTT
         public:
             parse_exception_semantic_error( const std::string& desc )
                 : mdesc( desc )
-            {
-            };
+            {}
 
             const std::string what() const
             {
@@ -220,8 +223,7 @@ namespace RTT
         public:
             parse_exception_fatal_semantic_error( const std::string& desc )
                 : mdesc( desc )
-            {
-            };
+            {}
 
             const std::string what() const
             {
@@ -276,8 +278,7 @@ namespace RTT
         public:
             parse_exception_syntactic_error( const std::string& desc )
                 : mdesc( desc )
-            {
-            };
+            {}
 
             const std::string what() const
             {
@@ -331,8 +332,7 @@ namespace RTT
             parse_exception_no_such_method_on_component(
                                                         const std::string& componentname, const std::string& methodname )
                 : mcomponentname( componentname ), mmethodname( methodname )
-            {
-            };
+            {}
 
             const std::string what() const
             {
@@ -369,8 +369,7 @@ namespace RTT
                 : mcomponentname( componentname ), mmethodname( methodname ),
                   mexpectednumber( expectednumber ),
                   mreceivednumber( receivednumber )
-            {
-            };
+            {}
 
             const std::string what() const;
 
@@ -414,8 +413,7 @@ namespace RTT
                                                    int argnumber, const std::string& expected, const std::string& received )
                 : mcomponentname( componentname ), mmethodname( methodname ),
                   margnumber( argnumber ), mexpected( expected), mreceived( received )
-            {
-            };
+            {}
 
             const std::string what() const;
 

@@ -144,8 +144,9 @@ namespace RTT
         /**
          * Add a valid property to the container. Analogous to addProperty.
          * @param p Pointer to the property to be added.
+         * @return false if !p || !p->ready(), true otherwise.
          */
-        void add(base::PropertyBase *p);
+        bool add(base::PropertyBase *p);
 
         /**
          * Remove a property from the container. Analogous to removeProperty.
@@ -173,8 +174,8 @@ namespace RTT
 
         /**
          * Add a valid property to the container.
-         * @param p Pointer to the property to be added.
-         * @return false if !p || !p->ready(), true otherwise.
+         * @param p Reference to the property to be added.
+         * @return false if !p.ready(), true otherwise.
          */
         bool addProperty(base::PropertyBase& p);
 
