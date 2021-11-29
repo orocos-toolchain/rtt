@@ -60,11 +60,6 @@ namespace RTT
      * When provided one, it will execute a base::RunnableInterface object, or the equivalent methods in
      * it's own interface when none is given.
      *
-     * For a periodic Activity, when it misses its deadline because user code
-     * take too long to execute, it will skip the required number of periodic
-     * execution steps in order to be back on time. This is the ORO_WAIT_REL wait
-     * policy and can be changed by calling setWaitPeriodPolicy(ORO_WAIT_ABS)
-     *
      * @ingroup CoreLibActivities
      */
     class RTT_API Activity
