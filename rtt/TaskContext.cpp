@@ -51,6 +51,7 @@
 #include "internal/mystd.hpp"
 #include "internal/MWSRQueue.hpp"
 #include "OperationCaller.hpp"
+#include "os/MainThread.hpp"
 
 #include "rtt-config.h"
 
@@ -342,9 +343,9 @@ namespace RTT
         if (this->isRunning())
             return false;
 
-        // refuse to setActivity from our own active thread
+        // refuse to setActivity from our own active thread, unless it's a change from the sequential activity in the main thread
         if (our_act) {
-            if (our_act->isActive() && our_act->thread() && our_act->thread()->isSelf()) {
+            if (our_act->isActive() && our_act->thread() && our_act->thread() != os::MainThread::Instance() && our_act->thread()->isSelf()) {
                 log(Error) << "Cannot set the activity of TaskContext "
                            << this->getName() << " from its own thread." << endlog();
                 return false;
