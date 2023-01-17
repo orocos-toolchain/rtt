@@ -147,7 +147,10 @@ extern "C"
     static inline int rtos_nanosleep( const TIME_SPEC * rqtp, TIME_SPEC * rmtp )
     {
         //    return usleep(rqtp->tv_nsec/1000L);
-        return nanosleep( rqtp, rmtp );
+        if ( nanosleep( rqtp, rmtp ) == 0 )
+            return 0;
+        else
+            return -errno;
     }
 
     static inline long long nano2ticks( long long nano )
@@ -170,22 +173,22 @@ extern "C"
 
     static inline int rtos_sem_init(rt_sem_t* m, int value )
     {
-        return semaphore_create(mach_task_self(), m, SYNC_POLICY_FIFO, value);
+        return -semaphore_create(mach_task_self(), m, SYNC_POLICY_FIFO, value);
     }
 
     static inline int rtos_sem_destroy(rt_sem_t* m )
     {
-        return semaphore_destroy(mach_task_self(), *m);
+        return -semaphore_destroy(mach_task_self(), *m);
     }
 
     static inline int rtos_sem_signal(rt_sem_t* m )
     {
-        return semaphore_signal(*m);
+        return -semaphore_signal(*m);
     }
 
     static inline int rtos_sem_wait(rt_sem_t* m )
     {
-        return semaphore_wait(*m);
+        return -semaphore_wait(*m);
     }
 
     static inline int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay )
@@ -201,7 +204,7 @@ extern "C"
 #endif
                                         };
 
-        return semaphore_timedwait( *m, mach_delayvl);
+        return -semaphore_timedwait( *m, mach_delayvl);
     }
 
     static inline int rtos_sem_trywait(rt_sem_t* m )
@@ -243,9 +246,7 @@ extern "C"
             delayvl.tv_nsec
 #endif
                                         };
-        int rc = semaphore_timedwait( *m, mach_delayvl);
-        // map to return values from gnulinux, and expected by the calling layer
-        return (KERN_OPERATION_TIMED_OUT == rc ? -1 : 0);
+        return -semaphore_timedwait( *m, mach_delayvl);
     }
 
     // semaphore_value is not supported on darwin

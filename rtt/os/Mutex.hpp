@@ -46,6 +46,8 @@
 #include "Semaphore.hpp"
 #include "Time.hpp"
 
+/// @todo Replace boost::system::system_error by std::system_error for C++11 and newer.
+#include <boost/system/system_error.hpp>
 #include <cassert>
 
 #ifdef ORO_OS_USE_BOOST_THREAD
@@ -101,7 +103,13 @@ namespace RTT
 	    */
 	    Mutex()
 	    {
-	        rtos_mutex_init( &m);
+            int ret = rtos_mutex_init( &m);
+            if ( ret == 0 )
+                return;
+#ifndef ORO_EMBEDDED
+            throw boost::system::system_error(-ret, boost::system::system_category(),
+                "Failed to initialize an instance of RTT::os::Mutex");
+#endif
 	    }
 
 	    /**
@@ -113,18 +121,37 @@ namespace RTT
 	    {
 	        if ( trylock() ) {
 	            unlock();
-	            rtos_mutex_destroy( &m );
+              int ret = rtos_mutex_destroy( &m );
+              if ( ret == 0 )
+                  return;
+              assert(false && "Failed to destroy an instance of RTT::os::Mutex");
 	        }
 	    }
 
 	    virtual void lock ()
 	    {
-	        rtos_mutex_lock( &m );
+	        int ret = rtos_mutex_lock( &m );
+          if ( ret == 0 )
+              return;
+#ifndef ORO_EMBEDDED
+          throw boost::system::system_error(-ret, boost::system::system_category(),
+              "Failed to lock an instance of RTT::os::Mutex");
+#else
+          assert(false && "Failed to lock an instance of RTT::os::Mutex");
+#endif
 	    }
 
 	    virtual void unlock()
 	    {
-	        rtos_mutex_unlock( &m );
+	        int ret = rtos_mutex_unlock( &m );
+          if ( ret == 0 )
+              return;
+#ifndef ORO_EMBEDDED
+          throw boost::system::system_error(-ret, boost::system::system_category(),
+              "Failed to unlock an instance of RTT::os::Mutex");
+#else
+          assert(false && "Failed to unlock an instance of RTT::os::Mutex");
+#endif
 	    }
 
 	    /**
@@ -134,9 +161,18 @@ namespace RTT
 	    */
 	    virtual bool trylock()
 	    {
-	        if ( rtos_mutex_trylock( &m ) == 0 )
-	            return true;
-	        return false;
+            int ret = rtos_mutex_trylock( &m );
+            if ( ret == 0 )
+                return true;
+            if ( ret == -EBUSY || ret == -EWOULDBLOCK || ret == -ETIMEDOUT || ret == -EINTR )
+                return false;
+#ifndef ORO_EMBEDDED
+            throw boost::system::system_error(-ret, boost::system::system_category(),
+                "Failed to lock an instance of RTT::os::Mutex");
+#else
+            assert(false && "Failed to lock an instance of RTT::os::Mutex");
+            return false;
+#endif
 	    }
 
         /**
@@ -148,9 +184,18 @@ namespace RTT
         */
         virtual bool timedlock(Seconds s)
         {
-            if ( rtos_mutex_trylock_for( &m, Seconds_to_nsecs(s) ) == 0 )
+            int ret = rtos_mutex_trylock_for( &m, Seconds_to_nsecs(s) );
+            if ( ret == 0 )
                 return true;
+            if ( ret == -EBUSY || ret == -EWOULDBLOCK || ret == -ETIMEDOUT || ret == -EINTR )
+                return false;
+#ifndef ORO_EMBEDDED
+            throw boost::system::system_error(-ret, boost::system::system_category(),
+                "Failed to lock an instance of RTT::os::Mutex");
+#else
+            assert(false && "Failed to lock an instance of RTT::os::Mutex");
             return false;
+#endif
         }
 #else
     protected:
@@ -226,7 +271,13 @@ namespace RTT
          */
         MutexRecursive()
         {
-            rtos_mutex_rec_init( &recm );
+            int ret = rtos_mutex_rec_init( &recm );
+            if ( ret == 0 )
+                return;
+#ifndef ORO_EMBEDDED
+            throw boost::system::system_error(-ret, boost::system::system_category(),
+                "Failed to initialize an instance of RTT::os::MutexRecursive");
+#endif
         }
 
         /**
@@ -238,18 +289,39 @@ namespace RTT
         {
             if ( trylock() ) {
                 unlock();
-                rtos_mutex_rec_destroy( &recm );
+                // The calling thread might have locked the mutex more than once.
+                while(rtos_mutex_rec_unlock( &recm ) == 0);
+                int ret = rtos_mutex_rec_destroy( &recm );
+                if ( ret == 0 )
+                    return;
+                assert(false && "Failed to destroy an instance of RTT::os::MutexRecursive");
             }
         }
 
         void lock ()
         {
-            rtos_mutex_rec_lock( &recm );
+            int ret = rtos_mutex_rec_lock( &recm );
+            if ( ret == 0 )
+                return;
+#ifndef ORO_EMBEDDED
+            throw boost::system::system_error(-ret, boost::system::system_category(),
+                "Failed to lock an instance of RTT::os::MutexRecursive");
+#else
+            assert(false && "Failed to lock an instance of RTT::os::MutexRecursive");
+#endif
         }
 
         virtual void unlock()
         {
-            rtos_mutex_rec_unlock( &recm );
+            int ret = rtos_mutex_rec_unlock( &recm );
+            if ( ret == 0 )
+                return;
+#ifndef ORO_EMBEDDED
+            throw boost::system::system_error(-ret, boost::system::system_category(),
+                "Failed to unlock an instance of RTT::os::MutexRecursive");
+#else
+            assert(false && "Failed to unlock an instance of RTT::os::MutexRecursive");
+#endif
         }
 
         /**
@@ -259,9 +331,18 @@ namespace RTT
         */
         virtual bool trylock()
         {
-            if ( rtos_mutex_rec_trylock( &recm ) == 0 )
+            int ret = rtos_mutex_rec_trylock( &recm );
+            if ( ret == 0 )
                 return true;
+            if ( ret == -EBUSY || ret == -EWOULDBLOCK || ret == -ETIMEDOUT || ret == -EINTR )
+                return false;
+#ifndef ORO_EMBEDDED
+            throw boost::system::system_error(-ret, boost::system::system_category(),
+                "Failed to lock an instance of RTT::os::MutexRecursive");
+#else
+            assert(false && "Failed to lock an instance of RTT::os::MutexRecursive");
             return false;
+#endif
         }
 
         /**
@@ -273,9 +354,18 @@ namespace RTT
         */
         virtual bool timedlock(Seconds s)
         {
-            if ( rtos_mutex_rec_trylock_for( &recm, Seconds_to_nsecs(s) ) == 0 )
+            int ret = rtos_mutex_rec_trylock_for( &recm, Seconds_to_nsecs(s) );
+            if ( ret == 0 )
                 return true;
+            if ( ret == -EBUSY || ret == -EWOULDBLOCK || ret == -ETIMEDOUT || ret == -EINTR )
+                return false;
+#ifndef ORO_EMBEDDED
+            throw boost::system::system_error(-ret, boost::system::system_category(),
+                "Failed to lock an instance of RTT::os::MutexRecursive");
+#else
+            assert(false && "Failed to lock an instance of RTT::os::MutexRecursive");
             return false;
+#endif
         }
 #else
     protected:

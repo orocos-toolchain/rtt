@@ -49,6 +49,10 @@
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #endif
 
+/// @todo Replace boost::system::system_error by std::system_error for C++11 and newer.
+#include <boost/system/system_error.hpp>
+#include <cassert>
+
 namespace RTT
 { namespace os {
 
@@ -68,7 +72,13 @@ namespace RTT
 	    */
 	    Condition()
 	    {
-	        rtos_cond_init( &c);
+            int ret = rtos_cond_init( &c);
+            if ( ret == 0 )
+                return;
+#ifndef ORO_EMBEDDED
+            throw boost::system::system_error(-ret, boost::system::system_category(),
+                "Failed to initialize an instance of RTT::os::Condition");
+#endif
 	    }
 
 	    /**
@@ -78,7 +88,10 @@ namespace RTT
 	    */
 	    ~Condition()
 	    {
-	        rtos_cond_destroy( &c );
+	        int ret = rtos_cond_destroy( &c );
+          if ( ret == 0 )
+              return;
+          assert(false && "Failed to destroy an instance of RTT::os::Condition");
 	    }
 
 	    /**
@@ -89,7 +102,18 @@ namespace RTT
 	     */
 	    bool wait (Mutex& m)
 	    {
-	        return rtos_cond_wait( &c, &m.m ) == 0 ? true : false;
+	        int ret = rtos_cond_wait( &c, &m.m );
+          if ( ret == 0 )
+              return true;
+          if ( ret == -EBUSY || ret == -EWOULDBLOCK || ret == -ETIMEDOUT || ret == -EINTR )
+              return false;
+#ifndef ORO_EMBEDDED
+          throw boost::system::system_error(-ret, boost::system::system_category(),
+              "Failed to wait on an instance of RTT::os::Condition");
+#else
+          assert(false && "Failed to wait on an instance of RTT::os::Condition");
+          return false;
+#endif
 	    }
 
         /**
@@ -103,8 +127,20 @@ namespace RTT
 	    template<class Predicate>
         bool wait (Mutex& m, Predicate& p)
         {
-	        while( !p() )
-	            if ( rtos_cond_wait( &c, &m.m ) != 0) return false;
+          while( !p() ) {
+              int ret = rtos_cond_wait( &c, &m.m );
+              if ( ret == 0 )
+                  continue;
+              if ( ret == -EBUSY || ret == -EWOULDBLOCK || ret == -ETIMEDOUT || ret == -EINTR )
+                  return false;
+    #ifndef ORO_EMBEDDED
+              throw boost::system::system_error(-ret, boost::system::system_category(),
+                  "Failed to wait on an instance of RTT::os::Condition");
+    #else
+              assert(false && "Failed to wait on an instance of RTT::os::Condition");
+              return false;
+    #endif
+          }
 	        return true;
         }
 	    /**
@@ -112,7 +148,15 @@ namespace RTT
 	     */
 	    void broadcast()
 	    {
-	        rtos_cond_broadcast( &c );
+	        int ret = rtos_cond_broadcast( &c );
+          if ( ret == 0 )
+              return;
+#ifndef ORO_EMBEDDED
+          throw boost::system::system_error(-ret, boost::system::system_category(),
+              "Failed to broadcast an instance of RTT::os::Condition");
+#else
+          assert(false && "Failed to broadcast an instance of RTT::os::Condition");
+#endif
 	    }
 
         /**
@@ -128,9 +172,18 @@ namespace RTT
          */
         bool wait_until(Mutex& m, nsecs abs_time)
         {
-            if ( rtos_cond_timedwait( &c, &m.m, abs_time ) == 0 )
+            int ret = rtos_cond_timedwait( &c, &m.m, abs_time );
+            if ( ret == 0 )
                 return true;
+            if ( ret == -EBUSY || ret == -EWOULDBLOCK || ret == -ETIMEDOUT || ret == -EINTR )
+                return false;
+#ifndef ORO_EMBEDDED
+            throw boost::system::system_error(-ret, boost::system::system_category(),
+                "Failed to wait on an instance of RTT::os::Condition");
+#else
+            assert(false && "Failed to wait on an instance of RTT::os::Condition");
             return false;
+#endif
         }
 #else
     protected:
