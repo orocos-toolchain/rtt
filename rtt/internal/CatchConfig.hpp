@@ -53,7 +53,7 @@
 
 
 #if !defined(ORO_EMBEDDED)
-# define TRY(C) if(::RTT::internal::catch_exception()){C} else try{C}
+# define TRY(C) if(!::RTT::internal::catch_exception()){C} else try{C}
 # define CATCH(T,C) catch(T){C}
 # define CATCH_ALL(C) catch(...){C}
 #else //Exceptions are not availible at all
@@ -68,9 +68,9 @@ namespace RTT{
         inline bool catch_exception(){
             if(m_catch_exception == -1){
                 if(getenv("RTT_IGNORE_EXCEPTION")){
-                    m_catch_exception = 1;
-                }else{
                     m_catch_exception = 0;
+                }else{
+                    m_catch_exception = 1;
                 }
             }
             return (bool)m_catch_exception;
