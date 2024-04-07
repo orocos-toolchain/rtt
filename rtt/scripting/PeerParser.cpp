@@ -169,8 +169,24 @@ namespace RTT
 
     void PeerParser::locatepeer( iter_t begin, iter_t end )
     {
-        std::string name( begin, end );
-        name.erase( name.length() -1  ); // compensate for extra "."
+        std::string name_tmp( begin, end );
+        name_tmp.erase( name_tmp.length() -1  ); // compensate for extra "."
+        std::string name; // the peer name
+
+        if( mcurobject == _peer->provides()
+            && mcurobject->getValue(name_tmp) != 0
+            && mcurobject->getValue(name_tmp)->getDataSource()->getType() == "string"
+        )
+        {
+            // The peer name is a string variable
+            name = mcurobject->getValue(name_tmp)->getDataSource()->toString();
+            // cout << "Peer as string variable " << name_tmp << " --> " << name << endl;
+        }
+        else
+        {
+            // 'Direct' peer name provided
+            name = name_tmp;
+        }
 
         if ( mcurobject == _peer->provides() && _peer->hasPeer( name ) ) {
             _peer = _peer->getPeer( name );
